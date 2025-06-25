@@ -25,7 +25,6 @@ def analyze_boxmap_graph():
         grid=grid,
         system=wheel.system,
         tau=tau,
-        parallel=False
     )
     print(f"Box map computed with {len(box_map)} source nodes.")
 

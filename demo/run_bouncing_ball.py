@@ -79,7 +79,6 @@ def run_bouncing_ball_demo():
             system=ball.system,
             tau=tau,
             discard_out_of_bounds_destinations=False,
-            parallel=False,
             progress_callback=progress_callback,
         )
 

@@ -18,7 +18,6 @@ from .grid import Grid
 from .hybrid_system import HybridSystem
 from .evaluation import evaluate_grid
 from .config import get_default_bloat_factor, config
-from .parallel_utils import create_parallel_evaluator, test_parallel_capability
 
 
 class HybridBoxMap(dict):
@@ -49,8 +48,6 @@ class HybridBoxMap(dict):
         sampling_mode: str = 'corners',
         bloat_factor: Optional[float] = None,
         discard_out_of_bounds_destinations: bool = True,
-        parallel: bool = True,
-        max_workers: Optional[int] = None,
         progress_callback: Optional[Callable[[int, int], None]] = None
     ) -> HybridBoxMap:
         """
@@ -66,8 +63,6 @@ class HybridBoxMap(dict):
                           grid box size. A value of 0 means no bloating.
             discard_out_of_bounds_destinations: If True, destination points that
                                                 land outside the grid are ignored.
-            parallel: Whether to use parallel processing.
-            max_workers: The number of workers for parallel processing.
             progress_callback: Optional callback function for progress updates.
                               Called with (completed, total) box counts.
 
@@ -113,25 +108,11 @@ class HybridBoxMap(dict):
         if config.logging.verbose:
             logger.info(f"Step 1: Evaluating flow map for all '{sampling_mode}' points...")
         
-        # Check if we can use parallel processing
-        can_parallelize = parallel and test_parallel_capability(system)
-        
-        if can_parallelize:
-            # Use the parallel-safe evaluator
-            evaluate_function = create_parallel_evaluator(system, tau)
-            logger.debug("Using parallel processing for flow evaluation")
-        else:
-            # Use the local closure-based evaluator
-            evaluate_function = evaluate_flow_with_jumps
-            if parallel:
-                logger.warning("Parallel processing requested but system cannot be pickled. Falling back to sequential.")
-        
         raw_flow_data = evaluate_grid(
             grid=grid,
-            function=evaluate_function,
+            function=evaluate_flow_with_jumps,
             sampling_mode=sampling_mode,
-            parallel=can_parallelize,
-            max_workers=max_workers,
+            parallel=False,
             progress_callback=progress_callback,
         )
 

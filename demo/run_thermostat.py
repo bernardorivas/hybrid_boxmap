@@ -177,7 +177,6 @@ def run_thermostat_demo():
         system=thermostat.system,
         tau=TAU,
         bloat_factor=0.2,  # Increased bloat factor to catch all transitions
-        parallel=False,  # Hybrid systems with closures can't be pickled
         progress_callback=progress_callback
     )
     

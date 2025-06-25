@@ -53,7 +53,6 @@ def visualize_hybrid_boxmap(
         system=wheel.system,
         tau=tau,
         sampling_mode=sampling_mode,
-        parallel=False,
     )
     print(f"Box map computed with {len(box_map)} mapped source boxes.")
 

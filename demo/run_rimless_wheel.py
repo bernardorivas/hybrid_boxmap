@@ -70,7 +70,6 @@ def run_rimless_wheel_demo():
             system=wheel.system,
             tau=tau,
             discard_out_of_bounds_destinations=False,
-            parallel=False,
             progress_callback=progress_callback,
         )
 

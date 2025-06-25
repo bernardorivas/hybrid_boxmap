@@ -39,7 +39,6 @@ def find_and_visualize_recurrent_sets():
         grid=grid,
         system=wheel.system,
         tau=tau,
-        parallel=False
     )
 
     # Check for and report any problematic points from the computation

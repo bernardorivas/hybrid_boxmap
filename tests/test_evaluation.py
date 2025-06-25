@@ -67,7 +67,6 @@ def test_rimless_wheel_flow_evaluation():
         grid=grid,
         function=evaluate_flow,
         sampling_mode='corners',
-        parallel=False
     )
     
     eval_time = time.time() - start_time

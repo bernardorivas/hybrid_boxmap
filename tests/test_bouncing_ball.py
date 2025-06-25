@@ -280,7 +280,6 @@ def run_bouncing_ball_demo():
             grid=grid,
             system=ball.system,
             tau=tau,
-            parallel=False,
         )
 
         # Save mapping data with configuration hash

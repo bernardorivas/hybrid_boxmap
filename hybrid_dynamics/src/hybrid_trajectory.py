@@ -379,7 +379,7 @@ class HybridTrajectory:
                 
                 if not system._check_domain_bounds(state_after_jump):
                     warnings.warn("Post-jump state outside domain bounds", RuntimeWarning)
-                    break
+                    # Continue simulation even outside domain bounds
                 
                 trajectory.add_jump(event_time, state_before_jump, state_after_jump)
                 current_state = state_after_jump

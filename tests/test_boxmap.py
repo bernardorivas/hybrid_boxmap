@@ -33,7 +33,6 @@ def test_compute_rimless_wheel_boxmap():
         tau=tau,
         sampling_mode='corners',
         # bloat_factor will use default from config if not specified
-        parallel=False # Keep it sequential for now to avoid pickling issues
     )
 
     # 3. Verify and Save Results

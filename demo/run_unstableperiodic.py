@@ -28,7 +28,7 @@ from hybrid_dynamics.src.demo_utils import (
 
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
-TAU = 1.0                 # Integration time horizon
+TAU = 0.5                 # Integration time horizon
 SUBDIVISIONS = [100, 100] # Grid subdivisions [x_subdivisions, y_subdivisions]
 # ===============================================
 
@@ -80,7 +80,6 @@ def run_unstableperiodic_demo():
             system=system_obj.system,
             tau=tau,
             discard_out_of_bounds_destinations=False,
-            parallel=False,
             progress_callback=progress_callback,
         )
         

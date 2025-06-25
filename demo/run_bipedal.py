@@ -27,7 +27,7 @@ from hybrid_dynamics.src.demo_utils import (
 
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
-TAU = 0.6                    # Integration time horizon
+TAU = 0.5                    # Integration time horizon
 SUBDIVISIONS = [50, 50, 10, 10] # Grid subdivisions [x, y, x_dot, y_dot]
 # ===============================================
 
@@ -85,7 +85,6 @@ def run_bipedal_demo():
             system=biped.system,
             tau=tau,
             discard_out_of_bounds_destinations=False,
-            parallel=False,
             progress_callback=progress_callback,
         )
 
