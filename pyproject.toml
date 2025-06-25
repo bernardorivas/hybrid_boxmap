@@ -1,0 +1,240 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hybrid-dynamics"
+version = "0.1.0"
+description = "A Python library for hybrid dynamical systems analysis"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "bernardorivas", email = "bernardo.apr@gmail.com"}
+]
+maintainers = [
+    {name = "bernardorivas", email = "bernardo.apr@gmail.com"}
+]
+keywords = [
+    "hybrid systems",
+    "dynamical systems", 
+    "differential equations",
+    "event detection",
+    "trajectory analysis",
+    "scientific computing",
+    "mathematics",
+    "simulation"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.20.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.3.0",
+    "networkx>=2.5.0",
+    "dill>=0.3.4",
+]
+
+[project.optional-dependencies]
+optimization = ["numba>=0.56.0"]
+parallel = ["joblib>=1.0.0"]
+testing = ["pytest>=7.0.0", "pytest-cov>=4.0.0"]
+docs = ["sphinx>=4.0.0", "sphinx-rtd-theme>=1.0.0"]
+visualization = ["pygraphviz>=1.7"]
+dev = [
+    # Testing
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    # Performance
+    "numba>=0.56.0", 
+    "joblib>=1.0.0",
+    # Code quality
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    # Jupyter for interactive development
+    "jupyter>=1.0.0",
+    "ipywidgets>=8.0.0",
+    # Visualization
+    "pygraphviz>=1.7",
+]
+
+[project.urls]
+Homepage = "https://github.com/bernardorivas/hybrid-dynamics"
+Repository = "https://github.com/bernardorivas/hybrid-dynamics"
+Documentation = "https://hybrid-dynamics.readthedocs.io/"
+"Bug Reports" = "https://github.com/bernardorivas/hybrid-dynamics/issues"
+
+# Tool configurations
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["hybrid_dynamics*"]
+exclude = ["tests*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+target-version = "py38"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "A",   # flake8-builtins
+    "COM", # flake8-commas
+    "C4",  # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "ISC", # flake8-implicit-str-concat
+    "G",   # flake8-logging-format
+    "PIE", # flake8-pie
+    "T20", # flake8-print
+    "PT",  # flake8-pytest-style
+    "Q",   # flake8-quotes
+    "RSE", # flake8-raise
+    "RET", # flake8-return
+    "SLF", # flake8-self
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "PL",  # pylint
+    "NPY", # numpy
+]
+ignore = [
+    "E501",    # line too long, handled by black
+    "B008",    # do not perform function calls in argument defaults
+    "C901",    # too complex
+    "PLR0913", # too many arguments
+    "PLR0912", # too many branches
+    "PLR0915", # too many statements
+]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+"tests/**/*.py" = ["T20", "PLR2004"]  # Allow print statements and magic values in tests
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Start lenient, can be tightened later
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[tool.mypy-numpy]
+ignore_missing_imports = true
+
+[tool.mypy-scipy]
+ignore_missing_imports = true
+
+[tool.mypy-matplotlib]
+ignore_missing_imports = true
+
+[tool.mypy-networkx]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--cov=hybrid_dynamics",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["hybrid_dynamics"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "setup.py",
+    "hybrid_dynamics/config_example.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
