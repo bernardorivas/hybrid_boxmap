@@ -16,6 +16,8 @@ from hybrid_dynamics.src import (
     create_morse_graph,
     plot_morse_graph_viz,
     plot_morse_sets_on_grid,
+    plot_morse_sets_3d,
+    plot_morse_sets_projections,
 )
 from hybrid_dynamics.src.plot_utils import HybridPlotter
 from hybrid_dynamics.src.demo_utils import (
@@ -184,17 +186,45 @@ def run_bipedal_demo():
     # Generate visualizations
     viz_start_time = time.time()
     
-    # Skip phase portrait for 4D systems - it's too slow and doesn't add much value
-    # Just generate Morse sets and Morse graph visualizations
+    # Check system dimensionality and generate appropriate visualizations
+    if grid.dimension == 2:
+        # Standard 2D visualization
+        plot_morse_sets_on_grid(
+            grid, 
+            morse_sets, 
+            str(run_dir / "morse_sets.png"),
+            xlabel="x",
+            ylabel="y"
+        )
+    elif grid.dimension == 3:
+        # 3D system: generate both 3D view and projections
+        plot_morse_sets_3d(
+            grid,
+            morse_sets,
+            str(run_dir / "morse_sets_3d.png"),
+            xlabel="x",
+            ylabel="y", 
+            zlabel="z"
+        )
+        # Also create 2D projections
+        plot_morse_sets_projections(
+            grid,
+            morse_sets,
+            str(run_dir)
+        )
+    else:
+        # Higher dimensional systems: only projections
+        # For 4D bipedal, project to x vs y dimensions
+        plot_morse_sets_on_grid(
+            grid, 
+            morse_sets, 
+            str(run_dir / "morse_sets.png"),
+            plot_dims=(0, 1),  # Project to x vs y dimensions
+            xlabel="x",
+            ylabel="y"
+        )
     
-    plot_morse_sets_on_grid(
-        grid, 
-        morse_sets, 
-        str(run_dir / "morse_sets.png"),
-        plot_dims=(0, 1),  # Project to x vs y dimensions
-        xlabel="x",
-        ylabel="y"
-    )
+    # Morse graph visualization remains the same for all dimensions
     plot_morse_graph_viz(morse_graph, morse_sets, str(run_dir / "morse_graph.png"))
     
     viz_time = time.time() - viz_start_time

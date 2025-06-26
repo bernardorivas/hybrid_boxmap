@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from matplotlib.collections import LineCollection
 from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import warnings
 import networkx as nx
 
@@ -20,6 +21,7 @@ from .cubifier import DatasetCubifier
 from .box import Box, SquareBox
 from .grid import Grid
 from .hybrid_boxmap import HybridBoxMap
+from . import config
 
 
 class HybridPlotter:
@@ -111,7 +113,8 @@ class HybridPlotter:
                               show_jumps: bool = True,
                               show_time_labels: bool = False,
                               color: Optional[str] = None,
-                              label: Optional[str] = None) -> plt.Axes:
+                              label: Optional[str] = None,
+                              plot_dims: Optional[Tuple[int, int]] = None) -> plt.Axes:
         """Plot trajectory with optional jump visualization.
         
         Args:
@@ -121,6 +124,7 @@ class HybridPlotter:
             show_time_labels: Whether to show hybrid time labels
             color: Override trajectory color
             label: Legend label for trajectory
+            plot_dims: Optional tuple of (x_dim, y_dim) for projection
             
         Returns:
             Matplotlib axes
@@ -136,15 +140,27 @@ class HybridPlotter:
         # Determine trajectory color
         traj_color = color if color is not None else self.config['trajectory_color']
         
+        # Determine dimensions to plot
+        if plot_dims:
+            x_dim, y_dim = plot_dims
+        else:
+            x_dim, y_dim = 0, 1
+        
         # Plot each segment
         for i, segment in enumerate(trajectory.segments):
-            if segment.state_values.shape[1] < 2:
+            # Check if segment has enough dimensions
+            if plot_dims:
+                min_dim = max(x_dim, y_dim) + 1
+                if segment.state_values.shape[1] < min_dim:
+                    warnings.warn(f"Segment {i} has dimension < {min_dim}, cannot plot dims {plot_dims}")
+                    continue
+            elif segment.state_values.shape[1] < 2:
                 warnings.warn(f"Segment {i} has dimension < 2, cannot plot")
                 continue
             
             # Plot continuous trajectory
             line_label = label if i == 0 else None  # Only label first segment
-            ax.plot(segment.state_values[:, 0], segment.state_values[:, 1],
+            ax.plot(segment.state_values[:, x_dim], segment.state_values[:, y_dim],
                    color=traj_color,
                    alpha=self.config['trajectory_alpha'],
                    linewidth=self.config['trajectory_width'],
@@ -158,7 +174,7 @@ class HybridPlotter:
                 mid_state = segment.state_values[mid_idx]
                 mid_time = segment.time_values[mid_idx]
                 ax.annotate(f'({mid_time:.2f}, {segment.jump_index})',
-                           xy=(mid_state[0], mid_state[1]),
+                           xy=(mid_state[x_dim], mid_state[y_dim]),
                            xytext=(5, 5), textcoords='offset points',
                            fontsize=self.config['font_size'] - 1,
                            alpha=0.7)
@@ -168,14 +184,16 @@ class HybridPlotter:
             for i, (jump_time, (state_before, state_after)) in enumerate(
                 zip(trajectory.jump_times, trajectory.jump_states)):
                 
-                if len(state_before) < 2 or len(state_after) < 2:
+                # Check dimensions
+                min_dim = max(x_dim, y_dim) + 1
+                if len(state_before) < min_dim or len(state_after) < min_dim:
                     continue
                 
                 # Draw reset map as dashed line segment (not arrow)
                 # Use same color as trajectory
                 jump_color = color if color is not None else self.config['trajectory_color']
-                ax.plot([state_before[0], state_after[0]], 
-                       [state_before[1], state_after[1]],
+                ax.plot([state_before[x_dim], state_after[x_dim]], 
+                       [state_before[y_dim], state_after[y_dim]],
                        color=jump_color,
                        alpha=self.config['jump_arrow_alpha'],
                        linewidth=self.config['jump_arrow_width'],
@@ -193,7 +211,8 @@ class HybridPlotter:
                            colors: Optional[List[str]] = None,
                            show_equilibria: bool = False,
                            equilibria_search_bounds: Optional[List[Tuple[float, float]]] = None,
-                           show_legend: bool = True) -> plt.Axes:
+                           show_legend: bool = True,
+                           plot_dims: Optional[Tuple[int, int]] = None) -> plt.Axes:
         """Plot multiple trajectories in phase space.
         
         Args:
@@ -205,6 +224,8 @@ class HybridPlotter:
             colors: Custom colors for trajectories
             show_equilibria: Whether to find and show equilibrium points
             equilibria_search_bounds: Bounds for equilibrium search
+            show_legend: Whether to show legend
+            plot_dims: Optional tuple of (x_dim, y_dim) for projection
             
         Returns:
             Matplotlib axes
@@ -225,7 +246,7 @@ class HybridPlotter:
         for i, trajectory in enumerate(trajectories):
             color = colors[i % len(colors)]
             label = f"Trajectory {i+1}"
-            self.plot_hybrid_trajectory(trajectory, ax=ax, color=color, label=label)
+            self.plot_hybrid_trajectory(trajectory, ax=ax, color=color, label=label, plot_dims=plot_dims)
         
         # Find and plot equilibria if requested
         if show_equilibria and equilibria_search_bounds:
@@ -735,7 +756,8 @@ class HybridPlotter:
                                               colors: Optional[List[str]] = None,
                                               figsize: Tuple[float, float] = (10, 8),
                                               dpi: int = 150,
-                                              show_legend: bool = False) -> None:
+                                              show_legend: bool = False,
+                                              plot_dims: Optional[Tuple[int, int]] = None) -> None:
         """
         Create a phase portrait by simulating trajectories from given initial conditions.
         
@@ -756,6 +778,8 @@ class HybridPlotter:
             colors: Custom colors for trajectories
             figsize: Figure size
             dpi: Figure DPI
+            show_legend: Whether to show legend
+            plot_dims: Optional tuple of (x_dim, y_dim) for projection (e.g., (0,2) for XZ plane)
         """
         # Simulate trajectories with error handling
         trajectories = []
@@ -807,15 +831,23 @@ class HybridPlotter:
             ax=ax,
             show_vector_field=False,  # Disable vector field by default for performance
             colors=colors,
-            show_legend=show_legend
+            show_legend=show_legend,
+            plot_dims=plot_dims
         )
         
         # Add star markers at initial conditions
         for i, (ic, traj) in enumerate(zip(initial_conditions, trajectories)):
-            if traj.segments and len(ic) >= 2:
+            if traj.segments:
                 color = colors[i % len(colors)]
-                ax.scatter(ic[0], ic[1], marker='x', s=100, color=color, 
-                          linewidth=0.5, zorder=10)
+                # Handle projection dimensions
+                if plot_dims:
+                    x_dim, y_dim = plot_dims
+                    if len(ic) > max(x_dim, y_dim):
+                        ax.scatter(ic[x_dim], ic[y_dim], marker='x', s=100, color=color, 
+                                  linewidth=0.5, zorder=10)
+                elif len(ic) >= 2:
+                    ax.scatter(ic[0], ic[1], marker='x', s=100, color=color, 
+                              linewidth=0.5, zorder=10)
         
         # Customize the plot
         ax.set_xlabel(xlabel)
@@ -834,6 +866,238 @@ class HybridPlotter:
         plt.savefig(output_path, dpi=dpi, bbox_inches="tight")
         plt.close()
 
+    def create_phase_portrait_3d(self,
+                                system: HybridSystem,
+                                initial_conditions: List[List[float]],
+                                time_span: Tuple[float, float],
+                                output_path: str,
+                                max_jumps: int = 50,
+                                max_step: Optional[float] = None,
+                                title: str = "Phase Portrait (3D)",
+                                xlabel: str = "x",
+                                ylabel: str = "y",
+                                zlabel: str = "z",
+                                domain_bounds: Optional[List[Tuple[float, float]]] = None,
+                                colors: Optional[List[str]] = None,
+                                figsize: Tuple[float, float] = (12, 10),
+                                dpi: int = 150,
+                                elev: float = 30,
+                                azim: float = 45,
+                                show_legend: bool = False) -> None:
+        """
+        Create a 3D phase portrait by simulating trajectories from given initial conditions.
+        
+        Args:
+            system: HybridSystem to simulate
+            initial_conditions: List of initial conditions for trajectories
+            time_span: (start_time, end_time) for simulation
+            output_path: Path to save the phase portrait
+            max_jumps: Maximum number of jumps per trajectory
+            max_step: Maximum step size for simulation
+            title: Plot title
+            xlabel: X-axis label
+            ylabel: Y-axis label
+            zlabel: Z-axis label
+            domain_bounds: Domain bounds for axis limits [(x_min, x_max), (y_min, y_max), (z_min, z_max)]
+            colors: Custom colors for trajectories
+            figsize: Figure size
+            dpi: Figure DPI
+            elev: Elevation angle for 3D view
+            azim: Azimuth angle for 3D view
+            show_legend: Whether to show legend
+        """
+        # Simulate trajectories with error handling
+        trajectories = []
+        for ic in initial_conditions:
+            try:
+                simulate_kwargs = {
+                    'time_span': time_span,
+                    'max_jumps': max_jumps,
+                    'dense_output': True
+                }
+                if max_step is not None:
+                    simulate_kwargs['max_step'] = max_step
+                
+                traj = system.simulate(ic, **simulate_kwargs)
+                if traj.segments:  # Only add if trajectory has segments
+                    trajectories.append(traj)
+            except Exception:
+                # Silently skip failed simulations
+                pass
+        
+        if not trajectories:
+            # Create empty plot if no trajectories succeeded
+            fig = plt.figure(figsize=figsize, dpi=dpi)
+            ax = fig.add_subplot(111, projection='3d')
+            ax.set_xlabel(xlabel)
+            ax.set_ylabel(ylabel)
+            ax.set_zlabel(zlabel)
+            ax.set_title(title)
+            ax.grid(True, alpha=0.3)
+            if domain_bounds and len(domain_bounds) >= 3:
+                ax.set_xlim(domain_bounds[0])
+                ax.set_ylim(domain_bounds[1])
+                ax.set_zlim(domain_bounds[2])
+            plt.tight_layout()
+            plt.savefig(output_path, dpi=dpi, bbox_inches="tight")
+            plt.close()
+            return
+        
+        # Create 3D phase portrait
+        fig = plt.figure(figsize=figsize, dpi=dpi)
+        ax = fig.add_subplot(111, projection='3d')
+        
+        # Use provided colors or default qualitative colormap
+        if colors is None:
+            colormap = plt.cm.get_cmap('tab10')
+            colors = [colormap(i) for i in range(len(initial_conditions))]
+        
+        # Plot trajectories
+        for i, traj in enumerate(trajectories):
+            color = colors[i % len(colors)]
+            label = f"Trajectory {i+1}" if show_legend else None
+            
+            # Plot each segment
+            for seg_idx, segment in enumerate(traj.segments):
+                if segment.state_values.shape[1] < 3:
+                    continue  # Skip if less than 3D
+                
+                # Only label first segment
+                seg_label = label if seg_idx == 0 else None
+                ax.plot(segment.state_values[:, 0], 
+                       segment.state_values[:, 1], 
+                       segment.state_values[:, 2],
+                       color=color,
+                       alpha=self.config['trajectory_alpha'],
+                       linewidth=self.config['trajectory_width'],
+                       label=seg_label)
+            
+            # Plot jumps as dashed lines
+            if traj.jump_times:
+                for state_before, state_after in traj.jump_states:
+                    if len(state_before) >= 3 and len(state_after) >= 3:
+                        ax.plot([state_before[0], state_after[0]], 
+                               [state_before[1], state_after[1]], 
+                               [state_before[2], state_after[2]],
+                               color=color,
+                               alpha=self.config['jump_arrow_alpha'],
+                               linewidth=self.config['jump_arrow_width'],
+                               linestyle='--')
+        
+        # Add star markers at initial conditions
+        for i, (ic, traj) in enumerate(zip(initial_conditions, trajectories)):
+            if traj.segments and len(ic) >= 3:
+                color = colors[i % len(colors)]
+                ax.scatter(ic[0], ic[1], ic[2], marker='*', s=100, color=color, 
+                          linewidth=0.5, zorder=10)
+        
+        # Customize the plot
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+        ax.set_zlabel(zlabel)
+        ax.set_title(title)
+        if show_legend:
+            ax.legend()
+        ax.grid(True, alpha=0.3)
+        ax.view_init(elev=elev, azim=azim)
+        
+        # Set domain bounds if provided
+        if domain_bounds and len(domain_bounds) >= 3:
+            ax.set_xlim(domain_bounds[0])
+            ax.set_ylim(domain_bounds[1])
+            ax.set_zlim(domain_bounds[2])
+        
+        plt.tight_layout()
+        plt.savefig(output_path, dpi=dpi, bbox_inches="tight")
+        plt.close()
+
+    def create_phase_portrait_projections(self,
+                                        system: HybridSystem,
+                                        initial_conditions: List[List[float]],
+                                        time_span: Tuple[float, float],
+                                        output_dir: str,
+                                        max_jumps: int = 50,
+                                        max_step: Optional[float] = None,
+                                        title_prefix: str = "Phase Portrait",
+                                        domain_bounds: Optional[List[Tuple[float, float]]] = None,
+                                        colors: Optional[List[str]] = None,
+                                        figsize: Tuple[float, float] = (10, 8),
+                                        dpi: int = 150) -> None:
+        """
+        Create multiple 2D projection phase portraits for 3D+ systems.
+        
+        Generates XY, XZ, and YZ projections.
+        
+        Args:
+            system: HybridSystem to simulate
+            initial_conditions: List of initial conditions
+            time_span: (start_time, end_time) for simulation
+            output_dir: Directory to save the projections
+            max_jumps: Maximum number of jumps per trajectory
+            max_step: Maximum step size for simulation
+            title_prefix: Prefix for plot titles
+            domain_bounds: Domain bounds for axis limits
+            colors: Custom colors for trajectories
+            figsize: Figure size for each projection
+            dpi: Figure DPI
+        """
+        # Create output directory
+        output_path = Path(output_dir)
+        output_path.mkdir(exist_ok=True, parents=True)
+        
+        if not domain_bounds or len(domain_bounds) < 3:
+            # For 2D systems, just create regular 2D plot
+            self.create_phase_portrait_with_trajectories(
+                system, initial_conditions, time_span,
+                str(output_path / "phase_portrait.png"),
+                max_jumps=max_jumps, max_step=max_step,
+                title=title_prefix,
+                domain_bounds=domain_bounds,
+                colors=colors, figsize=figsize, dpi=dpi
+            )
+            return
+        
+        # Create projections for 3D systems
+        projections = [
+            ("phase_portrait_xy.png", f"{title_prefix} (XY plane)", "x", "y", [domain_bounds[0], domain_bounds[1]]),
+            ("phase_portrait_xz.png", f"{title_prefix} (XZ plane)", "x", "z", [domain_bounds[0], domain_bounds[2]]),
+            ("phase_portrait_yz.png", f"{title_prefix} (YZ plane)", "y", "z", [domain_bounds[1], domain_bounds[2]]),
+        ]
+        
+        # For each projection, create modified initial conditions with only relevant components
+        for filename, title, xlabel, ylabel, proj_bounds in projections:
+            # Determine which dimensions to plot
+            if xlabel == "x" and ylabel == "y":
+                dim_indices = [0, 1]
+            elif xlabel == "x" and ylabel == "z":
+                dim_indices = [0, 2]
+            else:  # y, z
+                dim_indices = [1, 2]
+            
+            # Project initial conditions to 2D
+            projected_ics = []
+            for ic in initial_conditions:
+                if len(ic) >= max(dim_indices) + 1:
+                    # Create a 2D version preserving the relevant dimensions
+                    proj_ic = [ic[dim_indices[0]], ic[dim_indices[1]]]
+                    # Add velocities if they exist
+                    if len(ic) >= 6:  # Has velocities for 3D system
+                        proj_ic.extend([ic[3 + dim_indices[0]], ic[3 + dim_indices[1]]])
+                    projected_ics.append(proj_ic)
+            
+            # Note: We can't directly simulate with projected ICs since the system is 3D
+            # Instead, we'll simulate with full ICs and the plotting will handle projection
+            self.create_phase_portrait_with_trajectories(
+                system, initial_conditions, time_span,
+                str(output_path / filename),
+                max_jumps=max_jumps, max_step=max_step,
+                title=title,
+                xlabel=xlabel, ylabel=ylabel,
+                domain_bounds=proj_bounds,
+                colors=colors, figsize=figsize, dpi=dpi,
+                plot_dims=dim_indices
+            )
+
 
 """
 Utilities for plotting and visualization - legacy functions.
@@ -844,6 +1108,8 @@ from typing import List, Optional, Set
 
 import matplotlib.pyplot as plt
 import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
 from .config import config
 
@@ -1122,6 +1388,183 @@ def plot_morse_sets_on_grid(
     fig.savefig(output_path, dpi=150)
     # Remove individual save message - will be handled by caller
     plt.close(fig)
+
+def plot_morse_sets_3d(
+    grid: "Grid",
+    sccs: List[Set[int]],
+    output_path: str,
+    margin: Optional[float] = None,
+    plot_dims: Tuple[int, int, int] = (0, 1, 2),
+    xlabel: str = "x",
+    ylabel: str = "y",
+    zlabel: str = "z",
+    exclude_boxes: Optional[Set[int]] = None,
+    elev: float = 30,
+    azim: float = 45,
+) -> None:
+    """
+    Visualizes the boxes of Strongly Connected Components in 3D.
+
+    Args:
+        grid: The grid on which the map is defined.
+        sccs: A list of SCCs, where each SCC is a set of box indices.
+        output_path: Path to save the output figure.
+        margin: Margin to add around the domain for plotting.
+               If None, uses default from config.
+        plot_dims: Tuple of (x_dim, y_dim, z_dim) indices for projection dimensions.
+                  Defaults to (0, 1, 2) for first three dimensions.
+        xlabel: Label for x-axis.
+        ylabel: Label for y-axis.
+        zlabel: Label for z-axis.
+        exclude_boxes: Optional set of box indices to exclude from background plotting.
+        elev: Elevation angle for 3D view.
+        azim: Azimuth angle for 3D view.
+    """
+    # Use default margin if not provided
+    if margin is None:
+        margin = config.visualization.plot_margin
+    
+    fig = plt.figure(figsize=(14, 10))
+    ax = fig.add_subplot(111, projection='3d')
+    
+    # Define a color cycle for the components using a more vibrant map
+    colors = plt.cm.get_cmap("turbo", len(sccs)) if sccs else []
+    
+    # Plot all grid boxes faintly (except those in exclude_boxes)
+    for i in range(len(grid)):
+        if exclude_boxes and i in exclude_boxes:
+            continue  # Skip excluded boxes
+        box = grid.get_box(i)
+        
+        # Extract the 3D bounds for plotting
+        x_dim, y_dim, z_dim = plot_dims
+        if box.dimension >= max(plot_dims) + 1:
+            x_min, x_max = box.bounds[x_dim]
+            y_min, y_max = box.bounds[y_dim]
+            z_min, z_max = box.bounds[z_dim]
+            
+            # Create vertices for the 3D box
+            vertices = [
+                [[x_min, y_min, z_min], [x_max, y_min, z_min], [x_max, y_max, z_min], [x_min, y_max, z_min]],
+                [[x_min, y_min, z_max], [x_max, y_min, z_max], [x_max, y_max, z_max], [x_min, y_max, z_max]],
+                [[x_min, y_min, z_min], [x_min, y_max, z_min], [x_min, y_max, z_max], [x_min, y_min, z_max]],
+                [[x_max, y_min, z_min], [x_max, y_max, z_min], [x_max, y_max, z_max], [x_max, y_min, z_max]],
+                [[x_min, y_min, z_min], [x_max, y_min, z_min], [x_max, y_min, z_max], [x_min, y_min, z_max]],
+                [[x_min, y_max, z_min], [x_max, y_max, z_min], [x_max, y_max, z_max], [x_min, y_max, z_max]]
+            ]
+            
+            poly = Poly3DCollection(vertices, facecolor='#F0F0F0', edgecolor='white', alpha=0.1, linewidth=0.5)
+            ax.add_collection3d(poly)
+    
+    # Highlight the boxes for each SCC with a unique color
+    for i, component in enumerate(sccs):
+        color = colors(i)
+        is_first_box = True
+        for box_idx in component:
+            # Add a label for each SCC using M(i) notation
+            label = f"M({i})" if is_first_box else None
+            box = grid.get_box(box_idx)
+            
+            x_dim, y_dim, z_dim = plot_dims
+            if box.dimension >= max(plot_dims) + 1:
+                x_min, x_max = box.bounds[x_dim]
+                y_min, y_max = box.bounds[y_dim]
+                z_min, z_max = box.bounds[z_dim]
+                
+                # Create vertices for the 3D box
+                vertices = [
+                    [[x_min, y_min, z_min], [x_max, y_min, z_min], [x_max, y_max, z_min], [x_min, y_max, z_min]],
+                    [[x_min, y_min, z_max], [x_max, y_min, z_max], [x_max, y_max, z_max], [x_min, y_max, z_max]],
+                    [[x_min, y_min, z_min], [x_min, y_max, z_min], [x_min, y_max, z_max], [x_min, y_min, z_max]],
+                    [[x_max, y_min, z_min], [x_max, y_max, z_min], [x_max, y_max, z_max], [x_max, y_min, z_max]],
+                    [[x_min, y_min, z_min], [x_max, y_min, z_min], [x_max, y_min, z_max], [x_min, y_min, z_max]],
+                    [[x_min, y_max, z_min], [x_max, y_max, z_min], [x_max, y_max, z_max], [x_min, y_max, z_max]]
+                ]
+                
+                poly = Poly3DCollection(vertices, facecolor=color, edgecolor='none', alpha=0.4, linewidth=1)
+                ax.add_collection3d(poly)
+                
+                # Add label to first box of each component
+                if is_first_box and label:
+                    # Place label at center of box
+                    cx = (x_min + x_max) / 2
+                    cy = (y_min + y_max) / 2
+                    cz = (z_min + z_max) / 2
+                    ax.text(cx, cy, cz, label, fontsize=10, weight='bold')
+                
+            is_first_box = False
+    
+    # Set plot bounds using the specified projection dimensions
+    domain_bounds = grid.bounds
+    x_dim, y_dim, z_dim = plot_dims
+    x_min, x_max = domain_bounds[x_dim]
+    y_min, y_max = domain_bounds[y_dim]
+    z_min, z_max = domain_bounds[z_dim]
+    
+    ax.set_xlim(x_min - margin, x_max + margin)
+    ax.set_ylim(y_min - margin, y_max + margin)
+    ax.set_zlim(z_min - margin, z_max + margin)
+    
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_zlabel(zlabel)
+    ax.set_title("Morse sets (3D)")
+    ax.view_init(elev=elev, azim=azim)
+    
+    # Add grid
+    ax.grid(True, linestyle="--", alpha=0.3)
+    
+    fig.tight_layout()
+    Path(output_path).parent.mkdir(exist_ok=True, parents=True)
+    fig.savefig(output_path, dpi=150)
+    plt.close(fig)
+
+def plot_morse_sets_projections(
+    grid: "Grid",
+    sccs: List[Set[int]],
+    output_dir: str,
+    margin: Optional[float] = None,
+    exclude_boxes: Optional[Set[int]] = None,
+) -> None:
+    """
+    Creates multiple 2D projections of Morse sets for systems with 3+ dimensions.
+    
+    Generates XY, XZ, and YZ projections for 3D systems.
+    
+    Args:
+        grid: The grid on which the map is defined.
+        sccs: A list of SCCs, where each SCC is a set of box indices.
+        output_dir: Directory to save the projection figures.
+        margin: Margin to add around the domain for plotting.
+        exclude_boxes: Optional set of box indices to exclude from background plotting.
+    """
+    if grid.dimension < 3:
+        # For 2D systems, just create regular 2D plot
+        plot_morse_sets_on_grid(
+            grid, sccs, 
+            str(Path(output_dir) / "morse_sets.png"),
+            margin=margin,
+            exclude_boxes=exclude_boxes
+        )
+        return
+    
+    # Create projections for 3D systems
+    projections = [
+        ((0, 1), "morse_sets_xy.png", "x", "y"),
+        ((0, 2), "morse_sets_xz.png", "x", "z"),
+        ((1, 2), "morse_sets_yz.png", "y", "z"),
+    ]
+    
+    for plot_dims, filename, xlabel, ylabel in projections:
+        plot_morse_sets_on_grid(
+            grid, sccs,
+            str(Path(output_dir) / filename),
+            margin=margin,
+            plot_dims=plot_dims,
+            xlabel=xlabel,
+            ylabel=ylabel,
+            exclude_boxes=exclude_boxes
+        )
 
 def plot_morse_graph_viz(
     morse_graph: "nx.DiGraph",

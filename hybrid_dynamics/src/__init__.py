@@ -36,6 +36,8 @@ from .plot_utils import (
     visualize_box_map_entry,
     plot_morse_graph_viz,
     plot_morse_sets_on_grid,
+    plot_morse_sets_3d,
+    plot_morse_sets_projections,
 )
 
 __all__ = [
@@ -69,4 +71,6 @@ __all__ = [
     "visualize_box_map_entry",
     "plot_morse_graph_viz",
     "plot_morse_sets_on_grid",
+    "plot_morse_sets_3d",
+    "plot_morse_sets_projections",
 ]
