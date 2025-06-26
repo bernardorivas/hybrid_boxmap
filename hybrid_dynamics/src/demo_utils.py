@@ -36,7 +36,7 @@ def create_config_hash(params_dict: Dict[str, Any],
     return hashlib.md5(config_str.encode()).hexdigest()
 
 
-def create_next_run_dir(base_dir: Path, tau: float, subdivisions: List[int]) -> Path:
+def create_next_run_dir(base_dir: Path, tau: float, subdivisions: List[int], bloat_factor: Optional[float] = None) -> Path:
     """
     Create the next available run directory with descriptive naming.
     
@@ -44,6 +44,7 @@ def create_next_run_dir(base_dir: Path, tau: float, subdivisions: List[int]) -> 
         base_dir: Base directory for run outputs
         tau: Time horizon parameter for directory naming
         subdivisions: Grid subdivisions for directory naming
+        bloat_factor: Optional bloat factor to include in directory name
         
     Returns:
         Path to the created run directory
@@ -51,7 +52,12 @@ def create_next_run_dir(base_dir: Path, tau: float, subdivisions: List[int]) -> 
     tau_str = f"{tau:.2f}".replace(".", "")  # 0.5 -> "05"
     subdiv_str = "_".join(map(str, subdivisions))  # [100, 100] -> "100_100"
     
-    base_name = f"run_tau_{tau_str}_subdiv_{subdiv_str}"
+    # Include bloat factor in name if provided
+    if bloat_factor is not None:
+        bloat_percent = int(round(bloat_factor * 100))
+        base_name = f"run_tau_{tau_str}_subdiv_{subdiv_str}_bloat_{bloat_percent:02d}"
+    else:
+        base_name = f"run_tau_{tau_str}_subdiv_{subdiv_str}"
     
     # Find existing runs with this pattern
     existing_runs = []

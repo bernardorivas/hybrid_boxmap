@@ -94,6 +94,7 @@ class HybridBoxMap(dict):
         # Get logger
         logger = config.get_logger(__name__)
         
+        
         if config.logging.verbose:
             logger.info("Computing Hybrid Box Map...")
         
@@ -130,7 +131,8 @@ class HybridBoxMap(dict):
                 logger.info(f"Step 1: Getting unique '{sampling_mode}' points...")
             
             # Get all unique points
-            unique_points, metadata = grid.get_all_unique_points(sampling_mode)
+            with internal_profiler.timer("Get unique points from grid"):
+                unique_points, metadata = grid.get_all_unique_points(sampling_mode)
             
             if config.logging.verbose:
                 logger.info(f"Evaluating {len(unique_points)} unique points...")
@@ -162,49 +164,49 @@ class HybridBoxMap(dict):
             for point_idx, (final_state, num_jumps) in point_results.items():
                 if num_jumps == -1 or np.any(np.isnan(final_state)):
                     continue  # Skip failed evaluations
-                
-                point = unique_points[point_idx]
-                
-                # Find all boxes that contain this sample point
-                box_indices = grid.find_boxes_containing_point(point)
-                
-                # For each box that contains this point
-                for box_idx in box_indices:
-                    if box_idx not in box_map:
-                        box_map[box_idx] = set()
                     
-                    # Process the destination point
-                    if discard_out_of_bounds_destinations:
-                        # Check if point is outside domain by more than tolerance
-                        outside_lower = (final_state < grid.bounds[:, 0] - out_of_bounds_tolerance)
-                        outside_upper = (final_state > grid.bounds[:, 1] + out_of_bounds_tolerance)
-                        if np.any(outside_lower | outside_upper):
-                            continue  # Skip out-of-bounds destinations
+                    point = unique_points[point_idx]
                     
-                    # Create bloated bounding box around the destination
-                    bloat_amount = grid.box_widths * bloat_factor
-                    bloated_min = final_state - bloat_amount
-                    bloated_max = final_state + bloat_amount
+                    # Find all boxes that contain this sample point
+                    box_indices = grid.find_boxes_containing_point(point)
                     
-                    # Find all grid cells that intersect the bloated box
-                    clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
-                    clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
-                    
-                    min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
-                    max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
-                    
-                    min_multi_index = np.maximum(0, min_multi_index)
-                    max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
-                    max_multi_index = np.maximum(min_multi_index, max_multi_index)
-                    
-                    # Add destination boxes
-                    iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
-                                  for d in range(grid.ndim)]
-                    
-                    for current_multi_index in itertools.product(*iter_ranges):
-                        dest_idx = int(np.ravel_multi_index(current_multi_index, 
-                                                           grid.subdivisions, mode='clip'))
-                        box_map[box_idx].add(dest_idx)
+                    # For each box that contains this point
+                    for box_idx in box_indices:
+                        if box_idx not in box_map:
+                            box_map[box_idx] = set()
+                        
+                        # Process the destination point
+                        if discard_out_of_bounds_destinations:
+                            # Check if point is outside domain by more than tolerance
+                            outside_lower = (final_state < grid.bounds[:, 0] - out_of_bounds_tolerance)
+                            outside_upper = (final_state > grid.bounds[:, 1] + out_of_bounds_tolerance)
+                            if np.any(outside_lower | outside_upper):
+                                continue  # Skip out-of-bounds destinations
+                        
+                        # Create bloated bounding box around the destination
+                        bloat_amount = grid.box_widths * bloat_factor
+                        bloated_min = final_state - bloat_amount
+                        bloated_max = final_state + bloat_amount
+                        
+                        # Find all grid cells that intersect the bloated box
+                        clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                        clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                        
+                        min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        
+                        min_multi_index = np.maximum(0, min_multi_index)
+                        max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+                        max_multi_index = np.maximum(min_multi_index, max_multi_index)
+                        
+                        # Add destination boxes
+                        iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
+                                      for d in range(grid.ndim)]
+                        
+                        for current_multi_index in itertools.product(*iter_ranges):
+                            dest_idx = int(np.ravel_multi_index(current_multi_index, 
+                                                               grid.subdivisions, mode='clip'))
+                            box_map[box_idx].add(dest_idx)
             
             # Store metadata about unique points for debugging
             box_map.unique_points_metadata = metadata
@@ -302,6 +304,7 @@ class HybridBoxMap(dict):
         if config.logging.verbose:
             logger.info("✓ Hybrid Box Map computation complete.")
         
+        # Store debug info in box_map for external analysis
         box_map.debug_info = debug_info
         
         return box_map

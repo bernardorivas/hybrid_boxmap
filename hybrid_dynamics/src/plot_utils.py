@@ -1320,6 +1320,7 @@ def plot_morse_sets_on_grid(
     xlabel: str = "State dim 1",
     ylabel: str = "State dim 2",
     exclude_boxes: Optional[Set[int]] = None,
+    plot_grid_background: bool = False,
 ) -> None:
     """
     Visualizes the boxes of Strongly Connected Components on the grid.
@@ -1335,6 +1336,8 @@ def plot_morse_sets_on_grid(
         xlabel: Label for x-axis.
         ylabel: Label for y-axis.
         exclude_boxes: Optional set of box indices to exclude from background plotting.
+        plot_grid_background: Whether to plot all grid boxes in the background (default: False).
+                            Setting to False significantly improves performance for large grids.
     """
     # Use default margin if not provided
     if margin is None:
@@ -1344,15 +1347,16 @@ def plot_morse_sets_on_grid(
     # Define a color cycle for the components using a more vibrant map
     colors = plt.cm.get_cmap("turbo", len(sccs)) if sccs else []
 
-    # Plot all grid boxes faintly (except those in exclude_boxes)
-    for i in range(len(grid)):
-        if exclude_boxes and i in exclude_boxes:
-            continue  # Skip excluded boxes
-        box = grid.get_box(i)
-        if box.dimension == 2:
-            box.plot_2d(ax, facecolor="#F0F0F0", edgecolor="white", alpha=0.7, zorder=1)
-        else:
-            box.plot_2d_projection(ax, dims=plot_dims, facecolor="#F0F0F0", edgecolor="white", alpha=0.7, zorder=1)
+    # Plot all grid boxes faintly (except those in exclude_boxes) - only if requested
+    if plot_grid_background:
+        for i in range(len(grid)):
+            if exclude_boxes and i in exclude_boxes:
+                continue  # Skip excluded boxes
+            box = grid.get_box(i)
+            if box.dimension == 2:
+                box.plot_2d(ax, facecolor="#F0F0F0", edgecolor="white", alpha=0.7, zorder=1)
+            else:
+                box.plot_2d_projection(ax, dims=plot_dims, facecolor="#F0F0F0", edgecolor="white", alpha=0.7, zorder=1)
 
     # Highlight the boxes for each SCC with a unique color
     for i, component in enumerate(sccs):
@@ -1363,9 +1367,9 @@ def plot_morse_sets_on_grid(
             label = f"M({i})" if is_first_box else None
             box = grid.get_box(box_idx)
             if box.dimension == 2:
-                box.plot_2d(ax, facecolor=color, edgecolor="none", alpha=0.4, zorder=2, label=label)
+                box.plot_2d(ax, facecolor=color, edgecolor="none", alpha=0.7, zorder=2, label=label)
             else:
-                box.plot_2d_projection(ax, dims=plot_dims, facecolor=color, edgecolor="none", alpha=0.4, zorder=2, label=label)
+                box.plot_2d_projection(ax, dims=plot_dims, facecolor=color, edgecolor="none", alpha=0.7, zorder=2, label=label)
             is_first_box = False
 
     # Set plot bounds using the specified projection dimensions
@@ -1600,8 +1604,8 @@ def plot_morse_graph_viz(
             node_label = f"M({node_id})\\n({len(scc)} boxes)"
             
             color_rgba = colors(node_id)
-            # Apply alpha=0.4 blending with white background (same as morse_sets)
-            alpha = 0.4
+            # Apply alpha=0.7 blending with white background (same as morse_sets)
+            alpha = 0.7
             blended_r = color_rgba[0] * alpha + (1 - alpha)
             blended_g = color_rgba[1] * alpha + (1 - alpha)
             blended_b = color_rgba[2] * alpha + (1 - alpha)
@@ -1616,3 +1620,348 @@ def plot_morse_graph_viz(
     Path(output_path).parent.mkdir(exist_ok=True, parents=True)
     A.draw(output_path)
     # Remove individual save message - will be handled by caller
+
+
+def plot_morse_sets_with_roa(
+    grid: "Grid",
+    sccs: List[Set[int]],
+    roa_dict: Dict[int, Set[int]],
+    output_path: str,
+    margin: Optional[float] = None,
+    plot_dims: Tuple[int, int] = (0, 1),
+    xlabel: str = "State dim 1",
+    ylabel: str = "State dim 2",
+    exclude_boxes: Optional[Set[int]] = None,
+    roa_alpha: float = 0.3,
+    morse_alpha: float = 0.7,
+    plot_grid_background: bool = False,
+) -> None:
+    """
+    Visualizes Morse sets and their regions of attraction (ROA) on the grid.
+    
+    This function plots both the Morse sets (attractors) and their basins of attraction,
+    with ROA boxes shown in dimmer colors than their corresponding Morse sets.
+    
+    Args:
+        grid: The grid on which the map is defined.
+        sccs: A list of SCCs (Morse sets), where each SCC is a set of box indices.
+        roa_dict: Dictionary mapping morse_set_index -> set of boxes in its ROA.
+        output_path: Path to save the output figure.
+        margin: Margin to add around the domain for plotting.
+               If None, uses default from config.
+        plot_dims: Tuple of (x_dim, y_dim) indices for projection dimensions.
+                  Defaults to (0, 1) for first two dimensions.
+        xlabel: Label for x-axis.
+        ylabel: Label for y-axis.
+        exclude_boxes: Optional set of box indices to exclude from background plotting.
+        roa_alpha: Alpha (opacity) for ROA boxes (default: 0.3 for dimmer appearance).
+        morse_alpha: Alpha (opacity) for Morse set boxes (default: 0.7 for vibrant appearance).
+        plot_grid_background: Whether to plot all grid boxes in the background (default: False).
+                            Setting to False significantly improves performance for large grids.
+    """
+    # Use default margin if not provided
+    if margin is None:
+        margin = config.visualization.plot_margin
+        
+    fig, ax = plt.subplots(figsize=(12, 10))
+
+    # Define a color cycle for the components using a more vibrant map
+    colors = plt.cm.get_cmap("turbo", len(sccs)) if sccs else []
+
+    # Plot all grid boxes faintly (except those in exclude_boxes and ROA boxes) - only if requested
+    if plot_grid_background:
+        all_roa_boxes = set()
+        for roa_boxes in roa_dict.values():
+            all_roa_boxes.update(roa_boxes)
+        
+        for i in range(len(grid)):
+            if exclude_boxes and i in exclude_boxes:
+                continue  # Skip excluded boxes
+            if i in all_roa_boxes:
+                continue  # Skip ROA boxes - will be plotted with proper colors
+                
+            box = grid.get_box(i)
+            if box.dimension == 2:
+                box.plot_2d(ax, facecolor="#F5F5F5", edgecolor="white", alpha=0.7, zorder=1)
+            else:
+                box.plot_2d_projection(ax, dims=plot_dims, facecolor="#F5F5F5", edgecolor="white", alpha=0.7, zorder=1)
+
+    # First pass: Plot ROA boxes with dimmer colors
+    for morse_idx, roa_boxes in roa_dict.items():
+        if morse_idx >= len(sccs):
+            continue  # Safety check
+            
+        color = colors(morse_idx)
+        morse_set = sccs[morse_idx]
+        
+        # Plot ROA boxes (excluding the Morse set itself)
+        roa_only_boxes = roa_boxes - morse_set
+        
+        for box_idx in roa_only_boxes:
+            box = grid.get_box(box_idx)
+            if box.dimension == 2:
+                box.plot_2d(ax, facecolor=color, edgecolor="none", alpha=roa_alpha, zorder=2)
+            else:
+                box.plot_2d_projection(ax, dims=plot_dims, facecolor=color, edgecolor="none", alpha=roa_alpha, zorder=2)
+
+    # Second pass: Plot Morse sets with vibrant colors on top
+    for morse_idx, morse_set in enumerate(sccs):
+        color = colors(morse_idx)
+        is_first_box = True
+        
+        for box_idx in morse_set:
+            # Add a label for each Morse set using M(i) notation
+            label = f"M({morse_idx}) + ROA" if is_first_box else None
+            box = grid.get_box(box_idx)
+            if box.dimension == 2:
+                box.plot_2d(ax, facecolor=color, edgecolor="black", alpha=morse_alpha, zorder=3, label=label, linewidth=0.5)
+            else:
+                box.plot_2d_projection(ax, dims=plot_dims, facecolor=color, edgecolor="black", alpha=morse_alpha, zorder=3, label=label, linewidth=0.5)
+            is_first_box = False
+
+    # Set plot bounds using the specified projection dimensions
+    domain_bounds = grid.bounds
+    x_dim, y_dim = plot_dims
+    x_min, x_max = domain_bounds[x_dim]
+    y_min, y_max = domain_bounds[y_dim]
+    ax.set_xlim(x_min - margin, x_max + margin)
+    ax.set_ylim(y_min - margin, y_max + margin)
+
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title("Morse sets and their regions of attraction")
+    if len(sccs) <= 10:
+        ax.legend()
+    ax.grid(True, linestyle="--", alpha=0.6)
+
+    fig.tight_layout()
+    Path(output_path).parent.mkdir(exist_ok=True, parents=True)
+    fig.savefig(output_path, dpi=150)
+    plt.close(fig)
+
+
+def plot_morse_sets_on_grid_fast(
+    grid: "Grid",
+    sccs: List[Set[int]],
+    output_path: str,
+    margin: Optional[float] = None,
+    plot_dims: Tuple[int, int] = (0, 1),
+    xlabel: str = "State dim 1",
+    ylabel: str = "State dim 2",
+) -> None:
+    """
+    Fast visualization of Morse sets using PatchCollection for rectangular boxes.
+    
+    This function is optimized for performance by using matplotlib PatchCollection
+    instead of individual rectangle patches. It correctly handles rectangular
+    (non-square) grid boxes and can handle large grids efficiently.
+    
+    Args:
+        grid: The grid on which the map is defined.
+        sccs: A list of SCCs (Morse sets), where each SCC is a set of box indices.
+        output_path: Path to save the output figure.
+        margin: Margin to add around the domain for plotting.
+               If None, uses default from config.
+        plot_dims: Tuple of (x_dim, y_dim) indices for projection dimensions.
+                  Defaults to (0, 1) for first two dimensions.
+        xlabel: Label for x-axis.
+        ylabel: Label for y-axis.
+    """
+    from matplotlib.collections import PatchCollection
+    
+    # Use default margin if not provided
+    if margin is None:
+        margin = config.visualization.plot_margin
+        
+    fig, ax = plt.subplots(figsize=(12, 10))
+    
+    # Define a color cycle for the components
+    colors = plt.cm.get_cmap("turbo", len(sccs)) if sccs else []
+    
+    # Get grid properties
+    x_dim, y_dim = plot_dims
+    
+    # Get box dimensions
+    box_width_x = grid.box_widths[x_dim]
+    box_width_y = grid.box_widths[y_dim]
+    
+    # Set up the plot
+    domain_bounds = grid.bounds
+    x_min, x_max = domain_bounds[x_dim]
+    y_min, y_max = domain_bounds[y_dim]
+    ax.set_xlim(x_min - margin, x_max + margin)
+    ax.set_ylim(y_min - margin, y_max + margin)
+    ax.set_aspect('equal')
+    
+    # Plot each Morse set using PatchCollection
+    for i, component in enumerate(sccs):
+        if not component:  # Skip empty components
+            continue
+            
+        color = colors(i)
+        
+        # Create rectangles for all boxes in this component
+        rectangles = []
+        for box_idx in component:
+            # Get box center
+            center = grid.get_sample_points(box_idx, mode='center')[0]
+            # Create rectangle centered at box center
+            rect = patches.Rectangle(
+                (center[x_dim] - box_width_x/2, 
+                 center[y_dim] - box_width_y/2),
+                box_width_x, box_width_y
+            )
+            rectangles.append(rect)
+        
+        # Create PatchCollection for this Morse set
+        pc = PatchCollection(rectangles, 
+                           facecolor=color, 
+                           edgecolor='none',
+                           alpha=0.7)
+        ax.add_collection(pc)
+        
+        # Add label manually for legend
+        ax.plot([], [], 's', color=color, label=f"M({i})", markersize=10)
+    
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title("Morse sets")
+    if len(sccs) <= 10:
+        ax.legend()
+    ax.grid(True, linestyle="--", alpha=0.6)
+    
+    fig.tight_layout()
+    Path(output_path).parent.mkdir(exist_ok=True, parents=True)
+    fig.savefig(output_path, dpi=150)
+    plt.close(fig)
+
+
+def plot_morse_sets_with_roa_fast(
+    grid: "Grid",
+    sccs: List[Set[int]],
+    roa_dict: Dict[int, Set[int]],
+    output_path: str,
+    margin: Optional[float] = None,
+    plot_dims: Tuple[int, int] = (0, 1),
+    xlabel: str = "State dim 1",
+    ylabel: str = "State dim 2",
+    roa_alpha: float = 0.15,
+    morse_alpha: float = 0.7,
+) -> None:
+    """
+    Fast visualization of Morse sets and their regions of attraction using PatchCollection.
+    
+    This function is optimized for performance by using matplotlib PatchCollection
+    instead of individual rectangle patches. It correctly handles rectangular
+    (non-square) grid boxes and can efficiently handle large grids.
+    
+    Args:
+        grid: The grid on which the map is defined.
+        sccs: A list of SCCs (Morse sets), where each SCC is a set of box indices.
+        roa_dict: Dictionary mapping morse_set_index -> set of boxes in its ROA.
+        output_path: Path to save the output figure.
+        margin: Margin to add around the domain for plotting.
+               If None, uses default from config.
+        plot_dims: Tuple of (x_dim, y_dim) indices for projection dimensions.
+                  Defaults to (0, 1) for first two dimensions.
+        xlabel: Label for x-axis.
+        ylabel: Label for y-axis.
+        roa_alpha: Alpha (opacity) for ROA boxes (default: 0.15 for subtle appearance).
+        morse_alpha: Alpha (opacity) for Morse set boxes (default: 0.7 for vibrant appearance).
+    """
+    from matplotlib.collections import PatchCollection
+    
+    # Use default margin if not provided
+    if margin is None:
+        margin = config.visualization.plot_margin
+        
+    fig, ax = plt.subplots(figsize=(12, 10))
+    
+    # Define a color cycle for the components
+    colors = plt.cm.get_cmap("turbo", len(sccs)) if sccs else []
+    
+    # Get grid properties
+    x_dim, y_dim = plot_dims
+    
+    # Get box dimensions
+    box_width_x = grid.box_widths[x_dim]
+    box_width_y = grid.box_widths[y_dim]
+    
+    # Set up the plot
+    domain_bounds = grid.bounds
+    x_min, x_max = domain_bounds[x_dim]
+    y_min, y_max = domain_bounds[y_dim]
+    ax.set_xlim(x_min - margin, x_max + margin)
+    ax.set_ylim(y_min - margin, y_max + margin)
+    ax.set_aspect('equal')
+    
+    # First pass: Plot ROA boxes with dimmer colors
+    for morse_idx, roa_boxes in roa_dict.items():
+        if morse_idx >= len(sccs):
+            continue  # Safety check
+            
+        color = colors(morse_idx)
+        morse_set = sccs[morse_idx]
+        
+        # Plot ROA boxes (excluding the Morse set itself)
+        roa_only_boxes = roa_boxes - morse_set
+        
+        if roa_only_boxes:
+            # Create rectangles for ROA boxes
+            roa_rectangles = []
+            for box_idx in roa_only_boxes:
+                center = grid.get_sample_points(box_idx, mode='center')[0]
+                rect = patches.Rectangle(
+                    (center[x_dim] - box_width_x/2, 
+                     center[y_dim] - box_width_y/2),
+                    box_width_x, box_width_y
+                )
+                roa_rectangles.append(rect)
+            
+            # Create PatchCollection for ROA boxes
+            pc = PatchCollection(roa_rectangles,
+                               facecolor=color,
+                               edgecolor='none',
+                               alpha=roa_alpha)
+            ax.add_collection(pc)
+    
+    # Second pass: Plot Morse sets with vibrant colors on top
+    for morse_idx, morse_set in enumerate(sccs):
+        if not morse_set:  # Skip empty sets
+            continue
+            
+        color = colors(morse_idx)
+        
+        # Create rectangles for Morse set boxes
+        morse_rectangles = []
+        for box_idx in morse_set:
+            center = grid.get_sample_points(box_idx, mode='center')[0]
+            rect = patches.Rectangle(
+                (center[x_dim] - box_width_x/2, 
+                 center[y_dim] - box_width_y/2),
+                box_width_x, box_width_y
+            )
+            morse_rectangles.append(rect)
+        
+        # Create PatchCollection for Morse set
+        pc = PatchCollection(morse_rectangles,
+                           facecolor=color,
+                           edgecolor='none',
+                           alpha=morse_alpha)
+        ax.add_collection(pc)
+        
+        # Add label manually for legend
+        ax.plot([], [], 's', color=color, label=f"M({morse_idx}) + ROA", markersize=10)
+    
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title("Morse sets and their regions of attraction")
+    if len(sccs) <= 10:
+        ax.legend()
+    ax.grid(True, linestyle="--", alpha=0.6)
+    
+    fig.tight_layout()
+    Path(output_path).parent.mkdir(exist_ok=True, parents=True)
+    fig.savefig(output_path, dpi=150)
+    plt.close(fig)
+

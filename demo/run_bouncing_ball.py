@@ -93,7 +93,6 @@ def run_bouncing_ball_demo():
     
     # 3. Compute if cache miss
     if box_map is None:
-        print("Computing box map...")
         compute_start_time = time.time()
         progress_callback = create_progress_callback()
         box_map = HybridBoxMap.compute(
@@ -117,10 +116,8 @@ def run_bouncing_ball_demo():
         save_box_map_with_config(box_map, current_config_hash, config_details, box_map_file)
         
         compute_time = time.time() - compute_start_time
-        print(f"  Box map computation time: {compute_time:.2f} seconds")
     else:
         cache_time = time.time() - cache_start_time
-        print(f"  Cache load time: {cache_time:.3f} seconds")
 
     # Convert to NetworkX and compute morse graph and sets
     morse_start_time = time.time()
@@ -130,11 +127,7 @@ def run_bouncing_ball_demo():
     
     # Check and report Morse graph computation results
     if morse_graph.number_of_nodes() > 0:
-        print("✓ Morse graph and Morse sets were computed.")
-        print(f"  Number of Morse sets: {len(morse_sets)}")
-        print(f"  Morse graph analysis time: {morse_time:.3f} seconds")
     else:
-        print("⚠ Warning: Morse graph is empty. No recurrent sets were found.")
 
     # Generate visualizations
     viz_start_time = time.time()
@@ -170,13 +163,6 @@ def run_bouncing_ball_demo():
     total_time = time.time() - total_start_time
     
     # Final summary
-    print(f"✓ Figures are saved in {run_dir}")
-    print(f"  - phase_portrait.png")
-    print(f"  - morse_sets.png") 
-    print(f"  - morse_graph.png")
-    print(f"  - origin_box_map_point_0_0_box_*.png")
-    print(f"  Visualization time: {viz_time:.2f} seconds")
-    print(f"\n⏱️  Total execution time: {total_time:.2f} seconds")
 
 
 if __name__ == "__main__":

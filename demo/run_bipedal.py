@@ -121,12 +121,10 @@ def run_bipedal_demo():
     
     # 3. Compute new if cache miss
     if box_map is None:
-        print("Computing new box map...")
         compute_start_time = time.time()
         progress_callback = create_progress_callback()
         
         if USE_CYLINDRICAL:
-            print(f"Using cylindrical sampling with {N_RADIAL}×{N_ANGULAR} samples")
             
             box_map = HybridBoxMap.compute_cylindrical(
                 grid=grid,
@@ -142,7 +140,6 @@ def run_bipedal_demo():
                 system_args=(biped.x0, biped.y0, biped.z0, biped.g, biped.max_jumps)
             )
         else:
-            print("Using standard corner sampling")
             box_map = HybridBoxMap.compute(
                 grid=grid,
                 system=biped.system,
@@ -164,10 +161,8 @@ def run_bipedal_demo():
         save_box_map_with_config(box_map, current_config_hash, config_details, box_map_file)
         
         compute_time = time.time() - compute_start_time
-        print(f"  Box map computation time: {compute_time:.2f} seconds")
     else:
         cache_time = time.time() - cache_start_time
-        print(f"  Cache load time: {cache_time:.3f} seconds")
     
     # Convert to NetworkX and analyze
     morse_start_time = time.time()
@@ -177,11 +172,7 @@ def run_bipedal_demo():
     
     # Check and report Morse graph computation results
     if morse_graph.number_of_nodes() > 0:
-        print("✓ Morse graph and Morse sets were computed.")
-        print(f"  Number of Morse sets: {len(morse_sets)}")
-        print(f"  Morse graph analysis time: {morse_time:.3f} seconds")
     else:
-        print("⚠ Warning: Morse graph is empty. No recurrent sets were found.")
 
     # Generate visualizations
     viz_start_time = time.time()
@@ -231,11 +222,6 @@ def run_bipedal_demo():
     total_time = time.time() - total_start_time
     
     # Final summary
-    print(f"✓ Figures are saved in {run_dir}")
-    print(f"  - morse_sets.png") 
-    print(f"  - morse_graph.png")
-    print(f"  Visualization time: {viz_time:.2f} seconds")
-    print(f"\n⏱️  Total execution time: {total_time:.2f} seconds")
 
 
 if __name__ == "__main__":

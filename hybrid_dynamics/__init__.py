@@ -23,6 +23,9 @@ from .src.hybrid_trajectory import HybridTrajectory, TrajectorySegment
 # Graph analysis functions
 from .src.morse_graph import create_morse_graph
 
+# Region of attraction analysis
+from .src.roa_utils import compute_roa, compute_regions_of_attraction, analyze_roa_coverage
+
 # MultiGrid framework
 from .src.multigrid import MultiGrid, MultiGridBoxMap
 
@@ -31,6 +34,9 @@ from .src.plot_utils import (
     HybridPlotter,
     plot_morse_graph_viz,
     plot_morse_sets_on_grid,
+    plot_morse_sets_with_roa,
+    plot_morse_sets_on_grid_fast,
+    plot_morse_sets_with_roa_fast,
     visualize_box_map,
     visualize_box_map_entry,
     visualize_flow_map,
@@ -52,6 +58,10 @@ __all__ = [
     "Grid",
     # Graph
     "create_morse_graph",
+    # ROA
+    "compute_roa",
+    "compute_regions_of_attraction", 
+    "analyze_roa_coverage",
     # MultiGrid
     "MultiGrid",
     "MultiGridBoxMap",
@@ -61,6 +71,9 @@ __all__ = [
     "visualize_box_map",
     "visualize_box_map_entry",
     "plot_morse_sets_on_grid",
+    "plot_morse_sets_with_roa",
+    "plot_morse_sets_on_grid_fast",
+    "plot_morse_sets_with_roa_fast",
     "plot_morse_graph_viz",
     # Config
     "config",

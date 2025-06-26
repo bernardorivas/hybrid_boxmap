@@ -87,7 +87,6 @@ def run_unstableperiodic_demo():
     
     # 3. Compute new if cache miss
     if box_map is None:
-        print("Computing new box map...")
         progress_callback = create_progress_callback()
         box_map = HybridBoxMap.compute(
             grid=grid,
@@ -115,9 +114,7 @@ def run_unstableperiodic_demo():
     
     # Check and report Morse graph computation results
     if morse_graph.number_of_nodes() > 0:
-        print("✓ Morse graph and Morse sets were computed.")
     else:
-        print("⚠ Warning: Morse graph is empty. No recurrent sets were found.")
 
     # Generate visualizations
     
@@ -142,7 +139,6 @@ def run_unstableperiodic_demo():
     plot_morse_graph_viz(morse_graph, morse_sets, str(run_dir / "morse_graph.png"))
     
     # Final summary
-    print(f"✓ Figures are saved in {run_dir}")
 
 
 if __name__ == "__main__":

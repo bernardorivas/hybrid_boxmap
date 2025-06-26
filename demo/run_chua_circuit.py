@@ -252,7 +252,6 @@ def run_chua_circuit_demo(interactive=False):
     # All boxes that are NOT in Morse sets should be excluded from background
     total_boxes = len(grid)
     exclude_boxes = set(range(total_boxes)) - all_morse_boxes
-    print(f"  Excluding {len(exclude_boxes)} non-Morse boxes from visualization")
     
     # 3D Phase portrait
     plotter = HybridPlotter()

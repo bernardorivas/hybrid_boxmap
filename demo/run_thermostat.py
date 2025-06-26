@@ -173,13 +173,6 @@ def run_thermostat_demo():
     # Create MultiGrid
     multigrid = thermostat.create_multigrid(temp_subdivisions=TEMP_SUBDIVISIONS)
     
-    print(f"MultiGrid structure:")
-    print(f"  Modes: {multigrid.modes}")
-    print(f"  Mode transition graph edges: {list(multigrid.mode_graph.edges())}")
-    for mode, grid in multigrid.mode_grids.items():
-        print(f"  Mode {mode} grid: {grid}")
-    print(f"  Total boxes across all modes: {multigrid.total_boxes}")
-    print()
     
     # Create run directory
     run_dir = create_next_run_dir(figures_base_dir, TAU, [TEMP_SUBDIVISIONS, 2])
