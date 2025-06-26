@@ -6,13 +6,14 @@ of continuous trajectory segments connected by discrete jumps.
 """
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Callable
 import numpy as np
 import pickle
 import warnings
 from scipy.integrate import solve_ivp
 
 from .hybrid_time import HybridTime, HybridTimeInterval
+from .config import config
 
 if TYPE_CHECKING:
     from scipy.integrate._ivp.ivp import OdeResult
@@ -23,28 +24,43 @@ if TYPE_CHECKING:
 class TrajectorySegment:
     """Represents a continuous piece of a hybrid trajectory
     
+    Can represent either a normal segment with scipy solution or a trivial
+    segment (single point) for instant jumps.
+    
     Attributes:
-        scipy_solution: The actual solve_ivp solution object
+        scipy_solution: The actual solve_ivp solution object (optional)
         jump_index: Which jump index this segment corresponds to
+        trivial_time: Time for trivial segment (optional)
+        trivial_state: State for trivial segment (optional)
         t_start: Start time of this segment
         t_end: End time of this segment
     """
-    scipy_solution: 'OdeResult'
     jump_index: int
+    scipy_solution: Optional['OdeResult'] = None
+    trivial_time: Optional[float] = None
+    trivial_state: Optional[np.ndarray] = None
     t_start: float = field(init=False)
     t_end: float = field(init=False)
     
     def __post_init__(self):
         """Initialize derived attributes and validate data."""
-        if not hasattr(self.scipy_solution, 't') or not hasattr(self.scipy_solution, 'y'):
-            raise ValueError("Invalid scipy solution object: missing 't' or 'y' attributes")
-        if not hasattr(self.scipy_solution, 'sol') or self.scipy_solution.sol is None:
-            raise ValueError("Scipy solution object must have a 'sol' attribute.")
-        if len(self.scipy_solution.t) == 0:
-            raise ValueError("Empty solution time array in scipy_solution")
-        
-        self.t_start = float(self.scipy_solution.t[0])
-        self.t_end = float(self.scipy_solution.t[-1])
+        if self.trivial_time is not None and self.trivial_state is not None:
+            # Trivial segment case
+            self.t_start = float(self.trivial_time)
+            self.t_end = float(self.trivial_time)
+        elif self.scipy_solution is not None:
+            # Normal segment case
+            if not hasattr(self.scipy_solution, 't') or not hasattr(self.scipy_solution, 'y'):
+                raise ValueError("Invalid scipy solution object: missing 't' or 'y' attributes")
+            if not hasattr(self.scipy_solution, 'sol') or self.scipy_solution.sol is None:
+                raise ValueError("Scipy solution object must have a 'sol' attribute.")
+            if len(self.scipy_solution.t) == 0:
+                raise ValueError("Empty solution time array in scipy_solution")
+            
+            self.t_start = float(self.scipy_solution.t[0])
+            self.t_end = float(self.scipy_solution.t[-1])
+        else:
+            raise ValueError("Must provide either scipy_solution or both trivial_time and trivial_state")
         
         if self.jump_index < 0:
             raise ValueError("Jump index must be non-negative")
@@ -55,13 +71,25 @@ class TrajectorySegment:
     
     @property
     def time_values(self) -> np.ndarray:
-        """Get time values from scipy solution."""
+        """Get time values from scipy solution or trivial segment."""
+        if self.trivial_time is not None:
+            return np.array([self.trivial_time])
         return self.scipy_solution.t
     
     @property
     def state_values(self) -> np.ndarray:
         """Get state values from scipy solution with shape (n_points, state_dim)."""
+        if self.trivial_state is not None:
+            return self.trivial_state.reshape(1, -1)
         return self.scipy_solution.y.T
+    
+    @property
+    def solution(self) -> Optional[Callable]:
+        """Get interpolation function for this segment."""
+        if self.trivial_state is not None:
+            # Return a function that always returns the trivial state
+            return lambda t: self.trivial_state
+        return self.scipy_solution.sol if self.scipy_solution else None
     
     def to_hybrid_time_interval(self) -> HybridTimeInterval:
         """Convert this segment to a HybridTimeInterval."""
@@ -152,7 +180,10 @@ class HybridTrajectory:
         """Interpolate state at a single time point by finding the correct segment."""
         for segment in self.segments:
             if segment.t_start <= t <= segment.t_end:
-                return segment.scipy_solution.sol(t)
+                if segment.solution is not None:
+                    return segment.solution(t)
+                else:
+                    raise ValueError(f"Segment at time {t} has no solution function")
         raise ValueError(f"Time {t} is outside trajectory domain")
     
     def get_scipy_like_solution(self, resample_dt: float | None = None) -> tuple[np.ndarray, np.ndarray]:
@@ -316,16 +347,40 @@ class HybridTrajectory:
         
         # Check if initial state already satisfies event condition
         initial_event_value = system.evaluate_event_function(current_time, current_state)
-        if abs(initial_event_value) < 1e-10 or initial_event_value < 0:
+        # Determine if we should jump based on event value and direction
+        event_direction = getattr(system.event_function, 'direction', 0)
+        should_jump = False
+        
+        if event_direction == -1:  # Trigger on negative to positive crossing
+            # Jump if we're on the negative side (event condition satisfied)
+            should_jump = initial_event_value <= 0
+        elif event_direction == 1:  # Trigger on positive to negative crossing
+            # Jump if we're on the positive side (event condition satisfied)
+            should_jump = initial_event_value >= 0
+        else:  # event_direction == 0, trigger on any crossing
+            # For bidirectional events, we need to be more careful
+            # Jump if event value is already negative (in the jump region)
+            # This handles cases like thermostat where being below threshold should trigger jump
+            should_jump = initial_event_value < -config.simulation.event_tolerance
+        
+        if should_jump:
+            # Create trivial initial segment before jumping
+            trivial_segment = TrajectorySegment(
+                jump_index=0,
+                trivial_time=current_time,
+                trivial_state=np.array(current_state, dtype=np.float64)
+            )
+            trajectory.add_segment(trivial_segment)
+            
             # Apply reset immediately
             try:
                 state_after_jump = system.reset_map(current_state)
                 if not system._check_domain_bounds(state_after_jump):
                     warnings.warn("Post-jump state outside domain bounds", RuntimeWarning)
-                else:
-                    trajectory.add_jump(current_time, current_state, state_after_jump)
-                    current_state = state_after_jump
-                    jump_count += 1
+                
+                trajectory.add_jump(current_time, current_state, state_after_jump)
+                current_state = state_after_jump
+                jump_count = 1
             except Exception as e:
                 warnings.warn(f"Initial reset map failed: {str(e)}", RuntimeWarning)
         
@@ -360,9 +415,7 @@ class HybridTrajectory:
             sample_indices = np.linspace(0, len(segment.state_values) - 1, num_samples, dtype=int)
             for idx in sample_indices:
                 if not system._check_domain_bounds(segment.state_values[idx]):
-                    if False: # Temporarily disable warning
-                        warnings.warn(f"Trajectory segment {jump_count} left domain bounds at t={segment.time_values[idx]:.3f}", RuntimeWarning)
-                    break
+                        break
             
             trajectory.add_segment(segment)
             
@@ -387,14 +440,10 @@ class HybridTrajectory:
                 jump_count += 1
                 
                 if jump_count > max_jumps:
-                    # warnings.warn(f"Maximum number of jumps ({max_jumps}) exceeded for initial_state: {initial_state}", RuntimeWarning)
                     break
             else:
                 break
         
-        # NOTE: Validation is disabled here because it's too strict for cases
-        # where the simulation ends due to max_jumps being reached.
-        # trajectory._validate_consistency()
         return trajectory
     
     @classmethod
@@ -417,7 +466,6 @@ class HybridTrajectory:
                 segment.jump_index += offset
             trajectory._update_time_domain()
         
-        # trajectory._validate_consistency()
         return trajectory
 
     def validate(self) -> bool:
@@ -425,25 +473,7 @@ class HybridTrajectory:
         if not self.segments:
             return True
 
-        # NOTE: The following checks were commented out because they were too strict.
-        # A trajectory can end on a jump, which was causing validation to fail.
-        # Re-enable with caution if stricter validation is needed.
-
-        # # Check 1: Ensure number of jumps matches number of segments
-        # expected_jumps = len(self.segments) - 1
-        # if len(self.jump_times) != expected_jumps:
-        #     raise ValueError(f"Expected {expected_jumps} jump times, got {len(self.jump_times)}")
-        # if len(self.jump_states) != expected_jumps:
-        #     raise ValueError(f"Expected {expected_jumps} jump states, got {len(self.jump_states)}")
-
-        # # Check 2: Ensure jump indices are sequential
-        # for i, segment in enumerate(self.segments):
-        #     if i > 0:
-        #         expected_jump_index = self.segments[i-1].jump_index + 1
-        #         if segment.jump_index != expected_jump_index:
-        #             raise ValueError(f"Expected jump index {expected_jump_index}, got {segment.jump_index}")
-
-        # Check 3: Ensure all state vectors have the same dimension
+        # Check: Ensure all state vectors have the same dimension
         expected_state_dim = None
         for segment in self.segments:
             state_vals = segment.state_values

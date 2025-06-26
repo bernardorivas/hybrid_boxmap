@@ -7,7 +7,8 @@ that leverage the existing Box geometric primitives.
 
 from __future__ import annotations
 
-from typing import Iterator, List, Tuple, Union
+from typing import Iterator, List, Optional, Tuple, Union
+import itertools
 
 import numpy as np
 
@@ -203,4 +204,179 @@ class Grid:
     def __repr__(self) -> str:
         """String representation."""
         return (f"Grid(ndim={self.ndim}, bounds={self.bounds.tolist()}, "
-                f"subdivisions={self.subdivisions.tolist()}, total_boxes={self.total_boxes})")
+                f"subdivisions={self.subdivisions.tolist()}, total_boxes={self.total_boxes}")
+    
+    def get_all_unique_points(
+        self, 
+        mode: str = 'corners',
+        num_random: int = 1,
+        data_points: Optional[np.ndarray] = None
+    ) -> Tuple[np.ndarray, dict]:
+        """
+        Get all unique sample points for the entire grid.
+        
+        Args:
+            mode: Sampling mode - 'corners', 'center', 'random', or 'data'
+            num_random: Number of random points per box (only for 'random' mode)
+            data_points: User-provided points (only for 'data' mode)
+            
+        Returns:
+            points: Array of unique points with shape (n_points, ndim)
+            metadata: Dictionary with mode-specific information
+        """
+        if mode == 'corners':
+            # Generate all grid intersection points
+            # For subdivisions [n1, n2, ...], we have (n1+1) x (n2+1) x ... points
+            ranges = []
+            for i in range(self.ndim):
+                ranges.append(np.linspace(self.bounds[i, 0], self.bounds[i, 1], 
+                                        self.subdivisions[i] + 1))
+            
+            # Create meshgrid and flatten to get all corner points
+            grids = np.meshgrid(*ranges, indexing='ij')
+            points = np.column_stack([g.ravel() for g in grids])
+            
+            metadata = {
+                'mode': 'corners',
+                'grid_shape': tuple(s + 1 for s in self.subdivisions)
+            }
+            
+        elif mode == 'center':
+            # Generate center points for all boxes
+            ranges = []
+            for i in range(self.ndim):
+                # Centers are at half-steps
+                centers = np.linspace(
+                    self.bounds[i, 0] + self.box_widths[i] / 2,
+                    self.bounds[i, 1] - self.box_widths[i] / 2,
+                    self.subdivisions[i]
+                )
+                ranges.append(centers)
+            
+            grids = np.meshgrid(*ranges, indexing='ij')
+            points = np.column_stack([g.ravel() for g in grids])
+            
+            metadata = {
+                'mode': 'center',
+                'grid_shape': tuple(self.subdivisions)
+            }
+            
+        elif mode == 'random':
+            # Generate unique random points for each box
+            points_list = []
+            np.random.seed(42)  # For reproducibility
+            
+            for box_idx in range(self.total_boxes):
+                lower_bounds, upper_bounds = self.get_box_bounds(box_idx)
+                box_points = np.random.uniform(
+                    low=lower_bounds,
+                    high=upper_bounds,
+                    size=(num_random, self.ndim)
+                )
+                points_list.extend(box_points)
+            
+            points = np.array(points_list)
+            metadata = {
+                'mode': 'random',
+                'num_per_box': num_random,
+                'seed': 42
+            }
+            
+        elif mode == 'data':
+            if data_points is None:
+                raise ValueError("data_points must be provided for 'data' mode")
+            
+            # Remove duplicates while preserving order
+            unique_points, unique_indices = np.unique(
+                data_points, axis=0, return_index=True
+            )
+            points = unique_points[np.argsort(unique_indices)]
+            
+            metadata = {
+                'mode': 'data',
+                'original_count': len(data_points),
+                'unique_count': len(points)
+            }
+            
+        else:
+            raise ValueError(f"Unknown mode: {mode}")
+        
+        return points, metadata
+    
+    def find_boxes_containing_point(
+        self, 
+        point: np.ndarray,
+        tolerance: float = 1e-10
+    ) -> List[int]:
+        """
+        Find all box indices that contain or share this point.
+        
+        Args:
+            point: N-dimensional coordinates
+            tolerance: Numerical tolerance for boundary detection
+            
+        Returns:
+            List of box indices that contain the point
+        """
+        point = np.asarray(point)
+        
+        if len(point) != self.ndim:
+            raise ValueError(f"Point must have {self.ndim} dimensions")
+        
+        # Check if point is within grid bounds
+        if not np.all((point >= self.bounds[:, 0] - tolerance) & 
+                     (point <= self.bounds[:, 1] + tolerance)):
+            return []  # Point outside grid
+        
+        # Compute which box the point would be in (if interior)
+        relative_pos = (point - self.bounds[:, 0]) / self.box_widths
+        base_indices = np.floor(relative_pos).astype(int)
+        
+        # Check if point is on any boundary
+        # A point is on a lower boundary if it's very close to a grid line
+        on_lower_boundary = np.abs(relative_pos - base_indices) < tolerance
+        # A point is on an upper boundary if it's very close to the next grid line
+        on_upper_boundary = np.abs(relative_pos - (base_indices + 1)) < tolerance
+        
+        # Handle edge cases at domain boundaries
+        at_lower_domain = np.abs(point - self.bounds[:, 0]) < tolerance
+        at_upper_domain = np.abs(point - self.bounds[:, 1]) < tolerance
+        
+        # Adjust for domain boundaries
+        for i in range(self.ndim):
+            if at_lower_domain[i]:
+                on_lower_boundary[i] = True
+                base_indices[i] = 0
+            if at_upper_domain[i]:
+                on_upper_boundary[i] = True
+                base_indices[i] = min(base_indices[i], self.subdivisions[i] - 1)
+        
+        # Generate all adjacent boxes that share this point
+        adjacent_boxes = []
+        
+        # Create offset combinations
+        offsets = []
+        for i in range(self.ndim):
+            if on_lower_boundary[i] and base_indices[i] > 0:
+                if on_upper_boundary[i]:
+                    # Point is exactly on a grid line
+                    offsets.append([-1, 0])
+                else:
+                    offsets.append([-1, 0])
+            elif on_upper_boundary[i] and base_indices[i] < self.subdivisions[i] - 1:
+                offsets.append([0, 1])
+            else:
+                offsets.append([0])
+        
+        # Generate all combinations
+        for offset_combo in itertools.product(*offsets):
+            box_indices = base_indices + np.array(offset_combo)
+            
+            # Check bounds
+            if (np.all(box_indices >= 0) and 
+                np.all(box_indices < self.subdivisions)):
+                box_idx = int(np.ravel_multi_index(box_indices, self.subdivisions))
+                if box_idx not in adjacent_boxes:
+                    adjacent_boxes.append(box_idx)
+        
+        return adjacent_boxes

@@ -18,6 +18,7 @@ class GridConfig:
     default_subdivisions: Tuple[int, int] = (30, 30)
     default_bounds: List[Tuple[float, float]] = None  # Will be set per system
     bloat_factor: float = 0.1
+    out_of_bounds_tolerance: float = 1e-6  # Tolerance for discarding out-of-bounds points
     sampling_modes: List[str] = None
     
     def __post_init__(self):
@@ -65,6 +66,9 @@ class VisualizationConfig:
     event_color: str = 'red'
     event_linewidth: float = 2.0
     event_alpha: float = 0.7
+    
+    # Plotting margins
+    plot_margin: float = 0.1
 
 
 @dataclass
@@ -75,7 +79,7 @@ class LoggingConfig:
     date_format: str = '%Y-%m-%d %H:%M:%S'
     enable_file_logging: bool = False
     log_file: Optional[str] = None
-    verbose: bool = True  # For print statement compatibility
+    verbose: bool = False  # For print statement compatibility
 
 
 class HybridConfig:

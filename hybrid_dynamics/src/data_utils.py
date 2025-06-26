@@ -218,7 +218,7 @@ class GridEvaluationResult:
         results = {}
         for key in data.files:
             if key.startswith("box_"):
-                box_idx = int(key[4:])  # Remove "box_" prefix
+                box_idx = int(key[4:])
                 results[box_idx] = data[key].tolist()
         
         return cls(

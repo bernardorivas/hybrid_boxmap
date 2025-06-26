@@ -7,6 +7,7 @@ for the unstable periodic hybrid dynamical system.
 """
 from pathlib import Path
 import networkx as nx
+import warnings
 
 from hybrid_dynamics import Grid, HybridBoxMap
 from hybrid_dynamics.examples.unstableperiodic import UnstablePeriodicSystem
@@ -26,15 +27,28 @@ from hybrid_dynamics.src.demo_utils import (
 )
 
 
+# Factory function for parallel processing
+def create_unstableperiodic_system(max_jumps=15):
+    """Factory function to create UnstablePeriodicSystem for parallel processing."""
+    system = UnstablePeriodicSystem(
+        domain_bounds=[(0.0, 1.0), (-1.0, 1.0)],
+        max_jumps=max_jumps
+    )
+    return system.system
+
+
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
-TAU = 0.5                 # Integration time horizon
+TAU = 2.0                 # Integration time horizon
 SUBDIVISIONS = [100, 100] # Grid subdivisions [x_subdivisions, y_subdivisions]
 # ===============================================
 
 
 def run_unstableperiodic_demo():
     """Unstable periodic Morse set analysis and visualization."""
+    
+    # Suppress repeated warnings about post-jump states
+    warnings.filterwarnings('ignore', message='Post-jump state outside domain bounds')
     
     # Setup paths using utility function
     data_dir, figures_base_dir = setup_demo_directories("unstable_periodic")
@@ -79,8 +93,11 @@ def run_unstableperiodic_demo():
             grid=grid,
             system=system_obj.system,
             tau=tau,
-            discard_out_of_bounds_destinations=False,
+            discard_out_of_bounds_destinations=True,
             progress_callback=progress_callback,
+            parallel=True,
+            system_factory=create_unstableperiodic_system,
+            system_args=(system_obj.max_jumps,)
         )
         
         # Save to cache

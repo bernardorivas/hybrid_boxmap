@@ -146,11 +146,11 @@ if __name__ == '__main__':
     bounds = ((-1.1, 1.1), (-1.1, 1.1))
     resolution = (20, 20) # 20x20 grid
 
-    print("Computing covered grid...")
+    # Compute covered grid
     covered_info = compute_covered_grid(sample_points, bounds, resolution)
     
-    print(f"Grid Resolution: {covered_info.grid_resolution}")
-    print(f"Number of covered cells: {np.sum(covered_info.covered_mask)}")
+    # Grid resolution: {covered_info.grid_resolution}
+    # Number of covered cells: {np.sum(covered_info.covered_mask)}
 
     # Visualization
     fig, ax = plt.subplots()
@@ -182,5 +182,5 @@ if __name__ == '__main__':
         ax.legend()
 
     plt.show()
-    print("Example finished.")
+    # Example finished
 """

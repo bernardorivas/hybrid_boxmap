@@ -15,6 +15,8 @@ This demo showcases:
 
 from pathlib import Path
 import numpy as np
+import warnings
+import time
 
 from hybrid_dynamics.examples.thermostat import Thermostat
 from hybrid_dynamics.src.multigrid import MultiGrid, MultiGridBoxMap
@@ -27,9 +29,17 @@ from hybrid_dynamics.src.demo_utils import (
 )
 
 
+# Factory function for parallel processing
+def create_thermostat_system(T_c=0.5, T_h=1.0, T_off=30.0, T_on=70.0, max_jumps=50):
+    """Factory function to create Thermostat system for parallel processing."""
+    thermostat = Thermostat(T_c=T_c, T_h=T_h, T_off=T_off, T_on=T_on, max_jumps=max_jumps)
+    return thermostat.system
+
+
 # ========== CONFIGURATION PARAMETERS ==========
 TAU = 0.5                    # Integration time horizon
 TEMP_SUBDIVISIONS = 100      # Temperature subdivisions
+USE_INTERVAL_METHOD = True   # Use interval-based computation (more accurate for 1D systems)
 # ===============================================
 
 
@@ -129,6 +139,12 @@ def map_mode_boxes_to_embedding(multigrid: MultiGrid, embedding_grid: Grid,
 def run_thermostat_demo():
     """Thermostat MultiGrid with discrete mode analysis."""
     
+    # Start total timer
+    total_start_time = time.time()
+    
+    # Suppress repeated warnings about post-jump states
+    warnings.filterwarnings('ignore', message='Post-jump state outside domain bounds')
+    
     print("=== Thermostat MultiGrid Demo ===")
     print(f"Configuration:")
     print(f"  Time: {TAU}")
@@ -172,13 +188,25 @@ def run_thermostat_demo():
     progress_callback = create_progress_callback(update_interval=50)
     
     # Compute MultiGrid BoxMap
-    print("Computing MultiGrid BoxMap...")
-    multi_boxmap = multigrid.compute_multi_boxmap(
-        system=thermostat.system,
-        tau=TAU,
-        bloat_factor=0.2,  # Increased bloat factor to catch all transitions
-        progress_callback=progress_callback
-    )
+    compute_start_time = time.time()
+    if USE_INTERVAL_METHOD:
+        print("Computing MultiGrid BoxMap using interval method...")
+        multi_boxmap = multigrid.compute_multi_boxmap_interval(
+            system=thermostat.system,
+            tau=TAU,
+            bloat_factor=0.2,  # Increased bloat factor to catch all transitions
+            progress_callback=progress_callback
+        )
+    else:
+        print("Computing MultiGrid BoxMap using corner sampling...")
+        multi_boxmap = multigrid.compute_multi_boxmap(
+            system=thermostat.system,
+            tau=TAU,
+            bloat_factor=0.2,  # Increased bloat factor to catch all transitions
+            progress_callback=progress_callback
+        )
+    compute_time = time.time() - compute_start_time
+    print(f"  MultiGrid BoxMap computation time: {compute_time:.2f} seconds")
     
     print(f"\\nBoxMap computation results:")
     print(f"  Source boxes with transitions: {len(multi_boxmap)}")
@@ -283,12 +311,15 @@ def run_thermostat_demo():
     print(f"Created NetworkX graph: {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges")
     
     # Morse graph analysis
+    morse_start_time = time.time()
     from hybrid_dynamics.src import create_morse_graph, plot_morse_graph_viz
     
     morse_graph, morse_sets = create_morse_graph(graph)
+    morse_time = time.time() - morse_start_time
     
     if morse_graph.number_of_nodes() > 0:
         print(f"✓ Morse graph computed: {morse_graph.number_of_nodes()} Morse sets")
+        print(f"  Morse graph analysis time: {morse_time:.3f} seconds")
         
         # Plot Morse graph
         plot_morse_graph_viz(morse_graph, morse_sets, str(run_dir / "morse_graph.png"))

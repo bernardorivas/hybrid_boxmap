@@ -6,6 +6,9 @@ Generates visualizations of Morse sets and the Morse graph
 for the bipedal walker hybrid dynamical system.
 """
 from pathlib import Path
+import numpy as np
+import warnings
+import time
 
 from hybrid_dynamics import Grid, HybridBoxMap
 from hybrid_dynamics.examples.bipedal import BipedalWalker
@@ -25,15 +28,37 @@ from hybrid_dynamics.src.demo_utils import (
 )
 
 
+# Factory function for parallel processing
+def create_bipedal_system(x0=1.0, y0=0.0, z0=1.0, g=1.0, max_jumps=20):
+    """Factory function to create BipedalWalker system for parallel processing."""
+    biped = BipedalWalker(
+        x0=x0,
+        y0=y0,
+        z0=z0,
+        g=g,
+        max_jumps=max_jumps
+    )
+    return biped.system
+
+
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
 TAU = 0.5                    # Integration time horizon
-SUBDIVISIONS = [50, 50, 10, 10] # Grid subdivisions [x, y, x_dot, y_dot]
+SUBDIVISIONS = [100, 100, 20, 20] # Grid subdivisions [x, y, x_dot, y_dot]
+USE_CYLINDRICAL = True       # Use cylindrical sampling method
+N_RADIAL = 250               # Number of radial samples for cylindrical method
+N_ANGULAR = 360              # Number of angular samples for cylindrical method (every degree)
 # ===============================================
 
 
 def run_bipedal_demo():
     """Bipedal walker Morse set analysis and visualization."""
+    
+    # Start total timer
+    total_start_time = time.time()
+    
+    # Suppress repeated warnings about post-jump states
+    warnings.filterwarnings('ignore', message='Post-jump state outside domain bounds')
     
     # Setup paths using utility function
     data_dir, figures_base_dir = setup_demo_directories("bipedal")
@@ -52,10 +77,22 @@ def run_bipedal_demo():
     
     # Initial conditions for phase portrait (4D system, we'll plot first 2 dimensions)
     initial_conditions = [
-        [-0.866, 0.5, 0.5, -0.5],     # Start at target, moving inside
-        [0.707, 0.707, -0.3, -0.3],   # Another point on circle
-        [-0.5, -0.866, 0.2, 0.4],     # Third point
-        [0.0, 1.0, -0.1, -0.6],       # Fourth point
+        # Key dynamical points
+        [1.0, 0.0, 0.0, 0.0],         # Start at (1,0)
+        [-1.0, 0.0, 0.0, 0.0],        # Start at (-1,0)
+        [0.0, 0.0, 0.0, 0.0],         # Origin (fixed point)
+        # Points on the circle
+        [0.0, 1.0, 0.0, 0.0],         # Start at (0,1)
+        [0.0, -1.0, 0.0, 0.0],        # Start at (0,-1)
+        [0.707, 0.707, 0.0, 0.0],     # 45 degrees
+        [-0.707, 0.707, 0.0, 0.0],    # 135 degrees
+        # Various radii to show flow
+        [0.5, 0.0, 0.0, 0.0],         # Half radius
+        [0.3, 0.0, 0.0, 0.0],         # Inner circle
+        [0.8, 0.0, 0.0, 0.0],         # Near boundary
+        # With initial velocities
+        [0.5, 0.5, 0.2, -0.2],        # With velocity
+        [-0.5, 0.5, -0.2, 0.2],       # With velocity
     ]
 
     # Create run directory
@@ -73,20 +110,47 @@ def run_bipedal_demo():
         biped_params, biped.domain_bounds, grid.subdivisions.tolist(), tau
     )
 
+    # Get cylinder radius from system parameters
+    cylinder_radius = np.sqrt(biped.x0**2 + biped.y0**2)
+    
     # 2. Try to load from cache
+    cache_start_time = time.time()
     box_map = load_box_map_from_cache(grid, biped.system, tau, box_map_file, current_config_hash)
     
     # 3. Compute new if cache miss
     if box_map is None:
         print("Computing new box map...")
+        compute_start_time = time.time()
         progress_callback = create_progress_callback()
-        box_map = HybridBoxMap.compute(
-            grid=grid,
-            system=biped.system,
-            tau=tau,
-            discard_out_of_bounds_destinations=False,
-            progress_callback=progress_callback,
-        )
+        
+        if USE_CYLINDRICAL:
+            print(f"Using cylindrical sampling with {N_RADIAL}×{N_ANGULAR} samples")
+            
+            box_map = HybridBoxMap.compute_cylindrical(
+                grid=grid,
+                system=biped.system,
+                tau=tau,
+                cylinder_radius=cylinder_radius,
+                n_radial_samples=N_RADIAL,
+                n_angular_samples=N_ANGULAR,
+                discard_out_of_bounds_destinations=False,
+                progress_callback=progress_callback,
+                parallel=True,
+                system_factory=create_bipedal_system,
+                system_args=(biped.x0, biped.y0, biped.z0, biped.g, biped.max_jumps)
+            )
+        else:
+            print("Using standard corner sampling")
+            box_map = HybridBoxMap.compute(
+                grid=grid,
+                system=biped.system,
+                tau=tau,
+                discard_out_of_bounds_destinations=True,
+                progress_callback=progress_callback,
+                parallel=True,
+                system_factory=create_bipedal_system,
+                system_args=(biped.x0, biped.y0, biped.z0, biped.g, biped.max_jumps)
+            )
 
         # Save to cache
         config_details = {
@@ -96,35 +160,32 @@ def run_bipedal_demo():
             "tau": tau,
         }
         save_box_map_with_config(box_map, current_config_hash, config_details, box_map_file)
-
+        
+        compute_time = time.time() - compute_start_time
+        print(f"  Box map computation time: {compute_time:.2f} seconds")
+    else:
+        cache_time = time.time() - cache_start_time
+        print(f"  Cache load time: {cache_time:.3f} seconds")
+    
     # Convert to NetworkX and analyze
+    morse_start_time = time.time()
     graph = box_map.to_networkx()
     morse_graph, morse_sets = create_morse_graph(graph)
+    morse_time = time.time() - morse_start_time
     
     # Check and report Morse graph computation results
     if morse_graph.number_of_nodes() > 0:
         print("✓ Morse graph and Morse sets were computed.")
+        print(f"  Number of Morse sets: {len(morse_sets)}")
+        print(f"  Morse graph analysis time: {morse_time:.3f} seconds")
     else:
         print("⚠ Warning: Morse graph is empty. No recurrent sets were found.")
 
     # Generate visualizations
+    viz_start_time = time.time()
     
-    # Phase portrait (plotting first 2 dimensions: x vs y)
-    plotter = HybridPlotter()
-    plotter.create_phase_portrait_with_trajectories(
-        system=biped.system,
-        initial_conditions=initial_conditions,
-        time_span=(0.0, 2.0),
-        output_path=str(run_dir / "phase_portrait.png"),
-        max_jumps=8,
-        title="Phase Portrait",
-        xlabel="x",
-        ylabel="y",
-        domain_bounds=[(biped.domain_bounds[0]), (biped.domain_bounds[1])],  # Only first 2 dims
-        figsize=(10, 8),
-        dpi=150,
-        show_legend=False
-    )
+    # Skip phase portrait for 4D systems - it's too slow and doesn't add much value
+    # Just generate Morse sets and Morse graph visualizations
     
     plot_morse_sets_on_grid(
         grid, 
@@ -136,8 +197,15 @@ def run_bipedal_demo():
     )
     plot_morse_graph_viz(morse_graph, morse_sets, str(run_dir / "morse_graph.png"))
     
+    viz_time = time.time() - viz_start_time
+    total_time = time.time() - total_start_time
+    
     # Final summary
     print(f"✓ Figures are saved in {run_dir}")
+    print(f"  - morse_sets.png") 
+    print(f"  - morse_graph.png")
+    print(f"  Visualization time: {viz_time:.2f} seconds")
+    print(f"\n⏱️  Total execution time: {total_time:.2f} seconds")
 
 
 if __name__ == "__main__":

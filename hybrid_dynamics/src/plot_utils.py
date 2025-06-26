@@ -864,7 +864,7 @@ def visualize_flow_map(
     """
     # Use default margin if not provided
     if margin is None:
-        margin = 0.1  # TODO: Add to config system
+        margin = config.visualization.plot_margin
 
     print(f"Loading flow map data from {input_path}...")
     with open(input_path, "rb") as f:
@@ -939,7 +939,7 @@ def visualize_box_map(
     """
     # Use default margin if not provided
     if margin is None:
-        margin = 0.1  # TODO: Add to config system
+        margin = config.visualization.plot_margin
 
     print("Visualizing hybrid box map...")
     fig, ax = plt.subplots(**config.get_figure_config())
@@ -1072,7 +1072,7 @@ def plot_morse_sets_on_grid(
     """
     # Use default margin if not provided
     if margin is None:
-        margin = 0.1  # TODO: Add to config system
+        margin = config.visualization.plot_margin
     fig, ax = plt.subplots(figsize=(12, 10))
 
     # Define a color cycle for the components using a more vibrant map

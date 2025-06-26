@@ -7,7 +7,9 @@ with support for different sampling strategies.
 
 from __future__ import annotations
 
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, Dict, List, Optional, Union, Tuple, Any
+import multiprocessing
+from multiprocessing import Pool
 
 import numpy as np
 import numpy.typing as npt
@@ -38,10 +40,7 @@ def evaluate_box(
     Returns:
         List of function values at sample points
     """
-    # Get sample points
     points = grid.get_sample_points(box_index, sampling_mode, num_points)
-    
-    # Evaluate function at each point
     results = []
     for point in points:
         try:
@@ -113,3 +112,104 @@ def evaluate_grid(
     return evaluate_grid_sequential(
         grid, function, sampling_mode, num_points, progress_callback
     )
+
+
+# Worker function for parallel evaluation - must be at module level for pickling
+def _evaluate_points_worker(args: Tuple[np.ndarray, Callable, tuple, float]) -> List[Tuple[int, Any]]:
+    """
+    Worker function for parallel point evaluation.
+    
+    Args:
+        args: Tuple of (points_batch, system_factory, system_args, tau)
+        
+    Returns:
+        List of (point_index, result) tuples
+    """
+    points_batch, system_factory, system_args, tau = args
+    
+    # Create system instance in worker process
+    system = system_factory(*system_args)
+    
+    results = []
+    for i, point in enumerate(points_batch):
+        try:
+            # Create the evaluation function that simulates the system
+            def evaluate_flow(pt):
+                traj = system.simulate(pt, (0, tau))
+                if traj.total_duration >= tau:
+                    final_state = traj.interpolate(tau)
+                    num_jumps = traj.num_jumps
+                    return (final_state, num_jumps)
+                
+                # If tau not reached, use last available point
+                if traj.segments and traj.segments[-1].state_values.size > 0:
+                    final_state = traj.segments[-1].state_values[-1]
+                    num_jumps = traj.num_jumps
+                    return (final_state, num_jumps)
+                
+                return (np.full(len(pt), np.nan), -1)
+            
+            result = evaluate_flow(point)
+            results.append((i, result))
+        except Exception as e:
+            logger.debug(f"Failed to evaluate point {point}: {e}")
+            results.append((i, (np.full(len(point), np.nan), -1)))
+    
+    return results
+
+
+def evaluate_unique_points_parallel(
+    points: np.ndarray,
+    system_factory: Callable,
+    system_args: tuple,
+    tau: float,
+    max_workers: Optional[int] = None,
+    batch_size: int = 1000,
+    progress_callback: Optional[Callable[[int, int], None]] = None
+) -> Dict[int, Tuple[np.ndarray, int]]:
+    """
+    Evaluate flow map for unique points using parallel processing.
+    
+    Args:
+        points: Array of points to evaluate, shape (n_points, ndim)
+        system_factory: Function that creates a HybridSystem instance
+        system_args: Arguments to pass to system_factory
+        tau: Time horizon for simulation
+        max_workers: Maximum number of parallel workers (None = CPU count)
+        batch_size: Number of points per batch
+        progress_callback: Optional callback for progress updates
+        
+    Returns:
+        Dictionary mapping point_index -> (final_state, num_jumps)
+    """
+    if max_workers is None:
+        max_workers = multiprocessing.cpu_count()
+    
+    n_points = len(points)
+    results = {}
+    completed = 0
+    
+    # Split points into batches
+    batches = []
+    for i in range(0, n_points, batch_size):
+        batch = points[i:i + batch_size]
+        batches.append((batch, system_factory, system_args, tau))
+    
+    # Process batches in parallel
+    with Pool(processes=max_workers) as pool:
+        # Submit all batches
+        batch_results = pool.map(_evaluate_points_worker, batches)
+        
+        # Collect results
+        for batch_idx, batch_result in enumerate(batch_results):
+            batch_start = batch_idx * batch_size
+            
+            for local_idx, result in batch_result:
+                global_idx = batch_start + local_idx
+                results[global_idx] = result
+                
+            completed += len(batch_result)
+            if progress_callback:
+                progress_callback(completed, n_points)
+    
+    return results

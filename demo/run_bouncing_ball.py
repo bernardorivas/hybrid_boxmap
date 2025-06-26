@@ -3,6 +3,8 @@
 Generates a phase portrait, morse sets, and morse graph for the bouncing ball hybrid dynamical system.
 """
 from pathlib import Path
+import warnings
+import time
 
 from hybrid_dynamics import Grid, HybridBoxMap
 from hybrid_dynamics.examples.bouncing_ball import BouncingBall
@@ -23,6 +25,18 @@ from hybrid_dynamics.src.demo_utils import (
 )
 
 
+# Factory function for parallel processing
+def create_bouncing_ball_system(g=9.81, c=0.5, max_jumps=50):
+    """Factory function to create BouncingBall system for parallel processing."""
+    ball = BouncingBall(
+        domain_bounds=[(0.0, 2.0), (-5.0, 5.0)],
+        g=g,
+        c=c,
+        max_jumps=max_jumps,
+    )
+    return ball.system
+
+
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
 TAU = 0.3                # Integration time horizon
@@ -32,6 +46,12 @@ SUBDIVISIONS = [51, 51]  # Grid subdivisions [height_subdivisions, velocity_subd
 
 def run_bouncing_ball_demo():
     """Bouncing ball phase portrait, morse sets, and morse graph."""
+    
+    # Start total timer
+    total_start_time = time.time()
+    
+    # Suppress repeated warnings about post-jump states
+    warnings.filterwarnings('ignore', message='Post-jump state outside domain bounds')
     
     # Setup paths using utility function
     data_dir, figures_base_dir = setup_demo_directories("bouncing_ball")
@@ -68,18 +88,23 @@ def run_bouncing_ball_demo():
     )
 
     # 2. Try to load from cache
+    cache_start_time = time.time()
     box_map = load_box_map_from_cache(grid, ball.system, tau, box_map_file, current_config_hash)
     
     # 3. Compute if cache miss
     if box_map is None:
         print("Computing box map...")
+        compute_start_time = time.time()
         progress_callback = create_progress_callback()
         box_map = HybridBoxMap.compute(
             grid=grid,
             system=ball.system,
             tau=tau,
-            discard_out_of_bounds_destinations=False,
+            discard_out_of_bounds_destinations=True,
             progress_callback=progress_callback,
+            parallel=True,
+            system_factory=create_bouncing_ball_system,
+            system_args=(ball.g, ball.c, ball.max_jumps)
         )
 
         # Save to cache
@@ -90,18 +115,29 @@ def run_bouncing_ball_demo():
             "tau": tau,
         }
         save_box_map_with_config(box_map, current_config_hash, config_details, box_map_file)
+        
+        compute_time = time.time() - compute_start_time
+        print(f"  Box map computation time: {compute_time:.2f} seconds")
+    else:
+        cache_time = time.time() - cache_start_time
+        print(f"  Cache load time: {cache_time:.3f} seconds")
 
     # Convert to NetworkX and compute morse graph and sets
+    morse_start_time = time.time()
     graph = box_map.to_networkx()
     morse_graph, morse_sets = create_morse_graph(graph)
+    morse_time = time.time() - morse_start_time
     
     # Check and report Morse graph computation results
     if morse_graph.number_of_nodes() > 0:
         print("✓ Morse graph and Morse sets were computed.")
+        print(f"  Number of Morse sets: {len(morse_sets)}")
+        print(f"  Morse graph analysis time: {morse_time:.3f} seconds")
     else:
         print("⚠ Warning: Morse graph is empty. No recurrent sets were found.")
 
     # Generate visualizations
+    viz_start_time = time.time()
     
     # Phase portrait
     plotter = HybridPlotter()
@@ -130,8 +166,17 @@ def run_bouncing_ball_demo():
     # Plot box containing origin (0,0) as an example
     plot_box_containing_point(box_map, grid, [0.0, 0.0], run_dir, "origin_box_map")
     
+    viz_time = time.time() - viz_start_time
+    total_time = time.time() - total_start_time
+    
     # Final summary
     print(f"✓ Figures are saved in {run_dir}")
+    print(f"  - phase_portrait.png")
+    print(f"  - morse_sets.png") 
+    print(f"  - morse_graph.png")
+    print(f"  - origin_box_map_point_0_0_box_*.png")
+    print(f"  Visualization time: {viz_time:.2f} seconds")
+    print(f"\n⏱️  Total execution time: {total_time:.2f} seconds")
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Union, Optional, Tuple
 
 from .plot_utils import visualize_box_map_entry
+from .print_utils import vprint
 
 
 def create_config_hash(params_dict: Dict[str, Any], 
@@ -92,7 +93,7 @@ def plot_box_containing_point(box_map: "HybridBoxMap",
     try:
         box_index = grid.get_box_from_point(point)
     except ValueError:
-        print(f"Warning: Point {point} is outside the grid bounds and cannot be plotted.")
+        vprint(f"Warning: Point {point} is outside the grid bounds and cannot be plotted.", level='always')
         return None
     
     try:
@@ -106,7 +107,6 @@ def plot_box_containing_point(box_map: "HybridBoxMap",
             # Fallback if raw_flow_data is not available
             final_points = np.array([])
         
-        # Create descriptive filename
         point_str = "_".join(f"{coord:.3g}" for coord in point)
         output_path = output_dir / f"{filename_prefix}_point_{point_str}_box_{box_index}.png"
         
@@ -118,11 +118,11 @@ def plot_box_containing_point(box_map: "HybridBoxMap",
             final_points=final_points,
             output_path=str(output_path),
         )
-        print(f"✓ Box map plot saved to {output_path}")
+        vprint(f"✓ Box map plot saved to {output_path}", level='always')
         return output_path
         
     except Exception as e:
-        print(f"Error creating box map plot for point {point}, box {box_index}: {e}")
+        vprint(f"Error creating box map plot for point {point}, box {box_index}: {e}", level='always')
         return None
 
 
@@ -202,12 +202,12 @@ def load_box_map_from_cache(grid: "Grid",
         # Check if configuration matches
         saved_config_hash = box_map_data.get("config_hash", "")
         if saved_config_hash != expected_hash:
-            print("⚠ Configuration changed, cache invalid")
-            print(f"  Previous config hash: {saved_config_hash[:8]}...")
-            print(f"  Current config hash:  {expected_hash[:8]}...")
+            vprint("⚠ Configuration changed, cache invalid", level='always')
+            vprint(f"  Previous config hash: {saved_config_hash[:8]}...", level='always')
+            vprint(f"  Current config hash:  {expected_hash[:8]}...", level='always')
             return None
         
-        print("✓ Configuration matches previous computations, loading from cache.")
+        vprint("✓ Configuration matches previous computations, loading from cache.", level='always')
         
         # Reconstruct HybridBoxMap from saved data
         box_map = HybridBoxMap(grid, system, tau)
@@ -217,7 +217,7 @@ def load_box_map_from_cache(grid: "Grid",
         return box_map
         
     except Exception as e:
-        print(f"⚠ Error loading cache: {e}, will recompute")
+        vprint(f"⚠ Error loading cache: {e}, will recompute", level='always')
         return None
 
 

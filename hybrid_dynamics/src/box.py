@@ -74,27 +74,22 @@ class Box:
     
     @property
     def lower_bounds(self) -> np.ndarray:
-        """Lower bounds in each dimension."""
         return self.bounds[:, 0]
     
     @property
     def upper_bounds(self) -> np.ndarray:
-        """Upper bounds in each dimension."""
         return self.bounds[:, 1]
     
     @property
     def center(self) -> np.ndarray:
-        """Center point of box."""
         return (self.lower_bounds + self.upper_bounds) / 2
     
     @property
     def sizes(self) -> np.ndarray:
-        """Size in each dimension."""
         return self.upper_bounds - self.lower_bounds
     
     @property
     def volume(self) -> float:
-        """Volume (or area in 2D) of box."""
         return np.prod(self.sizes)
     
     @property
@@ -311,7 +306,6 @@ class Box:
             [0, 2, 6, 4], [1, 3, 7, 5]   # left, right
         ]
         
-        # Create face collection
         face_vertices = [[corners[j] for j in face] for face in faces]
         
         # Default styling
@@ -326,7 +320,6 @@ class Box:
         collection = Poly3DCollection(face_vertices, **plot_kwargs)
         ax.add_collection3d(collection)
         
-        # Set axis limits
         ax.set_xlim(self.lower_bounds[0], self.upper_bounds[0])
         ax.set_ylim(self.lower_bounds[1], self.upper_bounds[1])
         ax.set_zlim(self.lower_bounds[2], self.upper_bounds[2])
@@ -334,13 +327,11 @@ class Box:
         return ax
     
     def __str__(self) -> str:
-        """String representation of box."""
         bounds_str = ", ".join([f"[{self.bounds[i,0]:.3f}, {self.bounds[i,1]:.3f}]" 
                                for i in range(self.dimension)])
         return f"Box({bounds_str})"
     
     def __eq__(self, other: 'Box') -> bool:
-        """Check equality with another box."""
         if not isinstance(other, Box):
             return False
         return np.allclose(self.bounds, other.bounds)

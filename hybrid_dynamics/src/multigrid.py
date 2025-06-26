@@ -17,6 +17,7 @@ from typing import Dict, List, Optional, Set, Tuple, Union, Callable
 from .grid import Grid
 from .hybrid_system import HybridSystem
 from .hybrid_boxmap import HybridBoxMap
+from .print_utils import vprint
 
 
 class MultiGridBoxMap(dict):
@@ -282,9 +283,9 @@ class MultiGrid:
         if bloat_factor is None:
             bloat_factor = get_default_bloat_factor()
         
-        print("Computing MultiGrid BoxMap...")
-        print(f"  Modes: {self.modes}")
-        print(f"  Total boxes: {self.total_boxes}")
+        vprint("Computing MultiGrid BoxMap...")
+        vprint(f"  Modes: {self.modes}")
+        vprint(f"  Total boxes: {self.total_boxes}")
         
         # Initialize the MultiGrid BoxMap
         multi_boxmap = MultiGridBoxMap(self, system, tau)
@@ -387,9 +388,236 @@ class MultiGrid:
             if progress_callback:
                 progress_callback(completed, total_mode_boxes)
         
-        print("✓ MultiGrid BoxMap computation complete.")
+        vprint("✓ MultiGrid BoxMap computation complete.", level='always')
         
         return multi_boxmap
+    
+    def compute_multi_boxmap_interval(self, system: HybridSystem, tau: float,
+                                    bloat_factor: Optional[float] = None,
+                                    progress_callback: Optional[Callable[[int, int], None]] = None) -> MultiGridBoxMap:
+        """
+        Compute MultiGrid BoxMap using interval-based approach for 1D systems.
+        
+        This method is designed for 1D hybrid systems (like thermostats) where each mode
+        has a 1D continuous state. Instead of just using corner points, it computes
+        the image of the entire interval, properly handling mode switches.
+        
+        Args:
+            system: Hybrid system to analyze
+            tau: Time horizon
+            bloat_factor: Bloating factor for destination boxes
+            progress_callback: Progress callback function
+            
+        Returns:
+            MultiGridBoxMap containing inter- and intra-mode transitions
+        """
+        from .config import get_default_bloat_factor
+        
+        # Verify this is a 1D system in each mode
+        for mode, grid in self.mode_grids.items():
+            if grid.ndim != 1:
+                raise ValueError(f"Interval method only supports 1D grids, but mode {mode} has {grid.ndim}D grid")
+        
+        if bloat_factor is None:
+            bloat_factor = get_default_bloat_factor()
+        
+        vprint("Computing MultiGrid BoxMap using interval method...")
+        vprint(f"  Modes: {self.modes}")
+        vprint(f"  Total boxes: {self.total_boxes}")
+        
+        # Initialize the MultiGrid BoxMap
+        multi_boxmap = MultiGridBoxMap(self, system, tau)
+        
+        total_mode_boxes = sum(grid.total_boxes for grid in self.mode_grids.values())
+        completed = 0
+        
+        # Process each (mode, box_index) pair
+        for src_mode, src_grid in self.mode_grids.items():
+            for src_box_index in src_grid.box_indices:
+                # Get box bounds [a, b]
+                box_bounds = src_grid.get_box_bounds(src_box_index)
+                a, b = box_bounds[0][0], box_bounds[1][0]  # Extract scalars from 1D arrays
+                
+                # Create corner states (temperature, mode)
+                state_a = np.array([a, float(src_mode)])
+                state_b = np.array([b, float(src_mode)])
+                
+                try:
+                    # Simulate from both corners
+                    traj_a = system.simulate(state_a, (0, tau))
+                    traj_b = system.simulate(state_b, (0, tau))
+                    
+                    # Get final states
+                    if traj_a.total_duration >= tau:
+                        final_a = traj_a.interpolate(tau)
+                    elif traj_a.segments and traj_a.segments[-1].state_values.size > 0:
+                        final_a = traj_a.segments[-1].state_values[-1]
+                    else:
+                        continue
+                    
+                    if traj_b.total_duration >= tau:
+                        final_b = traj_b.interpolate(tau)
+                    elif traj_b.segments and traj_b.segments[-1].state_values.size > 0:
+                        final_b = traj_b.segments[-1].state_values[-1]
+                    else:
+                        continue
+                    
+                    # Extract temperatures and modes from final states
+                    temp_final_a, mode_final_a = final_a[0], int(round(final_a[1]))
+                    temp_final_b, mode_final_b = final_b[0], int(round(final_b[1]))
+                    
+                    # Check if there was a mode switch between the corners
+                    if mode_final_a == mode_final_b and traj_a.num_jumps == traj_b.num_jumps:
+                        # No mode switch - use simple interval
+                        temp_min = min(temp_final_a, temp_final_b)
+                        temp_max = max(temp_final_a, temp_final_b)
+                        
+                        # Add boxes for this interval with bloating
+                        self._add_boxes_for_interval(
+                            multi_boxmap, (src_mode, src_box_index),
+                            mode_final_a, temp_min, temp_max, bloat_factor
+                        )
+                    else:
+                        # Mode switch occurred - need to handle jump point
+                        jump_info = self._find_jump_between_trajectories(traj_a, traj_b, a, b, src_mode)
+                        
+                        if jump_info is not None:
+                            jump_temp, jump_mode = jump_info
+                            
+                            # Add interval from a to jump point in original mode
+                            if mode_final_a == src_mode:
+                                # Trajectory a didn't jump
+                                self._add_boxes_for_interval(
+                                    multi_boxmap, (src_mode, src_box_index),
+                                    src_mode, temp_final_a, jump_temp, bloat_factor
+                                )
+                            else:
+                                # Trajectory a jumped - use pre-jump temperature
+                                if traj_a.segments and len(traj_a.segments) > 1:
+                                    pre_jump_state = traj_a.segments[0].state_values[-1]
+                                    pre_jump_temp = pre_jump_state[0]
+                                    self._add_boxes_for_interval(
+                                        multi_boxmap, (src_mode, src_box_index),
+                                        src_mode, pre_jump_temp, jump_temp, bloat_factor
+                                    )
+                            
+                            # Add interval from jump point to b in switched mode
+                            if mode_final_b != src_mode:
+                                # Trajectory b jumped
+                                self._add_boxes_for_interval(
+                                    multi_boxmap, (src_mode, src_box_index),
+                                    mode_final_b, jump_temp, temp_final_b, bloat_factor
+                                )
+                            else:
+                                # Trajectory b didn't jump - this shouldn't happen if jump_info exists
+                                # But handle it anyway
+                                if traj_b.segments and len(traj_b.segments) > 1:
+                                    post_jump_state = traj_b.segments[1].state_values[0]
+                                    post_jump_temp = post_jump_state[0]
+                                    self._add_boxes_for_interval(
+                                        multi_boxmap, (src_mode, src_box_index),
+                                        1 - src_mode, jump_temp, post_jump_temp, bloat_factor
+                                    )
+                        else:
+                            # Couldn't find jump point - fall back to adding both endpoints
+                            self._add_boxes_for_interval(
+                                multi_boxmap, (src_mode, src_box_index),
+                                mode_final_a, temp_final_a, temp_final_a, bloat_factor
+                            )
+                            self._add_boxes_for_interval(
+                                multi_boxmap, (src_mode, src_box_index),
+                                mode_final_b, temp_final_b, temp_final_b, bloat_factor
+                            )
+                    
+                except Exception as e:
+                    # Skip failed simulations
+                    vprint(f"Warning: Failed to process box ({src_mode}, {src_box_index}): {e}", level='always')
+                    continue
+                
+                completed += 1
+                if progress_callback:
+                    progress_callback(completed, total_mode_boxes)
+        
+        vprint("✓ MultiGrid BoxMap (interval method) computation complete.", level='always')
+        return multi_boxmap
+    
+    def _find_jump_between_trajectories(self, traj_a, traj_b, temp_a: float, temp_b: float, 
+                                      src_mode: int) -> Optional[Tuple[float, int]]:
+        """
+        Find the temperature where a jump occurs between two trajectories.
+        
+        Args:
+            traj_a, traj_b: Trajectories from corner points
+            temp_a, temp_b: Initial temperatures
+            src_mode: Source mode
+            
+        Returns:
+            Tuple of (jump_temperature, destination_mode) or None if no clear jump found
+        """
+        # Check if trajectories have different number of jumps
+        if traj_a.num_jumps != traj_b.num_jumps:
+            # Find which trajectory jumped
+            if traj_a.num_jumps > traj_b.num_jumps:
+                # Trajectory a jumped
+                if traj_a.segments and len(traj_a.segments) > 1:
+                    # Get the state just before the jump
+                    pre_jump_state = traj_a.segments[0].state_values[-1]
+                    jump_temp = pre_jump_state[0]
+                    dest_mode = 1 - src_mode
+                    return (jump_temp, dest_mode)
+            else:
+                # Trajectory b jumped
+                if traj_b.segments and len(traj_b.segments) > 1:
+                    # Get the state just before the jump
+                    pre_jump_state = traj_b.segments[0].state_values[-1]
+                    jump_temp = pre_jump_state[0]
+                    dest_mode = 1 - src_mode
+                    return (jump_temp, dest_mode)
+        
+        return None
+    
+    def _add_boxes_for_interval(self, multi_boxmap: MultiGridBoxMap, 
+                               src_key: Tuple[int, int], dest_mode: int,
+                               temp_min: float, temp_max: float, bloat_factor: float):
+        """
+        Add all boxes that intersect the given temperature interval.
+        
+        Args:
+            multi_boxmap: The MultiGridBoxMap to update
+            src_key: Source (mode, box_index) tuple
+            dest_mode: Destination mode
+            temp_min, temp_max: Temperature interval bounds
+            bloat_factor: Bloating factor
+        """
+        if src_key not in multi_boxmap:
+            multi_boxmap[src_key] = set()
+        
+        dest_grid = self.mode_grids[dest_mode]
+        
+        # Apply bloating
+        bloat_amount = dest_grid.box_widths[0] * bloat_factor
+        bloated_min = temp_min - bloat_amount
+        bloated_max = temp_max + bloat_amount
+        
+        # Clip to grid bounds
+        grid_bounds = dest_grid.bounds
+        clipped_min = max(bloated_min, grid_bounds[0, 0])
+        clipped_max = min(bloated_max, grid_bounds[0, 1])
+        
+        if clipped_min > clipped_max:
+            return  # No intersection with grid
+        
+        # Find box indices
+        min_idx = int(np.floor((clipped_min - grid_bounds[0, 0]) / dest_grid.box_widths[0]))
+        max_idx = int(np.floor((clipped_max - grid_bounds[0, 0]) / dest_grid.box_widths[0]))
+        
+        # Ensure indices are valid
+        min_idx = max(0, min_idx)
+        max_idx = min(dest_grid.subdivisions[0] - 1, max_idx)
+        
+        # Add all boxes in the range
+        for box_idx in range(min_idx, max_idx + 1):
+            multi_boxmap[src_key].add((dest_mode, box_idx))
     
     def __repr__(self) -> str:
         """String representation."""

@@ -79,9 +79,6 @@ def visualize_morse_graph_comparison(G: nx.DiGraph, output_path: str = None) -> 
     # Create Hasse diagram
     hasse, nontrivial_sccs = create_morse_graph(G)
     
-    print(f"Hasse diagram nodes: {list(hasse.nodes(data=True))}")
-    print(f"Hasse diagram edges: {list(hasse.edges())}")
-    
     # Visualize both graphs
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     
@@ -115,7 +112,7 @@ def visualize_morse_graph_comparison(G: nx.DiGraph, output_path: str = None) -> 
     
     if output_path:
         plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        print(f"Morse graph comparison saved to {output_path}")
+        pass  # Successfully saved
         plt.close()
     else:
         plt.show()
@@ -131,8 +128,7 @@ def main_example():
     G = nx.DiGraph()
     G.add_edges_from([('a', 'a'), ('a', 'b'), ('b', 'c'), ('c', 'c')])
     
-    print("Original graph edges:", list(G.edges()))
-    print("Original graph nodes:", list(G.nodes()))
+    # Create test graph
     
     # Create and visualize Hasse diagram
     output_file = "morse_graph_example.png"
