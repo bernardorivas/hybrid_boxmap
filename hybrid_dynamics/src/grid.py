@@ -153,20 +153,21 @@ class Grid:
         
         return Box(bounds_flat)
     
-    def get_sample_points(self, box_index: int, mode: str = 'center', num_points: int = 1) -> np.ndarray:
+    def get_sample_points(self, box_index: int, mode: str = 'center', num_points: int = 1, subdivision_level: int = 1) -> np.ndarray:
         """
         Generate sample points within a box.
         
         Args:
             box_index: Linear box index
-            mode: Sampling strategy - 'center', 'corners', or 'random'
+            mode: Sampling strategy - 'center', 'corners', 'random', or 'subdivision'
             num_points: Number of random points (only for 'random' mode)
+            subdivision_level: Level of subdivision (only for 'subdivision' mode)
             
         Returns:
             Array of sample points with shape (n_points, ndim)
         """
-        if mode not in ['center', 'corners', 'random']:
-            raise ValueError("mode must be 'center', 'corners', or 'random'")
+        if mode not in ['center', 'corners', 'random', 'subdivision']:
+            raise ValueError("mode must be 'center', 'corners', 'random', or 'subdivision'")
         
         lower_bounds, upper_bounds = self.get_box_bounds(box_index)
         
@@ -187,6 +188,25 @@ class Grid:
                 high=upper_bounds,
                 size=(num_points, self.ndim)
             )
+        
+        elif mode == 'subdivision':
+            # Generate subdivision points for this box
+            n_points_per_dim = 2**subdivision_level + 1
+            
+            dim_points = []
+            for d in range(self.ndim):
+                dim_points.append(np.linspace(
+                    lower_bounds[d], 
+                    upper_bounds[d], 
+                    n_points_per_dim
+                ))
+            
+            # Create all combinations
+            if self.ndim == 1:
+                return dim_points[0].reshape(-1, 1)
+            else:
+                grids = np.meshgrid(*dim_points, indexing='ij')
+                return np.column_stack([g.ravel() for g in grids])
     
     @property
     def box_indices(self) -> Iterator[int]:
@@ -210,15 +230,18 @@ class Grid:
         self, 
         mode: str = 'corners',
         num_random: int = 1,
-        data_points: Optional[np.ndarray] = None
+        data_points: Optional[np.ndarray] = None,
+        subdivision_level: int = 1
     ) -> Tuple[np.ndarray, dict]:
         """
         Get all unique sample points for the entire grid.
         
         Args:
-            mode: Sampling mode - 'corners', 'center', 'random', or 'data'
+            mode: Sampling mode - 'corners', 'center', 'random', 'data', or 'subdivision'
             num_random: Number of random points per box (only for 'random' mode)
             data_points: User-provided points (only for 'data' mode)
+            subdivision_level: Level of subdivision n (only for 'subdivision' mode)
+                             Each box is subdivided into 2^n sub-boxes per dimension
             
         Returns:
             points: Array of unique points with shape (n_points, ndim)
@@ -296,6 +319,49 @@ class Grid:
                 'mode': 'data',
                 'original_count': len(data_points),
                 'unique_count': len(points)
+            }
+            
+        elif mode == 'subdivision':
+            # Generate subdivision points for all boxes
+            # Each box is subdivided into 2^n sub-boxes per dimension
+            points_set = set()  # Use set to automatically handle duplicates
+            
+            # Number of subdivision points per dimension (including boundaries)
+            n_points_per_dim = 2**subdivision_level + 1
+            
+            # Process each box
+            for box_idx in range(self.total_boxes):
+                lower_bounds, upper_bounds = self.get_box_bounds(box_idx)
+                
+                # Create subdivision points for this box
+                dim_points = []
+                for d in range(self.ndim):
+                    # Create evenly spaced points in this dimension
+                    dim_points.append(np.linspace(
+                        lower_bounds[d], 
+                        upper_bounds[d], 
+                        n_points_per_dim
+                    ))
+                
+                # Create all combinations of points
+                if self.ndim == 1:
+                    box_points = dim_points[0].reshape(-1, 1)
+                else:
+                    grids = np.meshgrid(*dim_points, indexing='ij')
+                    box_points = np.column_stack([g.ravel() for g in grids])
+                
+                # Add to set (automatically handles duplicates at boundaries)
+                for point in box_points:
+                    points_set.add(tuple(point))
+            
+            # Convert set back to array
+            points = np.array(list(points_set))
+            
+            metadata = {
+                'mode': 'subdivision',
+                'subdivision_level': subdivision_level,
+                'points_per_box_dim': n_points_per_dim,
+                'total_unique_points': len(points)
             }
             
         else:

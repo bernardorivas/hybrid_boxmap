@@ -54,7 +54,8 @@ class HybridBoxMap(dict):
         parallel: bool = True,
         max_workers: Optional[int] = None,
         system_factory: Optional[Callable] = None,
-        system_args: Optional[tuple] = None
+        system_args: Optional[tuple] = None,
+        subdivision_level: int = 1
     ) -> HybridBoxMap:
         """
         Computes the box map for a given hybrid system using a sample-and-bloat method.
@@ -63,7 +64,7 @@ class HybridBoxMap(dict):
             grid: The grid discretizing the state space.
             system: The hybrid system to analyze.
             tau: The time horizon for the flow map.
-            sampling_mode: How to sample points in each box ('corners', 'center', etc.).
+            sampling_mode: How to sample points in each box ('corners', 'center', 'subdivision', etc.).
             bloat_factor: A factor to "bloat" the bounding box of the destination
                           points to ensure coverage. The bloating is relative to the
                           grid box size. A value of 0 means no bloating.
@@ -79,6 +80,8 @@ class HybridBoxMap(dict):
             max_workers: Maximum number of parallel workers (None = CPU count).
             system_factory: Function that creates a HybridSystem instance (required for parallel).
             system_args: Arguments to pass to system_factory (required for parallel).
+            subdivision_level: Level of subdivision n when using 'subdivision' mode.
+                             Each box is subdivided into 2^n sub-boxes per dimension.
 
         Returns:
             An instance of HybridBoxMap containing the computed map.
@@ -131,8 +134,10 @@ class HybridBoxMap(dict):
                 logger.info(f"Step 1: Getting unique '{sampling_mode}' points...")
             
             # Get all unique points
-            with internal_profiler.timer("Get unique points from grid"):
-                unique_points, metadata = grid.get_all_unique_points(sampling_mode)
+            unique_points, metadata = grid.get_all_unique_points(
+                sampling_mode, 
+                subdivision_level=subdivision_level
+            )
             
             if config.logging.verbose:
                 logger.info(f"Evaluating {len(unique_points)} unique points...")
@@ -164,49 +169,49 @@ class HybridBoxMap(dict):
             for point_idx, (final_state, num_jumps) in point_results.items():
                 if num_jumps == -1 or np.any(np.isnan(final_state)):
                     continue  # Skip failed evaluations
+                
+                point = unique_points[point_idx]
+                
+                # Find all boxes that contain this sample point
+                box_indices = grid.find_boxes_containing_point(point)
+                
+                # For each box that contains this point
+                for box_idx in box_indices:
+                    if box_idx not in box_map:
+                        box_map[box_idx] = set()
                     
-                    point = unique_points[point_idx]
+                    # Process the destination point
+                    if discard_out_of_bounds_destinations:
+                        # Check if point is outside domain by more than tolerance
+                        outside_lower = (final_state < grid.bounds[:, 0] - out_of_bounds_tolerance)
+                        outside_upper = (final_state > grid.bounds[:, 1] + out_of_bounds_tolerance)
+                        if np.any(outside_lower | outside_upper):
+                            continue  # Skip out-of-bounds destinations
                     
-                    # Find all boxes that contain this sample point
-                    box_indices = grid.find_boxes_containing_point(point)
+                    # Create bloated bounding box around the destination
+                    bloat_amount = grid.box_widths * bloat_factor
+                    bloated_min = final_state - bloat_amount
+                    bloated_max = final_state + bloat_amount
                     
-                    # For each box that contains this point
-                    for box_idx in box_indices:
-                        if box_idx not in box_map:
-                            box_map[box_idx] = set()
-                        
-                        # Process the destination point
-                        if discard_out_of_bounds_destinations:
-                            # Check if point is outside domain by more than tolerance
-                            outside_lower = (final_state < grid.bounds[:, 0] - out_of_bounds_tolerance)
-                            outside_upper = (final_state > grid.bounds[:, 1] + out_of_bounds_tolerance)
-                            if np.any(outside_lower | outside_upper):
-                                continue  # Skip out-of-bounds destinations
-                        
-                        # Create bloated bounding box around the destination
-                        bloat_amount = grid.box_widths * bloat_factor
-                        bloated_min = final_state - bloat_amount
-                        bloated_max = final_state + bloat_amount
-                        
-                        # Find all grid cells that intersect the bloated box
-                        clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
-                        clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
-                        
-                        min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
-                        max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
-                        
-                        min_multi_index = np.maximum(0, min_multi_index)
-                        max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
-                        max_multi_index = np.maximum(min_multi_index, max_multi_index)
-                        
-                        # Add destination boxes
-                        iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
-                                      for d in range(grid.ndim)]
-                        
-                        for current_multi_index in itertools.product(*iter_ranges):
-                            dest_idx = int(np.ravel_multi_index(current_multi_index, 
-                                                               grid.subdivisions, mode='clip'))
-                            box_map[box_idx].add(dest_idx)
+                    # Find all grid cells that intersect the bloated box
+                    clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                    clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                    
+                    min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                    max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                    
+                    min_multi_index = np.maximum(0, min_multi_index)
+                    max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+                    max_multi_index = np.maximum(min_multi_index, max_multi_index)
+                    
+                    # Add destination boxes
+                    iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
+                                  for d in range(grid.ndim)]
+                    
+                    for current_multi_index in itertools.product(*iter_ranges):
+                        dest_idx = int(np.ravel_multi_index(current_multi_index, 
+                                                           grid.subdivisions, mode='clip'))
+                        box_map[box_idx].add(dest_idx)
             
             # Store metadata about unique points for debugging
             box_map.unique_points_metadata = metadata
@@ -224,6 +229,7 @@ class HybridBoxMap(dict):
                 sampling_mode=sampling_mode,
                 parallel=False,
                 progress_callback=progress_callback,
+                subdivision_level=subdivision_level,
             )
 
             # 2. For each source box, process the evaluation results

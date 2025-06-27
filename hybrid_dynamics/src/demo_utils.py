@@ -9,9 +9,38 @@ import hashlib
 import numpy as np
 from pathlib import Path
 from typing import Dict, Any, List, Union, Optional, Tuple
+import time
+from functools import wraps
 
 from .plot_utils import visualize_box_map_entry
 from .print_utils import vprint
+
+
+def timed_operation(description: str):
+    """
+    Decorator to time function execution and print the duration.
+    
+    Args:
+        description: Description of the operation being timed (e.g., "Box map computation")
+        
+    Example:
+        @timed_operation("Visualization")
+        def create_plot():
+            # plotting code
+            pass
+            
+        # Will print: "Visualization computed in X.XX seconds"
+    """
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            start_time = time.time()
+            result = func(*args, **kwargs)
+            duration = time.time() - start_time
+            print(f"{description} computed in {duration:.2f} seconds")
+            return result
+        return wrapper
+    return decorator
 
 
 def create_config_hash(params_dict: Dict[str, Any], 
@@ -208,12 +237,10 @@ def load_box_map_from_cache(grid: "Grid",
         # Check if configuration matches
         saved_config_hash = box_map_data.get("config_hash", "")
         if saved_config_hash != expected_hash:
-            vprint("⚠ Configuration changed, cache invalid", level='always')
-            vprint(f"  Previous config hash: {saved_config_hash[:8]}...", level='always')
-            vprint(f"  Current config hash:  {expected_hash[:8]}...", level='always')
+            vprint("New configuration detected, recomputing box map", level='always')
             return None
         
-        vprint("✓ Configuration matches previous computations, loading from cache.", level='always')
+        vprint("Previous configuration matches, loading from file", level='always')
         
         # Reconstruct HybridBoxMap from saved data
         box_map = HybridBoxMap(grid, system, tau)

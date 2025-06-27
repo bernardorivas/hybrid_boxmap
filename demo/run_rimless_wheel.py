@@ -40,9 +40,11 @@ def create_rimless_wheel_system(alpha=0.4, gamma=0.2, max_jumps=50):
 
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
-TAU = 0.5                   # Integration time horizon
-SUBDIVISIONS = [100, 100]   # Grid subdivisions [x_subdivisions, y_subdivisions]
-BLOAT_FACTOR = 0.12         # Bloat factor for box map computation
+TAU = 1.69                       # Integration time horizon
+SUBDIVISIONS = [100, 100]       # Grid subdivisions [x_subdivisions, y_subdivisions]
+BLOAT_FACTOR = 0.20             # Bloat factor for box map computation
+SAMPLING_MODE = 'subdivision'   # Sampling mode: 'corners', 'center', 'subdivision'
+SUBDIVISION_LEVEL = 2           # Subdivision level (only used if SAMPLING_MODE='subdivision', 2^n subdivisions per dimension)
 # ===============================================
 
 
@@ -76,8 +78,16 @@ def run_rimless_wheel_demo():
 
     # Create configuration hash for validation
     wheel_params = {"alpha": wheel.alpha, "gamma": wheel.gamma, "max_jumps": wheel.max_jumps}
-    # Include bloat factor in configuration to ensure proper caching
-    config_params = {**wheel_params, "bloat_factor": bloat_factor}
+    # Include bloat factor and sampling parameters in configuration to ensure proper caching
+    config_params = {
+        **wheel_params, 
+        "bloat_factor": bloat_factor,
+        "sampling_mode": SAMPLING_MODE,
+    }
+    # Add subdivision level only if using subdivision mode
+    if SAMPLING_MODE == 'subdivision':
+        config_params["subdivision_level"] = SUBDIVISION_LEVEL
+    
     current_config_hash = create_config_hash(
         config_params, wheel.domain_bounds, grid.subdivisions.tolist(), tau
     )
@@ -87,20 +97,32 @@ def run_rimless_wheel_demo():
     
     # 3. Compute new if cache miss
     if box_map is None:
-        # Create progress callback
-        progress_callback = create_progress_callback(update_frequency=1000)
+        # Create progress callback (more frequent updates for subdivision mode)
+        progress_callback = create_progress_callback(update_interval=5000)
         
-        box_map = HybridBoxMap.compute(
-            grid=grid,
-            system=wheel.system,
-            tau=tau,
-            bloat_factor=bloat_factor,
-            discard_out_of_bounds_destinations=True,
-            progress_callback=progress_callback,
-            parallel=True,
-            system_factory=create_rimless_wheel_system,
-            system_args=(wheel.alpha, wheel.gamma, wheel.max_jumps)
-        )
+        # Build compute arguments
+        compute_kwargs = {
+            'grid': grid,
+            'system': wheel.system,
+            'tau': tau,
+            'sampling_mode': SAMPLING_MODE,
+            'bloat_factor': bloat_factor,
+            'discard_out_of_bounds_destinations': True,
+            'progress_callback': progress_callback,
+            'parallel': True,
+            'system_factory': create_rimless_wheel_system,
+            'system_args': (wheel.alpha, wheel.gamma, wheel.max_jumps)
+        }
+        
+        # Add subdivision_level only if using subdivision mode
+        if SAMPLING_MODE == 'subdivision':
+            compute_kwargs['subdivision_level'] = SUBDIVISION_LEVEL
+        
+        # Time the box map computation
+        compute_start_time = time.time()
+        box_map = HybridBoxMap.compute(**compute_kwargs)
+        compute_time = time.time() - compute_start_time
+        print(f"Time to compute box map: {compute_time:.2f} seconds")
 
         # Save to cache
         config_details = {
@@ -109,7 +131,11 @@ def run_rimless_wheel_demo():
                 "grid_subdivisions": grid.subdivisions.tolist(),
                 "tau": tau,
                 "bloat_factor": bloat_factor,
+                "sampling_mode": SAMPLING_MODE,
             }
+        # Add subdivision level to details if using subdivision mode
+        if SAMPLING_MODE == 'subdivision':
+            config_details["subdivision_level"] = SUBDIVISION_LEVEL
         save_box_map_with_config(box_map, current_config_hash, config_details, box_map_file)
             
 
@@ -132,6 +158,7 @@ def run_rimless_wheel_demo():
     
     # Phase portrait
     plotter = HybridPlotter()
+    viz_start_time = time.time()
     plotter.create_phase_portrait_with_trajectories(
             system=wheel.system,
             initial_conditions=initial_conditions,
@@ -146,20 +173,31 @@ def run_rimless_wheel_demo():
             dpi=150,
             show_legend=False
         )
+    viz_time = time.time() - viz_start_time
+    print(f"Phase portrait visualization computed in {viz_time:.2f} seconds")
     
+    viz_start_time = time.time()
     plot_morse_sets_on_grid_fast(grid, morse_sets, str(run_dir / "morse_sets.png"), 
                                  xlabel="Angle θ (rad)", ylabel="Angular Velocity ω (rad/s)")
+    viz_time = time.time() - viz_start_time
+    print(f"Morse sets visualization computed in {viz_time:.2f} seconds")
     
+    viz_start_time = time.time()
     plot_morse_graph_viz(morse_graph, morse_sets, str(run_dir / "morse_graph.png"))
+    viz_time = time.time() - viz_start_time
+    print(f"Morse graph visualization computed in {viz_time:.2f} seconds")
     
     # Generate ROA visualization if we have Morse sets
     if morse_sets and roa_dict:
+        viz_start_time = time.time()
         plot_morse_sets_with_roa_fast(
             grid, morse_sets, roa_dict, 
             str(run_dir / "morse_set_roa.png"),
             xlabel="Angle θ (rad)", 
             ylabel="Angular Velocity ω (rad/s)"
         )
+        viz_time = time.time() - viz_start_time
+        print(f"Morse sets with ROA visualization computed in {viz_time:.2f} seconds")
     
     # Final summary
     total_time = time.time() - total_start_time

@@ -25,7 +25,8 @@ def evaluate_box(
     box_index: int,
     function: Callable[[npt.NDArray[np.float64]], Union[float, npt.NDArray[np.float64]]],
     sampling_mode: str = 'center',
-    num_points: int = 1
+    num_points: int = 1,
+    subdivision_level: int = 1
 ) -> List[Union[float, npt.NDArray[np.float64]]]:
     """
     Evaluate function on sample points within a single box.
@@ -34,13 +35,14 @@ def evaluate_box(
         grid: Grid instance
         box_index: Index of box to evaluate
         function: Function to evaluate f(point) -> value
-        sampling_mode: How to sample points ('center', 'corners', 'random')
+        sampling_mode: How to sample points ('center', 'corners', 'random', 'subdivision')
         num_points: Number of points for random sampling
+        subdivision_level: Level of subdivision for 'subdivision' mode
         
     Returns:
         List of function values at sample points
     """
-    points = grid.get_sample_points(box_index, sampling_mode, num_points)
+    points = grid.get_sample_points(box_index, sampling_mode, num_points, subdivision_level)
     results = []
     for point in points:
         try:
@@ -59,7 +61,8 @@ def evaluate_grid_sequential(
     function: Callable[[np.ndarray], Union[float, np.ndarray]],
     sampling_mode: str = 'center',
     num_points: int = 1,
-    progress_callback: Optional[Callable[[int, int], None]] = None
+    progress_callback: Optional[Callable[[int, int], None]] = None,
+    subdivision_level: int = 1
 ) -> Dict[int, List[Union[float, np.ndarray]]]:
     """
     Evaluate function over entire grid sequentially.
@@ -70,6 +73,7 @@ def evaluate_grid_sequential(
         sampling_mode: Sampling strategy
         num_points: Number of points for random sampling
         progress_callback: Optional callback for progress updates (completed, total)
+        subdivision_level: Level of subdivision for 'subdivision' mode
         
     Returns:
         Dictionary mapping box_index -> list of function values
@@ -77,7 +81,7 @@ def evaluate_grid_sequential(
     results = {}
     
     for i, box_index in enumerate(grid.box_indices):
-        box_results = evaluate_box(grid, box_index, function, sampling_mode, num_points)
+        box_results = evaluate_box(grid, box_index, function, sampling_mode, num_points, subdivision_level)
         results[box_index] = box_results
         
         if progress_callback:
@@ -102,15 +106,16 @@ def evaluate_grid(
     Args:
         grid: Grid instance
         function: Function to evaluate
-        sampling_mode: Sampling strategy ('center', 'corners', 'random')
+        sampling_mode: Sampling strategy ('center', 'corners', 'random', 'subdivision')
         num_points: Number of points for random sampling
         progress_callback: Optional callback for progress updates
         
     Returns:
         Dictionary mapping box_index -> list of function values
     """
+    subdivision_level = kwargs.get('subdivision_level', 1)
     return evaluate_grid_sequential(
-        grid, function, sampling_mode, num_points, progress_callback
+        grid, function, sampling_mode, num_points, progress_callback, subdivision_level
     )
 
 

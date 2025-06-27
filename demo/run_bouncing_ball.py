@@ -41,6 +41,9 @@ def create_bouncing_ball_system(g=9.81, c=0.5, max_jumps=50):
 # Modify these values to change simulation settings:
 TAU = 0.3                # Integration time horizon
 SUBDIVISIONS = [51, 51]  # Grid subdivisions [height_subdivisions, velocity_subdivisions]
+SAMPLING_MODE = 'corners'  # Sampling mode: 'corners', 'center', 'subdivision'
+SUBDIVISION_LEVEL = 1     # Subdivision level for sampling (only used if SAMPLING_MODE='subdivision')
+                         # Level n means 2^n subdivisions per dimension
 # ===============================================
 
 
@@ -80,8 +83,17 @@ def run_bouncing_ball_demo():
 
     # Create configuration hash for validation
     ball_params = {"g": ball.g, "c": ball.c, "max_jumps": ball.max_jumps}
+    # Include sampling parameters in configuration
+    config_params = {
+        **ball_params,
+        "sampling_mode": SAMPLING_MODE,
+    }
+    # Add subdivision level only if using subdivision mode
+    if SAMPLING_MODE == 'subdivision':
+        config_params["subdivision_level"] = SUBDIVISION_LEVEL
+    
     current_config_hash = create_config_hash(
-        ball_params,
+        config_params,
         ball.domain_bounds,
         grid.subdivisions.tolist(),
         tau,
@@ -95,16 +107,25 @@ def run_bouncing_ball_demo():
     if box_map is None:
         compute_start_time = time.time()
         progress_callback = create_progress_callback()
-        box_map = HybridBoxMap.compute(
-            grid=grid,
-            system=ball.system,
-            tau=tau,
-            discard_out_of_bounds_destinations=True,
-            progress_callback=progress_callback,
-            parallel=True,
-            system_factory=create_bouncing_ball_system,
-            system_args=(ball.g, ball.c, ball.max_jumps)
-        )
+        
+        # Build compute arguments
+        compute_kwargs = {
+            'grid': grid,
+            'system': ball.system,
+            'tau': tau,
+            'sampling_mode': SAMPLING_MODE,
+            'discard_out_of_bounds_destinations': True,
+            'progress_callback': progress_callback,
+            'parallel': True,
+            'system_factory': create_bouncing_ball_system,
+            'system_args': (ball.g, ball.c, ball.max_jumps)
+        }
+        
+        # Add subdivision_level only if using subdivision mode
+        if SAMPLING_MODE == 'subdivision':
+            compute_kwargs['subdivision_level'] = SUBDIVISION_LEVEL
+        
+        box_map = HybridBoxMap.compute(**compute_kwargs)
 
         # Save to cache
         config_details = {
@@ -112,7 +133,11 @@ def run_bouncing_ball_demo():
             "domain_bounds": ball.domain_bounds,
             "grid_subdivisions": grid.subdivisions.tolist(),
             "tau": tau,
+            "sampling_mode": SAMPLING_MODE,
         }
+        # Add subdivision level to details if using subdivision mode
+        if SAMPLING_MODE == 'subdivision':
+            config_details["subdivision_level"] = SUBDIVISION_LEVEL
         save_box_map_with_config(box_map, current_config_hash, config_details, box_map_file)
         
         compute_time = time.time() - compute_start_time
@@ -127,7 +152,9 @@ def run_bouncing_ball_demo():
     
     # Check and report Morse graph computation results
     if morse_graph.number_of_nodes() > 0:
+        pass  # Morse graph computation successful
     else:
+        print("Warning: Morse graph is empty")
 
     # Generate visualizations
     viz_start_time = time.time()
