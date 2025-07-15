@@ -2,6 +2,22 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Quick Start
+
+```bash
+# Install for development
+pip install -e .[dev]
+
+# Run a demo
+python demo/run_bouncing_ball.py
+
+# Run tests
+python tests/test_boxmap.py
+
+# Code quality checks
+black hybrid_dynamics/ && ruff check hybrid_dynamics/ && mypy hybrid_dynamics/
+```
+
 ## Development Commands
 
 ### Installation and Setup
@@ -41,12 +57,21 @@ python tests/test_graph_analysis.py
 python tests/test_recurrent_sets.py
 python tests/test_boxmap_visualization.py
 
+# Run a single test file with pytest
+pytest tests/test_boxmap.py -v
+
+# Skip slow tests
+pytest tests/ -m "not slow"
+
 # Modern development tools (configured in pyproject.toml)
-black hybrid_dynamics/           # Code formatting
+black hybrid_dynamics/           # Code formatting (88 chars)
 ruff check hybrid_dynamics/      # Fast linting
 ruff format hybrid_dynamics/     # Alternative formatting
 mypy hybrid_dynamics/            # Type checking
 pytest tests/                    # Run tests with coverage
+
+# Run all code quality checks
+black hybrid_dynamics/ && ruff check hybrid_dynamics/ && mypy hybrid_dynamics/
 ```
 
 ## Architecture Overview
@@ -94,6 +119,9 @@ class SystemName:
 ```
 
 ## Critical Implementation Patterns
+
+### Version Information
+**Note**: Package version is 0.1.0 in pyproject.toml but 0.2.0 in __init__.py. Use __init__.py as authoritative.
 
 ### Parallel Processing Setup
 
@@ -189,7 +217,8 @@ box_map = HybridBoxMap.compute(
     tau=time_horizon,
     sampling_mode='corners',  # or 'center'
     bloat_factor=0.1,
-    parallel=False  # Set True with factory function
+    parallel=False,  # Set True with factory function
+    enclosure=False  # Set True for rectangular enclosures (corners mode only)
 )
 
 # 2. Convert to NetworkX for graph analysis
@@ -201,6 +230,33 @@ morse_graph, morse_sets = create_morse_graph(graph)
 # 4. Compute regions of attraction
 roa_dict = compute_roa(graph, morse_sets)
 ```
+
+### Enclosure Mode (New Feature)
+
+When `enclosure=True` with `sampling_mode='corners'`, the box map computation uses rectangular enclosures:
+
+```python
+# Compute with rectangular enclosures
+box_map = HybridBoxMap.compute(
+    grid=grid,
+    system=system,
+    tau=tau,
+    sampling_mode='corners',  # Required for enclosure
+    enclosure=True,           # Enable enclosure mode
+    bloat_factor=0.1
+)
+```
+
+**How it works:**
+- For each source box, if all corners map with the same number of jumps, computes the bounding box of all destination corners
+- Fills in all grid boxes within this bounding box (plus bloat factor)
+- Creates a more conservative over-approximation of the reachable set
+- Falls back to per-point bloating if corners have different jump counts
+
+**When to use:**
+- When you need guaranteed enclosures of the reachable set
+- For rigorous analysis where missing transitions is unacceptable
+- When the dynamics preserve convexity locally (enclosure won't overshoot too much)
 
 ### Key Computational Optimizations
 
@@ -239,6 +295,51 @@ from hybrid_dynamics import HybridSystem, Grid, HybridBoxMap
 - Add visualization methods to `HybridPlotter` in `src/plot_utils.py`
 - Add new graph algorithms to `src/morse_graph.py`
 - Create new test modules in `tests/` directory
+
+### Creating New Example Systems
+
+To add a new hybrid system to `examples/`:
+
+```python
+# examples/my_system.py
+from typing import Tuple, Optional
+import numpy as np
+from hybrid_dynamics import HybridSystem
+
+class MySystem:
+    def __init__(self, param1: float = 1.0, max_jumps: int = 50):
+        self.param1 = param1
+        self.max_jumps = max_jumps
+        self.domain_bounds = [(0, 10), (-5, 5)]  # Define state space bounds
+        self.system = self._create_system()
+    
+    def _create_system(self) -> HybridSystem:
+        def ode(t, state):
+            # Continuous dynamics
+            x, v = state
+            return [v, -self.param1 * x]
+        
+        def event_function(t, state):
+            # Guard condition (zero when event occurs)
+            return state[0] - 5.0
+        
+        def reset_map(state):
+            # Discrete jump mapping
+            x, v = state
+            return [0, -0.8 * v]
+        
+        return HybridSystem(
+            ode=ode,
+            event_function=event_function,
+            reset_map=reset_map,
+            domain_bounds=self.domain_bounds,
+            max_jumps=self.max_jumps
+        )
+
+# For parallel processing, add factory at module level
+def create_my_system(param1=1.0, max_jumps=50):
+    return MySystem(param1, max_jumps).system
+```
 
 ## MultiGrid Framework for Multi-Modal Systems
 
@@ -286,3 +387,33 @@ The library implements analysis for **hybrid automata** where:
 - Hybrid time: Trajectories evolve in (t,j) where t is continuous time and j counts jumps
 
 Understanding this foundation is essential for effective use of the library.
+
+## Common Pitfalls and Solutions
+
+### 1. Parallel Processing Failures
+**Problem**: `Can't pickle local object` error when using `parallel=True`
+**Solution**: Define factory function at module level, not inside class/function
+
+### 2. Cache Invalidation
+**Problem**: Changes not reflected after modifying parameters
+**Solution**: Include ALL parameters (especially `bloat_factor`) in configuration hash
+
+### 3. Test Execution
+**Problem**: Tests not found by pytest
+**Solution**: Tests are executable modules - run directly with `python tests/test_*.py`
+
+### 4. Import Errors
+**Problem**: `ModuleNotFoundError` for hybrid_dynamics modules
+**Solution**: Install package in development mode: `pip install -e .`
+
+### 5. Visualization Issues
+**Problem**: Morse graph not rendering properly
+**Solution**: Install pygraphviz system package (e.g., `brew install graphviz` on macOS)
+
+## Performance Tips
+
+1. **Parallel Computation**: Use `parallel=True` with proper factory functions for large grids
+2. **Caching**: Leverage built-in caching for expensive box map computations
+3. **Grid Resolution**: Start with coarse grids (e.g., [20, 20]) for initial exploration
+4. **Progress Tracking**: Use `create_progress_callback()` for long-running computations
+5. **Sampling Mode**: Use `'center'` sampling for faster computation, `'corners'` for accuracy

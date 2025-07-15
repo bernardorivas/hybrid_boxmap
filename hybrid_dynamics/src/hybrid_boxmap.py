@@ -55,7 +55,8 @@ class HybridBoxMap(dict):
         max_workers: Optional[int] = None,
         system_factory: Optional[Callable] = None,
         system_args: Optional[tuple] = None,
-        subdivision_level: int = 1
+        subdivision_level: int = 1,
+        enclosure: bool = False
     ) -> HybridBoxMap:
         """
         Computes the box map for a given hybrid system using a sample-and-bloat method.
@@ -82,6 +83,9 @@ class HybridBoxMap(dict):
             system_args: Arguments to pass to system_factory (required for parallel).
             subdivision_level: Level of subdivision n when using 'subdivision' mode.
                              Each box is subdivided into 2^n sub-boxes per dimension.
+            enclosure: If True and sampling_mode='corners', compute rectangular enclosures
+                      when all corners have the same number of jumps. This creates a
+                      bounding box containing all destination corners plus interior boxes.
 
         Returns:
             An instance of HybridBoxMap containing the computed map.
@@ -165,53 +169,158 @@ class HybridBoxMap(dict):
             if config.logging.verbose:
                 logger.info("Step 2: Building box map from unique point results...")
             
-            # For each unique point, find which boxes it belongs to
-            for point_idx, (final_state, num_jumps) in point_results.items():
-                if num_jumps == -1 or np.any(np.isnan(final_state)):
-                    continue  # Skip failed evaluations
+            # If enclosure mode is enabled for corners, we need to collect results per box
+            if enclosure and sampling_mode == 'corners':
+                # First pass: collect all corner results for each box
+                box_corner_results = defaultdict(lambda: {'points': [], 'destinations': [], 'jumps': []})
                 
-                point = unique_points[point_idx]
+                for point_idx, (final_state, num_jumps) in point_results.items():
+                    if num_jumps == -1 or np.any(np.isnan(final_state)):
+                        continue  # Skip failed evaluations
+                    
+                    point = unique_points[point_idx]
+                    
+                    # Find all boxes that contain this corner point
+                    box_indices = grid.find_boxes_containing_point(point)
+                    
+                    for box_idx in box_indices:
+                        box_corner_results[box_idx]['points'].append(point)
+                        box_corner_results[box_idx]['destinations'].append(final_state)
+                        box_corner_results[box_idx]['jumps'].append(num_jumps)
                 
-                # Find all boxes that contain this sample point
-                box_indices = grid.find_boxes_containing_point(point)
-                
-                # For each box that contains this point
-                for box_idx in box_indices:
+                # Second pass: process each box with enclosure logic
+                for box_idx, results in box_corner_results.items():
                     if box_idx not in box_map:
                         box_map[box_idx] = set()
                     
-                    # Process the destination point
-                    if discard_out_of_bounds_destinations:
-                        # Check if point is outside domain by more than tolerance
-                        outside_lower = (final_state < grid.bounds[:, 0] - out_of_bounds_tolerance)
-                        outside_upper = (final_state > grid.bounds[:, 1] + out_of_bounds_tolerance)
-                        if np.any(outside_lower | outside_upper):
-                            continue  # Skip out-of-bounds destinations
+                    # Check if all corners have same jump count and we have all corners
+                    unique_jumps = set(results['jumps'])
+                    expected_corners = 2**grid.ndim
                     
-                    # Create bloated bounding box around the destination
-                    bloat_amount = grid.box_widths * bloat_factor
-                    bloated_min = final_state - bloat_amount
-                    bloated_max = final_state + bloat_amount
+                    if len(unique_jumps) == 1 and len(results['destinations']) == expected_corners:
+                        # Apply enclosure: compute bounding box of all corner destinations
+                        destinations_arr = np.array(results['destinations'])
+                        
+                        if discard_out_of_bounds_destinations:
+                            # Filter out-of-bounds destinations
+                            in_bounds_mask = np.all(
+                                (destinations_arr >= grid.bounds[:, 0] - out_of_bounds_tolerance) &
+                                (destinations_arr <= grid.bounds[:, 1] + out_of_bounds_tolerance),
+                                axis=1
+                            )
+                            destinations_arr = destinations_arr[in_bounds_mask]
+                            
+                            if len(destinations_arr) == 0:
+                                continue  # All destinations out of bounds
+                        
+                        # Compute bounding box
+                        min_coords = np.min(destinations_arr, axis=0)
+                        max_coords = np.max(destinations_arr, axis=0)
+                        
+                        # Apply bloat factor
+                        bloat_amount = grid.box_widths * bloat_factor
+                        bloated_min = min_coords - bloat_amount
+                        bloated_max = max_coords + bloat_amount
+                        
+                        # Find all boxes in the enclosure
+                        clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                        clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                        
+                        min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        
+                        min_multi_index = np.maximum(0, min_multi_index)
+                        max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+                        max_multi_index = np.maximum(min_multi_index, max_multi_index)
+                        
+                        # Add all boxes in the rectangular enclosure
+                        iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
+                                      for d in range(grid.ndim)]
+                        
+                        for current_multi_index in itertools.product(*iter_ranges):
+                            dest_idx = int(np.ravel_multi_index(current_multi_index, 
+                                                               grid.subdivisions, mode='clip'))
+                            box_map[box_idx].add(dest_idx)
+                    else:
+                        # Fall back to per-point bloating
+                        for final_state in results['destinations']:
+                            if discard_out_of_bounds_destinations:
+                                outside_lower = (final_state < grid.bounds[:, 0] - out_of_bounds_tolerance)
+                                outside_upper = (final_state > grid.bounds[:, 1] + out_of_bounds_tolerance)
+                                if np.any(outside_lower | outside_upper):
+                                    continue
+                            
+                            # Create bloated bounding box around the destination
+                            bloat_amount = grid.box_widths * bloat_factor
+                            bloated_min = final_state - bloat_amount
+                            bloated_max = final_state + bloat_amount
+                            
+                            # Find destination boxes
+                            clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                            clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                            
+                            min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                            max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                            
+                            min_multi_index = np.maximum(0, min_multi_index)
+                            max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+                            max_multi_index = np.maximum(min_multi_index, max_multi_index)
+                            
+                            iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
+                                          for d in range(grid.ndim)]
+                            
+                            for current_multi_index in itertools.product(*iter_ranges):
+                                dest_idx = int(np.ravel_multi_index(current_multi_index, 
+                                                                   grid.subdivisions, mode='clip'))
+                                box_map[box_idx].add(dest_idx)
+            else:
+                # Original logic: process each point individually
+                for point_idx, (final_state, num_jumps) in point_results.items():
+                    if num_jumps == -1 or np.any(np.isnan(final_state)):
+                        continue  # Skip failed evaluations
                     
-                    # Find all grid cells that intersect the bloated box
-                    clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
-                    clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                    point = unique_points[point_idx]
                     
-                    min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
-                    max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                    # Find all boxes that contain this sample point
+                    box_indices = grid.find_boxes_containing_point(point)
                     
-                    min_multi_index = np.maximum(0, min_multi_index)
-                    max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
-                    max_multi_index = np.maximum(min_multi_index, max_multi_index)
-                    
-                    # Add destination boxes
-                    iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
-                                  for d in range(grid.ndim)]
-                    
-                    for current_multi_index in itertools.product(*iter_ranges):
-                        dest_idx = int(np.ravel_multi_index(current_multi_index, 
-                                                           grid.subdivisions, mode='clip'))
-                        box_map[box_idx].add(dest_idx)
+                    # For each box that contains this point
+                    for box_idx in box_indices:
+                        if box_idx not in box_map:
+                            box_map[box_idx] = set()
+                        
+                        # Process the destination point
+                        if discard_out_of_bounds_destinations:
+                            # Check if point is outside domain by more than tolerance
+                            outside_lower = (final_state < grid.bounds[:, 0] - out_of_bounds_tolerance)
+                            outside_upper = (final_state > grid.bounds[:, 1] + out_of_bounds_tolerance)
+                            if np.any(outside_lower | outside_upper):
+                                continue  # Skip out-of-bounds destinations
+                        
+                        # Create bloated bounding box around the destination
+                        bloat_amount = grid.box_widths * bloat_factor
+                        bloated_min = final_state - bloat_amount
+                        bloated_max = final_state + bloat_amount
+                        
+                        # Find all grid cells that intersect the bloated box
+                        clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                        clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                        
+                        min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        
+                        min_multi_index = np.maximum(0, min_multi_index)
+                        max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+                        max_multi_index = np.maximum(min_multi_index, max_multi_index)
+                        
+                        # Add destination boxes
+                        iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
+                                      for d in range(grid.ndim)]
+                        
+                        for current_multi_index in itertools.product(*iter_ranges):
+                            dest_idx = int(np.ravel_multi_index(current_multi_index, 
+                                                               grid.subdivisions, mode='clip'))
+                            box_map[box_idx].add(dest_idx)
             
             # Store metadata about unique points for debugging
             box_map.unique_points_metadata = metadata
@@ -248,58 +357,117 @@ class HybridBoxMap(dict):
 
                 destination_indices: Set[int] = set()
 
-                # 3. For each group of points, compute a bloated bounding box
-                for _jump_count, points in points_by_jumps.items():
-                    if not points:
-                        continue
+                # Check if enclosure mode is applicable
+                use_enclosure = (enclosure and 
+                               sampling_mode == 'corners' and 
+                               len(points_by_jumps) == 1 and
+                               len(results_for_box) == 2**grid.ndim)  # All corners evaluated successfully
+                
+                if use_enclosure:
+                    # All corners have the same jump count - compute enclosure
+                    jump_count = list(points_by_jumps.keys())[0]
+                    points = points_by_jumps[jump_count]
                     
-                    points_arr = np.array(points)
-
-                    if discard_out_of_bounds_destinations:
-                        # Filter out points that landed outside the grid domain by more than tolerance
-                        points_in_domain = []
-                        for p in points_arr:
-                            outside_lower = (p < grid.bounds[:, 0] - out_of_bounds_tolerance)
-                            outside_upper = (p > grid.bounds[:, 1] + out_of_bounds_tolerance)
-                            if not np.any(outside_lower | outside_upper):
-                                points_in_domain.append(p)
+                    if points:
+                        points_arr = np.array(points)
                         
-                        if not points_in_domain:
-                            continue # All points for this jump count were out of bounds
-                        points_arr = np.array(points_in_domain)
+                        if discard_out_of_bounds_destinations:
+                            # Filter out points that landed outside the grid domain
+                            points_in_domain = []
+                            for p in points_arr:
+                                outside_lower = (p < grid.bounds[:, 0] - out_of_bounds_tolerance)
+                                outside_upper = (p > grid.bounds[:, 1] + out_of_bounds_tolerance)
+                                if not np.any(outside_lower | outside_upper):
+                                    points_in_domain.append(p)
+                            
+                            if points_in_domain:
+                                points_arr = np.array(points_in_domain)
+                            else:
+                                continue  # All points out of bounds
+                        
+                        # Create bounding box of all corner destinations
+                        min_coords = np.min(points_arr, axis=0)
+                        max_coords = np.max(points_arr, axis=0)
+                        
+                        # Apply bloat factor
+                        bloat_amount = grid.box_widths * bloat_factor
+                        bloated_min = min_coords - bloat_amount
+                        bloated_max = max_coords + bloat_amount
+                        
+                        # Find all boxes in the bloated bounding box
+                        clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                        clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                        
+                        min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        
+                        min_multi_index = np.maximum(0, min_multi_index)
+                        max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+                        max_multi_index = np.maximum(min_multi_index, max_multi_index)
+                        
+                        # Add all boxes in the rectangular enclosure
+                        iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) 
+                                      for d in range(grid.ndim)]
+                        
+                        for current_multi_index in itertools.product(*iter_ranges):
+                            dest_idx = int(np.ravel_multi_index(current_multi_index, 
+                                                               grid.subdivisions, mode='clip'))
+                            destination_indices.add(dest_idx)
+                
+                else:
+                    # Original logic: process each jump group separately
+                    # 3. For each group of points, compute a bloated bounding box
+                    for _jump_count, points in points_by_jumps.items():
+                        if not points:
+                            continue
+                        
+                        points_arr = np.array(points)
 
-                    # Create a tight bounding box around the destination points
-                    min_coords = np.min(points_arr, axis=0)
-                    max_coords = np.max(points_arr, axis=0)
+                        if discard_out_of_bounds_destinations:
+                            # Filter out points that landed outside the grid domain by more than tolerance
+                            points_in_domain = []
+                            for p in points_arr:
+                                outside_lower = (p < grid.bounds[:, 0] - out_of_bounds_tolerance)
+                                outside_upper = (p > grid.bounds[:, 1] + out_of_bounds_tolerance)
+                                if not np.any(outside_lower | outside_upper):
+                                    points_in_domain.append(p)
+                            
+                            if not points_in_domain:
+                                continue # All points for this jump count were out of bounds
+                            points_arr = np.array(points_in_domain)
 
-                    # Bloat the box to account for the image of the interior
-                    bloat_amount = grid.box_widths * bloat_factor
-                    bloated_min = min_coords - bloat_amount
-                    bloated_max = max_coords + bloat_amount
-                    
-                    # 4. Find all grid cells that intersect the bloated bounding box
-                    # Clip the coordinates to be within the grid's overall bounds
-                    clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
-                    clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                        # Create a tight bounding box around the destination points
+                        min_coords = np.min(points_arr, axis=0)
+                        max_coords = np.max(points_arr, axis=0)
 
-                    # Find the multi-indices of the corners of the clipped bloated box
-                    min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
-                    max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
-                    
-                    # Make sure indices are within the valid range
-                    min_multi_index = np.maximum(0, min_multi_index)
-                    max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
-                    
-                    # Ensure max_multi_index is not smaller than min_multi_index
-                    max_multi_index = np.maximum(min_multi_index, max_multi_index)
+                        # Bloat the box to account for the image of the interior
+                        bloat_amount = grid.box_widths * bloat_factor
+                        bloated_min = min_coords - bloat_amount
+                        bloated_max = max_coords + bloat_amount
+                        
+                        # 4. Find all grid cells that intersect the bloated bounding box
+                        # Clip the coordinates to be within the grid's overall bounds
+                        clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                        clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
 
-                    # Iterate through the grid coordinates from min to max
-                    # Create a range for each dimension
-                    iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) for d in range(grid.ndim)]
-                    
-                    for current_multi_index in itertools.product(*iter_ranges):
-                        dest_idx = int(np.ravel_multi_index(current_multi_index, grid.subdivisions, mode='clip'))
-                        destination_indices.add(dest_idx)
+                        # Find the multi-indices of the corners of the clipped bloated box
+                        min_multi_index = np.floor((clipped_min - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        max_multi_index = np.floor((clipped_max - grid.bounds[:, 0]) / grid.box_widths).astype(int)
+                        
+                        # Make sure indices are within the valid range
+                        min_multi_index = np.maximum(0, min_multi_index)
+                        max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+                        
+                        # Ensure max_multi_index is not smaller than min_multi_index
+                        max_multi_index = np.maximum(min_multi_index, max_multi_index)
+
+                        # Iterate through the grid coordinates from min to max
+                        # Create a range for each dimension
+                        iter_ranges = [range(min_multi_index[d], max_multi_index[d] + 1) for d in range(grid.ndim)]
+                        
+                        for current_multi_index in itertools.product(*iter_ranges):
+                            dest_idx = int(np.ravel_multi_index(current_multi_index, grid.subdivisions, mode='clip'))
+                            destination_indices.add(dest_idx)
 
                 if destination_indices:
                     box_map[box_idx] = destination_indices
