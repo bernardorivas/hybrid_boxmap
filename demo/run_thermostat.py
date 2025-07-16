@@ -319,7 +319,7 @@ def run_thermostat_demo():
         print(f"✓ Morse graph saved to {run_dir / 'morse_graph.png'}")
         
         # Plot Morse sets on embedded grid for visualization
-        from hybrid_dynamics import plot_morse_sets_on_grid
+        from hybrid_dynamics import plot_morse_sets_on_grid_fast, plot_morse_sets_with_roa_fast, compute_roa
         
         # Use custom mapping function for thermostat-specific embedding
         morse_sets_for_grid = map_mode_boxes_to_embedding(multigrid, embedding_grid, morse_sets)
@@ -342,15 +342,177 @@ def run_thermostat_demo():
                     box_idx = int(np.ravel_multi_index([x_idx, y_idx], embedding_grid.subdivisions))
                     exclude_boxes.add(box_idx)
             
-            plot_morse_sets_on_grid(
-                grid=embedding_grid,
-                sccs=sccs_list,
-                output_path=str(run_dir / "morse_sets.png"),
-                xlabel="Temperature (°F)",
-                ylabel="Controller State (0=Off, 1=On)",
-                exclude_boxes=exclude_boxes
-            )
+            # Use fast plotting function without aspect ratio constraint
+            import matplotlib.pyplot as plt
+            from matplotlib import patches
+            from matplotlib.collections import PatchCollection
+            
+            # First plot morse sets using custom aspect ratio
+            fig, ax = plt.subplots(figsize=(12, 6))  # Wider figure for temperature range
+            
+            # Define colors
+            colors = plt.cm.get_cmap("turbo", len(sccs_list))
+            
+            # Get grid parameters
+            x_dim, y_dim = 0, 1
+            box_width_x = embedding_grid.box_widths[x_dim]
+            box_width_y = embedding_grid.box_widths[y_dim]
+            margin = 0.02 * max(embedding_grid.bounds[0][1] - embedding_grid.bounds[0][0],
+                               embedding_grid.bounds[1][1] - embedding_grid.bounds[1][0])
+            
+            # Set limits
+            x_min, x_max = embedding_grid.bounds[x_dim]
+            y_min, y_max = embedding_grid.bounds[y_dim]
+            ax.set_xlim(x_min - margin, x_max + margin)
+            ax.set_ylim(-0.1, 1.1)  # Fixed y-limits for better visualization
+            
+            # Plot each Morse set
+            for i, component in enumerate(sccs_list):
+                if not component:
+                    continue
+                
+                color = colors(i)
+                
+                # Filter out excluded boxes
+                component_filtered = component - exclude_boxes
+                
+                # Create rectangles
+                rectangles = []
+                for box_idx in component_filtered:
+                    center = embedding_grid.get_sample_points(box_idx, mode="center")[0]
+                    rect = patches.Rectangle(
+                        (center[x_dim] - box_width_x / 2, center[y_dim] - box_width_y / 2),
+                        box_width_x,
+                        box_width_y,
+                    )
+                    rectangles.append(rect)
+                
+                # Create PatchCollection
+                pc = PatchCollection(rectangles, facecolor=color, edgecolor="none", alpha=0.7)
+                ax.add_collection(pc)
+                
+                # Add label
+                ax.plot([], [], "s", color=color, label=f"M({i})", markersize=10)
+            
+            ax.set_xlabel("Temperature (°F)", fontsize=14)
+            ax.set_ylabel("Controller State (0=Off, 1=On)", fontsize=14)
+            ax.set_title("Morse sets", fontsize=16, fontweight="bold")
+            ax.grid(True, linestyle="--", alpha=0.6)
+            
+            # Add horizontal lines at y=0 and y=1 for clarity
+            ax.axhline(y=0, color='gray', linestyle='--', alpha=0.5)
+            ax.axhline(y=1, color='gray', linestyle='--', alpha=0.5)
+            
+            # Set y-ticks to only show 0 and 1
+            ax.set_yticks([0, 1])
+            ax.set_yticklabels(['Off', 'On'])
+            
+            if len(sccs_list) <= 10:
+                ax.legend()
+            
+            plt.tight_layout()
+            plt.savefig(str(run_dir / "morse_sets.png"), dpi=150, bbox_inches='tight')
+            plt.close()
+            
             print(f"✓ Morse sets visualization saved to {run_dir / 'morse_sets.png'}")
+            
+            # Compute regions of attraction
+            roa_dict = compute_roa(graph, morse_sets)
+            
+            # Map ROA to embedding grid using same logic as morse sets
+            roa_nodes_as_morse_format = []
+            for morse_id, roa_nodes in roa_dict.items():
+                roa_nodes_as_morse_format.append(roa_nodes)
+            
+            roa_for_grid_dict = map_mode_boxes_to_embedding(multigrid, embedding_grid, roa_nodes_as_morse_format)
+            roa_for_grid = {}
+            for i, (morse_id, boxes) in enumerate(roa_for_grid_dict.items()):
+                roa_for_grid[i] = set(boxes)
+            
+            # Plot Morse sets with regions of attraction using same style as morse sets
+            fig, ax = plt.subplots(figsize=(12, 6))  # Wider figure for temperature range
+            
+            # Get grid parameters
+            x_dim, y_dim = 0, 1
+            box_width_x = embedding_grid.box_widths[x_dim]
+            box_width_y = embedding_grid.box_widths[y_dim]
+            margin = 0.02 * max(embedding_grid.bounds[0][1] - embedding_grid.bounds[0][0],
+                               embedding_grid.bounds[1][1] - embedding_grid.bounds[1][0])
+            
+            # Set limits
+            x_min, x_max = embedding_grid.bounds[x_dim]
+            y_min, y_max = embedding_grid.bounds[y_dim]
+            ax.set_xlim(x_min - margin, x_max + margin)
+            ax.set_ylim(-0.1, 1.1)  # Fixed y-limits for better visualization
+            
+            # Use same colors as morse sets plot
+            colors = plt.cm.get_cmap("turbo", len(sccs_list))
+            
+            # Plot ROA boxes (excluding middle layers to match morse_sets plot)
+            for morse_idx, roa_boxes in roa_for_grid.items():
+                if morse_idx >= len(sccs_list):
+                    continue
+                
+                color = colors(morse_idx)
+                morse_set = sccs_list[morse_idx]
+                roa_only_boxes = roa_boxes - morse_set - exclude_boxes  # Also exclude middle layers
+                
+                if roa_only_boxes:
+                    roa_rectangles = []
+                    for box_idx in roa_only_boxes:
+                        center = embedding_grid.get_sample_points(box_idx, mode="center")[0]
+                        rect = patches.Rectangle(
+                            (center[x_dim] - box_width_x / 2, center[y_dim] - box_width_y / 2),
+                            box_width_x, box_width_y
+                        )
+                        roa_rectangles.append(rect)
+                    
+                    pc = PatchCollection(roa_rectangles, facecolor=color, edgecolor="none", alpha=0.15)
+                    ax.add_collection(pc)
+            
+            # Plot Morse sets (excluding middle layers to match morse_sets plot)
+            for morse_idx, morse_set in enumerate(sccs_list):
+                color = colors(morse_idx)
+                morse_rectangles = []
+                morse_set_filtered = morse_set - exclude_boxes  # Exclude middle layers
+                for box_idx in morse_set_filtered:
+                    center = embedding_grid.get_sample_points(box_idx, mode="center")[0]
+                    rect = patches.Rectangle(
+                        (center[x_dim] - box_width_x / 2, center[y_dim] - box_width_y / 2),
+                        box_width_x, box_width_y
+                    )
+                    morse_rectangles.append(rect)
+                
+                if morse_rectangles:
+                    pc = PatchCollection(morse_rectangles, facecolor=color, edgecolor="none", 
+                                       alpha=0.7)
+                    ax.add_collection(pc)
+                    
+                # Add label
+                ax.plot([], [], "s", color=color, label=f"M({morse_idx}) + ROA", markersize=10)
+            
+            # Labels and formatting - matching morse_sets plot
+            ax.set_xlabel("Temperature (°F)", fontsize=14)
+            ax.set_ylabel("Controller State (0=Off, 1=On)", fontsize=14)
+            ax.set_title("Morse sets and their regions of attraction", fontsize=16, fontweight="bold")
+            ax.grid(True, linestyle="--", alpha=0.6)
+            
+            # Add horizontal lines at y=0 and y=1 for clarity
+            ax.axhline(y=0, color='gray', linestyle='--', alpha=0.5)
+            ax.axhline(y=1, color='gray', linestyle='--', alpha=0.5)
+            
+            # Set y-ticks to only show 0 and 1
+            ax.set_yticks([0, 1])
+            ax.set_yticklabels(['Off', 'On'])
+            
+            if len(sccs_list) <= 10:
+                ax.legend()
+            
+            plt.tight_layout()
+            plt.savefig(str(run_dir / "morse_sets_with_roa.png"), dpi=150, bbox_inches='tight')
+            plt.close()
+            
+            print(f"✓ Morse sets with ROA saved to {run_dir / 'morse_sets_with_roa.png'}")
         
         # Analyze Morse sets by mode
         mode_morse_sets = {0: [], 1: []}

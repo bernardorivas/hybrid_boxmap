@@ -10,10 +10,9 @@ This library provides tools for:
 """
 
 # Global configuration
-from .src.config import config
-
 # Cubical grid components
 from .src.box import Box
+from .src.config import config
 from .src.grid import Grid
 from .src.hybrid_boxmap import HybridBoxMap
 from .src.hybrid_system import HybridSystem
@@ -23,9 +22,6 @@ from .src.hybrid_trajectory import HybridTrajectory, TrajectorySegment
 # Graph analysis functions
 from .src.morse_graph import create_morse_graph
 
-# Region of attraction analysis
-from .src.roa_utils import compute_roa, compute_regions_of_attraction, analyze_roa_coverage
-
 # MultiGrid framework
 from .src.multigrid import MultiGrid, MultiGridBoxMap
 
@@ -34,13 +30,21 @@ from .src.plot_utils import (
     HybridPlotter,
     plot_morse_graph_viz,
     plot_morse_sets_on_grid,
-    plot_morse_sets_with_roa,
     plot_morse_sets_on_grid_fast,
+    plot_morse_sets_with_roa,
     plot_morse_sets_with_roa_fast,
     visualize_box_map,
     visualize_box_map_entry,
     visualize_flow_map,
 )
+
+# Region of attraction analysis
+from .src.roa_utils import (
+    analyze_roa_coverage,
+    compute_regions_of_attraction,
+    compute_roa,
+)
+
 
 __version__ = "0.2.0"
 __author__ = "Your Name/Team"
@@ -60,7 +64,7 @@ __all__ = [
     "create_morse_graph",
     # ROA
     "compute_roa",
-    "compute_regions_of_attraction", 
+    "compute_regions_of_attraction",
     "analyze_roa_coverage",
     # MultiGrid
     "MultiGrid",

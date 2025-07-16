@@ -2,6 +2,7 @@
 Utilities for grid-based analysis of datasets, such as identifying
 covered regions by a trajectory.
 """
+
 from dataclasses import dataclass
 from typing import List
 
@@ -18,36 +19,43 @@ class CoveredGrid:
         grid_resolution: The (nx, ny) number of cells in each dimension.
         x_edges: 1D array of x-axis bin edges (length nx + 1).
         y_edges: 1D array of y-axis bin edges (length ny + 1).
-        covered_mask: A 2D boolean NumPy array of shape (nx, ny). 
+        covered_mask: A 2D boolean NumPy array of shape (nx, ny).
                       True if the cell (i, j) is covered.
                       Indexing corresponds to x_edges[i] to x_edges[i+1] (rows)
                       and y_edges[j] to y_edges[j+1] (columns).
-                      Note: This matches the output of np.histogram2d if a transpose 
+                      Note: This matches the output of np.histogram2d if a transpose
                       is not applied for typical image/mesh plotting conventions.
                       We store it in a way that covered_mask[ix, iy] corresponds to
                       the ix-th bin in x and iy-th bin in y.
     """
+
     domain_bounds: tuple[tuple[float, float], tuple[float, float]]
     grid_resolution: tuple[int, int]
     x_edges: np.ndarray
     y_edges: np.ndarray
-    covered_mask: np.ndarray # Boolean, shape (nx, ny)
+    covered_mask: np.ndarray  # Boolean, shape (nx, ny)
 
     def __post_init__(self):
         nx, ny = self.grid_resolution
         if self.x_edges.shape != (nx + 1,):
-            raise ValueError(f"x_edges shape {self.x_edges.shape} does not match grid_resolution nx={nx}")
+            raise ValueError(
+                f"x_edges shape {self.x_edges.shape} does not match grid_resolution nx={nx}",
+            )
         if self.y_edges.shape != (ny + 1,):
-            raise ValueError(f"y_edges shape {self.y_edges.shape} does not match grid_resolution ny={ny}")
+            raise ValueError(
+                f"y_edges shape {self.y_edges.shape} does not match grid_resolution ny={ny}",
+            )
         if self.covered_mask.shape != (nx, ny):
-            raise ValueError(f"covered_mask shape {self.covered_mask.shape} does not match grid_resolution {(nx, ny)}")
+            raise ValueError(
+                f"covered_mask shape {self.covered_mask.shape} does not match grid_resolution {(nx, ny)}",
+            )
         if self.covered_mask.dtype != bool:
             raise ValueError("covered_mask must be a boolean array.")
 
     def get_rectangle_patches(self, **kwargs) -> List["matplotlib.patches.Rectangle"]:
         """
         Generates a list of matplotlib.patches.Rectangle objects for covered cells.
-        
+
         Args:
             **kwargs: Keyword arguments to pass to matplotlib.patches.Rectangle
                       (e.g., facecolor, alpha, edgecolor).
@@ -70,8 +78,8 @@ class CoveredGrid:
                 if self.covered_mask[i, j]:
                     x0 = self.x_edges[i]
                     y0 = self.y_edges[j]
-                    width = self.x_edges[i+1] - x0
-                    height = self.y_edges[j+1] - y0
+                    width = self.x_edges[i + 1] - x0
+                    height = self.y_edges[j + 1] - y0
                     rect = plt.Rectangle((x0, y0), width, height, **style_args)
                     patches.append(rect)
         return patches
@@ -96,12 +104,21 @@ def compute_covered_grid(
     if dataset_points.ndim != 2 or dataset_points.shape[1] != 2:
         raise ValueError("dataset_points must be a 2D array of shape (N, 2).")
 
-    if len(domain_bounds) != 2 or \
-       len(domain_bounds[0]) != 2 or len(domain_bounds[1]) != 2:
-        raise ValueError("domain_bounds must be of the form ((xmin, xmax), (ymin, ymax)).")
+    if (
+        len(domain_bounds) != 2
+        or len(domain_bounds[0]) != 2
+        or len(domain_bounds[1]) != 2
+    ):
+        raise ValueError(
+            "domain_bounds must be of the form ((xmin, xmax), (ymin, ymax)).",
+        )
 
-    if len(grid_resolution) != 2 or not all(isinstance(n, int) and n > 0 for n in grid_resolution):
-        raise ValueError("grid_resolution must be a tuple of two positive integers (nx, ny).")
+    if len(grid_resolution) != 2 or not all(
+        isinstance(n, int) and n > 0 for n in grid_resolution
+    ):
+        raise ValueError(
+            "grid_resolution must be a tuple of two positive integers (nx, ny).",
+        )
 
     (xmin, xmax), (ymin, ymax) = domain_bounds
     nx, ny = grid_resolution
@@ -128,6 +145,7 @@ def compute_covered_grid(
         y_edges=y_edges,
         covered_mask=covered_mask,
     )
+
 
 """
 # Example Usage (can be run if this file is executed directly)

@@ -40,11 +40,12 @@ def create_rimless_wheel_system(alpha=0.4, gamma=0.2, max_jumps=50):
 
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
-TAU = 1.69                       # Integration time horizon
-SUBDIVISIONS = [100, 100]       # Grid subdivisions [x_subdivisions, y_subdivisions]
-BLOAT_FACTOR = 0.20             # Bloat factor for box map computation
-SAMPLING_MODE = 'subdivision'   # Sampling mode: 'corners', 'center', 'subdivision'
+TAU = 2.0                       # Integration time horizon
+SUBDIVISIONS = [101, 101]       # Grid subdivisions [x_subdivisions, y_subdivisions]
+BLOAT_FACTOR = 0.12             # Bloat factor for box map computation
+SAMPLING_MODE = 'corners'       # Sampling mode: 'corners', 'center', 'subdivision'
 SUBDIVISION_LEVEL = 2           # Subdivision level (only used if SAMPLING_MODE='subdivision', 2^n subdivisions per dimension)
+ENCLOSURE = True                # Use enclosure mode for corners sampling
 # ===============================================
 
 
@@ -83,6 +84,7 @@ def run_rimless_wheel_demo():
         **wheel_params, 
         "bloat_factor": bloat_factor,
         "sampling_mode": SAMPLING_MODE,
+        "enclosure": ENCLOSURE,
     }
     # Add subdivision level only if using subdivision mode
     if SAMPLING_MODE == 'subdivision':
@@ -107,6 +109,7 @@ def run_rimless_wheel_demo():
             'tau': tau,
             'sampling_mode': SAMPLING_MODE,
             'bloat_factor': bloat_factor,
+            'enclosure': ENCLOSURE,
             'discard_out_of_bounds_destinations': True,
             'progress_callback': progress_callback,
             'parallel': True,
@@ -132,6 +135,7 @@ def run_rimless_wheel_demo():
                 "tau": tau,
                 "bloat_factor": bloat_factor,
                 "sampling_mode": SAMPLING_MODE,
+                "enclosure": ENCLOSURE,
             }
         # Add subdivision level to details if using subdivision mode
         if SAMPLING_MODE == 'subdivision':

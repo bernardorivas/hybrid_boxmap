@@ -8,16 +8,17 @@ import time
 
 from hybrid_dynamics import Grid, HybridBoxMap
 from hybrid_dynamics.examples.bouncing_ball import BouncingBall
-from hybrid_dynamics.src import (
+from hybrid_dynamics import (
     create_morse_graph,
     plot_morse_graph_viz,
-    plot_morse_sets_on_grid,
+    plot_morse_sets_on_grid_fast,
+    plot_morse_sets_with_roa_fast,
+    compute_roa,
 )
 from hybrid_dynamics.src.plot_utils import HybridPlotter
 from hybrid_dynamics.src.demo_utils import (
     create_config_hash,
     create_next_run_dir,
-    plot_box_containing_point,
     setup_demo_directories,
     save_box_map_with_config,
     load_box_map_from_cache,
@@ -39,11 +40,12 @@ def create_bouncing_ball_system(g=9.81, c=0.5, max_jumps=50):
 
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
-TAU = 0.3                # Integration time horizon
-SUBDIVISIONS = [51, 51]  # Grid subdivisions [height_subdivisions, velocity_subdivisions]
+TAU = 2.0                # Integration time horizon
+SUBDIVISIONS = [21, 101]  # Grid subdivisions [height_subdivisions, velocity_subdivisions]
 SAMPLING_MODE = 'corners'  # Sampling mode: 'corners', 'center', 'subdivision'
 SUBDIVISION_LEVEL = 1     # Subdivision level for sampling (only used if SAMPLING_MODE='subdivision')
                          # Level n means 2^n subdivisions per dimension
+ENCLOSURE = True         # Use enclosure mode for corners sampling
 # ===============================================
 
 
@@ -87,6 +89,7 @@ def run_bouncing_ball_demo():
     config_params = {
         **ball_params,
         "sampling_mode": SAMPLING_MODE,
+        "enclosure": ENCLOSURE,
     }
     # Add subdivision level only if using subdivision mode
     if SAMPLING_MODE == 'subdivision':
@@ -114,6 +117,7 @@ def run_bouncing_ball_demo():
             'system': ball.system,
             'tau': tau,
             'sampling_mode': SAMPLING_MODE,
+            'enclosure': ENCLOSURE,
             'discard_out_of_bounds_destinations': True,
             'progress_callback': progress_callback,
             'parallel': True,
@@ -134,6 +138,7 @@ def run_bouncing_ball_demo():
             "grid_subdivisions": grid.subdivisions.tolist(),
             "tau": tau,
             "sampling_mode": SAMPLING_MODE,
+            "enclosure": ENCLOSURE,
         }
         # Add subdivision level to details if using subdivision mode
         if SAMPLING_MODE == 'subdivision':
@@ -152,9 +157,13 @@ def run_bouncing_ball_demo():
     
     # Check and report Morse graph computation results
     if morse_graph.number_of_nodes() > 0:
-        pass  # Morse graph computation successful
+        print(f"Morse graph has {morse_graph.number_of_nodes()} nodes and {morse_graph.number_of_edges()} edges")
+        print(f"Found {len(morse_sets)} Morse sets")
+        # Compute regions of attraction
+        roa_dict = compute_roa(graph, morse_sets)
     else:
         print("Warning: Morse graph is empty")
+        roa_dict = {}
 
     # Generate visualizations
     viz_start_time = time.time()
@@ -178,18 +187,33 @@ def run_bouncing_ball_demo():
     )
 
     # The boxes of the recurrent components on the state space grid
-    plot_morse_sets_on_grid(grid, morse_sets, str(run_dir / "morse_sets.png"), xlabel="Height h (m)", ylabel="Velocity v (m/s)")
+    plot_morse_sets_on_grid_fast(grid, morse_sets, str(run_dir / "morse_sets.png"), xlabel="Height h (m)", ylabel="Velocity v (m/s)")
 
     # The Morse graph
     plot_morse_graph_viz(morse_graph, morse_sets, str(run_dir / "morse_graph.png"))
     
-    # Plot box containing origin (0,0) as an example
-    plot_box_containing_point(box_map, grid, [0.0, 0.0], run_dir, "origin_box_map")
+    # Plot Morse sets with regions of attraction
+    if morse_sets and roa_dict:
+        plot_morse_sets_with_roa_fast(
+            grid, morse_sets, roa_dict, 
+            str(run_dir / "morse_sets_with_roa.png"),
+            xlabel="Height h (m)", 
+            ylabel="Velocity v (m/s)"
+        )
     
     viz_time = time.time() - viz_start_time
     total_time = time.time() - total_start_time
     
     # Final summary
+    print(f"\nResults saved to: {run_dir}")
+    print(f"Box map computed with tau={tau}, grid subdivisions={SUBDIVISIONS}")
+    print(f"Enclosure mode: {ENCLOSURE}")
+    if morse_sets:
+        for i in range(min(3, len(morse_sets))):
+            roa_size = len(roa_dict.get(i, []))
+            print(f"  - Morse set {i}: {len(morse_sets[i])} boxes, ROA: {roa_size} boxes")
+        if len(morse_sets) > 3:
+            print(f"  ... and {len(morse_sets) - 3} more Morse sets")
 
 
 if __name__ == "__main__":

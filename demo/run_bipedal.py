@@ -46,10 +46,12 @@ def create_bipedal_system(x0=1.0, y0=0.0, z0=1.0, g=1.0, max_jumps=20):
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
 TAU = 0.5                    # Integration time horizon
-SUBDIVISIONS = [100, 100, 20, 20] # Grid subdivisions [x, y, x_dot, y_dot]
-USE_CYLINDRICAL = True       # Use cylindrical sampling method
+SUBDIVISIONS = [20, 20, 5, 5] # Grid subdivisions [x, y, x_dot, y_dot]
+USE_CYLINDRICAL = False      # Use cylindrical sampling method
 N_RADIAL = 250               # Number of radial samples for cylindrical method
 N_ANGULAR = 360              # Number of angular samples for cylindrical method (every degree)
+SAMPLING_MODE = 'corners'    # Sampling mode for non-cylindrical method
+ENCLOSURE = True             # Use enclosure mode for corners sampling
 # ===============================================
 
 
@@ -106,7 +108,10 @@ def run_bipedal_demo():
         "y0": biped.y0, 
         "z0": biped.z0, 
         "g": biped.g, 
-        "max_jumps": biped.max_jumps
+        "max_jumps": biped.max_jumps,
+        "use_cylindrical": USE_CYLINDRICAL,
+        "sampling_mode": SAMPLING_MODE,
+        "enclosure": ENCLOSURE
     }
     current_config_hash = create_config_hash(
         biped_params, biped.domain_bounds, grid.subdivisions.tolist(), tau
@@ -144,6 +149,8 @@ def run_bipedal_demo():
                 grid=grid,
                 system=biped.system,
                 tau=tau,
+                sampling_mode=SAMPLING_MODE,
+                enclosure=ENCLOSURE,
                 discard_out_of_bounds_destinations=True,
                 progress_callback=progress_callback,
                 parallel=True,
@@ -157,6 +164,9 @@ def run_bipedal_demo():
             "domain_bounds": biped.domain_bounds,
             "grid_subdivisions": grid.subdivisions.tolist(),
             "tau": tau,
+            "use_cylindrical": USE_CYLINDRICAL,
+            "sampling_mode": SAMPLING_MODE,
+            "enclosure": ENCLOSURE
         }
         save_box_map_with_config(box_map, current_config_hash, config_details, box_map_file)
         
@@ -172,13 +182,16 @@ def run_bipedal_demo():
     
     # Check and report Morse graph computation results
     if morse_graph.number_of_nodes() > 0:
+        print(f"Morse graph has {morse_graph.number_of_nodes()} nodes and {morse_graph.number_of_edges()} edges")
+        print(f"Found {len(morse_sets)} Morse sets")
     else:
+        print("Warning: Morse graph computation resulted in empty graph")
 
     # Generate visualizations
     viz_start_time = time.time()
     
     # Check system dimensionality and generate appropriate visualizations
-    if grid.dimension == 2:
+    if grid.ndim == 2:
         # Standard 2D visualization
         plot_morse_sets_on_grid(
             grid, 
@@ -187,7 +200,7 @@ def run_bipedal_demo():
             xlabel="x",
             ylabel="y"
         )
-    elif grid.dimension == 3:
+    elif grid.ndim == 3:
         # 3D system: generate both 3D view and projections
         plot_morse_sets_3d(
             grid,

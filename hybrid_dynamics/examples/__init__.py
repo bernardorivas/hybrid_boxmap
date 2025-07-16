@@ -1,17 +1,17 @@
 """Example hybrid systems."""
 
-from .bouncing_ball import BouncingBall
-from .thermostat import Thermostat
-from .rimless_wheel import RimlessWheel
-from .unstableperiodic import UnstablePeriodicSystem
 from .bipedal import BipedalWalker
+from .bouncing_ball import BouncingBall
 from .chua_circuit import ChuaCircuit
+from .rimless_wheel import RimlessWheel
+from .thermostat import Thermostat
+from .unstableperiodic import UnstablePeriodicSystem
 
 __all__ = [
     "BouncingBall",
-    "Thermostat", 
+    "Thermostat",
     "RimlessWheel",
     "UnstablePeriodicSystem",
     "BipedalWalker",
-    "ChuaCircuit"
+    "ChuaCircuit",
 ]

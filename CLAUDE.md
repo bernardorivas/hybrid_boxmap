@@ -6,16 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 # Install for development
-pip install -e .[dev]
+pip install -e .
+
+# Install with all optional dependencies (parallel processing, JIT compilation, visualization)
+pip install -e ".[all]"
 
 # Run a demo
 python demo/run_bouncing_ball.py
-
-# Run tests
-python tests/test_boxmap.py
-
-# Code quality checks
-black hybrid_dynamics/ && ruff check hybrid_dynamics/ && mypy hybrid_dynamics/
 ```
 
 ## Development Commands
@@ -25,16 +22,13 @@ black hybrid_dynamics/ && ruff check hybrid_dynamics/ && mypy hybrid_dynamics/
 # Install the package in development mode
 pip install -e .
 
-# Install with all development dependencies  
-pip install -e .[dev]
+# Install with all optional dependencies
+pip install -e ".[all]"  # Includes numba (JIT compilation), joblib (parallel processing), and pygraphviz (visualization)
 
-# Install with specific optional dependencies
-pip install -e ".[optimization]"  # Includes numba for JIT compilation
-pip install -e ".[parallel]"      # Includes joblib for parallel processing
-pip install -e ".[testing]"       # Includes pytest and coverage tools
-
-# Optional visualization dependency
-pip install pygraphviz           # For Morse graph visualization
+# Or install specific optional dependencies
+pip install numba           # For JIT compilation and better performance
+pip install joblib          # For parallel box map computation
+pip install pygraphviz      # For Morse graph visualization
 ```
 
 ### Running Demos
@@ -45,34 +39,10 @@ python demo/run_bipedal.py
 python demo/run_thermostat.py
 python demo/run_rimless_wheel.py
 python demo/run_unstableperiodic.py
-python demo/run_chua_circuit.py
 ```
 
-### Testing and Code Quality
-```bash
-# Run tests with custom framework (executable test modules)
-python tests/test_boxmap.py
-python tests/test_evaluation.py  
-python tests/test_graph_analysis.py
-python tests/test_recurrent_sets.py
-python tests/test_boxmap_visualization.py
-
-# Run a single test file with pytest
-pytest tests/test_boxmap.py -v
-
-# Skip slow tests
-pytest tests/ -m "not slow"
-
-# Modern development tools (configured in pyproject.toml)
-black hybrid_dynamics/           # Code formatting (88 chars)
-ruff check hybrid_dynamics/      # Fast linting
-ruff format hybrid_dynamics/     # Alternative formatting
-mypy hybrid_dynamics/            # Type checking
-pytest tests/                    # Run tests with coverage
-
-# Run all code quality checks
-black hybrid_dynamics/ && ruff check hybrid_dynamics/ && mypy hybrid_dynamics/
-```
+### Testing
+The `tests/` directory is available for adding your own tests as needed.
 
 ## Architecture Overview
 
@@ -399,7 +369,7 @@ Understanding this foundation is essential for effective use of the library.
 **Solution**: Include ALL parameters (especially `bloat_factor`) in configuration hash
 
 ### 3. Test Execution
-**Problem**: Tests not found by pytest
+**Problem**: Tests not running properly
 **Solution**: Tests are executable modules - run directly with `python tests/test_*.py`
 
 ### 4. Import Errors
