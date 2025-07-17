@@ -41,7 +41,7 @@ def create_rimless_wheel_system(alpha=0.4, gamma=0.2, max_jumps=50):
 # ========== CONFIGURATION PARAMETERS ==========
 # Modify these values to change simulation settings:
 TAU = 2.0                       # Integration time horizon
-SUBDIVISIONS = [101, 101]       # Grid subdivisions [x_subdivisions, y_subdivisions]
+SUBDIVISIONS = [201, 201]       # Grid subdivisions [x_subdivisions, y_subdivisions]
 BLOAT_FACTOR = 0.12             # Bloat factor for box map computation
 SAMPLING_MODE = 'corners'       # Sampling mode: 'corners', 'center', 'subdivision'
 SUBDIVISION_LEVEL = 2           # Subdivision level (only used if SAMPLING_MODE='subdivision', 2^n subdivisions per dimension)
@@ -143,7 +143,7 @@ def run_rimless_wheel_demo():
         save_box_map_with_config(box_map, current_config_hash, config_details, box_map_file)
             
 
-    # Convert to NetworkX and analyze
+    # Convert to NetworkX
     graph = box_map.to_networkx()
 
     morse_graph, morse_sets = create_morse_graph(graph)
