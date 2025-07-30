@@ -127,18 +127,27 @@ def evaluate_grid(
 
 # Worker function for parallel evaluation - must be at module level for pickling
 def _evaluate_points_worker(
-    args: Tuple[np.ndarray, Callable, tuple, float],
+    args: Union[
+        Tuple[np.ndarray, Callable, tuple, float],
+        Tuple[np.ndarray, Callable, tuple, float, bool]
+    ],
 ) -> List[Tuple[int, Any]]:
     """
     Worker function for parallel point evaluation.
 
     Args:
-        args: Tuple of (points_batch, system_factory, system_args, tau)
+        args: Tuple of (points_batch, system_factory, system_args, tau) or
+              (points_batch, system_factory, system_args, tau, jump_time_penalty)
 
     Returns:
         List of (point_index, result) tuples
     """
-    points_batch, system_factory, system_args, tau = args
+    # Handle both old and new argument formats
+    if len(args) == 4:
+        points_batch, system_factory, system_args, tau = args
+        jump_time_penalty = False
+    else:
+        points_batch, system_factory, system_args, tau, jump_time_penalty = args
 
     # Create system instance in worker process
     system = system_factory(*system_args)
@@ -148,7 +157,7 @@ def _evaluate_points_worker(
         try:
             # Create the evaluation function that simulates the system
             def evaluate_flow(pt):
-                traj = system.simulate(pt, (0, tau))
+                traj = system.simulate(pt, (0, tau), jump_time_penalty=jump_time_penalty)
                 if traj.total_duration >= tau:
                     final_state = traj.interpolate(tau)
                     num_jumps = traj.num_jumps
@@ -179,6 +188,7 @@ def evaluate_unique_points_parallel(
     max_workers: Optional[int] = None,
     batch_size: int = 1000,
     progress_callback: Optional[Callable[[int, int], None]] = None,
+    jump_time_penalty: bool = False,
 ) -> Dict[int, Tuple[np.ndarray, int]]:
     """
     Evaluate flow map for unique points using parallel processing.
@@ -206,7 +216,7 @@ def evaluate_unique_points_parallel(
     batches = []
     for i in range(0, n_points, batch_size):
         batch = points[i : i + batch_size]
-        batches.append((batch, system_factory, system_args, tau))
+        batches.append((batch, system_factory, system_args, tau, jump_time_penalty))
 
     # Process batches in parallel
     with Pool(processes=max_workers) as pool:

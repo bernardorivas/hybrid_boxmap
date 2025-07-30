@@ -87,6 +87,7 @@ class HybridSystem:
         dense_output: bool = True,
         max_step: float | None = None,
         debug_info: dict | None = None,
+        jump_time_penalty: bool = False,
     ) -> HybridTrajectory:
         """Simulate hybrid trajectory from initial condition.
 
@@ -97,6 +98,7 @@ class HybridSystem:
             dense_output: Whether to use dense output for smooth interpolation
             max_step: Maximum step size for integration
             debug_info: An optional dictionary to store debugging information.
+            jump_time_penalty: If True, each jump consumes 1 unit of time from the total duration
 
         Returns:
             HybridTrajectory containing complete simulation results
@@ -109,6 +111,7 @@ class HybridSystem:
             dense_output=dense_output,
             max_step=max_step,
             debug_info=debug_info,
+            jump_time_penalty=jump_time_penalty,
         )
 
     def simulate_from_hybrid_time(
@@ -117,6 +120,7 @@ class HybridSystem:
         initial_state: np.ndarray,
         duration: float,
         max_jumps: int | None = None,
+        jump_time_penalty: bool = False,
     ) -> HybridTrajectory:
         """Simulate from a specific hybrid time point.
 
@@ -125,6 +129,7 @@ class HybridSystem:
             initial_state: Initial state vector
             duration: How long to simulate in continuous time
             max_jumps: Maximum additional jumps allowed
+            jump_time_penalty: If True, each jump consumes 1 unit of time from the total duration
 
         Returns:
             HybridTrajectory starting from specified hybrid time
@@ -135,6 +140,7 @@ class HybridSystem:
             initial_state=initial_state,
             duration=duration,
             max_jumps=max_jumps,
+            jump_time_penalty=jump_time_penalty,
         )
 
     def is_valid_state(self, state: np.ndarray) -> bool:

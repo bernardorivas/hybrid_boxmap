@@ -375,8 +375,23 @@ class HybridTrajectory:
         dense_output: bool = True,
         max_step: float | None = None,
         debug_info: dict | None = None,
+        jump_time_penalty: bool = False,
     ) -> "HybridTrajectory":
-        """Compute hybrid trajectory from initial condition using given system."""
+        """Compute hybrid trajectory from initial condition using given system.
+        
+        Args:
+            system: The hybrid system to simulate
+            initial_state: Initial state vector
+            time_span: (t_start, t_end) integration time span
+            max_jumps: Maximum allowed discrete transitions
+            dense_output: Whether to use dense output for smooth interpolation
+            max_step: Maximum step size for integration
+            debug_info: Optional dictionary to store debugging information
+            jump_time_penalty: If True, each jump consumes 1 unit of time from the total duration
+        
+        Returns:
+            HybridTrajectory containing complete simulation results
+        """
         if max_jumps is None:
             max_jumps = system.max_jumps
 
@@ -384,6 +399,10 @@ class HybridTrajectory:
         current_state = initial_state.copy()
         current_time = t_start
         jump_count = 0
+        
+        # Track remaining time for jump penalty mode
+        total_duration = t_end - t_start
+        remaining_time = total_duration
 
         trajectory = cls()
 
@@ -421,11 +440,20 @@ class HybridTrajectory:
 
             # Apply reset immediately
             try:
+                # Check if we have enough time for initial jump in penalty mode
+                if jump_time_penalty and remaining_time < 1.0:
+                    # Not enough time for jump, just return initial segment
+                    return trajectory
+                
                 state_after_jump = system.reset_map(current_state)
                 if not system._check_domain_bounds(state_after_jump):
                     warnings.warn(
                         "Post-jump state outside domain bounds", RuntimeWarning,
                     )
+
+                # Deduct time for initial jump if in penalty mode
+                if jump_time_penalty:
+                    remaining_time -= 1.0
 
                 trajectory.add_jump(current_time, current_state, state_after_jump)
                 current_state = state_after_jump
@@ -434,7 +462,15 @@ class HybridTrajectory:
                 warnings.warn(f"Initial reset map failed: {str(e)}", RuntimeWarning)
 
         while current_time < t_end and jump_count <= max_jumps:
-            integration_span = (current_time, t_end)
+            # Calculate effective end time based on jump penalty mode
+            effective_t_end = t_end
+            if jump_time_penalty:
+                # Adjust end time based on remaining time
+                effective_t_end = current_time + remaining_time
+                if remaining_time <= 0:
+                    break
+            
+            integration_span = (current_time, effective_t_end)
 
             try:
                 solve_ivp_args = {
@@ -491,6 +527,20 @@ class HybridTrajectory:
                     )
                     # Continue simulation even outside domain bounds
 
+                # Handle jump time penalty
+                if jump_time_penalty:
+                    # Calculate time elapsed in this segment
+                    time_elapsed = event_time - current_time
+                    remaining_time -= time_elapsed
+                    
+                    # Check if we have enough time for the jump penalty
+                    if remaining_time < 1.0:
+                        # Not enough time for jump, stop here
+                        break
+                    
+                    # Deduct 1 unit of time for the jump
+                    remaining_time -= 1.0
+
                 trajectory.add_jump(event_time, state_before_jump, state_after_jump)
                 current_state = state_after_jump
                 current_time = event_time
@@ -511,6 +561,7 @@ class HybridTrajectory:
         initial_state: np.ndarray,
         duration: float,
         max_jumps: int | None = None,
+        jump_time_penalty: bool = False,
     ) -> "HybridTrajectory":
         """Compute trajectory from a specific hybrid time point, adjusting jump indices."""
         if max_jumps is None:
@@ -520,7 +571,10 @@ class HybridTrajectory:
             initial_hybrid_time.continuous,
             initial_hybrid_time.continuous + duration,
         )
-        trajectory = cls.compute_trajectory(system, initial_state, time_span, max_jumps)
+        trajectory = cls.compute_trajectory(
+            system, initial_state, time_span, max_jumps, 
+            jump_time_penalty=jump_time_penalty
+        )
 
         offset = initial_hybrid_time.discrete
         if offset > 0:

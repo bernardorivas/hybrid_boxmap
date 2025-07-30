@@ -1,0 +1,18 @@
+Jump Time Penalty Test Results
+==============================
+
+Parameters:
+  - tau: 5.0
+  - grid subdivisions: [31, 31]
+  - bloat factor: 0.12
+  - alpha: 0.4
+  - gamma: 0.2
+
+Results:
+  - No penalty: 1 Morse sets, 9410 transitions
+  - With penalty: 11 Morse sets, 11287 transitions
+  - Boxes with different mappings: 768
+
+Regions of Attraction:
+  - No penalty ROA coverage: 80.3%
+  - With penalty ROA coverage: 80.3%

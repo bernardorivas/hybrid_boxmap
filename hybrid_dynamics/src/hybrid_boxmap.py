@@ -59,6 +59,7 @@ class HybridBoxMap(dict):
         system_args: Optional[tuple] = None,
         subdivision_level: int = 1,
         enclosure: bool = False,
+        jump_time_penalty: bool = False,
     ) -> HybridBoxMap:
         """
         Computes the box map for a given hybrid system using a sample-and-bloat method.
@@ -88,6 +89,7 @@ class HybridBoxMap(dict):
             enclosure: If True and sampling_mode='corners', compute rectangular enclosures
                       when all corners have the same number of jumps. This creates a
                       bounding box containing all destination corners plus interior boxes.
+            jump_time_penalty: If True, each jump consumes 1 unit of time from the total duration tau.
 
         Returns:
             An instance of HybridBoxMap containing the computed map.
@@ -114,7 +116,9 @@ class HybridBoxMap(dict):
             point: npt.NDArray[np.float64],
         ) -> Tuple[npt.NDArray[np.float64], int]:
             try:
-                traj = system.simulate(point, (0, tau), debug_info=debug_info)
+                traj = system.simulate(
+                    point, (0, tau), debug_info=debug_info, jump_time_penalty=jump_time_penalty
+                )
                 # Check if the simulation reached tau
                 if traj.total_duration >= tau:
                     final_state = traj.interpolate(tau)
@@ -157,6 +161,7 @@ class HybridBoxMap(dict):
                     tau=tau,
                     max_workers=max_workers,
                     progress_callback=progress_callback,
+                    jump_time_penalty=jump_time_penalty,
                 )
             else:
                 # Fall back to sequential evaluation
@@ -598,6 +603,7 @@ class HybridBoxMap(dict):
         max_workers: Optional[int] = None,
         system_factory: Optional[Callable] = None,
         system_args: Optional[tuple] = None,
+        jump_time_penalty: bool = False,
     ) -> HybridBoxMap:
         """
         Computes box map for systems with cylindrical symmetry (e.g., bipedal walker).
@@ -752,13 +758,14 @@ class HybridBoxMap(dict):
                 tau=tau,
                 max_workers=max_workers,
                 progress_callback=progress_callback,
+                jump_time_penalty=jump_time_penalty,
             )
         else:
             # Sequential evaluation
             point_results = {}
             for i, point in enumerate(sample_points):
                 try:
-                    traj = system.simulate(point, (0, tau))
+                    traj = system.simulate(point, (0, tau), jump_time_penalty=jump_time_penalty)
                     if traj.total_duration >= tau:
                         final_state = traj.interpolate(tau)
                         num_jumps = traj.num_jumps
