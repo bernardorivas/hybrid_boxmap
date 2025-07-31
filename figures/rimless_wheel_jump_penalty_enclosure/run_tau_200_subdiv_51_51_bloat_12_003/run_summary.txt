@@ -1,0 +1,19 @@
+Jump Penalty & Boundary-Bridged Enclosure Comparison
+====================================================
+
+Parameters:
+  - tau: 2.0
+  - grid subdivisions: [51, 51]
+  - bloat factor: 0.12
+  - alpha: 0.4
+  - gamma: 0.2
+
+Results:
+  - No penalty: 3 Morse sets, 40861 transitions, 79.4% ROA coverage
+  - With penalty: 3 Morse sets, 41178 transitions, 79.4% ROA coverage
+  - Bridged enclosure: 1 Morse sets, 77940 transitions, 79.7% ROA coverage
+
+Computation times:
+  - No penalty: 5.15s
+  - With penalty: 4.88s
+  - Bridged enclosure: 5.22s

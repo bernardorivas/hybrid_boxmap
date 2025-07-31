@@ -230,7 +230,7 @@ def compare_jump_penalty_behavior():
     # Setup
     wheel = RimlessWheel(alpha=0.4, gamma=0.2, max_jumps=50)
     grid = Grid(bounds=wheel.domain_bounds, subdivisions=[51, 51])
-    tau = 1.1
+    tau = 2.0
     bloat_factor = 0.12
     
     # Test with specific initial conditions

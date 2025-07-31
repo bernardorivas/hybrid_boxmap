@@ -129,7 +129,8 @@ def evaluate_grid(
 def _evaluate_points_worker(
     args: Union[
         Tuple[np.ndarray, Callable, tuple, float],
-        Tuple[np.ndarray, Callable, tuple, float, bool]
+        Tuple[np.ndarray, Callable, tuple, float, bool],
+        Tuple[np.ndarray, Callable, tuple, float, bool, Optional[float]]
     ],
 ) -> List[Tuple[int, Any]]:
     """
@@ -137,7 +138,8 @@ def _evaluate_points_worker(
 
     Args:
         args: Tuple of (points_batch, system_factory, system_args, tau) or
-              (points_batch, system_factory, system_args, tau, jump_time_penalty)
+              (points_batch, system_factory, system_args, tau, jump_time_penalty) or
+              (points_batch, system_factory, system_args, tau, jump_time_penalty, jump_time_penalty_epsilon)
 
     Returns:
         List of (point_index, result) tuples
@@ -146,8 +148,12 @@ def _evaluate_points_worker(
     if len(args) == 4:
         points_batch, system_factory, system_args, tau = args
         jump_time_penalty = False
-    else:
+        jump_time_penalty_epsilon = None
+    elif len(args) == 5:
         points_batch, system_factory, system_args, tau, jump_time_penalty = args
+        jump_time_penalty_epsilon = None
+    else:
+        points_batch, system_factory, system_args, tau, jump_time_penalty, jump_time_penalty_epsilon = args
 
     # Create system instance in worker process
     system = system_factory(*system_args)
@@ -157,25 +163,32 @@ def _evaluate_points_worker(
         try:
             # Create the evaluation function that simulates the system
             def evaluate_flow(pt):
-                traj = system.simulate(pt, (0, tau), jump_time_penalty=jump_time_penalty)
+                traj = system.simulate(pt, (0, tau), jump_time_penalty=jump_time_penalty,
+                                     jump_time_penalty_epsilon=jump_time_penalty_epsilon)
+                
+                # Get first guard state if any jumps occurred
+                guard_state = None
+                if traj.jump_states:
+                    guard_state = traj.jump_states[0][0]  # state_before from first jump
+                
                 if traj.total_duration >= tau:
                     final_state = traj.interpolate(tau)
                     num_jumps = traj.num_jumps
-                    return (final_state, num_jumps)
+                    return (final_state, num_jumps, guard_state)
 
                 # If tau not reached, use last available point
                 if traj.segments and traj.segments[-1].state_values.size > 0:
                     final_state = traj.segments[-1].state_values[-1]
                     num_jumps = traj.num_jumps
-                    return (final_state, num_jumps)
+                    return (final_state, num_jumps, guard_state)
 
-                return (np.full(len(pt), np.nan), -1)
+                return (np.full(len(pt), np.nan), -1, None)
 
             result = evaluate_flow(point)
             results.append((i, result))
         except Exception as e:
             logger.debug(f"Failed to evaluate point {point}: {e}")
-            results.append((i, (np.full(len(point), np.nan), -1)))
+            results.append((i, (np.full(len(point), np.nan), -1, None)))
 
     return results
 
@@ -189,7 +202,8 @@ def evaluate_unique_points_parallel(
     batch_size: int = 1000,
     progress_callback: Optional[Callable[[int, int], None]] = None,
     jump_time_penalty: bool = False,
-) -> Dict[int, Tuple[np.ndarray, int]]:
+    jump_time_penalty_epsilon: Optional[float] = None,
+) -> Dict[int, Tuple[np.ndarray, int, Optional[np.ndarray]]]:
     """
     Evaluate flow map for unique points using parallel processing.
 
@@ -201,9 +215,11 @@ def evaluate_unique_points_parallel(
         max_workers: Maximum number of parallel workers (None = CPU count)
         batch_size: Number of points per batch
         progress_callback: Optional callback for progress updates
+        jump_time_penalty: If True, each jump consumes time from the total duration
+        jump_time_penalty_epsilon: Time deducted for each jump (defaults to config value)
 
     Returns:
-        Dictionary mapping point_index -> (final_state, num_jumps)
+        Dictionary mapping point_index -> (final_state, num_jumps, last_pre_jump_state)
     """
     if max_workers is None:
         max_workers = multiprocessing.cpu_count()
@@ -216,7 +232,7 @@ def evaluate_unique_points_parallel(
     batches = []
     for i in range(0, n_points, batch_size):
         batch = points[i : i + batch_size]
-        batches.append((batch, system_factory, system_args, tau, jump_time_penalty))
+        batches.append((batch, system_factory, system_args, tau, jump_time_penalty, jump_time_penalty_epsilon))
 
     # Process batches in parallel
     with Pool(processes=max_workers) as pool:

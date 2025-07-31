@@ -1,0 +1,21 @@
+Boundary-Bridged Enclosure Method Comparison
+==================================================
+
+Parameters:
+  - tau: 1.5
+  - grid: [41, 41]
+  - bloat_factor: 0.1
+
+Results:
+  Old method (per-point bloating):
+    - Transitions: 19773
+    - Morse sets: 7
+    - Time: 2.56s
+
+  New method (boundary-bridged):
+    - Transitions: 36070
+    - Morse sets: 5
+    - Time: 2.57s
+
+  Mixed jump boxes found: 9
+  Average destination difference: 120.6

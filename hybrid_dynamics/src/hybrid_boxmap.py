@@ -60,6 +60,8 @@ class HybridBoxMap(dict):
         subdivision_level: int = 1,
         enclosure: bool = False,
         jump_time_penalty: bool = False,
+        jump_time_penalty_epsilon: Optional[float] = None,
+        use_boundary_bridging: bool = True,
     ) -> HybridBoxMap:
         """
         Computes the box map for a given hybrid system using a sample-and-bloat method.
@@ -89,7 +91,10 @@ class HybridBoxMap(dict):
             enclosure: If True and sampling_mode='corners', compute rectangular enclosures
                       when all corners have the same number of jumps. This creates a
                       bounding box containing all destination corners plus interior boxes.
-            jump_time_penalty: If True, each jump consumes 1 unit of time from the total duration tau.
+            jump_time_penalty: If True, each jump consumes time from the total duration tau.
+            jump_time_penalty_epsilon: Time deducted for each jump (defaults to config value).
+            use_boundary_bridging: If True, use boundary-bridged stratified enclosure for boxes
+                                 with mixed jump counts (more accurate but slower).
 
         Returns:
             An instance of HybridBoxMap containing the computed map.
@@ -101,9 +106,32 @@ class HybridBoxMap(dict):
         # Use default out of bounds tolerance if not provided
         if out_of_bounds_tolerance is None:
             out_of_bounds_tolerance = config.grid.out_of_bounds_tolerance
+            
+        # Auto-calculate jump time penalty epsilon if not provided
+        if jump_time_penalty and jump_time_penalty_epsilon is None:
+            # Calculate based on grid resolution and time horizon
+            box_diagonal = np.sqrt(np.sum(grid.box_widths ** 2))
+            
+            # Conservative estimate of max phase space velocity
+            # This could be made system-specific in the future
+            max_phase_velocity = 5.0  # Conservative default
+            
+            # Ensure epsilon is small enough to:
+            # 1. Not exhaust all time even with multiple jumps
+            # 2. Allow reaching adjacent boxes after a jump
+            jump_time_penalty_epsilon = min(
+                tau / 20.0,  # At most 1/20 of total time per jump
+                box_diagonal / (2.0 * max_phase_velocity)  # Half the time to cross a box
+            )
+            
+            # Also ensure it's not too small to be meaningless
+            jump_time_penalty_epsilon = max(jump_time_penalty_epsilon, 1e-6)
 
         # Get logger
         logger = config.get_logger(__name__)
+        
+        if jump_time_penalty and config.logging.verbose:
+            logger.info(f"Jump time penalty epsilon: {jump_time_penalty_epsilon}")
 
         if config.logging.verbose:
             logger.info("Computing Hybrid Box Map...")
@@ -114,27 +142,33 @@ class HybridBoxMap(dict):
         # Define the function to be evaluated on the grid for each sample point
         def evaluate_flow_with_jumps(
             point: npt.NDArray[np.float64],
-        ) -> Tuple[npt.NDArray[np.float64], int]:
+        ) -> Tuple[npt.NDArray[np.float64], int, Optional[npt.NDArray[np.float64]]]:
             try:
                 traj = system.simulate(
-                    point, (0, tau), debug_info=debug_info, jump_time_penalty=jump_time_penalty
+                    point, (0, tau), debug_info=debug_info, jump_time_penalty=jump_time_penalty,
+                    jump_time_penalty_epsilon=jump_time_penalty_epsilon
                 )
+                # Get first guard state if any jumps occurred
+                guard_state = None
+                if traj.jump_states:
+                    guard_state = traj.jump_states[0][0]  # state_before from first jump
+                
                 # Check if the simulation reached tau
                 if traj.total_duration >= tau:
                     final_state = traj.interpolate(tau)
                     num_jumps = traj.num_jumps
-                    return (final_state, num_jumps)
+                    return (final_state, num_jumps, guard_state)
 
                 # If tau is not reached, use the last available point from the trajectory.
                 if traj.segments and traj.segments[-1].state_values.size > 0:
                     final_state = traj.segments[-1].state_values[-1]
                     num_jumps = traj.num_jumps
-                    return (final_state, num_jumps)
+                    return (final_state, num_jumps, guard_state)
 
-                return (np.full(grid.ndim, np.nan), -1)
+                return (np.full(grid.ndim, np.nan), -1, None)
             except Exception as e:
                 logger.debug(f"Failed to evaluate flow at point {point}: {e}")
-                return (np.full(grid.ndim, np.nan), -1)
+                return (np.full(grid.ndim, np.nan), -1, None)
 
         # Initialize the box map instance
         box_map = cls(grid, system, tau)
@@ -162,6 +196,7 @@ class HybridBoxMap(dict):
                     max_workers=max_workers,
                     progress_callback=progress_callback,
                     jump_time_penalty=jump_time_penalty,
+                    jump_time_penalty_epsilon=jump_time_penalty_epsilon,
                 )
             else:
                 # Fall back to sequential evaluation
@@ -180,10 +215,17 @@ class HybridBoxMap(dict):
             if enclosure and sampling_mode == "corners":
                 # First pass: collect all corner results for each box
                 box_corner_results = defaultdict(
-                    lambda: {"points": [], "destinations": [], "jumps": []},
+                    lambda: {"points": [], "destinations": [], "jumps": [], "pre_jump_states": []},
                 )
 
-                for point_idx, (final_state, num_jumps) in point_results.items():
+                for point_idx, result in point_results.items():
+                    # Handle both 2-tuple (old) and 3-tuple (new) formats
+                    if len(result) == 2:
+                        final_state, num_jumps = result
+                        pre_jump_state = None
+                    else:
+                        final_state, num_jumps, pre_jump_state = result
+                    
                     if num_jumps == -1 or np.any(np.isnan(final_state)):
                         continue  # Skip failed evaluations
 
@@ -196,6 +238,7 @@ class HybridBoxMap(dict):
                         box_corner_results[box_idx]["points"].append(point)
                         box_corner_results[box_idx]["destinations"].append(final_state)
                         box_corner_results[box_idx]["jumps"].append(num_jumps)
+                        box_corner_results[box_idx]["pre_jump_states"].append(pre_jump_state)
 
                 # Second pass: process each box with enclosure logic
                 for box_idx, results in box_corner_results.items():
@@ -271,61 +314,80 @@ class HybridBoxMap(dict):
                             )
                             box_map[box_idx].add(dest_idx)
                     else:
-                        # Fall back to per-point bloating
-                        for final_state in results["destinations"]:
-                            if discard_out_of_bounds_destinations:
-                                outside_lower = (
-                                    final_state
-                                    < grid.bounds[:, 0] - out_of_bounds_tolerance
-                                )
-                                outside_upper = (
-                                    final_state
-                                    > grid.bounds[:, 1] + out_of_bounds_tolerance
-                                )
-                                if np.any(outside_lower | outside_upper):
-                                    continue
-
-                            # Create bloated bounding box around the destination
-                            bloat_amount = grid.box_widths * bloat_factor
-                            bloated_min = final_state - bloat_amount
-                            bloated_max = final_state + bloat_amount
-
-                            # Find destination boxes
-                            clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
-                            clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
-
-                            min_multi_index = np.floor(
-                                (clipped_min - grid.bounds[:, 0]) / grid.box_widths,
-                            ).astype(int)
-                            max_multi_index = np.floor(
-                                (clipped_max - grid.bounds[:, 0]) / grid.box_widths,
-                            ).astype(int)
-
-                            min_multi_index = np.maximum(0, min_multi_index)
-                            max_multi_index = np.minimum(
-                                grid.subdivisions - 1, max_multi_index,
+                        # Fall back to either boundary-bridged or per-point bloating
+                        if use_boundary_bridging:
+                            # Use boundary-bridged stratified enclosure
+                            destination_boxes = cls._compute_boundary_bridged_enclosure(
+                                results=results,
+                                grid=grid,
+                                system=system,
+                                bloat_factor=bloat_factor,
+                                discard_out_of_bounds_destinations=discard_out_of_bounds_destinations,
+                                out_of_bounds_tolerance=out_of_bounds_tolerance,
                             )
-                            max_multi_index = np.maximum(
-                                min_multi_index, max_multi_index,
-                            )
+                            box_map[box_idx] = destination_boxes
+                        else:
+                            # Original per-point bloating fallback
+                            for final_state in results["destinations"]:
+                                if discard_out_of_bounds_destinations:
+                                    outside_lower = (
+                                        final_state
+                                        < grid.bounds[:, 0] - out_of_bounds_tolerance
+                                    )
+                                    outside_upper = (
+                                        final_state
+                                        > grid.bounds[:, 1] + out_of_bounds_tolerance
+                                    )
+                                    if np.any(outside_lower | outside_upper):
+                                        continue
 
-                            iter_ranges = [
-                                range(min_multi_index[d], max_multi_index[d] + 1)
-                                for d in range(grid.ndim)
-                            ]
+                                # Create bloated bounding box around the destination
+                                bloat_amount = grid.box_widths * bloat_factor
+                                bloated_min = final_state - bloat_amount
+                                bloated_max = final_state + bloat_amount
 
-                            for current_multi_index in itertools.product(*iter_ranges):
-                                dest_idx = int(
-                                    np.ravel_multi_index(
-                                        current_multi_index,
-                                        grid.subdivisions,
-                                        mode="clip",
-                                    ),
+                                # Find destination boxes
+                                clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                                clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+
+                                min_multi_index = np.floor(
+                                    (clipped_min - grid.bounds[:, 0]) / grid.box_widths,
+                                ).astype(int)
+                                max_multi_index = np.floor(
+                                    (clipped_max - grid.bounds[:, 0]) / grid.box_widths,
+                                ).astype(int)
+
+                                min_multi_index = np.maximum(0, min_multi_index)
+                                max_multi_index = np.minimum(
+                                    grid.subdivisions - 1, max_multi_index,
                                 )
-                                box_map[box_idx].add(dest_idx)
+                                max_multi_index = np.maximum(
+                                    min_multi_index, max_multi_index,
+                                )
+
+                                iter_ranges = [
+                                    range(min_multi_index[d], max_multi_index[d] + 1)
+                                    for d in range(grid.ndim)
+                                ]
+
+                                for current_multi_index in itertools.product(*iter_ranges):
+                                    dest_idx = int(
+                                        np.ravel_multi_index(
+                                            current_multi_index,
+                                            grid.subdivisions,
+                                            mode="clip",
+                                        ),
+                                    )
+                                    box_map[box_idx].add(dest_idx)
             else:
                 # Original logic: process each point individually
-                for point_idx, (final_state, num_jumps) in point_results.items():
+                for point_idx, result in point_results.items():
+                    # Handle both 2-tuple (old) and 3-tuple (new) formats
+                    if len(result) == 2:
+                        final_state, num_jumps = result
+                    else:
+                        final_state, num_jumps, _ = result  # Ignore pre_jump_state for now
+                    
                     if num_jumps == -1 or np.any(np.isnan(final_state)):
                         continue  # Skip failed evaluations
 
@@ -420,9 +482,19 @@ class HybridBoxMap(dict):
 
                 # Group final points by the number of jumps
                 points_by_jumps = defaultdict(list)
-                for final_state, num_jumps in results_for_box:
+                pre_jump_states_by_jumps = defaultdict(list)
+                for result in results_for_box:
+                    # Handle both 2-tuple (old) and 3-tuple (new) formats
+                    if len(result) == 2:
+                        final_state, num_jumps = result
+                        pre_jump_state = None
+                    else:
+                        final_state, num_jumps, pre_jump_state = result
+                    
                     if num_jumps != -1 and not np.any(np.isnan(final_state)):
                         points_by_jumps[num_jumps].append(final_state)
+                        if pre_jump_state is not None:
+                            pre_jump_states_by_jumps[num_jumps].append(pre_jump_state)
 
                 destination_indices: Set[int] = set()
 
@@ -501,52 +573,85 @@ class HybridBoxMap(dict):
                             destination_indices.add(dest_idx)
 
                 else:
-                    # Original logic: process each jump group separately
-                    # 3. For each group of points, compute a bloated bounding box
-                    for _jump_count, points in points_by_jumps.items():
-                        if not points:
-                            continue
+                    # Check if we should use boundary bridging for mixed jump counts
+                    if use_boundary_bridging and len(points_by_jumps) > 1:
+                        # Convert points_by_jumps and pre_jump_states_by_jumps to results format
+                        all_destinations = []
+                        all_jumps = []
+                        all_pre_jump_states = []
+                        
+                        for jump_count, points in points_by_jumps.items():
+                            for i, point in enumerate(points):
+                                all_destinations.append(point)
+                                all_jumps.append(jump_count)
+                                # Get corresponding pre-jump state if available
+                                if jump_count in pre_jump_states_by_jumps and i < len(pre_jump_states_by_jumps[jump_count]):
+                                    all_pre_jump_states.append(pre_jump_states_by_jumps[jump_count][i])
+                                else:
+                                    all_pre_jump_states.append(None)
+                        
+                        results_dict = {
+                            'destinations': all_destinations,
+                            'jumps': all_jumps,
+                            'pre_jump_states': all_pre_jump_states
+                        }
+                        
+                        # Use boundary-bridged enclosure
+                        destination_indices = cls._compute_boundary_bridged_enclosure(
+                            results=results_dict,
+                            grid=grid,
+                            system=system,
+                            bloat_factor=bloat_factor,
+                            discard_out_of_bounds_destinations=discard_out_of_bounds_destinations,
+                            out_of_bounds_tolerance=out_of_bounds_tolerance,
+                        )
+                    else:
+                        # Original logic: process each jump group separately
+                        # 3. For each group of points, compute a bloated bounding box
+                        for _jump_count, points in points_by_jumps.items():
+                            if not points:
+                                continue
 
-                        points_arr = np.array(points)
+                            points_arr = np.array(points)
 
-                        if discard_out_of_bounds_destinations:
-                            # Filter out points that landed outside the grid domain by more than tolerance
-                            points_in_domain = []
-                            for p in points_arr:
-                                outside_lower = (
-                                    p < grid.bounds[:, 0] - out_of_bounds_tolerance
-                                )
-                                outside_upper = (
-                                    p > grid.bounds[:, 1] + out_of_bounds_tolerance
-                                )
-                                if not np.any(outside_lower | outside_upper):
-                                    points_in_domain.append(p)
+                            if discard_out_of_bounds_destinations:
+                                # Filter out points that landed outside the grid domain by more than tolerance
+                                points_in_domain = []
+                                for p in points_arr:
+                                    outside_lower = (
+                                        p < grid.bounds[:, 0] - out_of_bounds_tolerance
+                                    )
+                                    outside_upper = (
+                                        p > grid.bounds[:, 1] + out_of_bounds_tolerance
+                                    )
+                                    if not np.any(outside_lower | outside_upper):
+                                        points_in_domain.append(p)
 
-                            if not points_in_domain:
-                                continue  # All points for this jump count were out of bounds
-                            points_arr = np.array(points_in_domain)
+                                if not points_in_domain:
+                                    continue  # All points for this jump count were out of bounds
+                                points_arr = np.array(points_in_domain)
 
-                        # Create a tight bounding box around the destination points
-                        min_coords = np.min(points_arr, axis=0)
-                        max_coords = np.max(points_arr, axis=0)
+                            # Create a tight bounding box around the destination points
+                            min_coords = np.min(points_arr, axis=0)
+                            max_coords = np.max(points_arr, axis=0)
 
-                        # Bloat the box to account for the image of the interior
-                        bloat_amount = grid.box_widths * bloat_factor
-                        bloated_min = min_coords - bloat_amount
-                        bloated_max = max_coords + bloat_amount
+                            # Bloat the box to account for the image of the interior
+                            bloat_amount = grid.box_widths * bloat_factor
+                            bloated_min = min_coords - bloat_amount
+                            bloated_max = max_coords + bloat_amount
 
-                        # 4. Find all grid cells that intersect the bloated bounding box
-                        # Clip the coordinates to be within the grid's overall bounds
-                        clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
-                        clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+                            # 4. Find all grid cells that intersect the bloated bounding box
+                            # Clip the coordinates to be within the grid's overall bounds
+                            clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+                            clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
 
-                        # Find the multi-indices of the corners of the clipped bloated box
-                        min_multi_index = np.floor(
-                            (clipped_min - grid.bounds[:, 0]) / grid.box_widths,
-                        ).astype(int)
-                        max_multi_index = np.floor(
-                            (clipped_max - grid.bounds[:, 0]) / grid.box_widths,
-                        ).astype(int)
+                            # Find the multi-indices of the corners of the clipped bloated box
+                            min_multi_index = np.floor(
+                                (clipped_min - grid.bounds[:, 0]) / grid.box_widths,
+                            ).astype(int)
+                            max_multi_index = np.floor(
+                                (clipped_max - grid.bounds[:, 0]) / grid.box_widths,
+                            ).astype(int)
 
                         # Make sure indices are within the valid range
                         min_multi_index = np.maximum(0, min_multi_index)
@@ -604,6 +709,8 @@ class HybridBoxMap(dict):
         system_factory: Optional[Callable] = None,
         system_args: Optional[tuple] = None,
         jump_time_penalty: bool = False,
+        jump_time_penalty_epsilon: Optional[float] = None,
+        use_boundary_bridging: bool = True,
     ) -> HybridBoxMap:
         """
         Computes box map for systems with cylindrical symmetry (e.g., bipedal walker).
@@ -627,6 +734,9 @@ class HybridBoxMap(dict):
             max_workers: Maximum number of parallel workers
             system_factory: Factory function for parallel processing
             system_args: Arguments for system_factory
+            jump_time_penalty: If True, each jump consumes time from the total duration
+            jump_time_penalty_epsilon: Time deducted for each jump (defaults to config value)
+            use_boundary_bridging: If True, use boundary-bridged stratified enclosure
 
         Returns:
             HybridBoxMap containing transitions for boxes within/intersecting the cylinder
@@ -759,13 +869,15 @@ class HybridBoxMap(dict):
                 max_workers=max_workers,
                 progress_callback=progress_callback,
                 jump_time_penalty=jump_time_penalty,
+                jump_time_penalty_epsilon=jump_time_penalty_epsilon,
             )
         else:
             # Sequential evaluation
             point_results = {}
             for i, point in enumerate(sample_points):
                 try:
-                    traj = system.simulate(point, (0, tau), jump_time_penalty=jump_time_penalty)
+                    traj = system.simulate(point, (0, tau), jump_time_penalty=jump_time_penalty,
+                                         jump_time_penalty_epsilon=jump_time_penalty_epsilon)
                     if traj.total_duration >= tau:
                         final_state = traj.interpolate(tau)
                         num_jumps = traj.num_jumps
@@ -863,6 +975,247 @@ class HybridBoxMap(dict):
             logger.info(f"✓ Cylindrical Box Map complete. Active boxes: {len(box_map)}")
 
         return box_map
+
+    @staticmethod
+    def _find_next_guard_state(system: HybridSystem, initial_state: np.ndarray, start_time: float = 0.0, max_time: float = 10.0) -> Optional[np.ndarray]:
+        """
+        Continue integration from a state until it hits the guard (event function = 0).
+        
+        Args:
+            system: The hybrid system
+            initial_state: Starting state
+            start_time: Time to start integration from
+            max_time: Maximum time to integrate
+            
+        Returns:
+            Guard state if found, None otherwise
+        """
+        try:
+            # Simulate with a large time horizon to find the next jump
+            traj = system.simulate(initial_state, (start_time, start_time + max_time), max_jumps=1)
+            
+            # Check if a jump occurred
+            if traj.jump_states and len(traj.jump_states) > 0:
+                # Return the state just before the jump (guard state)
+                return traj.jump_states[0][0]
+            
+            return None
+        except Exception:
+            return None
+    
+    @staticmethod
+    def _compute_boundary_bridged_enclosure(
+        results: dict,
+        grid: Grid,
+        system: HybridSystem,
+        bloat_factor: float,
+        discard_out_of_bounds_destinations: bool,
+        out_of_bounds_tolerance: float,
+    ) -> Set[int]:
+        """
+        Compute destination boxes using boundary-bridged enclosure method.
+        
+        This method handles boxes where corners have different jump counts by:
+        1. Grouping results by jump count
+        2. For each jump group, enhancing the point set with relevant guard states
+        3. Computing a single enclosure per jump group
+        4. Taking the union of enclosures (not a bounding box of all points)
+        
+        Args:
+            results: Dictionary with 'destinations', 'jumps', 'pre_jump_states' lists
+            grid: Grid object
+            system: HybridSystem for accessing reset_map
+            bloat_factor: Bloating factor for enclosures
+            discard_out_of_bounds_destinations: Whether to filter out-of-bounds points
+            out_of_bounds_tolerance: Tolerance for out-of-bounds checking
+            
+        Returns:
+            Set of destination box indices
+        """
+        from collections import defaultdict
+        
+        # Group results by jump count
+        jump_groups = defaultdict(lambda: {'destinations': [], 'guards': []})
+        
+        for i, (dest, jumps, guard) in enumerate(zip(
+            results['destinations'], 
+            results['jumps'], 
+            results['pre_jump_states']
+        )):
+            jump_groups[jumps]['destinations'].append(dest)
+            if guard is not None:
+                jump_groups[jumps]['guards'].append(guard)
+        
+        # Find corners that need bridging (those with fewer jumps)
+        jump_counts = list(jump_groups.keys())
+        if len(jump_counts) <= 1:
+            # No mixed jumps, use standard enclosure
+            return HybridBoxMap._compute_standard_enclosure(
+                results, grid, bloat_factor, 
+                discard_out_of_bounds_destinations, out_of_bounds_tolerance
+            )
+        
+        min_jumps = min(jump_counts)
+        max_jumps = max(jump_counts)
+        
+        # For corners with fewer jumps, find where they would jump next
+        # and add those points to enhance the higher jump group's enclosure
+        for n in range(min_jumps, max_jumps):
+            if n not in jump_groups:
+                continue
+                
+            # Points to bridge from n to n+1
+            bridge_points = []
+            
+            for dest in jump_groups[n]['destinations']:
+                # Continue integration to find next guard
+                next_guard = HybridBoxMap._find_next_guard_state(system, dest, 0.0, 5.0)
+                
+                if next_guard is not None:
+                    # Apply reset map to get post-jump state
+                    try:
+                        post_jump = system.reset_map(next_guard)
+                        bridge_points.append(post_jump)
+                    except Exception:
+                        pass
+            
+            # Add bridge points to the n+1 jump group
+            if n + 1 in jump_groups and bridge_points:
+                jump_groups[n + 1]['destinations'].extend(bridge_points)
+        
+        # Now compute enclosure for each jump group separately
+        destination_boxes = set()
+        bloat_amount = grid.box_widths * bloat_factor
+        
+        for jumps, group in jump_groups.items():
+            points = group['destinations']
+            if not points:
+                continue
+                
+            points_arr = np.array(points)
+            
+            if discard_out_of_bounds_destinations:
+                # Filter out-of-bounds points
+                in_bounds_mask = np.all(
+                    (points_arr >= grid.bounds[:, 0] - out_of_bounds_tolerance) &
+                    (points_arr <= grid.bounds[:, 1] + out_of_bounds_tolerance),
+                    axis=1
+                )
+                points_arr = points_arr[in_bounds_mask]
+                
+                if len(points_arr) == 0:
+                    continue
+            
+            # Compute bounding box for this jump group
+            min_coords = np.min(points_arr, axis=0)
+            max_coords = np.max(points_arr, axis=0)
+            
+            # Apply bloat factor
+            bloated_min = min_coords - bloat_amount
+            bloated_max = max_coords + bloat_amount
+            
+            # Find all boxes in the bloated bounding box
+            clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+            clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+            
+            min_multi_index = np.floor(
+                (clipped_min - grid.bounds[:, 0]) / grid.box_widths,
+            ).astype(int)
+            max_multi_index = np.floor(
+                (clipped_max - grid.bounds[:, 0]) / grid.box_widths,
+            ).astype(int)
+            
+            min_multi_index = np.maximum(0, min_multi_index)
+            max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+            max_multi_index = np.maximum(min_multi_index, max_multi_index)
+            
+            # Add boxes for this jump group
+            iter_ranges = [
+                range(min_multi_index[d], max_multi_index[d] + 1)
+                for d in range(grid.ndim)
+            ]
+            
+            for current_multi_index in itertools.product(*iter_ranges):
+                dest_idx = int(
+                    np.ravel_multi_index(
+                        current_multi_index, grid.subdivisions, mode="clip",
+                    ),
+                )
+                destination_boxes.add(dest_idx)
+        
+        return destination_boxes
+    
+    @staticmethod
+    def _compute_standard_enclosure(
+        results: dict,
+        grid: Grid,
+        bloat_factor: float,
+        discard_out_of_bounds_destinations: bool,
+        out_of_bounds_tolerance: float,
+    ) -> Set[int]:
+        """Helper method for standard enclosure without bridging."""
+        from collections import defaultdict
+        
+        # Group by jump count
+        points_by_jumps = defaultdict(list)
+        for dest, jumps in zip(results['destinations'], results['jumps']):
+            points_by_jumps[jumps].append(dest)
+        
+        destination_boxes = set()
+        bloat_amount = grid.box_widths * bloat_factor
+        
+        # Process each jump group
+        for jumps, points in points_by_jumps.items():
+            if not points:
+                continue
+                
+            points_arr = np.array(points)
+            
+            if discard_out_of_bounds_destinations:
+                in_bounds_mask = np.all(
+                    (points_arr >= grid.bounds[:, 0] - out_of_bounds_tolerance) &
+                    (points_arr <= grid.bounds[:, 1] + out_of_bounds_tolerance),
+                    axis=1
+                )
+                points_arr = points_arr[in_bounds_mask]
+                
+                if len(points_arr) == 0:
+                    continue
+            
+            min_coords = np.min(points_arr, axis=0)
+            max_coords = np.max(points_arr, axis=0)
+            
+            bloated_min = min_coords - bloat_amount
+            bloated_max = max_coords + bloat_amount
+            
+            clipped_min = np.maximum(bloated_min, grid.bounds[:, 0])
+            clipped_max = np.minimum(bloated_max, grid.bounds[:, 1])
+            
+            min_multi_index = np.floor(
+                (clipped_min - grid.bounds[:, 0]) / grid.box_widths,
+            ).astype(int)
+            max_multi_index = np.floor(
+                (clipped_max - grid.bounds[:, 0]) / grid.box_widths,
+            ).astype(int)
+            
+            min_multi_index = np.maximum(0, min_multi_index)
+            max_multi_index = np.minimum(grid.subdivisions - 1, max_multi_index)
+            max_multi_index = np.maximum(min_multi_index, max_multi_index)
+            
+            iter_ranges = [
+                range(min_multi_index[d], max_multi_index[d] + 1)
+                for d in range(grid.ndim)
+            ]
+            
+            for current_multi_index in itertools.product(*iter_ranges):
+                dest_idx = int(
+                    np.ravel_multi_index(
+                        current_multi_index, grid.subdivisions, mode="clip",
+                    ),
+                )
+                destination_boxes.add(dest_idx)
+        
+        return destination_boxes
 
     def to_networkx(self):
         """

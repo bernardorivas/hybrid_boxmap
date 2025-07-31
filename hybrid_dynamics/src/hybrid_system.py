@@ -88,6 +88,7 @@ class HybridSystem:
         max_step: float | None = None,
         debug_info: dict | None = None,
         jump_time_penalty: bool = False,
+        jump_time_penalty_epsilon: float | None = None,
     ) -> HybridTrajectory:
         """Simulate hybrid trajectory from initial condition.
 
@@ -98,7 +99,8 @@ class HybridSystem:
             dense_output: Whether to use dense output for smooth interpolation
             max_step: Maximum step size for integration
             debug_info: An optional dictionary to store debugging information.
-            jump_time_penalty: If True, each jump consumes 1 unit of time from the total duration
+            jump_time_penalty: If True, each jump consumes time from the total duration
+            jump_time_penalty_epsilon: Time deducted for each jump (defaults to config value)
 
         Returns:
             HybridTrajectory containing complete simulation results
@@ -112,6 +114,7 @@ class HybridSystem:
             max_step=max_step,
             debug_info=debug_info,
             jump_time_penalty=jump_time_penalty,
+            jump_time_penalty_epsilon=jump_time_penalty_epsilon,
         )
 
     def simulate_from_hybrid_time(
@@ -121,6 +124,7 @@ class HybridSystem:
         duration: float,
         max_jumps: int | None = None,
         jump_time_penalty: bool = False,
+        jump_time_penalty_epsilon: float | None = None,
     ) -> HybridTrajectory:
         """Simulate from a specific hybrid time point.
 
@@ -129,7 +133,8 @@ class HybridSystem:
             initial_state: Initial state vector
             duration: How long to simulate in continuous time
             max_jumps: Maximum additional jumps allowed
-            jump_time_penalty: If True, each jump consumes 1 unit of time from the total duration
+            jump_time_penalty: If True, each jump consumes time from the total duration
+            jump_time_penalty_epsilon: Time deducted for each jump (defaults to config value)
 
         Returns:
             HybridTrajectory starting from specified hybrid time
@@ -141,6 +146,7 @@ class HybridSystem:
             duration=duration,
             max_jumps=max_jumps,
             jump_time_penalty=jump_time_penalty,
+            jump_time_penalty_epsilon=jump_time_penalty_epsilon,
         )
 
     def is_valid_state(self, state: np.ndarray) -> bool:

@@ -38,6 +38,7 @@ class SimulationConfig:
     integration_rtol: float = 1e-6
     integration_atol: float = 1e-9
     event_tolerance: float = 1e-8
+    jump_time_penalty_epsilon: float = 0.1  # Time deducted for each jump when penalty mode is enabled
 
 
 @dataclass
@@ -195,6 +196,7 @@ class HybridConfig:
                 "integration_rtol": self.simulation.integration_rtol,
                 "integration_atol": self.simulation.integration_atol,
                 "event_tolerance": self.simulation.event_tolerance,
+                "jump_time_penalty_epsilon": self.simulation.jump_time_penalty_epsilon,
             },
             "visualization": {
                 "default_figsize": self.visualization.default_figsize,
@@ -278,3 +280,8 @@ def get_output_dir() -> Path:
 def set_output_dir(path: Union[str, Path]) -> None:
     """Set the output directory."""
     config.set_output_dir(path)
+
+
+def get_jump_time_penalty_epsilon() -> float:
+    """Get the time penalty epsilon value for each jump in penalty mode."""
+    return config.simulation.jump_time_penalty_epsilon

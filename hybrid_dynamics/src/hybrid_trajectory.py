@@ -376,6 +376,7 @@ class HybridTrajectory:
         max_step: float | None = None,
         debug_info: dict | None = None,
         jump_time_penalty: bool = False,
+        jump_time_penalty_epsilon: float | None = None,
     ) -> "HybridTrajectory":
         """Compute hybrid trajectory from initial condition using given system.
         
@@ -387,13 +388,18 @@ class HybridTrajectory:
             dense_output: Whether to use dense output for smooth interpolation
             max_step: Maximum step size for integration
             debug_info: Optional dictionary to store debugging information
-            jump_time_penalty: If True, each jump consumes 1 unit of time from the total duration
+            jump_time_penalty: If True, each jump consumes time from the total duration
+            jump_time_penalty_epsilon: Time deducted for each jump (defaults to config value)
         
         Returns:
             HybridTrajectory containing complete simulation results
         """
         if max_jumps is None:
             max_jumps = system.max_jumps
+
+        # Use default epsilon from config if not provided
+        if jump_time_penalty_epsilon is None:
+            jump_time_penalty_epsilon = config.simulation.jump_time_penalty_epsilon
 
         t_start, t_end = time_span
         current_state = initial_state.copy()
@@ -441,7 +447,7 @@ class HybridTrajectory:
             # Apply reset immediately
             try:
                 # Check if we have enough time for initial jump in penalty mode
-                if jump_time_penalty and remaining_time < 1.0:
+                if jump_time_penalty and remaining_time < jump_time_penalty_epsilon:
                     # Not enough time for jump, just return initial segment
                     return trajectory
                 
@@ -453,7 +459,7 @@ class HybridTrajectory:
 
                 # Deduct time for initial jump if in penalty mode
                 if jump_time_penalty:
-                    remaining_time -= 1.0
+                    remaining_time -= jump_time_penalty_epsilon
 
                 trajectory.add_jump(current_time, current_state, state_after_jump)
                 current_state = state_after_jump
@@ -534,12 +540,12 @@ class HybridTrajectory:
                     remaining_time -= time_elapsed
                     
                     # Check if we have enough time for the jump penalty
-                    if remaining_time < 1.0:
+                    if remaining_time < jump_time_penalty_epsilon:
                         # Not enough time for jump, stop here
                         break
                     
-                    # Deduct 1 unit of time for the jump
-                    remaining_time -= 1.0
+                    # Deduct jump penalty epsilon time for the jump
+                    remaining_time -= jump_time_penalty_epsilon
 
                 trajectory.add_jump(event_time, state_before_jump, state_after_jump)
                 current_state = state_after_jump
@@ -562,8 +568,22 @@ class HybridTrajectory:
         duration: float,
         max_jumps: int | None = None,
         jump_time_penalty: bool = False,
+        jump_time_penalty_epsilon: float | None = None,
     ) -> "HybridTrajectory":
-        """Compute trajectory from a specific hybrid time point, adjusting jump indices."""
+        """Compute trajectory from a specific hybrid time point, adjusting jump indices.
+        
+        Args:
+            system: The hybrid system to simulate
+            initial_hybrid_time: Starting hybrid time (t, j)
+            initial_state: State at the initial hybrid time
+            duration: How long to simulate forward in continuous time
+            max_jumps: Maximum allowed discrete transitions
+            jump_time_penalty: If True, each jump consumes time from the total duration
+            jump_time_penalty_epsilon: Time deducted for each jump (defaults to config value)
+        
+        Returns:
+            HybridTrajectory with jump indices offset by initial_hybrid_time.discrete
+        """
         if max_jumps is None:
             max_jumps = system.max_jumps
 
@@ -573,7 +593,8 @@ class HybridTrajectory:
         )
         trajectory = cls.compute_trajectory(
             system, initial_state, time_span, max_jumps, 
-            jump_time_penalty=jump_time_penalty
+            jump_time_penalty=jump_time_penalty,
+            jump_time_penalty_epsilon=jump_time_penalty_epsilon
         )
 
         offset = initial_hybrid_time.discrete
