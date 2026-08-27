@@ -5,7 +5,9 @@ This module provides comprehensive visualization tools for hybrid trajectories,
 phase portraits, and cubification analysis.
 """
 
+import logging
 import warnings
+from collections import Counter
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import matplotlib.pyplot as plt
@@ -21,6 +23,25 @@ from .grid import Grid
 from .hybrid_boxmap import HybridBoxMap
 from .hybrid_system import HybridSystem
 from .hybrid_trajectory import HybridTrajectory
+
+
+logger = logging.getLogger(__name__)
+
+
+def _log_failure_summary(operation: str, failures: Counter) -> None:
+    """Log one compact summary for failures encountered in a batch."""
+    if not failures:
+        return
+
+    details = ", ".join(
+        f"{reason}: {count}" for reason, count in sorted(failures.items())
+    )
+    logger.warning(
+        "%s skipped %d item(s) (%s)",
+        operation,
+        sum(failures.values()),
+        details,
+    )
 
 
 class HybridPlotter:
@@ -310,6 +331,7 @@ class HybridPlotter:
         # Compute vector field
         U = np.zeros_like(X)
         V = np.zeros_like(Y)
+        evaluation_failures = Counter()
 
         for i in range(X.shape[0]):
             for j in range(X.shape[1]):
@@ -320,9 +342,12 @@ class HybridPlotter:
                         if len(derivative) >= 2:
                             U[i, j] = derivative[0]
                             V[i, j] = derivative[1]
-                except Exception:
+                except Exception as exc:
                     U[i, j] = 0
                     V[i, j] = 0
+                    evaluation_failures[type(exc).__name__] += 1
+
+        _log_failure_summary("Vector-field evaluation", evaluation_failures)
 
         # Plot vector field
         ax.quiver(
@@ -860,6 +885,7 @@ class HybridPlotter:
         """
         # Simulate trajectories with error handling
         trajectories = []
+        simulation_failures = Counter()
         for ic in initial_conditions:
             try:
                 simulate_kwargs = {
@@ -873,9 +899,12 @@ class HybridPlotter:
                 traj = system.simulate(ic, **simulate_kwargs)
                 if traj.segments:  # Only add if trajectory has segments
                     trajectories.append(traj)
-            except Exception:
-                # Silently skip failed simulations
-                pass
+                else:
+                    simulation_failures["empty trajectory"] += 1
+            except Exception as exc:
+                simulation_failures[type(exc).__name__] += 1
+
+        _log_failure_summary("Phase-portrait simulation", simulation_failures)
 
         if not trajectories:
             # Create empty plot if no trajectories succeeded
@@ -1001,6 +1030,7 @@ class HybridPlotter:
         """
         # Simulate trajectories with error handling
         trajectories = []
+        simulation_failures = Counter()
         for ic in initial_conditions:
             try:
                 simulate_kwargs = {
@@ -1014,9 +1044,12 @@ class HybridPlotter:
                 traj = system.simulate(ic, **simulate_kwargs)
                 if traj.segments:  # Only add if trajectory has segments
                     trajectories.append(traj)
-            except Exception:
-                # Silently skip failed simulations
-                pass
+                else:
+                    simulation_failures["empty trajectory"] += 1
+            except Exception as exc:
+                simulation_failures[type(exc).__name__] += 1
+
+        _log_failure_summary("3D phase-portrait simulation", simulation_failures)
 
         if not trajectories:
             # Create empty plot if no trajectories succeeded
@@ -1266,7 +1299,7 @@ def visualize_flow_map(
     if margin is None:
         margin = config.visualization.plot_margin
 
-    print(f"Loading flow map data from {input_path}...")
+    logger.info("Loading flow map data from %s", input_path)
     with open(input_path, "rb") as f:
         data = pickle.load(f)
 
@@ -1289,7 +1322,7 @@ def visualize_flow_map(
     initial_points = np.array(initial_points)
     final_points = np.array(final_points)
 
-    print(f"Visualizing {len(initial_points)} valid point mappings.")
+    logger.info("Visualizing %d valid point mappings", len(initial_points))
 
     fig, ax = plt.subplots(**config.get_figure_config())
 
@@ -1330,7 +1363,7 @@ def visualize_flow_map(
     # Save the figure
     Path(output_path).parent.mkdir(exist_ok=True, parents=True)
     fig.savefig(output_path, dpi=150)
-    print(f"Visualization saved to {output_path}")
+    logger.info("Flow map visualization saved to %s", output_path)
     plt.close(fig)
 
 
@@ -1354,7 +1387,7 @@ def visualize_box_map(
     if margin is None:
         margin = config.visualization.plot_margin
 
-    print("Visualizing hybrid box map...")
+    logger.info("Visualizing hybrid box map")
     fig, ax = plt.subplots(**config.get_figure_config())
 
     # Get all unique source and destination boxes
@@ -1406,7 +1439,7 @@ def visualize_box_map(
     # Save the figure
     Path(output_path).parent.mkdir(exist_ok=True, parents=True)
     fig.savefig(output_path, dpi=150)
-    print(f"Box map visualization saved to {output_path}")
+    logger.info("Box map visualization saved to %s", output_path)
     plt.close(fig)
 
 
@@ -1875,8 +1908,10 @@ def plot_morse_graph_viz(
     try:
         import pygraphviz as pgv
     except ImportError:
-        print("PyGraphviz is not installed. Cannot create morse graph visualization.")
-        print("Please install it: pip install pygraphviz")
+        logger.warning(
+            "PyGraphviz is not installed; cannot create Morse graph visualization. "
+            "Install it with: pip install pygraphviz",
+        )
         return
 
     A = pgv.AGraph(directed=True, strict=True, rankdir="TB")

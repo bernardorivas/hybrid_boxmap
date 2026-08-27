@@ -6,6 +6,7 @@ including configuration hashing, run directory management, and visualization uti
 """
 
 import hashlib
+import logging
 import time
 from functools import wraps
 from pathlib import Path
@@ -14,12 +15,14 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 
 from .plot_utils import visualize_box_map_entry
-from .print_utils import vprint
+
+
+logger = logging.getLogger(__name__)
 
 
 def timed_operation(description: str):
     """
-    Decorator to time function execution and print the duration.
+    Decorator to time function execution and log the duration.
 
     Args:
         description: Description of the operation being timed (e.g., "Box map computation")
@@ -30,7 +33,7 @@ def timed_operation(description: str):
             # plotting code
             pass
 
-        # Will print: "Visualization computed in X.XX seconds"
+        # Logs: "Visualization computed in X.XX seconds"
     """
 
     def decorator(func):
@@ -39,7 +42,7 @@ def timed_operation(description: str):
             start_time = time.time()
             result = func(*args, **kwargs)
             duration = time.time() - start_time
-            print(f"{description} computed in {duration:.2f} seconds")
+            logger.info("%s computed in %.2f seconds", description, duration)
             return result
 
         return wrapper
@@ -141,9 +144,9 @@ def plot_box_containing_point(
     try:
         box_index = grid.get_box_from_point(point)
     except ValueError:
-        vprint(
-            f"Warning: Point {point} is outside the grid bounds and cannot be plotted.",
-            level="always",
+        logger.warning(
+            "Point %s is outside the grid bounds and cannot be plotted",
+            point,
         )
         return None
 
@@ -173,13 +176,15 @@ def plot_box_containing_point(
             final_points=final_points,
             output_path=str(output_path),
         )
-        vprint(f"✓ Box map plot saved to {output_path}", level="always")
+        logger.info("Box map plot saved to %s", output_path)
         return output_path
 
-    except Exception as e:
-        vprint(
-            f"Error creating box map plot for point {point}, box {box_index}: {e}",
-            level="always",
+    except Exception:
+        logger.warning(
+            "Could not create box map plot for point %s, box %s",
+            point,
+            box_index,
+            exc_info=True,
         )
         return None
 
@@ -265,10 +270,10 @@ def load_box_map_from_cache(
         # Check if configuration matches
         saved_config_hash = box_map_data.get("config_hash", "")
         if saved_config_hash != expected_hash:
-            vprint("New configuration detected, recomputing box map", level="always")
+            logger.info("Cache configuration changed; recomputing box map")
             return None
 
-        vprint("Previous configuration matches, loading from file", level="always")
+        logger.info("Cache configuration matches; loading box map from %s", file_path)
 
         # Reconstruct HybridBoxMap from saved data
         box_map = HybridBoxMap(grid, system, tau)
@@ -277,8 +282,12 @@ def load_box_map_from_cache(
 
         return box_map
 
-    except Exception as e:
-        vprint(f"⚠ Error loading cache: {e}, will recompute", level="always")
+    except Exception:
+        logger.warning(
+            "Could not load box map cache from %s; recomputing",
+            file_path,
+            exc_info=True,
+        )
         return None
 
 

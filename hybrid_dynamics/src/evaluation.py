@@ -7,6 +7,7 @@ with support for different sampling strategies.
 
 from __future__ import annotations
 
+import logging
 import multiprocessing
 from multiprocessing import Pool
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -14,10 +15,10 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 import numpy as np
 import numpy.typing as npt
 
-from .config import config
 from .grid import Grid
 
-logger = config.get_logger(__name__)
+
+logger = logging.getLogger(__name__)
 
 
 def evaluate_box(

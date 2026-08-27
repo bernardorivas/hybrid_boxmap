@@ -1,0 +1,78 @@
+{
+  "checkpoint_complete": true,
+  "configuration": {
+    "active_cells": 8708,
+    "analytic_conley_label_attached": false,
+    "axis_depth": 7,
+    "boxmap_revision": "spiking-neuron-l-domain-split-v1",
+    "family_fingerprint": "6c39876bad173f6a1e1584ffd267213573150d2586b1cd4a3dba513621bae4e6",
+    "formal_domain": "compact_L_shaped_N",
+    "max_jumps": 10,
+    "max_step": 0.02,
+    "model": "compact_quadratic_integrate_and_fire",
+    "padding_cells": 1.0,
+    "protocol_revision": "spiking-neuron-scientific-clock-v1",
+    "samples_per_axis": 3,
+    "schema": "spiking-neuron-mapgraph-csr-configuration-v1",
+    "t_star": 20.0,
+    "total_depth": 14,
+    "whole_cell_outer_enclosure_certified": false
+  },
+  "configuration_sha256": "a3cdfd2249342f3961e219f8a31dd8234156f46e2b9ffe6cc4443640d7fb7b07",
+  "edges": 226454,
+  "files": {
+    "offsets": {
+      "dtype": "<i8",
+      "file_bytes": 69800,
+      "name": "offsets.npy",
+      "payload_bytes": 69672,
+      "sha256": "3c5210f4a7e34c45ef8a5e30e9a2d6e324f559cefc75e73ea00d118c7def1c2d",
+      "shape": [
+        8709
+      ]
+    },
+    "targets": {
+      "dtype": "<i4",
+      "file_bytes": 905944,
+      "name": "targets.npy",
+      "payload_bytes": 905816,
+      "sha256": "17515f63509c598584d56ef641c3933d9c71e86d59b3784d0ffd5473f7c97199",
+      "shape": [
+        226454
+      ]
+    }
+  },
+  "fingerprint": {
+    "algorithm": "sha256",
+    "fields": {
+      "configuration_sha256": "a3cdfd2249342f3961e219f8a31dd8234156f46e2b9ffe6cc4443640d7fb7b07",
+      "edges": 226454,
+      "format_revision": 1,
+      "offsets_dtype": "<i8",
+      "offsets_sha256": "3c5210f4a7e34c45ef8a5e30e9a2d6e324f559cefc75e73ea00d118c7def1c2d",
+      "schema": "cmgdb-mapgraph-csr-checkpoint-v1",
+      "targets_dtype": "<i4",
+      "targets_sha256": "17515f63509c598584d56ef641c3933d9c71e86d59b3784d0ffd5473f7c97199",
+      "vertices": 8708
+    },
+    "sha256": "c07e8fac9988cd5c774204c58d683846812ceab53c972be1a14de84881a38ed2"
+  },
+  "format_revision": 1,
+  "payload_bytes": 975488,
+  "representation": "compressed_sparse_row",
+  "row_invariant": "targets_strictly_increasing_and_duplicate_free",
+  "schema": "cmgdb-mapgraph-csr-checkpoint-v1",
+  "semantics": {
+    "cemetery_vertex_added": false,
+    "edge_values_changed": false,
+    "empty_rows_preserved": true,
+    "outer_enclosure_claim_added": false,
+    "source": "exact_cached_native_MapGraph_adjacency"
+  },
+  "vertices": 8708,
+  "write_caps": {
+    "max_edges": 50000000,
+    "max_payload_bytes": 1073741824,
+    "max_vertices": 8708
+  }
+}

@@ -1,0 +1,340 @@
+{
+  "computed_at": "2026-08-22",
+  "model": "bouncing_ball_fixed_time_suspension_atlas",
+  "runs": [
+    {
+      "box_map_empty_images_across_cmgdb_passes": 256,
+      "box_map_failed_samples": 2644,
+      "box_map_sampled_points_across_cmgdb_passes": 9216,
+      "box_map_source_boxes_across_cmgdb_passes": 1024,
+      "box_map_unresolved_stage_edges": 0,
+      "callback_records_with_failures": 328,
+      "callback_records_with_only_failures": 256,
+      "conley_index_computed": false,
+      "depth": 8,
+      "disconnected_images": 0,
+      "domain_exit_sample_failures": 2644,
+      "elapsed_seconds": 14.668070874991827,
+      "empty_images": 128,
+      "empty_sources_excluded_from_connectivity_audit": true,
+      "expected_m0_node": 0,
+      "failure_reasons": {
+        "ValueError: trajectory leaves the declared state-space bounds": 2644
+      },
+      "global_attractor_lattice_interpretation": false,
+      "local_window_gates_passed": true,
+      "map_cells": 512,
+      "morse_edges": [],
+      "morse_nodes": 1,
+      "morse_set_cell_counts": {
+        "0": {
+          "base": 96,
+          "handle": 242,
+          "total": 338
+        }
+      },
+      "nonempty_images": 384,
+      "other_sample_failures": 0,
+      "reference_evaluation_failures": 0,
+      "reference_guard_speed_count": 25,
+      "reference_includes_exact_rest_fiber": true,
+      "reference_max_guard_speed": 5.0,
+      "reference_min_positive_guard_speed": 0.000001,
+      "reference_misses": 0,
+      "reference_probes": 1236,
+      "relation_scope": "nonempty local-window relation",
+      "retained_callback_records": 1024,
+      "subdivisions_per_axis": 16,
+      "t_star": 1.5,
+      "whole_cell_outer_enclosure_certified": false,
+      "zeno_base_component_sizes": [
+        96
+      ],
+      "zeno_base_connected": true,
+      "zeno_reference_node_hits": {
+        "0": 18
+      },
+      "zeno_support_component_sizes": [
+        338
+      ],
+      "zeno_support_connected_in_quotient": true
+    },
+    {
+      "box_map_empty_images_across_cmgdb_passes": 1108,
+      "box_map_failed_samples": 10632,
+      "box_map_sampled_points_across_cmgdb_passes": 36864,
+      "box_map_source_boxes_across_cmgdb_passes": 4096,
+      "box_map_unresolved_stage_edges": 0,
+      "callback_records_with_failures": 1252,
+      "callback_records_with_only_failures": 1108,
+      "conley_index_computed": false,
+      "depth": 10,
+      "disconnected_images": 0,
+      "domain_exit_sample_failures": 10632,
+      "elapsed_seconds": 57.109817791962996,
+      "empty_images": 554,
+      "empty_sources_excluded_from_connectivity_audit": true,
+      "expected_m0_node": 0,
+      "failure_reasons": {
+        "ValueError: trajectory leaves the declared state-space bounds": 10632
+      },
+      "global_attractor_lattice_interpretation": false,
+      "local_window_gates_passed": true,
+      "map_cells": 2048,
+      "morse_edges": [],
+      "morse_nodes": 1,
+      "morse_set_cell_counts": {
+        "0": {
+          "base": 115,
+          "handle": 559,
+          "total": 674
+        }
+      },
+      "nonempty_images": 1494,
+      "other_sample_failures": 0,
+      "reference_evaluation_failures": 0,
+      "reference_guard_speed_count": 25,
+      "reference_includes_exact_rest_fiber": true,
+      "reference_max_guard_speed": 5.0,
+      "reference_min_positive_guard_speed": 0.000001,
+      "reference_misses": 0,
+      "reference_probes": 1236,
+      "relation_scope": "nonempty local-window relation",
+      "retained_callback_records": 4096,
+      "subdivisions_per_axis": 32,
+      "t_star": 1.5,
+      "whole_cell_outer_enclosure_certified": false,
+      "zeno_base_component_sizes": [
+        115
+      ],
+      "zeno_base_connected": true,
+      "zeno_reference_node_hits": {
+        "0": 34
+      },
+      "zeno_support_component_sizes": [
+        674
+      ],
+      "zeno_support_connected_in_quotient": true
+    },
+    {
+      "box_map_empty_images_across_cmgdb_passes": 256,
+      "box_map_failed_samples": 2644,
+      "box_map_sampled_points_across_cmgdb_passes": 9216,
+      "box_map_source_boxes_across_cmgdb_passes": 1024,
+      "box_map_unresolved_stage_edges": 0,
+      "callback_records_with_failures": 328,
+      "callback_records_with_only_failures": 256,
+      "conley_index_computed": false,
+      "depth": 8,
+      "disconnected_images": 0,
+      "domain_exit_sample_failures": 2644,
+      "elapsed_seconds": 16.67390549997799,
+      "empty_images": 128,
+      "empty_sources_excluded_from_connectivity_audit": true,
+      "expected_m0_node": 0,
+      "failure_reasons": {
+        "ValueError: trajectory leaves the declared state-space bounds": 2644
+      },
+      "global_attractor_lattice_interpretation": false,
+      "local_window_gates_passed": false,
+      "map_cells": 512,
+      "morse_edges": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          2
+        ]
+      ],
+      "morse_nodes": 4,
+      "morse_set_cell_counts": {
+        "0": {
+          "base": 83,
+          "handle": 211,
+          "total": 294
+        },
+        "1": {
+          "base": 2,
+          "handle": 0,
+          "total": 2
+        },
+        "2": {
+          "base": 2,
+          "handle": 0,
+          "total": 2
+        },
+        "3": {
+          "base": 2,
+          "handle": 0,
+          "total": 2
+        }
+      },
+      "nonempty_images": 384,
+      "other_sample_failures": 0,
+      "reference_evaluation_failures": 0,
+      "reference_guard_speed_count": 25,
+      "reference_includes_exact_rest_fiber": true,
+      "reference_max_guard_speed": 5.0,
+      "reference_min_positive_guard_speed": 0.000001,
+      "reference_misses": 0,
+      "reference_probes": 1236,
+      "relation_scope": "nonempty local-window relation",
+      "retained_callback_records": 1024,
+      "subdivisions_per_axis": 16,
+      "t_star": 2.0,
+      "whole_cell_outer_enclosure_certified": false,
+      "zeno_base_component_sizes": [
+        83
+      ],
+      "zeno_base_connected": true,
+      "zeno_reference_node_hits": {
+        "0": 18
+      },
+      "zeno_support_component_sizes": [
+        294
+      ],
+      "zeno_support_connected_in_quotient": true
+    },
+    {
+      "box_map_empty_images_across_cmgdb_passes": 1108,
+      "box_map_failed_samples": 10632,
+      "box_map_sampled_points_across_cmgdb_passes": 36864,
+      "box_map_source_boxes_across_cmgdb_passes": 4096,
+      "box_map_unresolved_stage_edges": 0,
+      "callback_records_with_failures": 1252,
+      "callback_records_with_only_failures": 1108,
+      "conley_index_computed": false,
+      "depth": 10,
+      "disconnected_images": 0,
+      "domain_exit_sample_failures": 10632,
+      "elapsed_seconds": 65.25543816701975,
+      "empty_images": 554,
+      "empty_sources_excluded_from_connectivity_audit": true,
+      "expected_m0_node": 0,
+      "failure_reasons": {
+        "ValueError: trajectory leaves the declared state-space bounds": 10632
+      },
+      "global_attractor_lattice_interpretation": false,
+      "local_window_gates_passed": false,
+      "map_cells": 2048,
+      "morse_edges": [
+        [
+          1,
+          0
+        ]
+      ],
+      "morse_nodes": 2,
+      "morse_set_cell_counts": {
+        "0": {
+          "base": 35,
+          "handle": 426,
+          "total": 461
+        },
+        "1": {
+          "base": 4,
+          "handle": 1,
+          "total": 5
+        }
+      },
+      "nonempty_images": 1494,
+      "other_sample_failures": 0,
+      "reference_evaluation_failures": 0,
+      "reference_guard_speed_count": 25,
+      "reference_includes_exact_rest_fiber": true,
+      "reference_max_guard_speed": 5.0,
+      "reference_min_positive_guard_speed": 0.000001,
+      "reference_misses": 0,
+      "reference_probes": 1236,
+      "relation_scope": "nonempty local-window relation",
+      "retained_callback_records": 4096,
+      "subdivisions_per_axis": 32,
+      "t_star": 2.0,
+      "whole_cell_outer_enclosure_certified": false,
+      "zeno_base_component_sizes": [
+        35
+      ],
+      "zeno_base_connected": true,
+      "zeno_reference_node_hits": {
+        "0": 34
+      },
+      "zeno_support_component_sizes": [
+        461
+      ],
+      "zeno_support_connected_in_quotient": true
+    }
+  ],
+  "scope": {
+    "conley_index_computed": false,
+    "global_attractor_lattice_interpretation": false,
+    "note": "Finite analytic probes, event-stage checks, and quotient connectivity are falsification gates. Failed samples and empty images are retained as explicit evidence of exits from the rectangular chart window, not silently converted into dynamics.",
+    "relation_scope": "local-window computation on the nonempty relation",
+    "whole_cell_outer_enclosure_certified": false
+  },
+  "shared_configuration": {
+    "base_chart": {
+      "bounds": [
+        [
+          0.0,
+          2.0
+        ],
+        [
+          -5.0,
+          5.0
+        ]
+      ],
+      "coordinates": [
+        "h",
+        "v"
+      ]
+    },
+    "coefficient_of_restitution": 0.8,
+    "gravity": 9.81,
+    "handle_chart": {
+      "bounds": [
+        [
+          -5.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0
+        ]
+      ],
+      "coordinates": [
+        "v_guard",
+        "s"
+      ]
+    },
+    "max_step": 0.02,
+    "padding_cells": 1.0,
+    "reference_family": "closed-form rebound arcs, both reset seams, exact rest fiber, and logarithmically shrinking pre-impact speeds",
+    "require_domain_path": true,
+    "source_samples_per_axis": 3
+  },
+  "stability_by_tau": {
+    "1.5": {
+      "depths": [
+        8,
+        10
+      ],
+      "at_least_two_depths": true,
+      "one_morse_node_at_all_depths": true,
+      "local_window_gates_at_all_depths": true
+    },
+    "2.0": {
+      "depths": [
+        8,
+        10
+      ],
+      "at_least_two_depths": true,
+      "one_morse_node_at_all_depths": false,
+      "local_window_gates_at_all_depths": false
+    }
+  }
+}

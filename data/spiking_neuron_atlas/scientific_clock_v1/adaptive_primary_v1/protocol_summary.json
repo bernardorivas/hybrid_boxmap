@@ -1,0 +1,23 @@
+{
+  "adaptive_protocol_revision": "spiking-neuron-adaptive-primary-t20-v1",
+  "analytic_conley_label_attached": false,
+  "conditional_protocol_completed": true,
+  "fingerprint": "31a4595a347cd24a81a5ef81cf0876974f44785de3d3f38692efc5770b0dcfd2",
+  "finite_relation_conley_index_computed": false,
+  "primary_stage": {
+    "completed": true,
+    "path": "t20/summary.json",
+    "preflight_fingerprint": "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c",
+    "relation_csr_fingerprint": "9cffa84c0d08fa4bfb31b3b75c5b586965c4c92c4adb1472a89f678901aae924",
+    "stage_gates_passed": false
+  },
+  "schema": "spiking-neuron-adaptive-primary-protocol-v1",
+  "selection_uses_scc_or_morse_count": false,
+  "t40_sensitivity": {
+    "launch_condition": "t20 adaptive primary passes every gate",
+    "launch_condition_passed": false,
+    "preflight_path": "../adaptive_preflight_v1/t40/preflight.json",
+    "status": "not_run_primary_failed_gates"
+  },
+  "whole_cell_outer_enclosure_certified": false
+}

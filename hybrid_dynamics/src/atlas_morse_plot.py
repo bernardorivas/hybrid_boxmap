@@ -1,0 +1,1118 @@
+"""Chart-aware plotting for native CMGDB suspension-Atlas Morse graphs.
+
+The plotting input is the actual output of ``CMGDB.ComputeMorseGraph``: Morse
+vertices, Morse-order edges, and the tagged rectangles returned by
+``MorseGraph.morse_set_chart_boxes``.  No SCC decomposition is repeated here,
+and no Conley-index annotation is inferred from a Morse set.
+
+The compact :class:`AtlasMorsePlotData` representation is deliberately JSON
+serializable.  An expensive physical box-map computation can therefore be run
+once, audited separately, and its exact chart-tagged Morse boxes reused for
+figures without resampling the dynamics.
+"""
+
+from __future__ import annotations
+
+import json
+from dataclasses import dataclass
+from pathlib import Path
+from types import MappingProxyType
+from typing import Any, Iterable, Mapping, Sequence
+
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+from matplotlib import patches
+from matplotlib.axes import Axes
+from matplotlib.collections import PatchCollection
+from matplotlib.figure import Figure
+
+from .cmgdb_suspension_boxmap import SuspensionAtlasCharts
+
+
+ATLAS_MORSE_PLOT_SCHEMA = "hybrid-atlas-morse-plot-v1"
+PHYSICAL_CONLEY_FINITE_RELATION_AUDIT_SCHEMA = (
+    "physical-conley-finite-relation-audit-v2"
+)
+
+
+@dataclass(frozen=True, order=True)
+class AtlasMorseBox:
+    """One closed, chart-tagged rectangle in a CMGDB Morse set."""
+
+    chart_id: int
+    bounds: tuple[float, ...]
+
+    @property
+    def dimension(self) -> int:
+        return len(self.bounds) // 2
+
+    @property
+    def lower(self) -> tuple[float, ...]:
+        return self.bounds[: self.dimension]
+
+    @property
+    def upper(self) -> tuple[float, ...]:
+        return self.bounds[self.dimension :]
+
+
+@dataclass(frozen=True)
+class AtlasMorseNode:
+    """The exact tagged boxes reported for one CMGDB Morse vertex."""
+
+    index: int
+    boxes: tuple[AtlasMorseBox, ...]
+
+
+@dataclass(frozen=True)
+class AtlasMorsePlotData:
+    """Portable plotting projection of an Atlas-backed CMGDB Morse graph."""
+
+    base_chart_id: int
+    handle_chart_id: int
+    base_bounds: tuple[tuple[float, float], ...]
+    handle_bounds: tuple[tuple[float, float], ...]
+    nodes: tuple[AtlasMorseNode, ...]
+    edges: tuple[tuple[int, int], ...]
+    metadata: Mapping[str, object]
+
+    @property
+    def vertex_ids(self) -> tuple[int, ...]:
+        return tuple(node.index for node in self.nodes)
+
+
+@dataclass(frozen=True)
+class AtlasFiniteRelationIndexAnnotations:
+    """Certificate-backed finite-relation labels for an Atlas Morse graph.
+
+    These labels are deliberately distinct from a Conley index certified for
+    the continuous fixed-time suspension map.  Instances returned by
+    :func:`load_atlas_finite_relation_index_annotations` have passed the
+    reset-quotient nerve, relative-pair, acyclic-carrier, and chain-map gates
+    recorded by the physical audit.
+    """
+
+    shift_classes: Mapping[int, tuple[str, ...]]
+    coefficient_field: int
+    result_scope: str
+    audit_path: Path
+    continuous_system_conley_index_certified: bool = False
+
+    def __post_init__(self) -> None:
+        normalized = {
+            int(node): tuple(str(entry) for entry in entries)
+            for node, entries in self.shift_classes.items()
+        }
+        if not normalized or any(not entries for entries in normalized.values()):
+            raise ValueError("finite-relation annotations need a nonempty shift class")
+        if int(self.coefficient_field) != 5:
+            raise ValueError(
+                "Atlas finite-relation annotations currently require GF(5)"
+            )
+        if self.result_scope != "finite_reset_quotient_relation":
+            raise ValueError("unsupported finite-relation result scope")
+        if self.continuous_system_conley_index_certified:
+            raise ValueError(
+                "finite sampled-relation annotations must not claim continuous-system "
+                "certification"
+            )
+        object.__setattr__(self, "shift_classes", MappingProxyType(normalized))
+        object.__setattr__(self, "coefficient_field", 5)
+        object.__setattr__(self, "audit_path", Path(self.audit_path))
+
+
+@dataclass(frozen=True)
+class AtlasHybridMorseComponent:
+    """Presentation data for one native CMGDB Atlas Morse set."""
+
+    index: int
+    label: str
+    color: str
+    boxes: tuple[AtlasMorseBox, ...]
+    base_boxes: tuple[AtlasMorseBox, ...]
+    handle_boxes: tuple[AtlasMorseBox, ...]
+
+    @property
+    def nodes(self) -> frozenset[AtlasMorseBox]:
+        """Compatibility view used by the shared Morse-graph renderer."""
+
+        return frozenset(self.boxes)
+
+
+@dataclass(frozen=True)
+class AtlasHybridMorsePlot:
+    """Handles and metadata returned by the Atlas plotting path."""
+
+    figure: Figure
+    projection_axes: tuple[Axes, ...]
+    handle_axes: tuple[Axes, ...]
+    morse_graph_axis: Axes | None
+    morse_graph: nx.DiGraph
+    projections: tuple[tuple[int, int], ...]
+    handle_projections: tuple[tuple[int, int], ...]
+    components: tuple[AtlasHybridMorseComponent, ...]
+    data: AtlasMorsePlotData
+
+    @property
+    def handle_axis(self) -> Axes | None:
+        """First handle projection, for compatibility with legacy plots."""
+
+        return self.handle_axes[0] if self.handle_axes else None
+
+
+def _normalized_intervals(
+    intervals: Sequence[Sequence[float]],
+    *,
+    name: str,
+) -> tuple[tuple[float, float], ...]:
+    result: list[tuple[float, float]] = []
+    for index, interval in enumerate(intervals):
+        if len(interval) != 2:
+            raise ValueError(f"{name}[{index}] must contain lower and upper bounds")
+        lower, upper = (float(interval[0]), float(interval[1]))
+        if not np.isfinite(lower) or not np.isfinite(upper):
+            raise ValueError(f"{name}[{index}] must be finite")
+        if lower > upper:
+            raise ValueError(f"{name}[{index}] has lower bound greater than upper")
+        result.append((lower, upper))
+    if not result:
+        raise ValueError(f"{name} must be nonempty")
+    return tuple(result)
+
+
+def _normalized_box(
+    chart_id: int,
+    raw_bounds: Sequence[float],
+    *,
+    expected_dimension: int,
+) -> AtlasMorseBox:
+    bounds = tuple(float(value) for value in raw_bounds)
+    if len(bounds) != 2 * expected_dimension:
+        raise ValueError(
+            f"chart {chart_id} box has {len(bounds)} bounds; "
+            f"expected {2 * expected_dimension}"
+        )
+    if not all(np.isfinite(value) for value in bounds):
+        raise ValueError(f"chart {chart_id} box has a non-finite bound")
+    lower = bounds[:expected_dimension]
+    upper = bounds[expected_dimension:]
+    if any(left > right for left, right in zip(lower, upper)):
+        raise ValueError(f"chart {chart_id} box has lower bound greater than upper")
+    return AtlasMorseBox(chart_id=int(chart_id), bounds=bounds)
+
+
+def extract_atlas_morse_plot_data(
+    source: object,
+    charts: SuspensionAtlasCharts,
+    *,
+    metadata: Mapping[str, object] | None = None,
+) -> AtlasMorsePlotData:
+    """Extract tagged Morse boxes and the CMGDB Morse order.
+
+    ``source`` may be a native CMGDB ``MorseGraph`` or an acceptance object
+    exposing it as ``source.morse_graph``.  The extraction calls
+    ``morse_set_chart_boxes`` directly; ordinary untagged ``morse_set_boxes``
+    are intentionally not accepted because they erase chart identity.
+    """
+
+    morse_graph = getattr(source, "morse_graph", source)
+    required = ("vertices", "edges", "morse_set_chart_boxes")
+    if any(not callable(getattr(morse_graph, name, None)) for name in required):
+        raise TypeError(
+            "source must be an Atlas-backed CMGDB MorseGraph (or expose one "
+            "as .morse_graph)"
+        )
+
+    base_bounds = _normalized_intervals(charts.base_bounds, name="base_bounds")
+    handle_bounds = _normalized_intervals(
+        charts.handle_bounds,
+        name="handle_bounds",
+    )
+    chart_dimensions = {
+        int(charts.base_chart_id): len(base_bounds),
+        int(charts.handle_chart_id): len(handle_bounds),
+    }
+    vertex_ids = tuple(sorted(int(vertex) for vertex in morse_graph.vertices()))
+    if len(vertex_ids) != len(set(vertex_ids)):
+        raise ValueError("CMGDB Morse graph contains duplicate vertex ids")
+
+    nodes: list[AtlasMorseNode] = []
+    for vertex in vertex_ids:
+        boxes: list[AtlasMorseBox] = []
+        for raw_chart_id, raw_bounds in morse_graph.morse_set_chart_boxes(vertex):
+            chart_id = int(raw_chart_id)
+            if chart_id not in chart_dimensions:
+                raise ValueError(
+                    f"Morse node {vertex} contains unknown Atlas chart {chart_id}"
+                )
+            boxes.append(
+                _normalized_box(
+                    chart_id,
+                    raw_bounds,
+                    expected_dimension=chart_dimensions[chart_id],
+                )
+            )
+        boxes.sort()
+        nodes.append(AtlasMorseNode(index=vertex, boxes=tuple(boxes)))
+
+    vertex_set = set(vertex_ids)
+    edges = tuple(
+        sorted(
+            {
+                (int(source_vertex), int(target_vertex))
+                for source_vertex, target_vertex in morse_graph.edges()
+            }
+        )
+    )
+    unknown_edge_vertices = {
+        endpoint for edge in edges for endpoint in edge if endpoint not in vertex_set
+    }
+    if unknown_edge_vertices:
+        raise ValueError(
+            "CMGDB Morse edges reference unknown vertices: "
+            f"{sorted(unknown_edge_vertices)!r}"
+        )
+    graph = nx.DiGraph()
+    graph.add_nodes_from(vertex_ids)
+    graph.add_edges_from(edges)
+    if not nx.is_directed_acyclic_graph(graph):
+        raise ValueError("CMGDB Morse order must be acyclic")
+
+    return AtlasMorsePlotData(
+        base_chart_id=int(charts.base_chart_id),
+        handle_chart_id=int(charts.handle_chart_id),
+        base_bounds=base_bounds,
+        handle_bounds=handle_bounds,
+        nodes=tuple(nodes),
+        edges=edges,
+        metadata=dict(metadata or {}),
+    )
+
+
+def atlas_morse_plot_data_payload(data: AtlasMorsePlotData) -> dict[str, object]:
+    """Return the stable JSON payload for ``data``."""
+
+    return {
+        "schema": ATLAS_MORSE_PLOT_SCHEMA,
+        "provenance": (
+            "Direct extraction from CMGDB MorseGraph.morse_set_chart_boxes; "
+            "contains no independently inferred SCCs or Conley-index labels."
+        ),
+        "base_chart": {
+            "id": data.base_chart_id,
+            "bounds": [list(interval) for interval in data.base_bounds],
+        },
+        "handle_chart": {
+            "id": data.handle_chart_id,
+            "bounds": [list(interval) for interval in data.handle_bounds],
+        },
+        "nodes": [
+            {
+                "id": node.index,
+                "boxes": [
+                    {"chart_id": box.chart_id, "bounds": list(box.bounds)}
+                    for box in node.boxes
+                ],
+            }
+            for node in data.nodes
+        ],
+        "edges": [list(edge) for edge in data.edges],
+        "metadata": dict(data.metadata),
+    }
+
+
+def save_atlas_morse_plot_data(
+    data: AtlasMorsePlotData,
+    output: str | Path,
+) -> Path:
+    """Save exact chart-tagged plotting data as readable JSON."""
+
+    path = Path(output)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(atlas_morse_plot_data_payload(data), indent=2, sort_keys=True)
+        + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def load_atlas_morse_plot_data(source: str | Path) -> AtlasMorsePlotData:
+    """Load and validate an :class:`AtlasMorsePlotData` JSON cache."""
+
+    path = Path(source)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema") != ATLAS_MORSE_PLOT_SCHEMA:
+        raise ValueError(
+            f"{path} is not a supported Atlas Morse plotting cache "
+            f"({payload.get('schema')!r})"
+        )
+    base_chart = payload["base_chart"]
+    handle_chart = payload["handle_chart"]
+    base_bounds = _normalized_intervals(base_chart["bounds"], name="base_bounds")
+    handle_bounds = _normalized_intervals(
+        handle_chart["bounds"],
+        name="handle_bounds",
+    )
+    base_chart_id = int(base_chart["id"])
+    handle_chart_id = int(handle_chart["id"])
+    if base_chart_id == handle_chart_id:
+        raise ValueError("base and handle chart ids must be distinct")
+    chart_dimensions = {
+        base_chart_id: len(base_bounds),
+        handle_chart_id: len(handle_bounds),
+    }
+
+    nodes: list[AtlasMorseNode] = []
+    for raw_node in payload["nodes"]:
+        boxes = []
+        for raw_box in raw_node["boxes"]:
+            chart_id = int(raw_box["chart_id"])
+            if chart_id not in chart_dimensions:
+                raise ValueError(f"cache contains unknown Atlas chart {chart_id}")
+            boxes.append(
+                _normalized_box(
+                    chart_id,
+                    raw_box["bounds"],
+                    expected_dimension=chart_dimensions[chart_id],
+                )
+            )
+        boxes.sort()
+        nodes.append(
+            AtlasMorseNode(index=int(raw_node["id"]), boxes=tuple(boxes))
+        )
+    nodes.sort(key=lambda node: node.index)
+    vertex_ids = tuple(node.index for node in nodes)
+    if len(vertex_ids) != len(set(vertex_ids)):
+        raise ValueError("cache contains duplicate Morse node ids")
+
+    edges = tuple(
+        sorted({(int(edge[0]), int(edge[1])) for edge in payload["edges"]})
+    )
+    vertex_set = set(vertex_ids)
+    if any(endpoint not in vertex_set for edge in edges for endpoint in edge):
+        raise ValueError("cache contains a Morse edge with an unknown endpoint")
+    graph = nx.DiGraph()
+    graph.add_nodes_from(vertex_ids)
+    graph.add_edges_from(edges)
+    if not nx.is_directed_acyclic_graph(graph):
+        raise ValueError("cached Morse order must be acyclic")
+
+    metadata = payload.get("metadata", {})
+    if not isinstance(metadata, dict):
+        raise ValueError("cache metadata must be a JSON object")
+    return AtlasMorsePlotData(
+        base_chart_id=base_chart_id,
+        handle_chart_id=handle_chart_id,
+        base_bounds=base_bounds,
+        handle_bounds=handle_bounds,
+        nodes=tuple(nodes),
+        edges=edges,
+        metadata=dict(metadata),
+    )
+
+
+def _require_certificate_flags(
+    record: Mapping[str, object],
+    names: Sequence[str],
+    *,
+    context: str,
+) -> None:
+    failed = [name for name in names if record.get(name) is not True]
+    if failed:
+        raise ValueError(f"{context} is missing true certificate flags {failed!r}")
+
+
+def load_atlas_finite_relation_index_annotations(
+    source: str | Path,
+    data: AtlasMorsePlotData,
+) -> AtlasFiniteRelationIndexAnnotations:
+    """Load only fully gated finite sampled-relation shift classes.
+
+    The audit is cross-checked against the plotting cache and every finite
+    topology/algebra certificate used to justify an annotation.  Continuous
+    fixed-time-map certification must remain false; these labels describe the
+    stored finite reset-quotient relation only.
+    """
+
+    path = Path(source)
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema") != PHYSICAL_CONLEY_FINITE_RELATION_AUDIT_SCHEMA:
+        raise ValueError(f"{path} is not a supported physical Conley audit")
+    if int(payload.get("certified_continuous_system_indices", -1)) != 0:
+        raise ValueError(
+            "finite sampled-relation annotations require the audit to report zero "
+            "certified continuous-system indices"
+        )
+    candidates = payload.get("candidates")
+    if not isinstance(candidates, list) or not candidates:
+        raise ValueError("physical Conley audit contains no candidates")
+
+    required_metadata = ("model", "depth", "t_star")
+    missing_metadata = [key for key in required_metadata if key not in data.metadata]
+    if missing_metadata:
+        raise ValueError(
+            "plotting cache lacks the provenance needed to match an audit: "
+            f"{missing_metadata!r}"
+        )
+    expected_model = data.metadata["model"]
+    expected_depth = data.metadata["depth"]
+    expected_tau = data.metadata["t_star"]
+    shift_classes: dict[int, tuple[str, ...]] = {}
+    for raw_candidate in candidates:
+        if not isinstance(raw_candidate, dict):
+            raise ValueError("physical Conley audit candidate must be an object")
+        candidate = raw_candidate
+        name = str(candidate.get("candidate", "unnamed candidate"))
+        if candidate.get("model") != expected_model:
+            raise ValueError(
+                f"{name} model {candidate.get('model')!r} does not match plot "
+                f"model {expected_model!r}"
+            )
+        if int(candidate.get("depth", -1)) != int(expected_depth):
+            raise ValueError(f"{name} depth does not match the plotting cache")
+        if not np.isclose(
+            float(candidate.get("t_star", np.nan)),
+            float(expected_tau),
+            rtol=0.0,
+            atol=1.0e-12,
+        ):
+            raise ValueError(f"{name} fixed time does not match the plotting cache")
+        if candidate.get("finite_relation_blockers") != []:
+            raise ValueError(f"{name} has unresolved finite-relation blockers")
+        if candidate.get("continuous_system_conley_index_certified") is not False:
+            raise ValueError(f"{name} must not claim continuous-system certification")
+        if candidate.get("whole_cell_outer_enclosure_certified") is not False:
+            raise ValueError(
+                f"{name} is not the expected uncertified sampled-relation result"
+            )
+        if candidate.get("analytic_conley_label_attached") is not False:
+            raise ValueError(f"{name} uses a prohibited analytic label fallback")
+
+        top_pair = candidate.get("top_cell_pair")
+        provenance = candidate.get("relation_provenance")
+        nerve = candidate.get("quotient_nerve")
+        pair = candidate.get("cellular_pair")
+        carrier = candidate.get("carrier_certificate")
+        finite = candidate.get("finite_relation_conley_index")
+        records = (top_pair, provenance, nerve, pair, carrier, finite)
+        if any(not isinstance(record, dict) for record in records):
+            raise ValueError(f"{name} is missing a finite-relation certificate object")
+        assert isinstance(top_pair, dict)
+        assert isinstance(provenance, dict)
+        assert isinstance(nerve, dict)
+        assert isinstance(pair, dict)
+        assert isinstance(carrier, dict)
+        assert isinstance(finite, dict)
+
+        node = int(top_pair.get("morse_node", -1))
+        if node not in data.vertex_ids:
+            raise ValueError(f"{name} refers to unknown plotted Morse node {node}")
+        if node in shift_classes:
+            raise ValueError(f"physical Conley audit repeats Morse node {node}")
+        _require_certificate_flags(
+            top_pair,
+            (
+                "pair_invariance_passed",
+                "combinatorial_isolation_passed",
+                "s_is_strongly_connected",
+            ),
+            context=f"{name} top-cell pair",
+        )
+        for list_name in (
+            "first_condition_violations",
+            "second_condition_violations",
+            "recurrent_components_not_s_or_a",
+            "empty_s_sources",
+            "unevaluated_S_sources",
+            "unevaluated_X_sources",
+        ):
+            if top_pair.get(list_name) != []:
+                raise ValueError(f"{name} has nonempty {list_name}")
+        if provenance.get("X_sources_evaluated") != provenance.get(
+            "X_sources_total"
+        ):
+            raise ValueError(f"{name} did not evaluate every source in X")
+        if int(provenance.get("unresolved_event_stage_edges", -1)) != 0:
+            raise ValueError(f"{name} has unresolved event-stage edges")
+        if provenance.get("original_exit_edges_retained") is not True:
+            raise ValueError(f"{name} did not retain original exit edges")
+
+        _require_certificate_flags(
+            nerve,
+            (
+                "finite_intersections_verified_contractible",
+                "boundary_squared_zero_validated",
+                "vertices_are_actual_atlas_boxes",
+            ),
+            context=f"{name} quotient nerve",
+        )
+        if nerve.get("analytic_orbit_skeleton_used") is not False:
+            raise ValueError(f"{name} quotient nerve uses an analytic orbit skeleton")
+        _require_certificate_flags(
+            pair,
+            (
+                "P0_subset_P1",
+                "carrier_preserves_pair",
+                "selected_chain_map_preserves_P1",
+                "selected_chain_map_preserves_P0",
+            ),
+            context=f"{name} cellular pair",
+        )
+        _require_certificate_flags(
+            carrier,
+            (
+                "all_carrier_values_acyclic",
+                "face_nesting_validated",
+                "selected_chain_map_subordinate",
+                "chain_equation_dF_equals_Fd",
+            ),
+            context=f"{name} carrier",
+        )
+        if carrier.get("coefficient_field") != "GF(5)":
+            raise ValueError(f"{name} carrier was not checked over GF(5)")
+        if carrier.get("chain_equation_failure_witnesses") != []:
+            raise ValueError(f"{name} records chain-equation failure witnesses")
+
+        validation = finite.get("validation")
+        if not isinstance(validation, dict):
+            raise ValueError(f"{name} lacks a CMGDB validation object")
+        _require_certificate_flags(
+            validation,
+            (
+                "matrix_shapes_and_entries",
+                "boundary_squared_zero",
+                "chain_map_equation",
+            ),
+            context=f"{name} CMGDB payload",
+        )
+        if int(finite.get("coefficient_field", -1)) != 5:
+            raise ValueError(f"{name} CMGDB result is not over GF(5)")
+        if finite.get("result_scope") != "finite_reset_quotient_relation":
+            raise ValueError(f"{name} has an unsupported result scope")
+        if finite.get("finite_relation_algebra_validated") is not True:
+            raise ValueError(f"{name} lacks the finite-algebra validation flag")
+        if finite.get("continuous_system_conley_index_certified") is not False:
+            raise ValueError(f"{name} CMGDB result overstates continuous certification")
+        if finite.get("cell_counts") != pair.get("relative_basis_by_dimension"):
+            raise ValueError(f"{name} relative basis does not match the CMGDB payload")
+        if nerve.get("cells_by_dimension") != pair.get("P1_cells_by_dimension"):
+            raise ValueError(f"{name} quotient nerve does not match cellular P1")
+
+        raw_shift_class = candidate.get("finite_relation_shift_class")
+        if not isinstance(raw_shift_class, list) or not raw_shift_class:
+            raise ValueError(f"{name} has no finite-relation shift class")
+        if raw_shift_class != finite.get("shift_class"):
+            raise ValueError(f"{name} summary and CMGDB shift classes disagree")
+        shift_classes[node] = tuple(str(entry) for entry in raw_shift_class)
+
+    if set(shift_classes) != set(data.vertex_ids):
+        raise ValueError(
+            "finite-relation audit does not annotate exactly the plotted Morse nodes: "
+            f"audit={sorted(shift_classes)!r}, plot={list(data.vertex_ids)!r}"
+        )
+    if int(payload.get("computed_finite_relation_indices", -1)) != len(
+        shift_classes
+    ):
+        raise ValueError(
+            "physical Conley audit computed-count does not match candidates"
+        )
+    return AtlasFiniteRelationIndexAnnotations(
+        shift_classes=shift_classes,
+        coefficient_field=5,
+        result_scope="finite_reset_quotient_relation",
+        audit_path=path,
+        continuous_system_conley_index_certified=False,
+    )
+
+
+def _selected_vertex_ids(
+    data: AtlasMorsePlotData,
+    morse_nodes: Iterable[int] | None,
+) -> tuple[int, ...]:
+    available = data.vertex_ids
+    if morse_nodes is None:
+        return available
+    selected = tuple(int(node) for node in morse_nodes)
+    if len(selected) != len(set(selected)):
+        raise ValueError("morse_nodes must not contain duplicates")
+    unknown = set(selected) - set(available)
+    if unknown:
+        raise IndexError(f"unknown CMGDB Morse nodes: {sorted(unknown)!r}")
+    return selected
+
+
+def atlas_morse_components(
+    data: AtlasMorsePlotData,
+    *,
+    morse_nodes: Iterable[int] | None = None,
+    palette: Sequence[str],
+) -> tuple[AtlasHybridMorseComponent, ...]:
+    """Prepare deterministic colors and chart partitions for selected nodes."""
+
+    if not palette:
+        raise ValueError("palette must contain at least one color")
+    selected = _selected_vertex_ids(data, morse_nodes)
+    by_index = {node.index: node for node in data.nodes}
+    components = []
+    for index in selected:
+        boxes = by_index[index].boxes
+        components.append(
+            AtlasHybridMorseComponent(
+                index=index,
+                label=f"M({index})",
+                color=str(palette[index % len(palette)]),
+                boxes=boxes,
+                base_boxes=tuple(
+                    box for box in boxes if box.chart_id == data.base_chart_id
+                ),
+                handle_boxes=tuple(
+                    box for box in boxes if box.chart_id == data.handle_chart_id
+                ),
+            )
+        )
+    return tuple(components)
+
+
+def atlas_morse_hasse(
+    data: AtlasMorsePlotData,
+    selected: Iterable[int] | None = None,
+) -> nx.DiGraph:
+    """Restrict the CMGDB Morse order while preserving paths through hidden nodes."""
+
+    selected_ids = _selected_vertex_ids(data, selected)
+    full = nx.DiGraph()
+    full.add_nodes_from(data.vertex_ids)
+    full.add_edges_from(data.edges)
+    result = nx.DiGraph()
+    result.add_nodes_from(selected_ids)
+    for source in selected_ids:
+        reachable = nx.descendants(full, source)
+        result.add_edges_from(
+            (source, target)
+            for target in selected_ids
+            if target != source and target in reachable
+        )
+    return nx.transitive_reduction(result) if result.nodes else result
+
+
+def _normalize_projections(
+    dimension: int,
+    projections: Sequence[int] | Sequence[Sequence[int]] | None,
+    *,
+    default: tuple[tuple[int, int], ...],
+) -> tuple[tuple[int, int], ...]:
+    if projections is None:
+        normalized = default
+    else:
+        raw = tuple(projections)
+        if len(raw) == 2 and all(
+            isinstance(value, (int, np.integer)) for value in raw
+        ):
+            normalized = ((int(raw[0]), int(raw[1])),)
+        else:
+            normalized = tuple(tuple(int(value) for value in pair) for pair in raw)
+            if any(len(pair) != 2 for pair in normalized):
+                raise ValueError("each projection must contain exactly two dimensions")
+    if not normalized:
+        raise ValueError("at least one projection is required")
+    if any(min(pair) < 0 or max(pair) >= dimension for pair in normalized):
+        raise IndexError("a projection dimension is outside its Atlas chart")
+    if dimension > 1 and any(first == second for first, second in normalized):
+        raise ValueError("projection dimensions must be distinct")
+    return normalized
+
+
+def _projected_rectangles(
+    boxes: Sequence[AtlasMorseBox],
+    projection: tuple[int, int],
+) -> tuple[patches.Rectangle, ...]:
+    first, second = projection
+    unique: set[tuple[float, float, float, float]] = set()
+    for box in boxes:
+        if first == second:
+            key = (box.lower[first], 0.0, box.upper[first], 1.0)
+        else:
+            key = (
+                box.lower[first],
+                box.lower[second],
+                box.upper[first],
+                box.upper[second],
+            )
+        unique.add(tuple(float(value) for value in key))
+    return tuple(
+        patches.Rectangle((x_lower, y_lower), x_upper - x_lower, y_upper - y_lower)
+        for x_lower, y_lower, x_upper, y_upper in sorted(unique)
+    )
+
+
+def _support_limits(
+    boxes: Sequence[AtlasMorseBox],
+    projection: tuple[int, int],
+    chart_bounds: Sequence[Sequence[float]],
+) -> tuple[tuple[float, float], tuple[float, float]]:
+    first, second = projection
+    if not boxes:
+        return tuple(chart_bounds[first]), tuple(chart_bounds[second])
+    x_lower = min(box.lower[first] for box in boxes)
+    x_upper = max(box.upper[first] for box in boxes)
+    if first == second:
+        return _padded_interval(x_lower, x_upper, chart_bounds[first]), (0.0, 1.0)
+    y_lower = min(box.lower[second] for box in boxes)
+    y_upper = max(box.upper[second] for box in boxes)
+    return (
+        _padded_interval(x_lower, x_upper, chart_bounds[first]),
+        _padded_interval(y_lower, y_upper, chart_bounds[second]),
+    )
+
+
+def _padded_interval(
+    lower: float,
+    upper: float,
+    domain: Sequence[float],
+) -> tuple[float, float]:
+    span = max(float(upper - lower), np.finfo(float).eps)
+    domain_span = max(float(domain[1] - domain[0]), np.finfo(float).eps)
+    margin = max(0.06 * span, 0.008 * domain_span)
+    return float(lower - margin), float(upper + margin)
+
+
+def _draw_chart_projection(
+    axis: Axes,
+    components: Sequence[AtlasHybridMorseComponent],
+    *,
+    chart_kind: str,
+    projection: tuple[int, int],
+    chart_bounds: Sequence[Sequence[float]],
+    labels: Sequence[str],
+    base_view: str,
+    show_grid: bool,
+    show_panel_title: bool,
+) -> None:
+    all_visible: list[AtlasMorseBox] = []
+    for component in components:
+        boxes = (
+            component.base_boxes
+            if chart_kind == "base"
+            else component.handle_boxes
+        )
+        all_visible.extend(boxes)
+        rectangles = _projected_rectangles(boxes, projection)
+        if rectangles:
+            axis.add_collection(
+                PatchCollection(
+                    rectangles,
+                    facecolor=component.color,
+                    edgecolor="none",
+                    linewidth=0.0,
+                    alpha=0.9,
+                    antialiased=False,
+                    rasterized=len(rectangles) > 2500,
+                    zorder=2,
+                )
+            )
+
+    first, second = projection
+    if base_view == "domain":
+        x_limits = tuple(chart_bounds[first])
+        y_limits = (0.0, 1.0) if first == second else tuple(chart_bounds[second])
+    else:
+        x_limits, y_limits = _support_limits(all_visible, projection, chart_bounds)
+    axis.set_xlim(x_limits)
+    axis.set_ylim(y_limits)
+    axis.set_xlabel(labels[first])
+    if first == second:
+        axis.set_ylabel("display strip")
+        axis.set_yticks([])
+    else:
+        axis.set_ylabel(labels[second])
+    if show_panel_title:
+        axis.set_title("base chart" if chart_kind == "base" else "handle chart")
+    if show_grid:
+        axis.grid(color="#eeeeee", linewidth=0.45, zorder=0)
+        axis.set_axisbelow(True)
+    else:
+        axis.grid(False)
+
+
+def _status_text(data: AtlasMorsePlotData) -> str:
+    scope = str(data.metadata.get("relation_scope", "sampled Atlas relation"))
+    tau = data.metadata.get("t_star")
+    if tau is None:
+        return scope
+    return rf"{scope}, $\tau={float(tau):g}$"
+
+
+def plot_atlas_hybrid_morse_sets(
+    source: AtlasMorsePlotData | object,
+    *,
+    atlas_charts: SuspensionAtlasCharts | None = None,
+    finite_relation_annotations: AtlasFiniteRelationIndexAnnotations | None = None,
+    morse_nodes: Iterable[int] | None = None,
+    proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
+    handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
+    clist: Sequence[str],
+    axis_labels: Sequence[str] | None = None,
+    handle_axis_labels: Sequence[str] | None = None,
+    show_handles: bool = False,
+    show_morse_graph: bool = True,
+    show_grid: bool = False,
+    show_status_note: bool = False,
+    show_legend: bool = False,
+    show_panel_titles: bool = False,
+    show_component_sizes: bool = False,
+    base_view: str = "support",
+    title: str | None = None,
+    fig_w: float | None = None,
+    fig_h: float = 3.6,
+    fig_fname: str | Path | None = None,
+    dpi: int = 300,
+) -> AtlasHybridMorsePlot:
+    """Plot actual CMGDB Atlas Morse boxes and the CMGDB Morse order."""
+
+    # Import at call time so the public dispatcher in hybrid_morse_plot can
+    # route here without a module-import cycle.
+    from .hybrid_morse_plot import _draw_morse_graph
+
+    if isinstance(source, AtlasMorsePlotData):
+        if atlas_charts is not None:
+            raise ValueError("atlas_charts must be omitted for cached plot data")
+        data = source
+    else:
+        if atlas_charts is None:
+            raise ValueError("atlas_charts is required for a native CMGDB result")
+        metadata: dict[str, object] = {}
+        if hasattr(source, "summary") and callable(getattr(source, "summary")):
+            summary = source.summary()
+            for key in ("relation_scope", "t_star", "depth", "empty_images"):
+                if key in summary:
+                    metadata[key] = summary[key]
+        data = extract_atlas_morse_plot_data(source, atlas_charts, metadata=metadata)
+
+    if base_view not in {"support", "domain"}:
+        raise ValueError("base_view must be 'support' or 'domain'")
+    base_dimension = len(data.base_bounds)
+    handle_dimension = len(data.handle_bounds)
+    base_default = ((0, 0),) if base_dimension == 1 else (
+        ((0, 1), (2, 3)) if base_dimension == 4 else ((0, 1),)
+    )
+    projections = _normalize_projections(
+        base_dimension,
+        proj_dims,
+        default=base_default,
+    )
+    handle_default = (
+        ((0, 0),)
+        if handle_dimension == 1
+        else ((0, handle_dimension - 1),)
+    )
+    handle_projections = (
+        _normalize_projections(
+            handle_dimension,
+            handle_proj_dims,
+            default=handle_default,
+        )
+        if show_handles
+        else ()
+    )
+    base_labels = (
+        tuple(str(label) for label in axis_labels)
+        if axis_labels is not None
+        else tuple(rf"$x_{{{index + 1}}}$" for index in range(base_dimension))
+    )
+    if len(base_labels) != base_dimension:
+        raise ValueError("axis_labels must provide one label per base coordinate")
+    handle_labels = (
+        tuple(str(label) for label in handle_axis_labels)
+        if handle_axis_labels is not None
+        else tuple(
+            [rf"$g_{{{index + 1}}}$" for index in range(handle_dimension - 1)]
+            + [r"$s$"]
+        )
+    )
+    if len(handle_labels) != handle_dimension:
+        raise ValueError(
+            "handle_axis_labels must provide one label per handle coordinate"
+        )
+
+    components = atlas_morse_components(
+        data,
+        morse_nodes=morse_nodes,
+        palette=clist,
+    )
+    if finite_relation_annotations is not None:
+        unknown_annotations = set(finite_relation_annotations.shift_classes).difference(
+            data.vertex_ids
+        )
+        if unknown_annotations:
+            raise ValueError(
+                "finite-relation annotations refer to unknown Morse nodes: "
+                f"{sorted(unknown_annotations)!r}"
+            )
+    order = atlas_morse_hasse(data, (component.index for component in components))
+    panel_count = len(projections) + len(handle_projections) + int(show_morse_graph)
+    if panel_count <= 0:
+        raise ValueError("at least one plot panel must be enabled")
+    if fig_w is None:
+        fig_w = 3.25 * panel_count
+    width_ratios = (
+        [1.0] * len(projections)
+        + [0.92] * len(handle_projections)
+        + (
+            [
+                1.0
+                if finite_relation_annotations is not None
+                else (0.70 if len(components) <= 4 else 1.0)
+            ]
+            if show_morse_graph
+            else []
+        )
+    )
+    figure, raw_axes = plt.subplots(
+        1,
+        panel_count,
+        figsize=(fig_w, fig_h),
+        dpi=dpi,
+        squeeze=False,
+        gridspec_kw={"width_ratios": width_ratios},
+    )
+    axes = tuple(raw_axes[0])
+    projection_axes = axes[: len(projections)]
+    for axis, projection in zip(projection_axes, projections):
+        _draw_chart_projection(
+            axis,
+            components,
+            chart_kind="base",
+            projection=projection,
+            chart_bounds=data.base_bounds,
+            labels=base_labels,
+            base_view=base_view,
+            show_grid=show_grid,
+            show_panel_title=show_panel_titles,
+        )
+
+    handle_start = len(projections)
+    handle_axes = axes[handle_start : handle_start + len(handle_projections)]
+    for axis, projection in zip(handle_axes, handle_projections):
+        _draw_chart_projection(
+            axis,
+            components,
+            chart_kind="handle",
+            projection=projection,
+            chart_bounds=data.handle_bounds,
+            labels=handle_labels,
+            base_view=base_view,
+            show_grid=show_grid,
+            show_panel_title=show_panel_titles,
+        )
+
+    graph_axis = axes[-1] if show_morse_graph else None
+    if graph_axis is not None:
+        _draw_morse_graph(
+            graph_axis,
+            order,
+            components,
+            conley_indices=(
+                None
+                if finite_relation_annotations is None
+                else finite_relation_annotations.shift_classes
+            ),
+            show_component_sizes=show_component_sizes,
+            show_title=show_panel_titles,
+            graph_title="Morse graph",
+        )
+
+    if title is not None:
+        figure.suptitle(title)
+    if show_legend:
+        legend = [
+            patches.Patch(
+                facecolor=component.color,
+                edgecolor="#202020",
+                label=(
+                    f"{component.label}: {len(component.base_boxes)} base, "
+                    f"{len(component.handle_boxes)} handle"
+                ),
+            )
+            for component in components
+        ]
+        if legend:
+            figure.legend(
+                handles=legend,
+                loc="lower center",
+                bbox_to_anchor=(0.5, 0.025),
+                ncol=min(3, len(legend)),
+                frameon=False,
+                fontsize=7.5,
+            )
+    if finite_relation_annotations is not None:
+        figure.text(
+            0.995,
+            0.002,
+            (
+                r"finite sampled-relation Conley index over $\mathbb{F}_5$; "
+                "continuous-system certification not established"
+            ),
+            ha="right",
+            va="bottom",
+            fontsize=6.8,
+            color="#555555",
+        )
+    elif show_status_note:
+        figure.text(
+            0.995,
+            0.002,
+            _status_text(data),
+            ha="right",
+            va="bottom",
+            fontsize=6.8,
+            color="#666666",
+        )
+    figure.subplots_adjust(
+        left=0.075,
+        right=0.99,
+        top=0.82 if title is not None else 0.96,
+        bottom=(
+            0.24
+            if show_legend
+            else (0.18 if finite_relation_annotations is not None else 0.15)
+        ),
+        wspace=0.32,
+    )
+
+    plot = AtlasHybridMorsePlot(
+        figure=figure,
+        projection_axes=projection_axes,
+        handle_axes=handle_axes,
+        morse_graph_axis=graph_axis,
+        morse_graph=order,
+        projections=projections,
+        handle_projections=handle_projections,
+        components=components,
+        data=data,
+    )
+    if fig_fname is not None:
+        output = Path(fig_fname)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        figure.savefig(output, dpi=dpi, bbox_inches="tight", facecolor="white")
+    return plot
+
+
+__all__ = [
+    "ATLAS_MORSE_PLOT_SCHEMA",
+    "PHYSICAL_CONLEY_FINITE_RELATION_AUDIT_SCHEMA",
+    "AtlasFiniteRelationIndexAnnotations",
+    "AtlasMorseBox",
+    "AtlasMorseNode",
+    "AtlasMorsePlotData",
+    "AtlasHybridMorseComponent",
+    "AtlasHybridMorsePlot",
+    "extract_atlas_morse_plot_data",
+    "atlas_morse_plot_data_payload",
+    "save_atlas_morse_plot_data",
+    "load_atlas_morse_plot_data",
+    "load_atlas_finite_relation_index_annotations",
+    "atlas_morse_components",
+    "atlas_morse_hasse",
+    "plot_atlas_hybrid_morse_sets",
+]

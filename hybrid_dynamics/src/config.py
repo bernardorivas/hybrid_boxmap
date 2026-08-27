@@ -9,7 +9,22 @@ import logging
 import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, IO, List, Optional, Tuple, Union
+
+
+_PACKAGE_LOGGER_NAME = "hybrid_dynamics"
+_MANAGED_HANDLER_ATTRIBUTE = "_hybrid_dynamics_managed_handler"
+
+
+def _resolve_log_level(level: Union[int, str]) -> int:
+    """Resolve a logging level name or value, rejecting unknown names."""
+    if isinstance(level, int):
+        return level
+
+    resolved = logging.getLevelName(level.upper())
+    if not isinstance(resolved, int):
+        raise ValueError(f"Unknown logging level: {level}")
+    return resolved
 
 
 @dataclass
@@ -103,7 +118,6 @@ class HybridConfig:
         self.visualization = VisualizationConfig()
         self.logging = LoggingConfig()
         self._output_base_dir = None
-        self._logger = None
 
     @property
     def output_dir(self) -> Path:
@@ -220,28 +234,81 @@ class HybridConfig:
         }
 
     def get_logger(self, name: str) -> logging.Logger:
-        """Get a logger instance with configured settings."""
-        logger = logging.getLogger(name)
+        """Return a logger without installing handlers.
 
-        # Only configure if not already configured
-        if not logger.handlers:
-            logger.setLevel(getattr(logging, self.logging.level))
+        This preserves the historical ``config.get_logger(name)`` API while
+        leaving handler selection to the application.  Call
+        :meth:`configure_logging` when the library should install its own
+        console and optional file handlers.
+        """
+        return logging.getLogger(name)
 
-            # Console handler
-            console_handler = logging.StreamHandler()
-            console_handler.setLevel(getattr(logging, self.logging.level))
-            formatter = logging.Formatter(self.logging.format, self.logging.date_format)
-            console_handler.setFormatter(formatter)
-            logger.addHandler(console_handler)
+    def configure_logging(
+        self,
+        *,
+        level: Optional[Union[int, str]] = None,
+        stream: Optional[IO[str]] = None,
+        enable_file_logging: Optional[bool] = None,
+        log_file: Optional[Union[str, Path]] = None,
+    ) -> logging.Logger:
+        """Explicitly configure logging for the ``hybrid_dynamics`` package.
 
-            # File handler if enabled
-            if self.logging.enable_file_logging and self.logging.log_file:
-                file_handler = logging.FileHandler(self.logging.log_file)
-                file_handler.setLevel(getattr(logging, self.logging.level))
+        Repeated calls replace only handlers previously installed by this
+        method.  User-installed handlers and the package ``NullHandler`` are
+        left untouched.
+        """
+        resolved_level = _resolve_log_level(
+            self.logging.level if level is None else level,
+        )
+        file_logging_enabled = (
+            self.logging.enable_file_logging
+            if enable_file_logging is None
+            else enable_file_logging
+        )
+        resolved_log_file = self.logging.log_file if log_file is None else log_file
+        if log_file is not None and enable_file_logging is None:
+            file_logging_enabled = True
+
+        formatter = logging.Formatter(
+            self.logging.format,
+            self.logging.date_format,
+        )
+        new_handlers: List[logging.Handler] = []
+
+        console_handler = logging.StreamHandler(stream)
+        console_handler.setLevel(resolved_level)
+        console_handler.setFormatter(formatter)
+        setattr(console_handler, _MANAGED_HANDLER_ATTRIBUTE, True)
+        new_handlers.append(console_handler)
+
+        try:
+            if file_logging_enabled:
+                if not resolved_log_file:
+                    raise ValueError(
+                        "log_file must be set when file logging is enabled",
+                    )
+                file_handler = logging.FileHandler(resolved_log_file)
+                file_handler.setLevel(resolved_level)
                 file_handler.setFormatter(formatter)
-                logger.addHandler(file_handler)
+                setattr(file_handler, _MANAGED_HANDLER_ATTRIBUTE, True)
+                new_handlers.append(file_handler)
+        except Exception:
+            for handler in new_handlers:
+                handler.close()
+            raise
 
-        return logger
+        package_logger = logging.getLogger(_PACKAGE_LOGGER_NAME)
+        for handler in list(package_logger.handlers):
+            if getattr(handler, _MANAGED_HANDLER_ATTRIBUTE, False):
+                package_logger.removeHandler(handler)
+                handler.close()
+
+        package_logger.setLevel(resolved_level)
+        package_logger.propagate = False
+        for handler in new_handlers:
+            package_logger.addHandler(handler)
+
+        return package_logger
 
 
 # Global configuration instance
@@ -249,6 +316,27 @@ class HybridConfig:
 # from hybrid_dynamics.config import config
 # config.simulation.default_max_jumps = 50
 config = HybridConfig()
+
+
+def get_logger(name: str) -> logging.Logger:
+    """Return a library logger without installing handlers."""
+    return config.get_logger(name)
+
+
+def configure_logging(
+    *,
+    level: Optional[Union[int, str]] = None,
+    stream: Optional[IO[str]] = None,
+    enable_file_logging: Optional[bool] = None,
+    log_file: Optional[Union[str, Path]] = None,
+) -> logging.Logger:
+    """Explicitly configure package console and optional file logging."""
+    return config.configure_logging(
+        level=level,
+        stream=stream,
+        enable_file_logging=enable_file_logging,
+        log_file=log_file,
+    )
 
 
 # Convenience functions for common access patterns

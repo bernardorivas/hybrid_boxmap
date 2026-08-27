@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hybrid-dynamics"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Python library for hybrid dynamical systems analysis"
 readme = "README.md"
 license = {text = "MIT"}
@@ -28,36 +28,38 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Operating System :: OS Independent",
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.20.0",
     "scipy>=1.7.0",
     "matplotlib>=3.3.0",
     "networkx>=2.5.0",
-    "dill>=0.3.4",
+    "psutil>=5.8.0",
 ]
 
 [project.optional-dependencies]
 all = [
-    "numba>=0.56.0",      # JIT compilation for performance
-    "joblib>=1.0.0",      # Parallel processing
     "pygraphviz>=1.7",    # Morse graph visualization
+]
+dev = [
+    "pytest>=7.0",
 ]
 
 [project.urls]
-Homepage = "https://github.com/bernardorivas/hybrid-dynamics"
-Repository = "https://github.com/bernardorivas/hybrid-dynamics"
-Documentation = "https://hybrid-dynamics.readthedocs.io/"
-"Bug Reports" = "https://github.com/bernardorivas/hybrid-dynamics/issues"
+Homepage = "https://github.com/bernardorivas/hybrid_boxmap"
+Repository = "https://github.com/bernardorivas/hybrid_boxmap"
+Documentation = "https://github.com/bernardorivas/hybrid_boxmap#readme"
+"Bug Reports" = "https://github.com/bernardorivas/hybrid_boxmap/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["hybrid_dynamics*"]
 exclude = ["tests*"]
+
+[tool.pytest.ini_options]
+testpaths = ["hybrid_dynamics/tests", "test"]

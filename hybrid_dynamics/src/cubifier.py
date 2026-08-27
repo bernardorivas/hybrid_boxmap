@@ -4,6 +4,7 @@ into grid-aligned boxes for analysis and visualization.
 """
 
 import itertools
+import logging
 from typing import List, Optional, Tuple, Union
 
 import matplotlib.pyplot as plt
@@ -14,9 +15,9 @@ from matplotlib.collections import PatchCollection
 
 from ..src.hybrid_trajectory import HybridTrajectory
 from .box import Box, SquareBox
-from .config import config
 
-logger = config.get_logger(__name__)
+
+logger = logging.getLogger(__name__)
 
 
 class DatasetCubifier:

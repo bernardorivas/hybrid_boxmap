@@ -10,6 +10,7 @@ The HybridBoxMap is used to store the box map for a hybrid system.
 from __future__ import annotations
 
 import itertools
+import logging
 from collections import defaultdict
 from typing import Callable, Optional, Set, Tuple
 
@@ -20,6 +21,9 @@ from .config import config, get_default_bloat_factor
 from .evaluation import evaluate_grid, evaluate_unique_points_parallel
 from .grid import Grid
 from .hybrid_system import HybridSystem
+
+
+logger = logging.getLogger(__name__)
 
 
 class HybridBoxMap(dict):
@@ -127,14 +131,10 @@ class HybridBoxMap(dict):
             # Also ensure it's not too small to be meaningless
             jump_time_penalty_epsilon = max(jump_time_penalty_epsilon, 1e-6)
 
-        # Get logger
-        logger = config.get_logger(__name__)
-        
-        if jump_time_penalty and config.logging.verbose:
-            logger.info(f"Jump time penalty epsilon: {jump_time_penalty_epsilon}")
+        if jump_time_penalty:
+            logger.debug("Jump time penalty epsilon: %s", jump_time_penalty_epsilon)
 
-        if config.logging.verbose:
-            logger.info("Computing Hybrid Box Map...")
+        logger.debug("Computing Hybrid Box Map")
 
         # Dictionary to store debugging info, e.g., points causing excessive jumps
         debug_info = {}
@@ -175,16 +175,14 @@ class HybridBoxMap(dict):
 
         if use_unique_points:
             # Use the optimized unique points strategy
-            if config.logging.verbose:
-                logger.info(f"Step 1: Getting unique '{sampling_mode}' points...")
+            logger.debug("Getting unique %r sample points", sampling_mode)
 
             # Get all unique points
             unique_points, metadata = grid.get_all_unique_points(
                 sampling_mode, subdivision_level=subdivision_level,
             )
 
-            if config.logging.verbose:
-                logger.info(f"Evaluating {len(unique_points)} unique points...")
+            logger.debug("Evaluating %d unique points", len(unique_points))
 
             if parallel and system_factory is not None and system_args is not None:
                 # Use parallel evaluation
@@ -208,8 +206,7 @@ class HybridBoxMap(dict):
                         progress_callback(i + 1, len(unique_points))
 
             # Process results and build box map
-            if config.logging.verbose:
-                logger.info("Step 2: Building box map from unique point results...")
+            logger.debug("Building box map from unique-point results")
 
             # If enclosure mode is enabled for corners, we need to collect results per box
             if enclosure and sampling_mode == "corners":
@@ -458,10 +455,7 @@ class HybridBoxMap(dict):
             # Use the original per-box evaluation method
             # 1. Evaluate the flow for all sample points in the grid.
             # This gives us a dictionary from box_idx -> list of (final_state, num_jumps)
-            if config.logging.verbose:
-                logger.info(
-                    f"Step 1: Evaluating flow map for all '{sampling_mode}' points...",
-                )
+            logger.debug("Evaluating flow map for all %r sample points", sampling_mode)
 
             raw_flow_data = evaluate_grid(
                 grid=grid,
@@ -473,8 +467,7 @@ class HybridBoxMap(dict):
             )
 
             # 2. For each source box, process the evaluation results
-            if config.logging.verbose:
-                logger.info("Step 2: Constructing map from evaluation data...")
+            logger.debug("Constructing box map from evaluation data")
             for box_idx in grid.box_indices:
                 results_for_box = raw_flow_data.get(box_idx)
                 if not results_for_box:
@@ -683,8 +676,7 @@ class HybridBoxMap(dict):
             # Attach the raw point data for visualization purposes
             box_map.raw_flow_data = raw_flow_data
 
-        if config.logging.verbose:
-            logger.info("✓ Hybrid Box Map computation complete.")
+        logger.debug("Hybrid Box Map computation complete: active_boxes=%d", len(box_map))
 
         # Store debug info in box_map for external analysis
         box_map.debug_info = debug_info
@@ -752,14 +744,13 @@ class HybridBoxMap(dict):
         if out_of_bounds_tolerance is None:
             out_of_bounds_tolerance = config.grid.out_of_bounds_tolerance
 
-        logger = config.get_logger(__name__)
-
-        if config.logging.verbose:
-            logger.info("Computing Cylindrical Hybrid Box Map...")
-            logger.info(f"Cylinder radius: {cylinder_radius}")
-            logger.info(
-                f"Sampling: {n_radial_samples} radial × {n_angular_samples} angular",
-            )
+        logger.debug(
+            "Computing cylindrical Hybrid Box Map: radius=%s, radial_samples=%d, "
+            "angular_samples=%d",
+            cylinder_radius,
+            n_radial_samples,
+            n_angular_samples,
+        )
 
         # Initialize box map
         box_map = cls(grid, system, tau)
@@ -852,11 +843,8 @@ class HybridBoxMap(dict):
                         pt[3] = y_dot
                         sample_points.append(pt)
 
-        if config.logging.verbose:
-            logger.info(f"Key boxes sampled: {key_boxes_sampled}")
-
-        if config.logging.verbose:
-            logger.info(f"Total sample points: {len(sample_points)}")
+        logger.debug("Key boxes sampled: %s", key_boxes_sampled)
+        logger.debug("Total cylindrical sample points: %d", len(sample_points))
 
         # Evaluate flow for all sample points
         if parallel and system_factory is not None and system_args is not None:
@@ -895,8 +883,7 @@ class HybridBoxMap(dict):
                     progress_callback(i, len(sample_points))
 
         # Process results and build box map
-        if config.logging.verbose:
-            logger.info("Building box map from cylindrical samples...")
+        logger.debug("Building box map from cylindrical samples")
 
         # For each sample point and its result
         for i, (initial_point, (final_state, num_jumps)) in enumerate(
@@ -971,8 +958,7 @@ class HybridBoxMap(dict):
             "total_points": len(sample_points),
         }
 
-        if config.logging.verbose:
-            logger.info(f"✓ Cylindrical Box Map complete. Active boxes: {len(box_map)}")
+        logger.debug("Cylindrical Box Map complete: active_boxes=%d", len(box_map))
 
         return box_map
 

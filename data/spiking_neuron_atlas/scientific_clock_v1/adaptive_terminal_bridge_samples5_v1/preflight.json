@@ -1,0 +1,66 @@
+{
+  "acceptance_rule": {
+    "complete_reference_cycle_must_lie_in_recurrent_component": true,
+    "finite_relation_index_must_be_computed_on_standard_pair": true,
+    "no_analytic_fallback": true,
+    "no_expected_polynomial_gate": true,
+    "reference_support_and_shift_class_must_match_samples3_primary": true,
+    "relation_stage_must_pass_every_existing_gate": true
+  },
+  "configuration": {
+    "intermediate_time_graph_edges_added": false,
+    "max_jumps": 10,
+    "max_step": 0.02,
+    "padding_cells": 1.0,
+    "samples_per_axis": 5,
+    "single_handle_bridge_algorithm_revision": "terminal-single-handle-bisection-v1",
+    "single_handle_bridge_enabled": true,
+    "single_handle_bridge_max_bisections": 12,
+    "source_total_depth": 14,
+    "t_star": 20.0,
+    "terminal_carrier_assumptions": [
+      "the source segment stays inside the rectangular source cell",
+      "a base-stage gap of two crosses exactly one unit suspension handle",
+      "quotient continuity connects the two base branches through that handle",
+      "the emitted sample-and-bloat carrier is a nonrigorous outer-cover assumption"
+    ],
+    "total_depth": 16
+  },
+  "cost_gate_passed": true,
+  "dynamics_evaluated": false,
+  "exact_sample_cost": {
+    "duplicate_tensor_points": 80200,
+    "logical_tensor_points": 226850,
+    "tensor_point_fingerprint": "7376b101e06dcaa729914252d51519c742bff762b379b38c318df42d84bdf269",
+    "unique_tensor_points": 146650,
+    "unique_tensor_points_by_chart": {
+      "0": 51013,
+      "1": 95637
+    }
+  },
+  "family_selected_before_sensitivity_results": true,
+  "fingerprint": "f22fc029302b49ec34313912b27503ffd33b0e7c92a9555d1c8ab90201cd5d36",
+  "fixed_caps": {
+    "max_csr_payload_bytes": 1073741824,
+    "max_horizon_over_step_units": 200000000,
+    "max_native_cache_bytes": 1073741824,
+    "max_relation_edges": 50000000,
+    "max_unique_endpoint_points": 200000
+  },
+  "frozen_inputs": {
+    "active_cells": 9074,
+    "adaptive_preflight_fingerprint": "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c",
+    "adaptive_preflight_path": "../adaptive_preflight_v1/t20/preflight.json",
+    "family_fingerprint": "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706",
+    "primary_samples3_conley_fingerprint": "07f5dd2a26d265c4f11c22d2f9f52ef00231199efe52eb06ac84cd9596b5c02d",
+    "primary_samples3_reference_support_fingerprint": "e16441d9b262fd75f153a12fb1f6570fd1d6a589a7ef85dcd7170cf7f7e153a5",
+    "primary_samples3_relation_fingerprint": "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5",
+    "refined_parents": 122
+  },
+  "launch_authorized": true,
+  "protocol_revision": "spiking-neuron-adaptive-terminal-bridge-samples5-t20-v1",
+  "schema": "spiking-neuron-terminal-bridge-samples5-preflight-v1",
+  "scientific_role": "fixed_sampling_sensitivity_of_accepted_t20_mixed_family",
+  "selection_uses_scc_or_morse_count": false,
+  "timing_projection_not_a_guarantee_seconds": 479.13525292579556
+}

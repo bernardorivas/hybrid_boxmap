@@ -9,7 +9,8 @@ different operational modes.
 
 from __future__ import annotations
 
-from collections import defaultdict
+import logging
+from collections import Counter, defaultdict
 from typing import Callable, Dict, List, Optional, Set, Tuple
 
 import networkx as nx
@@ -17,7 +18,25 @@ import numpy as np
 
 from .grid import Grid
 from .hybrid_system import HybridSystem
-from .print_utils import vprint
+
+
+logger = logging.getLogger(__name__)
+
+
+def _log_failure_summary(operation: str, failures: Counter) -> None:
+    """Log one compact summary for failures encountered in a batch."""
+    if not failures:
+        return
+
+    details = ", ".join(
+        f"{reason}: {count}" for reason, count in sorted(failures.items())
+    )
+    logger.warning(
+        "%s skipped %d item(s) (%s)",
+        operation,
+        sum(failures.values()),
+        details,
+    )
 
 
 class MultiGridBoxMap(dict):
@@ -309,9 +328,11 @@ class MultiGrid:
         if bloat_factor is None:
             bloat_factor = get_default_bloat_factor()
 
-        vprint("Computing MultiGrid BoxMap...")
-        vprint(f"  Modes: {self.modes}")
-        vprint(f"  Total boxes: {self.total_boxes}")
+        logger.info(
+            "Computing MultiGrid BoxMap: modes=%s, total_boxes=%d",
+            self.modes,
+            self.total_boxes,
+        )
 
         # Initialize the MultiGrid BoxMap
         multi_boxmap = MultiGridBoxMap(self, system, tau)
@@ -321,6 +342,7 @@ class MultiGrid:
 
         total_mode_boxes = len(all_sample_points)
         completed = 0
+        sample_failures = Counter()
 
         # Process each (mode, box_index) pair
         for (src_mode, src_box_index), sample_points in all_sample_points.items():
@@ -340,18 +362,25 @@ class MultiGrid:
                     ):
                         final_state = trajectory.segments[-1].state_values[-1]
                     else:
+                        sample_failures["missing final state"] += 1
                         continue  # Skip failed simulations
 
                     # Determine destination mode and box
                     try:
                         dest_mode, dest_box_index = self.get_box_from_state(final_state)
                         destination_mode_boxes.add((dest_mode, dest_box_index))
-                    except (ValueError, IndexError):
+                    except (ValueError, IndexError) as exc:
                         # Skip points that land outside valid regions
+                        sample_failures[
+                            f"invalid destination ({type(exc).__name__})"
+                        ] += 1
                         continue
 
-                except Exception:
+                except Exception as exc:
                     # Skip failed simulations
+                    sample_failures[
+                        f"simulation failure ({type(exc).__name__})"
+                    ] += 1
                     continue
 
             # Apply bloating within each destination mode
@@ -431,7 +460,8 @@ class MultiGrid:
             if progress_callback:
                 progress_callback(completed, total_mode_boxes)
 
-        vprint("✓ MultiGrid BoxMap computation complete.", level="always")
+        _log_failure_summary("MultiGrid BoxMap", sample_failures)
+        logger.info("MultiGrid BoxMap computation complete")
 
         return multi_boxmap
 
@@ -470,15 +500,19 @@ class MultiGrid:
         if bloat_factor is None:
             bloat_factor = get_default_bloat_factor()
 
-        vprint("Computing MultiGrid BoxMap using interval method...")
-        vprint(f"  Modes: {self.modes}")
-        vprint(f"  Total boxes: {self.total_boxes}")
+        logger.info(
+            "Computing MultiGrid BoxMap using interval method: "
+            "modes=%s, total_boxes=%d",
+            self.modes,
+            self.total_boxes,
+        )
 
         # Initialize the MultiGrid BoxMap
         multi_boxmap = MultiGridBoxMap(self, system, tau)
 
         total_mode_boxes = sum(grid.total_boxes for grid in self.mode_grids.values())
         completed = 0
+        box_failures = Counter()
 
         # Process each (mode, box_index) pair
         for src_mode, src_grid in self.mode_grids.items():
@@ -505,6 +539,7 @@ class MultiGrid:
                     elif traj_a.segments and traj_a.segments[-1].state_values.size > 0:
                         final_a = traj_a.segments[-1].state_values[-1]
                     else:
+                        box_failures["missing first-corner final state"] += 1
                         continue
 
                     if traj_b.total_duration >= tau:
@@ -512,6 +547,7 @@ class MultiGrid:
                     elif traj_b.segments and traj_b.segments[-1].state_values.size > 0:
                         final_b = traj_b.segments[-1].state_values[-1]
                     else:
+                        box_failures["missing second-corner final state"] += 1
                         continue
 
                     # Extract temperatures and modes from final states
@@ -614,19 +650,14 @@ class MultiGrid:
 
                 except Exception as e:
                     # Skip failed simulations
-                    vprint(
-                        f"Warning: Failed to process box ({src_mode}, {src_box_index}): {e}",
-                        level="always",
-                    )
-                    continue
+                    box_failures[f"processing failure ({type(e).__name__})"] += 1
+                finally:
+                    completed += 1
+                    if progress_callback:
+                        progress_callback(completed, total_mode_boxes)
 
-                completed += 1
-                if progress_callback:
-                    progress_callback(completed, total_mode_boxes)
-
-        vprint(
-            "✓ MultiGrid BoxMap (interval method) computation complete.", level="always",
-        )
+        _log_failure_summary("MultiGrid BoxMap interval method", box_failures)
+        logger.info("MultiGrid BoxMap interval-method computation complete")
         return multi_boxmap
 
     def _find_jump_between_trajectories(

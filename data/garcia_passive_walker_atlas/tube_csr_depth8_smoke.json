@@ -1,0 +1,55 @@
+{
+  "schema": "garcia-walker-csr-implementation-smoke-v1",
+  "purpose": "Cheap prelaunch exercise of the same native-MapGraph to atomic-CSR to strict-resume path used by the pinned depth-20 orbit tube",
+  "scientific_result_accepted": false,
+  "continuous_system_conley_index_certified": false,
+  "whole_cell_outer_enclosure_certified": false,
+  "family": {
+    "axis_depth": 2,
+    "total_depth": 8,
+    "role": "complete coarse ambient cover",
+    "cells": 512
+  },
+  "configuration": {
+    "t_star": 0.5,
+    "gamma": 0.0172,
+    "guard_delta": 0.05,
+    "transversality_eta": 0.1,
+    "samples_per_axis": 3,
+    "padding_cells": 1.0,
+    "max_step": 0.02,
+    "max_jumps": 20,
+    "require_domain_path": true
+  },
+  "observed": {
+    "directed_relation_edges": 69605,
+    "same_chart_undirected_adjacencies": 9744,
+    "quotient_undirected_adjacencies": 494,
+    "total_spatial_undirected_adjacencies": 10238,
+    "native_morse_nodes": 1,
+    "native_morse_edges": 0,
+    "candidate_counts": {
+      "S": 490,
+      "X": 512,
+      "A": 22
+    },
+    "reference_labels_recovered": 52,
+    "reference_labels_total": 52,
+    "csr_payload_bytes": 282524
+  },
+  "atomic_bundle_fingerprints": {
+    "bundle_sha256": "4941ceb817adab9f545a2501b3b69a8d0db99d55b4826c3afeff7cfe71f830cc",
+    "relation_sha256": "029cf835770335b65072a470a86b3c3d2cf9835f824157853184c9547eea5fde",
+    "relation_configuration_sha256": "4f4790bd55d68d8d3334674c548764e6eebcaeabca3add633af6836e30b96024",
+    "provenance_sha256": "c6d7b5b428becc395eeba5b574f37625f6375b4ae3ae2b6b10af6a191530caa6"
+  },
+  "fresh_vs_strict_resume": {
+    "all_relation_rows_equal": true,
+    "connectivity_equal": true,
+    "candidate_equal": true,
+    "refinement_locator_equal": true,
+    "morse_graph_equal": true
+  },
+  "source_bundle_persisted_with_project": false,
+  "interpretation": "Implementation and persistence smoke only. The coarse candidate fails its scientific discovery gates and supplies no depth-20 walker conclusion."
+}

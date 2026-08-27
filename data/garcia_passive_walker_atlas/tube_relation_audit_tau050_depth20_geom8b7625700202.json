@@ -1,0 +1,24 @@
+{
+  "acceptance_blockers": [
+    "support_expansion_exceeds_cell_cap"
+  ],
+  "continuous_system_conley_index_certified": false,
+  "fingerprint": {
+    "algorithm": "sha256",
+    "sha256": "e1185c184d17045b19b0850e989904a3be92b906ea3a11d6d73f18d133ab146b"
+  },
+  "geometry": "data/garcia_passive_walker_atlas/tube_geometry_tau050_depth20_r00625.json.gz",
+  "max_cells": 50000,
+  "relation_bundle": {
+    "bundle_fingerprint": "2d5a88134ff2bc426efce0ff9747b45391b7d6fa26c11dfcb621370891bccb18",
+    "path": "tube_relation_bundle_tau050_depth20_geom8b7625700202",
+    "provenance_sha256": "374c4de2c6f79abb73e65f57edf7abf0b8d1e295d687e74ed76a032bfb93b35b",
+    "relation_configuration_sha256": "ddb423d3ae0df1ae6071d88959e7d7ff7d8b42ebd9b50061598e15efddad7a03",
+    "relation_fingerprint": "3adcc79f47cb8b4f0a5374c4b6d9310f0edba0bd30009007e4ee4a8695184d4e",
+    "schema": "garcia-walker-derived-csr-bundle-reference-v1"
+  },
+  "schema": "garcia-walker-orbit-tube-audit-v1",
+  "scientific_result_accepted": false,
+  "support_expansion_lower_bound": 50001,
+  "whole_cell_outer_enclosure_certified": false
+}

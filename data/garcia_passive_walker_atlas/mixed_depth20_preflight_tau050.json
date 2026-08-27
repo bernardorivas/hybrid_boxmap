@@ -1,0 +1,937 @@
+{
+  "continuous_system_conley_index_certified": false,
+  "exact_geometry_audits": {
+    "coarsened_depth5_pairs_equal_stored_depth4_pairs": true,
+    "collar_cover_rule": "physical radius k/32 plus closed-cell contact gives Chebyshev dilation radius k+1 on the depth5 leaf grid",
+    "full_uniform_depth5_quotient_pair_instances": 331794,
+    "recursive_top_cell_seam_closure_valid_for_local_tube": false,
+    "recursive_top_cell_seam_closure_retraction": "it percolates across shared lower-dimensional seam faces and imports remote guard/reset cells",
+    "same_chart_d16_parity": {
+      "computed": 2626828,
+      "persisted": 2626828
+    },
+    "stored_depth4_quotient_pairs": 39264,
+    "unique_endpoint_d16_parity": {
+      "computed": 1576714,
+      "persisted": 1576714
+    }
+  },
+  "family_definitions": {
+    "A": "safe selected component union all 66 persisted reference-source cells; fixed normalized physical collar; all intersecting source parents refined; exact persisted depth4 and full depth5 quotient-face closure; unselected depth4 leaves retained; no F-support or missing-target insertion",
+    "B": "A plus candidate-S unsafe source cells with one closed same-chart or quotient adjacency to selected component, refined without a second collar",
+    "C": "A plus all unique persisted depth4 missing-target hull cells emitted by A seed sources, each refined to its 16 depth5 children; diagnostic only",
+    "orbit_tube": "independent uniform-depth5 base and handle tubes around the dense two-stride reference trace; one-pass complete selected-handle-face to base carriers; no base-to-handle feedback; reverse cofaces and complement open"
+  },
+  "generated_at": "2026-08-22",
+  "interpretation": {
+    "mixed_family_status": "discovery/preflight only; no fixed-time map was evaluated on these families",
+    "mixed_family_role": "A/B/C are retained only as global mixed-family preflight alternatives; all exceed at least one default cap and are not the selected next computation",
+    "preferred_initial_rule": "the predeclared next computation is the normalized-radius 0.0625 local orbit-validation tube; it validates the stored gait and is not a discovery calculation",
+    "tube_status": "geometry/sample/spatial preflight only; isolation, image connectivity, open-exit placement, SCC recovery, and index-pair conditions remain untested until the compact CSR box-map run",
+    "uniform_P1_condition": "A later P1 computation is defensible only if its computed N and L lie in the depth5 region and a declared fine-cell collar separates N\\L from every coarse/open interface; this is not established by geometry alone"
+  },
+  "missing_target_diagnostic": {
+    "overlap_original_active_family": 0,
+    "unique_depth4_witnesses_by_chart": {
+      "base": 110,
+      "handle": 52
+    }
+  },
+  "mixed_families": {
+    "0.03125": {
+      "A_locator_reference_collar": {
+        "cells": 799612,
+        "counts": {
+          "base": {
+            "depth4": 19110,
+            "depth5": 204384
+          },
+          "handle": {
+            "depth4": 17254,
+            "depth5": 558864
+          }
+        },
+        "default_cap_failures": [
+          "cells_gt_500000",
+          "logical_samples_gt_50000000",
+          "spatial_edges_gt_20000000",
+          "spatial_estimate_gt_1GiB",
+          "relation_proxy_gt_50000000"
+        ],
+        "estimated_peak_spatial_adjacency_bytes": 1505006928,
+        "fine_cells_added_by_seam_closure": 0,
+        "logical_samples": 64768572,
+        "outside_original_fine_collar_cells_by_chart": {
+          "base": 3776,
+          "handle": 14192
+        },
+        "quotient_seam_leaf_edges": 331794,
+        "relation_proxy": {
+          "basis": "d16 observed mean plus d12-to-d16 mean-outdegree growth; not a computed relation",
+          "csr_int64_offsets_int32_targets_bytes": {
+            "flat": 1006243996,
+            "mixed_depth": 1278403812,
+            "uniform_growth": 1291370524
+          },
+          "d16_mean_outdegree": 312.6038290895062,
+          "fine_outdegree_proxy": 401.7491043191274,
+          "flat_edges": 249961773,
+          "growth_factor": 1.2851701320782503,
+          "mixed_depth_edges": 318001727,
+          "uniform_growth_edges": 321243405
+        },
+        "represented_uniform_seam_pair_instances": 331794,
+        "reused_logical_samples": 50261234,
+        "same_chart_edge_breakdown": {
+          "base": {
+            "coarse_coarse": 420029,
+            "coarse_fine": 594139,
+            "fine_fine": 6593288,
+            "total": 7607456
+          },
+          "handle": {
+            "coarse_coarse": 370781,
+            "coarse_fine": 738233,
+            "fine_fine": 19107599,
+            "total": 20216613
+          }
+        },
+        "same_chart_edges": 27824069,
+        "selected_depth4_parents_by_chart": {
+          "base": 12538,
+          "handle": 34042
+        },
+        "spatial_edges": 28155863,
+        "unique_by_chart": {
+          "base": 4204059,
+          "handle": 10303279
+        },
+        "unique_endpoint_lattice_nodes": 14507338,
+        "unmatched_uniform_seam_pair_instances": 0
+      },
+      "B_A_plus_touching_unsafe_S": {
+        "cells": 799612,
+        "counts": {
+          "base": {
+            "depth4": 19110,
+            "depth5": 204384
+          },
+          "handle": {
+            "depth4": 17254,
+            "depth5": 558864
+          }
+        },
+        "default_cap_failures": [
+          "cells_gt_500000",
+          "logical_samples_gt_50000000",
+          "spatial_edges_gt_20000000",
+          "spatial_estimate_gt_1GiB",
+          "relation_proxy_gt_50000000"
+        ],
+        "estimated_peak_spatial_adjacency_bytes": 1505006928,
+        "fine_cells_added_by_seam_closure": 0,
+        "identity_reason": "Every one-hop unsafe candidate-S source is already refined by A closed-cell collar or persisted quotient closure.",
+        "logical_samples": 64768572,
+        "outside_original_fine_collar_cells_by_chart": {
+          "base": 3776,
+          "handle": 14192
+        },
+        "quotient_seam_leaf_edges": 331794,
+        "relation_proxy": {
+          "basis": "d16 observed mean plus d12-to-d16 mean-outdegree growth; not a computed relation",
+          "csr_int64_offsets_int32_targets_bytes": {
+            "flat": 1006243996,
+            "mixed_depth": 1278403812,
+            "uniform_growth": 1291370524
+          },
+          "d16_mean_outdegree": 312.6038290895062,
+          "fine_outdegree_proxy": 401.7491043191274,
+          "flat_edges": 249961773,
+          "growth_factor": 1.2851701320782503,
+          "mixed_depth_edges": 318001727,
+          "uniform_growth_edges": 321243405
+        },
+        "represented_uniform_seam_pair_instances": 331794,
+        "reused_logical_samples": 50261234,
+        "same_chart_edge_breakdown": {
+          "base": {
+            "coarse_coarse": 420029,
+            "coarse_fine": 594139,
+            "fine_fine": 6593288,
+            "total": 7607456
+          },
+          "handle": {
+            "coarse_coarse": 370781,
+            "coarse_fine": 738233,
+            "fine_fine": 19107599,
+            "total": 20216613
+          }
+        },
+        "same_chart_edges": 27824069,
+        "selected_depth4_parents_by_chart": {
+          "base": 12538,
+          "handle": 34042
+        },
+        "spatial_edges": 28155863,
+        "unique_by_chart": {
+          "base": 4204059,
+          "handle": 10303279
+        },
+        "unique_endpoint_lattice_nodes": 14507338,
+        "unmatched_uniform_seam_pair_instances": 0,
+        "unsafe_touching_S_sources_added_beyond_A": 0
+      },
+      "C_A_plus_seed_missing_target_hulls": {
+        "cells": 801948,
+        "counts": {
+          "base": {
+            "depth4": 19110,
+            "depth5": 206144
+          },
+          "handle": {
+            "depth4": 17254,
+            "depth5": 559440
+          }
+        },
+        "default_cap_failures": [
+          "cells_gt_500000",
+          "logical_samples_gt_50000000",
+          "spatial_edges_gt_20000000",
+          "spatial_estimate_gt_1GiB",
+          "relation_proxy_gt_50000000"
+        ],
+        "delta_from_A": {
+          "cells": 2336,
+          "logical_samples": 189216,
+          "spatial_edges": 58382,
+          "unique_endpoint_lattice_nodes": 56172
+        },
+        "estimated_peak_spatial_adjacency_bytes": 1508257776,
+        "fine_cells_added_by_seam_closure": 0,
+        "logical_samples": 64957788,
+        "outside_original_fine_collar_cells_by_chart": {
+          "base": 5536,
+          "handle": 14768
+        },
+        "quotient_seam_leaf_edges": 331794,
+        "relation_proxy": {
+          "basis": "d16 observed mean plus d12-to-d16 mean-outdegree growth; not a computed relation",
+          "csr_int64_offsets_int32_targets_bytes": {
+            "flat": 1009183656,
+            "mixed_depth": 1282176440,
+            "uniform_growth": 1295143156
+          },
+          "d16_mean_outdegree": 312.6038290895062,
+          "fine_outdegree_proxy": 401.7491043191274,
+          "flat_edges": 250692016,
+          "growth_factor": 1.2851701320782503,
+          "mixed_depth_edges": 318940212,
+          "uniform_growth_edges": 322181891
+        },
+        "represented_uniform_seam_pair_instances": 331794,
+        "reused_logical_samples": 50394278,
+        "same_chart_edge_breakdown": {
+          "base": {
+            "coarse_coarse": 420029,
+            "coarse_fine": 603203,
+            "fine_fine": 6628528,
+            "total": 7651760
+          },
+          "handle": {
+            "coarse_coarse": 370781,
+            "coarse_fine": 741719,
+            "fine_fine": 19118191,
+            "total": 20230691
+          }
+        },
+        "same_chart_edges": 27882451,
+        "selected_depth4_parents_by_chart": {
+          "base": 12538,
+          "handle": 34042
+        },
+        "spatial_edges": 28214245,
+        "unique_by_chart": {
+          "base": 4246347,
+          "handle": 10317163
+        },
+        "unique_endpoint_lattice_nodes": 14563510,
+        "unmatched_uniform_seam_pair_instances": 0
+      }
+    },
+    "0.0625": {
+      "A_locator_reference_collar": {
+        "cells": 1141958,
+        "counts": {
+          "base": {
+            "depth4": 7507,
+            "depth5": 403380
+          },
+          "handle": {
+            "depth4": 7837,
+            "depth5": 723234
+          }
+        },
+        "default_cap_failures": [
+          "cells_gt_500000",
+          "logical_samples_gt_50000000",
+          "spatial_edges_gt_20000000",
+          "spatial_estimate_gt_1GiB",
+          "relation_proxy_gt_50000000"
+        ],
+        "estimated_peak_spatial_adjacency_bytes": 2185452192,
+        "fine_cells_added_by_seam_closure": 0,
+        "logical_samples": 92498598,
+        "outside_original_fine_collar_cells_by_chart": {
+          "base": 17124,
+          "handle": 27890
+        },
+        "quotient_seam_leaf_edges": 331794,
+        "relation_proxy": {
+          "basis": "d16 observed mean plus d12-to-d16 mean-outdegree growth; not a computed relation",
+          "csr_int64_offsets_int32_targets_bytes": {
+            "flat": 1437057448,
+            "mixed_depth": 1838786708,
+            "uniform_growth": 1844258088
+          },
+          "d16_mean_outdegree": 312.6038290895062,
+          "fine_outdegree_proxy": 401.7491043191274,
+          "flat_edges": 356980444,
+          "growth_factor": 1.2851701320782503,
+          "mixed_depth_edges": 457412759,
+          "uniform_growth_edges": 458780604
+        },
+        "represented_uniform_seam_pair_instances": 331794,
+        "reused_logical_samples": 72325970,
+        "same_chart_edge_breakdown": {
+          "base": {
+            "coarse_coarse": 110400,
+            "coarse_fine": 363547,
+            "fine_fine": 14025019,
+            "total": 14498966
+          },
+          "handle": {
+            "coarse_coarse": 129635,
+            "coarse_fine": 441996,
+            "fine_fine": 25560031,
+            "total": 26131662
+          }
+        },
+        "same_chart_edges": 40630628,
+        "selected_depth4_parents_by_chart": {
+          "base": 24141,
+          "handle": 43459
+        },
+        "spatial_edges": 40962422,
+        "unique_by_chart": {
+          "base": 7363857,
+          "handle": 12808771
+        },
+        "unique_endpoint_lattice_nodes": 20172628,
+        "unmatched_uniform_seam_pair_instances": 0
+      },
+      "B_A_plus_touching_unsafe_S": {
+        "cells": 1141958,
+        "counts": {
+          "base": {
+            "depth4": 7507,
+            "depth5": 403380
+          },
+          "handle": {
+            "depth4": 7837,
+            "depth5": 723234
+          }
+        },
+        "default_cap_failures": [
+          "cells_gt_500000",
+          "logical_samples_gt_50000000",
+          "spatial_edges_gt_20000000",
+          "spatial_estimate_gt_1GiB",
+          "relation_proxy_gt_50000000"
+        ],
+        "estimated_peak_spatial_adjacency_bytes": 2185452192,
+        "fine_cells_added_by_seam_closure": 0,
+        "identity_reason": "Every one-hop unsafe candidate-S source is already refined by A closed-cell collar or persisted quotient closure.",
+        "logical_samples": 92498598,
+        "outside_original_fine_collar_cells_by_chart": {
+          "base": 17124,
+          "handle": 27890
+        },
+        "quotient_seam_leaf_edges": 331794,
+        "relation_proxy": {
+          "basis": "d16 observed mean plus d12-to-d16 mean-outdegree growth; not a computed relation",
+          "csr_int64_offsets_int32_targets_bytes": {
+            "flat": 1437057448,
+            "mixed_depth": 1838786708,
+            "uniform_growth": 1844258088
+          },
+          "d16_mean_outdegree": 312.6038290895062,
+          "fine_outdegree_proxy": 401.7491043191274,
+          "flat_edges": 356980444,
+          "growth_factor": 1.2851701320782503,
+          "mixed_depth_edges": 457412759,
+          "uniform_growth_edges": 458780604
+        },
+        "represented_uniform_seam_pair_instances": 331794,
+        "reused_logical_samples": 72325970,
+        "same_chart_edge_breakdown": {
+          "base": {
+            "coarse_coarse": 110400,
+            "coarse_fine": 363547,
+            "fine_fine": 14025019,
+            "total": 14498966
+          },
+          "handle": {
+            "coarse_coarse": 129635,
+            "coarse_fine": 441996,
+            "fine_fine": 25560031,
+            "total": 26131662
+          }
+        },
+        "same_chart_edges": 40630628,
+        "selected_depth4_parents_by_chart": {
+          "base": 24141,
+          "handle": 43459
+        },
+        "spatial_edges": 40962422,
+        "unique_by_chart": {
+          "base": 7363857,
+          "handle": 12808771
+        },
+        "unique_endpoint_lattice_nodes": 20172628,
+        "unmatched_uniform_seam_pair_instances": 0,
+        "unsafe_touching_S_sources_added_beyond_A": 0
+      },
+      "C_A_plus_seed_missing_target_hulls": {
+        "cells": 1143866,
+        "counts": {
+          "base": {
+            "depth4": 7507,
+            "depth5": 404712
+          },
+          "handle": {
+            "depth4": 7837,
+            "depth5": 723810
+          }
+        },
+        "default_cap_failures": [
+          "cells_gt_500000",
+          "logical_samples_gt_50000000",
+          "spatial_edges_gt_20000000",
+          "spatial_estimate_gt_1GiB",
+          "relation_proxy_gt_50000000"
+        ],
+        "delta_from_A": {
+          "cells": 1908,
+          "logical_samples": 154548,
+          "spatial_edges": 66498,
+          "unique_endpoint_lattice_nodes": 35900
+        },
+        "estimated_peak_spatial_adjacency_bytes": 2189010432,
+        "fine_cells_added_by_seam_closure": 0,
+        "logical_samples": 92653146,
+        "outside_original_fine_collar_cells_by_chart": {
+          "base": 18456,
+          "handle": 28466
+        },
+        "quotient_seam_leaf_edges": 331794,
+        "relation_proxy": {
+          "basis": "d16 observed mean plus d12-to-d16 mean-outdegree growth; not a computed relation",
+          "csr_int64_offsets_int32_targets_bytes": {
+            "flat": 1439458504,
+            "mixed_depth": 1841868120,
+            "uniform_growth": 1847339500
+          },
+          "d16_mean_outdegree": 312.6038290895062,
+          "fine_outdegree_proxy": 401.7491043191274,
+          "flat_edges": 357576892,
+          "growth_factor": 1.2851701320782503,
+          "mixed_depth_edges": 458179296,
+          "uniform_growth_edges": 459547141
+        },
+        "represented_uniform_seam_pair_instances": 331794,
+        "reused_logical_samples": 72444618,
+        "same_chart_edge_breakdown": {
+          "base": {
+            "coarse_coarse": 110400,
+            "coarse_fine": 365101,
+            "fine_fine": 14072025,
+            "total": 14547526
+          },
+          "handle": {
+            "coarse_coarse": 129635,
+            "coarse_fine": 444002,
+            "fine_fine": 25575963,
+            "total": 26149600
+          }
+        },
+        "same_chart_edges": 40697126,
+        "selected_depth4_parents_by_chart": {
+          "base": 24141,
+          "handle": 43459
+        },
+        "spatial_edges": 41028920,
+        "unique_by_chart": {
+          "base": 7387957,
+          "handle": 12820571
+        },
+        "unique_endpoint_lattice_nodes": 20208528,
+        "unmatched_uniform_seam_pair_instances": 0
+      }
+    }
+  },
+  "no_box_map_or_MapGraph_dynamics_evaluated": true,
+  "orbit_reference_trace": {
+    "recursive_top_cell_closure_counts_are_retracted": true,
+    "atol": 1e-12,
+    "completed_jumps": 2,
+    "construction": "reference-only dense integration of the stored period-two seed for exactly two heel strikes; two continuous segment solutions plus both intrinsic handle traversals",
+    "dense_coordinate_sha256": "0585b0eabfab71eff29163c9c4a73eab23c1f67d5fd086aef8fdde46ec293a19",
+    "dense_output": true,
+    "domain_bounds": [
+      [
+        -0.32,
+        0.32
+      ],
+      [
+        -0.35,
+        0.05
+      ],
+      [
+        -0.65,
+        0.65
+      ],
+      [
+        -0.55,
+        0.15
+      ]
+    ],
+    "final_base_points": 32770,
+    "final_base_samples_per_stride": 16385,
+    "final_handle_points": 8194,
+    "final_handle_samples_per_jump": 4097,
+    "gamma": 0.0172,
+    "guard_delta": 0.05,
+    "guard_states": [
+      [
+        -0.25502600592384433,
+        -0.2823277526693095,
+        -0.5100520118476888,
+        -0.0750130668457631
+      ],
+      [
+        -0.23831242345201537,
+        -0.26333721143018524,
+        -0.4766248469040306,
+        0.05408781153205431
+      ]
+    ],
+    "initial_full_state": [
+      0.238312423452016,
+      -0.233987869217989,
+      0.476624846904032,
+      -0.026078312327698857
+    ],
+    "initial_section_point": [
+      0.238312423452016,
+      -0.233987869217989
+    ],
+    "max_jumps_requested": 2,
+    "max_step": 0.005,
+    "reset_states": [
+      [
+        0.25502600592384433,
+        -0.2463928265806863,
+        0.5100520118476887,
+        -0.0313610969103513
+      ],
+      [
+        0.23831242345201537,
+        -0.23398786921798803,
+        0.47662484690403073,
+        -0.026078312327698618
+      ]
+    ],
+    "rtol": 1e-10,
+    "sampling_convergence": [
+      {
+        "base_samples_per_stride": 257,
+        "handle_samples_per_jump": 129,
+        "point_count": 772,
+        "radii": {
+          "0.0625": {
+            "changed_from_previous": null,
+            "raw_cells": [
+              21105,
+              8000
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              35401,
+              73036
+            ]
+          },
+          "0.125": {
+            "changed_from_previous": null,
+            "raw_cells": [
+              108405,
+              41952
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              118868,
+              104866
+            ]
+          }
+        }
+      },
+      {
+        "base_samples_per_stride": 513,
+        "handle_samples_per_jump": 257,
+        "point_count": 1540,
+        "radii": {
+          "0.0625": {
+            "changed_from_previous": [
+              349,
+              0
+            ],
+            "raw_cells": [
+              21468,
+              8000
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              35750,
+              73036
+            ]
+          },
+          "0.125": {
+            "changed_from_previous": [
+              1050,
+              0
+            ],
+            "raw_cells": [
+              109499,
+              41952
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              119918,
+              104866
+            ]
+          }
+        }
+      },
+      {
+        "base_samples_per_stride": 1025,
+        "handle_samples_per_jump": 513,
+        "point_count": 3076,
+        "radii": {
+          "0.0625": {
+            "changed_from_previous": [
+              193,
+              0
+            ],
+            "raw_cells": [
+              21682,
+              8000
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              35943,
+              73036
+            ]
+          },
+          "0.125": {
+            "changed_from_previous": [
+              579,
+              0
+            ],
+            "raw_cells": [
+              110115,
+              41952
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              120497,
+              104866
+            ]
+          }
+        }
+      },
+      {
+        "base_samples_per_stride": 2049,
+        "handle_samples_per_jump": 1025,
+        "point_count": 6148,
+        "radii": {
+          "0.0625": {
+            "changed_from_previous": [
+              80,
+              0
+            ],
+            "raw_cells": [
+              21762,
+              8000
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              36023,
+              73036
+            ]
+          },
+          "0.125": {
+            "changed_from_previous": [
+              245,
+              0
+            ],
+            "raw_cells": [
+              110367,
+              41952
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              120742,
+              104866
+            ]
+          }
+        }
+      },
+      {
+        "base_samples_per_stride": 4097,
+        "handle_samples_per_jump": 2049,
+        "point_count": 12292,
+        "radii": {
+          "0.0625": {
+            "changed_from_previous": [
+              59,
+              0
+            ],
+            "raw_cells": [
+              21821,
+              8000
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              36082,
+              73036
+            ]
+          },
+          "0.125": {
+            "changed_from_previous": [
+              179,
+              0
+            ],
+            "raw_cells": [
+              110546,
+              41952
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              120921,
+              104866
+            ]
+          }
+        }
+      },
+      {
+        "base_samples_per_stride": 8193,
+        "handle_samples_per_jump": 4097,
+        "point_count": 24580,
+        "radii": {
+          "0.0625": {
+            "changed_from_previous": [
+              25,
+              0
+            ],
+            "raw_cells": [
+              21846,
+              8000
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              36107,
+              73036
+            ]
+          },
+          "0.125": {
+            "changed_from_previous": [
+              81,
+              0
+            ],
+            "raw_cells": [
+              110627,
+              41952
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              121002,
+              104866
+            ]
+          }
+        }
+      },
+      {
+        "base_samples_per_stride": 16385,
+        "handle_samples_per_jump": 4097,
+        "point_count": 40964,
+        "radii": {
+          "0.0625": {
+            "changed_from_previous": [
+              0,
+              0
+            ],
+            "raw_cells": [
+              21846,
+              8000
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              36107,
+              73036
+            ]
+          },
+          "0.125": {
+            "changed_from_previous": [
+              0,
+              0
+            ],
+            "raw_cells": [
+              110627,
+              41952
+            ],
+            "retracted_recursive_top_cell_closure_counts": [
+              121002,
+              104866
+            ]
+          }
+        }
+      }
+    ],
+    "sampling_stable_at_final_doubling": true,
+    "second_stored_section_point": [
+      0.255026005923842,
+      -0.246392826580685
+    ],
+    "segment_intervals": [
+      [
+        0.0,
+        3.733608218746765
+      ],
+      [
+        3.733608218746765,
+        7.779429741160887
+      ]
+    ],
+    "time_span": [
+      0.0,
+      8.0
+    ],
+    "transversality_eta": 0.1
+  },
+  "orbit_tubes": {
+    "0.0625": {
+      "axis_depth": 5,
+      "cells": 29906,
+      "counts": {
+        "base": {
+          "depth4": 0,
+          "depth5": 21906
+        },
+        "handle": {
+          "depth4": 0,
+          "depth5": 8000
+        }
+      },
+      "default_cap_failures": [],
+      "geometry_artifact": "tube_geometry_tau050_depth20_r00625.json.gz",
+      "geometry_artifact_fingerprint": "8b762570020296fb80aaa4160c2a72bfd8645972c94e7e7d5e5bedb43a85f16a",
+      "logical_samples": 2422386,
+      "normalized_Linf_radius": 0.0625,
+      "one_pass_added_base_attachment_cells": 60,
+      "quotient_seam_leaf_edges": 2921,
+      "reference_trace_kind": "dense_two_stride_base_plus_two_handle_traversals",
+      "relation_proxy": {
+        "basis": "uniform depth5 d16 mean outdegree times observed d12-to-d16 growth; not a computed relation",
+        "csr_int64_offsets_int32_targets_bytes": 48298092,
+        "edges": 12014709
+      },
+      "reused_logical_samples": 1790941,
+      "same_chart_edges": 840885,
+      "spatial_edges": 843806,
+      "total_depth": 20,
+      "unique_endpoint_lattice_nodes": 631445,
+      "reverse_base_to_unselected_handle_incidences_declared_open": 28938,
+      "reverse_open_base_boundary_cells": 1237,
+      "same_chart_closed_one_ring_boundary_cells": 22924,
+      "selected_handle_seam_faces_without_full_base_carrier": 0,
+      "window_scope": "independent uniform-depth5 base and handle tubes around the dense trace; one-pass complete handle-face to base attachment carriers; no base-to-handle feedback; complement and reverse seam cofaces open"
+    },
+    "0.125": {
+      "axis_depth": 5,
+      "cells": 152718,
+      "counts": {
+        "base": {
+          "depth4": 0,
+          "depth5": 110766
+        },
+        "handle": {
+          "depth4": 0,
+          "depth5": 41952
+        }
+      },
+      "default_cap_failures": [
+        "cells_gt_50000",
+        "logical_samples_gt_5000000",
+        "spatial_edges_gt_5000000",
+        "relation_proxy_gt_50000000"
+      ],
+      "logical_samples": 12370158,
+      "normalized_Linf_radius": 0.125,
+      "one_pass_added_base_attachment_cells": 139,
+      "quotient_seam_leaf_edges": 15230,
+      "raw_tube_cells": {
+        "base": 110627,
+        "handle": 41952
+      },
+      "relation_proxy": {
+        "basis": "uniform depth5 d16 mean outdegree times observed d12-to-d16 growth; not a computed relation",
+        "csr_int64_offsets_int32_targets_bytes": 246639032,
+        "edges": 61354320
+      },
+      "reused_logical_samples": 9508840,
+      "same_chart_edges": 5038847,
+      "spatial_edges": 5054077,
+      "total_depth": 20,
+      "unique_endpoint_lattice_nodes": 2861318,
+      "reverse_base_to_unselected_handle_incidences_declared_open": 91355,
+      "nonglued_base_ambient_boundary_counts_by_axis_lower_upper": [
+        [1571, 962],
+        [99, 0],
+        [3972, 2348],
+        [0, 972]
+      ],
+      "scientific_candidate": false,
+      "scientific_candidate_blockers": [
+        "touches_nonglued_ambient_boundary",
+        "exceeds_default_cell_sample_spatial_and_relation_caps"
+      ],
+      "supersedes_retracted_recursive_cells": 225868,
+      "window_scope": "corrected asymmetric one-pass attachment sensitivity tube; geometry only; no source-box dynamics"
+    }
+  },
+  "reference_only_simulation_evaluated": true,
+  "schema": "garcia-walker-mixed-depth20-and-orbit-tube-preflight-v2",
+  "scientific_result_accepted": false,
+  "source": {
+    "d16_cells": 82944,
+    "d16_reference_source_cells": 66,
+    "d16_relation_edges": 25928612,
+    "d16_safe_seed_cells": 15099,
+    "d16_selected_safe_component_cells": 15071,
+    "raw_checkpoint_path": "data/garcia_passive_walker_atlas/raw_relation_checkpoint_tau050_depth16_cfg2b4acc7fe0f4.jsonl.gz",
+    "relation_content_sha256": "88e8b303c411e94aae28b4a794a84b4e12491ebe93f27cdd531f3c2472a8a1b7",
+    "relation_path": "data/garcia_passive_walker_atlas/local_relation_tau050_depth16.json.gz",
+    "resume_sha256": "effd8ca3f8d6d69e7fbbed928a9ddd43c275176ad60e834773e96bee2fdc9945"
+  },
+  "touching_unsafe_selector": {
+    "B_delta_beyond_A": 0,
+    "closed_one_hop_cells": 40319,
+    "safe_seed_cells": 15099,
+    "selected_component_cells": 15071,
+    "unsafe_candidate_S_touching": {
+      "disconnected": 0,
+      "failed": 2230,
+      "missing_support": 14007,
+      "open_exit": 21413,
+      "union": 21413,
+      "unresolved_stage": 0
+    },
+    "unsafe_candidate_S_touching_outside_seed": 21399
+  }
+}

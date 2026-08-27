@@ -5,11 +5,13 @@ This module provides utilities to compute and analyze the basins of attraction
 (regions of attraction) for Morse sets in hybrid box maps.
 """
 
+import logging
 from typing import Dict, List, Set, Tuple
 
 import networkx as nx
 
-from .config import config
+
+logger = logging.getLogger(__name__)
 
 
 def compute_regions_of_attraction(
@@ -30,12 +32,10 @@ def compute_regions_of_attraction(
         Dictionary mapping morse_set_index -> set of boxes in its region of attraction.
         The region of attraction includes the Morse set itself.
     """
-    logger = config.get_logger(__name__)
-
-    if config.logging.verbose:
-        logger.info(
-            f"Computing regions of attraction for {len(morse_sets)} Morse sets...",
-        )
+    logger.debug(
+        "Computing regions of attraction for %d Morse sets",
+        len(morse_sets),
+    )
 
     # Dictionary to store results: morse_set_index -> ROA boxes
     roa_dict = {}
@@ -57,10 +57,12 @@ def compute_regions_of_attraction(
 
         roa_dict[morse_idx] = roa_boxes
 
-        if config.logging.verbose:
-            logger.info(
-                f"  Morse set {morse_idx}: {len(morse_set)} boxes, ROA: {len(roa_boxes)} boxes",
-            )
+        logger.debug(
+            "Morse set %d: %d boxes, ROA: %d boxes",
+            morse_idx,
+            len(morse_set),
+            len(roa_boxes),
+        )
 
     return roa_dict
 
@@ -81,10 +83,10 @@ def compute_regions_of_attraction_efficient(
     Returns:
         Dictionary mapping morse_set_index -> set of boxes in its region of attraction.
     """
-    logger = config.get_logger(__name__)
-
-    if config.logging.verbose:
-        logger.info(f"Computing ROA (efficient) for {len(morse_sets)} Morse sets...")
+    logger.debug(
+        "Computing ROA with reverse traversal for %d Morse sets",
+        len(morse_sets),
+    )
 
     # Create the transpose (reverse) graph
     reverse_graph = graph.reverse()
@@ -111,10 +113,12 @@ def compute_regions_of_attraction_efficient(
 
         roa_dict[morse_idx] = roa_boxes
 
-        if config.logging.verbose:
-            logger.info(
-                f"  Morse set {morse_idx}: {len(morse_set)} boxes, ROA: {len(roa_boxes)} boxes",
-            )
+        logger.debug(
+            "Morse set %d: %d boxes, ROA: %d boxes",
+            morse_idx,
+            len(morse_set),
+            len(roa_boxes),
+        )
 
     return roa_dict
 
@@ -134,8 +138,6 @@ def analyze_roa_coverage(
         - statistics_dict: Contains coverage percentages and overlap information
         - uncovered_boxes: Set of boxes not in any ROA
     """
-    logger = config.get_logger(__name__)
-
     all_roa_boxes = set()
     overlapping_boxes = set()
 
@@ -167,18 +169,16 @@ def analyze_roa_coverage(
         "num_morse_sets": len(roa_dict),
     }
 
-    if config.logging.verbose:
-        logger.info("ROA Coverage Analysis:")
-        logger.info(f"  Total grid boxes: {total_grid_boxes}")
-        logger.info(
-            f"  Covered by ROAs: {len(all_roa_boxes)} ({coverage_percentage:.1f}%)",
-        )
-        logger.info(
-            f"  Uncovered boxes: {len(uncovered_boxes)} ({100-coverage_percentage:.1f}%)",
-        )
-        logger.info(
-            f"  Overlapping boxes: {len(overlapping_boxes)} ({overlap_percentage:.1f}% of covered)",
-        )
+    logger.debug(
+        "ROA coverage: total=%d, covered=%d (%.1f%%), uncovered=%d, "
+        "overlapping=%d (%.1f%% of covered)",
+        total_grid_boxes,
+        len(all_roa_boxes),
+        coverage_percentage,
+        len(uncovered_boxes),
+        len(overlapping_boxes),
+        overlap_percentage,
+    )
 
     return statistics, uncovered_boxes
 

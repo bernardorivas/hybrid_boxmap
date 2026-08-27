@@ -1,0 +1,66 @@
+{
+  "entries": [
+    {
+      "blockers": [],
+      "candidate_X_cells": 15099,
+      "candidate_fraction": 0.1820384837962963,
+      "candidate_only_cell_lower_bound": 241584,
+      "candidate_only_logical_sample_lower_bound": 19568304,
+      "collar_fraction": 0.03125,
+      "complete_ambient_cell_upper_bound": 1327104,
+      "complete_ambient_cover": false,
+      "complete_ambient_logical_sample_upper_bound": 107495424,
+      "materialization_includes_coarse_F_support": false,
+      "materialization_seconds": 270.1880526249297,
+      "materialization_stage": "local open N0: safe locator + all gait trace cells + physical collar + quotient seam closure",
+      "materialized_chart_counts": {
+        "0": 204384,
+        "1": 558864
+      },
+      "materialized_logical_sample_points": 61823088,
+      "materialized_max_axis_depth": 5,
+      "materialized_min_axis_depth": 5,
+      "materialized_relation_saturated_cells": 763248,
+      "retain_unselected": false,
+      "run_recommended": true,
+      "selector": "safe_locator",
+      "source_cells": 82944,
+      "target_axis_depth": 5,
+      "target_total_depth": 20
+    },
+    {
+      "blockers": [],
+      "candidate_X_cells": 15099,
+      "candidate_fraction": 0.1820384837962963,
+      "candidate_only_cell_lower_bound": 241584,
+      "candidate_only_logical_sample_lower_bound": 19568304,
+      "collar_fraction": 0.0625,
+      "complete_ambient_cell_upper_bound": 1327104,
+      "complete_ambient_cover": false,
+      "complete_ambient_logical_sample_upper_bound": 107495424,
+      "materialization_includes_coarse_F_support": false,
+      "materialization_seconds": 382.2611307500629,
+      "materialization_stage": "local open N0: safe locator + all gait trace cells + physical collar + quotient seam closure",
+      "materialized_chart_counts": {
+        "0": 403380,
+        "1": 723234
+      },
+      "materialized_logical_sample_points": 91255734,
+      "materialized_max_axis_depth": 5,
+      "materialized_min_axis_depth": 5,
+      "materialized_relation_saturated_cells": 1126614,
+      "retain_unselected": false,
+      "run_recommended": true,
+      "selector": "safe_locator",
+      "source_cells": 82944,
+      "target_axis_depth": 5,
+      "target_total_depth": 20
+    }
+  ],
+  "max_cells": 2000000,
+  "max_point_evaluations": 200000000,
+  "no_dynamics_evaluated": true,
+  "schema": "garcia-walker-local-refinement-preflight-v1",
+  "source_discovery_gates_passed": false,
+  "source_relation": "data/garcia_passive_walker_atlas/local_relation_tau050_depth16.json.gz"
+}

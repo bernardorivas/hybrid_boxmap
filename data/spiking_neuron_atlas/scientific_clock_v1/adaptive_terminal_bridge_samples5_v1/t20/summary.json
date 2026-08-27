@@ -1,0 +1,407 @@
+{
+  "acceptance_audit_completed": true,
+  "active_cells": 9074,
+  "active_chart_counts": {
+    "0": 3144,
+    "1": 5930
+  },
+  "active_leaf_depth_counts": {
+    "7": 8586,
+    "8": 488
+  },
+  "adaptive_preflight": {
+    "adaptive_preflight_fingerprint": "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c",
+    "family_fingerprint": "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706",
+    "fingerprint": "f22fc029302b49ec34313912b27503ffd33b0e7c92a9555d1c8ab90201cd5d36",
+    "path": "../preflight.json",
+    "primary_samples3_relation_fingerprint": "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5",
+    "schema": "spiking-neuron-samples5-preflight-reference-v1",
+    "selection_uses_scc_or_morse_count": false,
+    "tensor_point_fingerprint": "7376b101e06dcaa729914252d51519c742bff762b379b38c318df42d84bdf269"
+  },
+  "all_morse_supports_quotient_connected": true,
+  "analytic_compact_domain_audit": {
+    "bottom_u_dot_min": 3.3,
+    "dwell_time_lower_bound": 1.5865608959402706,
+    "equilibrium_discriminant": -52.0,
+    "guard_v_dot_max": 53.575,
+    "guard_v_dot_min": 48.975,
+    "left_top_u_dot_max": -16.8,
+    "left_v_dot_min": 0.3,
+    "notch_v_dot_max": -0.9,
+    "passed": true,
+    "reset_u_lower_margin": 100.0,
+    "reset_u_upper_margin": 340.0,
+    "reset_v_margin": 10.0,
+    "right_top_u_dot_max": -6.0
+  },
+  "analytic_conley_label_attached": false,
+  "artifacts": {
+    "chart_aware_plot": "morse_support.png",
+    "relation_csr": "relation.csr",
+    "source_provenance": "provenance.jsonl.gz"
+  },
+  "axis_depth": 8,
+  "boxmap_revision": "spiking-neuron-l-domain-split-v1",
+  "connectivity_algorithm": "exact_sparse_mixed_dyadic_plus_affine_seams_with_full_geometric_parity",
+  "diagnostic_source_provenance": {
+    "content_sha256": "6857df980772e54dfe5f0b79f11c70089acf2cfd6259dbda3fd378a085b63e67",
+    "diagnostic_only": true,
+    "file_sha256": "2a879144071da24005a37ef51079f389ab294891c0df04006d92f68f09adcdd7",
+    "path": "provenance.jsonl.gz",
+    "relation_csr_fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+    "schema": "spiking-neuron-source-provenance-reference-v1",
+    "source_records": 9074,
+    "trailer_fingerprint": "ada5ebe5249d79f8e8d98dd192958b41d1d7b3db9e85f6864a1cf722254c8197"
+  },
+  "disconnected_images": 0,
+  "dwell_handle_jump_bound": {
+    "configured_limit_is_safe": true,
+    "configured_max_jumps": 10,
+    "formula": "ceil(t_star/(1+dwell_time_lower_bound))",
+    "required_upper_bound": 8
+  },
+  "elapsed_seconds": 13.288242000038736,
+  "empty_sources": 0,
+  "endpoint_cache_reuses": 80213,
+  "endpoint_precompute": {
+    "duplicate_tensor_points": 80200,
+    "elapsed_seconds": 466.8557444169419,
+    "fallback_reason": null,
+    "logical_tensor_points": 226850,
+    "mode": "process_pool",
+    "requested_workers": 8,
+    "scientific_postprocessing": "serial parent callback owns stratification, hulling, padding, L-domain split, and graph construction",
+    "unique_points": 146650,
+    "used_workers": 8
+  },
+  "endpoint_unique_evaluations": 146701,
+  "failed_single_handle_bridge_sources": 0,
+  "failed_sources": 0,
+  "family_fingerprint": "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706",
+  "finite_relation_conley": {
+    "analytic_conley_label_attached": false,
+    "chain_checkpoint": {
+      "boundary_nonzero_entries": [
+        0,
+        7868,
+        11367,
+        3976,
+        155,
+        30
+      ],
+      "carrier_fingerprint": "a433c2e7785937d9a4e27427daeacb4e510a2dab94a28c33926c565fbdbc3872",
+      "cell_counts": [
+        1113,
+        3934,
+        3789,
+        994,
+        31,
+        5
+      ],
+      "chain_map_nonzero_entries": [
+        1113,
+        8576,
+        2696,
+        21,
+        0,
+        0
+      ],
+      "file_sha256": "d8c9fb75ed1fc27ac6b988b6fe626d3d3e0ac136aa9231ac0f8c09557dd85229",
+      "fingerprint": "08871b0cc0322f6bdc7a0dc698d9334c4cf886e1c55a1a47fd9143b70b4e19a9",
+      "finite_relation_conley_index": {
+        "cell_counts": [
+          1113,
+          3934,
+          3789,
+          994,
+          31,
+          5
+        ],
+        "coefficient_field": 5,
+        "continuous_system_conley_index_certified": false,
+        "finite_relation_algebra_validated": true,
+        "homology_dimensions": [
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "induced_maps": [
+          [
+            [
+              1
+            ]
+          ],
+          [
+            [
+              1
+            ]
+          ],
+          [],
+          [],
+          [],
+          []
+        ],
+        "result_scope": "finite_reset_quotient_relation",
+        "shift_class": [
+          "x-1",
+          "x-1",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "validation": {
+          "boundary_squared_zero": true,
+          "chain_map_equation": true,
+          "matrix_shapes_and_entries": true
+        }
+      },
+      "finite_relation_shift_class": [
+        "x-1",
+        "x-1",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "nerve_fingerprint": "cb4c333e607ef28b5df06853d1cb198092fa834778cb94d5ca66a0cbfd18af93",
+      "pair_fingerprint": "fbc1c4dd1fcc47af36489b9cc738bdd896de0ab32a81148aa960bde4fee26227",
+      "path": "chain_checkpoint.json.gz",
+      "reference_source_ids": [
+        590,
+        591,
+        592,
+        659,
+        660,
+        661,
+        663,
+        665,
+        678,
+        681,
+        683,
+        684,
+        703,
+        706,
+        707,
+        708,
+        724,
+        725,
+        727,
+        730,
+        785,
+        1769,
+        1771,
+        1777,
+        1779,
+        1801,
+        1809,
+        1934,
+        2248,
+        4585,
+        4589,
+        4601,
+        4605,
+        4649,
+        4653,
+        4665,
+        4669,
+        4841,
+        4845,
+        4857,
+        4861,
+        4905,
+        4909,
+        4921,
+        4925,
+        5352,
+        5356,
+        5368,
+        5372,
+        5416,
+        5420,
+        5432,
+        5436,
+        5608,
+        5612,
+        5624,
+        5628,
+        5672,
+        5676,
+        5688,
+        5692,
+        5693,
+        7570,
+        7571,
+        7575,
+        7587,
+        7591,
+        7635,
+        7639,
+        7651,
+        7655,
+        7827,
+        7831,
+        7843,
+        7847,
+        7891,
+        7895,
+        7907,
+        7911,
+        8338,
+        8342,
+        8354,
+        8358,
+        8402,
+        8406,
+        8418,
+        8422,
+        8594,
+        8598,
+        8610,
+        8614,
+        8658,
+        8662,
+        8674,
+        8678
+      ],
+      "reference_support_fingerprint": "ec6ed1ab16c3b37189bc2fb945bab26544a9819847f6c6d2c6af71dfaa6c431c",
+      "relation_csr_fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+      "schema": "spiking-neuron-conley-chain-reference-v1",
+      "strict_reload_recomputed_shift_class": true
+    },
+    "continuous_system_conley_index_certified": false,
+    "fingerprint": "750bf1a22d5b69ed77a6221c4e10621ea95b08d01e791ede25b6e7ee3a44cee3",
+    "path": "conley_v2/finite_relation_conley.json",
+    "schema": "spiking-neuron-finite-relation-conley-reference-v2",
+    "shift_class": [
+      "x-1",
+      "x-1",
+      "0",
+      "0",
+      "0",
+      "0"
+    ]
+  },
+  "finite_relation_conley_index_computed": true,
+  "formal_domain": "compact_L_shaped_N",
+  "grid_kind": "mixed_axis_depth_7_8",
+  "guard": "v=35, -300<=u<=160, increasing crossings",
+  "jump_limit_failure_sources": 0,
+  "max_jumps": 10,
+  "max_step": 0.02,
+  "missing_sources": 0,
+  "model": "compact_quadratic_integrate_and_fire",
+  "morse_edges": [],
+  "morse_nodes": 1,
+  "morse_set_cell_counts": {
+    "0": {
+      "base": 345,
+      "handle": 768,
+      "quotient_connected": true,
+      "total": 1113
+    }
+  },
+  "nonempty_images": 9074,
+  "numerically_rigorous_outer_approximation_claimed": false,
+  "open_sources": 0,
+  "padding_cells": 1.0,
+  "paper_acceptance_ready": true,
+  "primary_samples3_relation_fingerprint": "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5",
+  "protocol_revision": "spiking-neuron-adaptive-terminal-bridge-samples5-t20-v1",
+  "raw_unresolved_sources": 26,
+  "recurrent_problem_sources": 0,
+  "reference_cycle": {
+    "flight_time": 147.85450496954618,
+    "post_reset_u": 63.07833000947236,
+    "pre_reset_u": -36.92166999052761,
+    "suspension_period": 148.85450496954618,
+    "u_range": [
+      -36.92166999052761,
+      63.07833000947236
+    ],
+    "v_range": [
+      -56.108610623818926,
+      34.99999999999999
+    ]
+  },
+  "reference_endpoint_audit_passed": true,
+  "reference_endpoint_misses": 0,
+  "reference_endpoint_probes": 196,
+  "reference_node_hits": {
+    "0": 196
+  },
+  "reference_node_open_boundary_cells": 0,
+  "reference_nodes_containing_complete_cycle": [
+    0
+  ],
+  "reference_recurrent_problem_sources": 0,
+  "relation_csr": {
+    "configuration_sha256": "70a0464adab6b4e6a16000a9030864f0c1fdf42c6fdb015288785d7ee6a6f521",
+    "edges": 282448,
+    "fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+    "path": "relation.csr",
+    "payload_bytes": 1202392,
+    "schema": "spiking-neuron-mapgraph-csr-reference-v1",
+    "vertices": 9074
+  },
+  "relation_edges": 282448,
+  "relation_stage_completed": true,
+  "reset": "(35,u)->(-50,u+100)",
+  "samples_per_axis": 5,
+  "sampling_persistence_comparison": {
+    "fingerprint": "dee78586b9e23b3ed4e5bd1a4e89acf7915f6ce4c697c3360033522b60d00226",
+    "passed": true,
+    "path": "../comparison.json"
+  },
+  "sampling_sensitivity_preflight": {
+    "adaptive_preflight_fingerprint": "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c",
+    "family_fingerprint": "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706",
+    "fingerprint": "f22fc029302b49ec34313912b27503ffd33b0e7c92a9555d1c8ab90201cd5d36",
+    "path": "../preflight.json",
+    "primary_samples3_relation_fingerprint": "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5",
+    "schema": "spiking-neuron-samples5-preflight-reference-v1",
+    "selection_uses_scc_or_morse_count": false,
+    "tensor_point_fingerprint": "7376b101e06dcaa729914252d51519c742bff762b379b38c318df42d84bdf269"
+  },
+  "sampling_sensitivity_protocol_revision": "spiking-neuron-adaptive-terminal-bridge-samples5-t20-v1",
+  "scc_count_used_as_acceptance_gate": false,
+  "schema": "spiking-neuron-atlas-acceptance-v1",
+  "single_handle_bridge_diagnostics": {
+    "algorithm_revision": "terminal-single-handle-bisection-v1",
+    "attempts": 55,
+    "failed_probes": 0,
+    "intermediate_time_graph_edges_added": false,
+    "probe_points": 64,
+    "raw_unresolved_stage_edges": 26,
+    "residual_unresolved_stage_edges": 0,
+    "synthesized": 55,
+    "terminal_image_carrier_only": true
+  },
+  "single_handle_bridge_enabled": true,
+  "single_handle_bridge_max_bisections": 12,
+  "single_handle_bridge_sources": 26,
+  "source_total_depth": 14,
+  "sparse_incidence_parity": {
+    "cells": 9074,
+    "compared_cell_rows": 9074,
+    "fine_axis_depth": 8,
+    "leaf_depth_counts": {
+      "7": 8586,
+      "8": 488
+    },
+    "mismatched_rows": [],
+    "passed": true,
+    "schema": "spiking-neuron-mixed-incidence-parity-v1",
+    "sparse_undirected_edges": 35782
+  },
+  "stage_gates_passed": true,
+  "subdivisions_per_axis": 256,
+  "t_star": 20.0,
+  "total_depth": 16,
+  "unresolved_sources": 0,
+  "whole_cell_outer_enclosure_certified": false
+}

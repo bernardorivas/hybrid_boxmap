@@ -1,0 +1,50 @@
+{
+  "status": "sampled-relation and local-skeleton integration baseline",
+  "cmgdb_base_revision": "074052e09f7d513d892846fe60823cdfcdd8f193",
+  "coefficient_field": 5,
+  "t_star": 0.5,
+  "handle_slabs": 8,
+  "limitations": [
+    "sampled relations are not verified whole-cell outer enclosures",
+    "local skeletons are not SCC-derived physical-grid index pairs",
+    "identity skeleton chain maps are homotopy representatives, not chain selectors carried by the sampled physical relations"
+  ],
+  "examples": [
+    {
+      "model": "bouncing_ball_zeno_suspension",
+      "relation_nodes": 9,
+      "relation_edges": 24,
+      "relation_hash": "f155f0e67e1acc9d3f275c15b08b76741d61fa72e2e46bc7d01257b748dda802",
+      "phase_cells": 8,
+      "recurrent_scc_sizes": [9],
+      "descriptor_expansion_matches_relation": true,
+      "skeleton_cell_counts": [9, 9],
+      "skeleton_homology_dimensions_f5": [1, 1],
+      "skeleton_shift_class": ["x-1", "x-1"]
+    },
+    {
+      "model": "rimless_wheel_walking_suspension",
+      "relation_nodes": 29,
+      "relation_edges": 50,
+      "relation_hash": "cd43fd60a13681b1e0aa45f472834eba82f01888f5f4278d6fbb7d1112f340fa",
+      "phase_cells": 8,
+      "recurrent_scc_sizes": [29],
+      "descriptor_expansion_matches_relation": true,
+      "skeleton_cell_counts": [9, 9],
+      "skeleton_homology_dimensions_f5": [1, 1],
+      "skeleton_shift_class": ["x-1", "x-1"]
+    },
+    {
+      "model": "garcia_passive_walker_period_two_suspension",
+      "relation_nodes": 86,
+      "relation_edges": 155,
+      "relation_hash": "fda7728141a645c101774a4f2bc0c2de087b079891b8a8164d04218595848d8c",
+      "phase_cells": 16,
+      "recurrent_scc_sizes": [79, 1],
+      "descriptor_expansion_matches_relation": true,
+      "skeleton_cell_counts": [18, 18],
+      "skeleton_homology_dimensions_f5": [1, 1],
+      "skeleton_shift_class": ["x-1", "x-1"]
+    }
+  ]
+}

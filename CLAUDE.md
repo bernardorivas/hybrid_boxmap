@@ -23,11 +23,9 @@ python demo/run_bouncing_ball.py
 pip install -e .
 
 # Install with all optional dependencies
-pip install -e ".[all]"  # Includes numba (JIT compilation), joblib (parallel processing), and pygraphviz (visualization)
+pip install -e ".[all]"  # Adds optional graph visualization
 
-# Or install specific optional dependencies
-pip install numba           # For JIT compilation and better performance
-pip install joblib          # For parallel box map computation
+# Or install the optional visualization dependency directly
 pip install pygraphviz      # For Morse graph visualization
 ```
 
@@ -42,7 +40,15 @@ python demo/run_unstableperiodic.py
 ```
 
 ### Testing
-The `tests/` directory is available for adding your own tests as needed.
+Run the automated suite with:
+
+```bash
+python -m pytest -q
+```
+
+Add maintained tests under `hybrid_dynamics/tests/`. The small top-level
+`test/` directory contains compatibility tests; executable research
+diagnostics belong under `experiments/`.
 
 ## Architecture Overview
 
@@ -91,7 +97,7 @@ class SystemName:
 ## Critical Implementation Patterns
 
 ### Version Information
-**Note**: Package version is 0.1.0 in pyproject.toml but 0.2.0 in __init__.py. Use __init__.py as authoritative.
+The package metadata and runtime API both report version 0.2.0.
 
 ### Parallel Processing Setup
 
@@ -223,10 +229,20 @@ box_map = HybridBoxMap.compute(
 - Creates a more conservative over-approximation of the reachable set
 - Falls back to per-point bloating if corners have different jump counts
 
+These are sample-derived rectangular image enclosures used for exploratory
+topological computation.  Sampling alone does not establish that they contain
+the image of every point in a source cell.
+
 **When to use:**
-- When you need guaranteed enclosures of the reachable set
-- For rigorous analysis where missing transitions is unacceptable
+- For exploratory conservative covers of sampled endpoints
+- As a prototype for the hybrid cell-image relation
 - When the dynamics preserve convexity locally (enclosure won't overshoot too much)
+
+In the paper, the outer-approximation property is a mathematical hypothesis on
+the resulting cell relation; setting `enclosure=True` does not prove that
+hypothesis. For the unit-handle suspension clock, use
+`sampled_suspension.py` and the base-plus-symbolic-phase state representation
+rather than the epsilon jump penalty.
 
 ### Key Computational Optimizations
 
@@ -253,18 +269,18 @@ from hybrid_dynamics import HybridSystem, Grid, HybridBoxMap
 
 ## File Modification Guidelines
 
-### DO NOT MODIFY
-- `hybrid_dynamics/src/hybrid_system.py`
-- `hybrid_dynamics/src/hybrid_time.py` 
-- `hybrid_dynamics/src/hybrid_trajectory.py`
-- Files in `hybrid_dynamics/examples/` directory
+### Core modules
+
+Changes to the simulation clock, reset handling, or concrete scientific
+examples must include focused regression tests because these modules define
+the computational semantics used by persisted results.
 
 ### Key Extension Points
 - Add new systems in `examples/` following existing patterns
 - Extend `src/evaluation.py` for new grid analysis functions
 - Add visualization methods to `HybridPlotter` in `src/plot_utils.py`
 - Add new graph algorithms to `src/morse_graph.py`
-- Create new test modules in `tests/` directory
+- Create new test modules in `hybrid_dynamics/tests/`
 
 ### Creating New Example Systems
 
@@ -370,7 +386,7 @@ Understanding this foundation is essential for effective use of the library.
 
 ### 3. Test Execution
 **Problem**: Tests not running properly
-**Solution**: Tests are executable modules - run directly with `python tests/test_*.py`
+**Solution**: Install the development environment and run `python -m pytest -q` from the repository root.
 
 ### 4. Import Errors
 **Problem**: `ModuleNotFoundError` for hybrid_dynamics modules

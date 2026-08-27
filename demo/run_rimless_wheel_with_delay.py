@@ -23,7 +23,7 @@ from hybrid_dynamics import (
     create_morse_graph,
     compute_roa,
     analyze_roa_coverage,
-    config
+    configure_logging,
 )
 from hybrid_dynamics.examples.rimless_wheel import RimlessWheel
 from hybrid_dynamics.src.plot_utils import (
@@ -42,8 +42,8 @@ def run_rimless_wheel_with_delay():
     # Suppress post-jump warnings
     warnings.filterwarnings('ignore', message='Post-jump state outside domain bounds')
     
-    # Enable verbose logging to see adaptive epsilon
-    config.logging.verbose = True
+    # Enable diagnostic logging to show the adaptive epsilon and batch stages.
+    configure_logging(level="DEBUG")
     
     print("=" * 80)
     print("RIMLESS WHEEL WITH JUMP TIME DELAY")

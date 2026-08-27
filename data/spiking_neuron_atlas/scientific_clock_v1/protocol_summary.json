@@ -1,0 +1,667 @@
+{
+  "acceptance_audited_stages": [
+    "tau2000_depth12_samples3",
+    "tau2000_depth14_samples3",
+    "tau4000_depth12_samples3",
+    "tau4000_depth14_samples3"
+  ],
+  "all_frozen_acceptance_audits_completed": true,
+  "all_frozen_relation_stages_completed": true,
+  "all_frozen_stages_completed": true,
+  "all_selected_acceptance_audits_completed": true,
+  "all_selected_relation_stages_completed": true,
+  "all_selected_stages_completed": true,
+  "analytic_conley_label_attached": false,
+  "completed_stages": [
+    "tau2000_depth12_samples3",
+    "tau2000_depth14_samples3",
+    "tau4000_depth12_samples3",
+    "tau4000_depth14_samples3"
+  ],
+  "every_stage_contains_complete_reference_cycle": true,
+  "every_stage_passed_local_gates": false,
+  "finite_relation_conley_index_computed": false,
+  "frozen_configuration": {
+    "depth16_excluded_before_scientific_results": true,
+    "depth16_exclusion_reason": "fixed cost preflight: 34,832 sources and 140,570 unique 3x3 endpoints, each requiring 20 or 40 units at max_step=0.02; depths 12/14 already provide a predeclared refinement check",
+    "stages": [
+      {
+        "max_jumps": 10,
+        "max_step": 0.02,
+        "padding_cells": 1.0,
+        "samples_per_axis": 3,
+        "t_star": 20.0,
+        "total_depth": 12
+      },
+      {
+        "max_jumps": 10,
+        "max_step": 0.02,
+        "padding_cells": 1.0,
+        "samples_per_axis": 3,
+        "t_star": 20.0,
+        "total_depth": 14
+      },
+      {
+        "max_jumps": 20,
+        "max_step": 0.02,
+        "padding_cells": 1.0,
+        "samples_per_axis": 3,
+        "t_star": 40.0,
+        "total_depth": 12
+      },
+      {
+        "max_jumps": 20,
+        "max_step": 0.02,
+        "padding_cells": 1.0,
+        "samples_per_axis": 3,
+        "t_star": 40.0,
+        "total_depth": 14
+      }
+    ]
+  },
+  "protocol_amendment": {
+    "near_identity_results_preserved": "../protocol_summary.json",
+    "reason": "the frozen t*=0.5 relation is a near-identity plumbing test; scientific clocks 20 and 40 were predeclared from the independent suspension period 148.8545 before their Morse counts were computed",
+    "stage_selection_depends_on_scc_count": false
+  },
+  "requested_stages": [
+    "tau2000_depth12_samples3",
+    "tau2000_depth14_samples3",
+    "tau4000_depth12_samples3",
+    "tau4000_depth14_samples3"
+  ],
+  "schema": "spiking-neuron-scientific-clock-protocol-v1",
+  "scientific_clock_persistence_passed": false,
+  "scientific_protocol_revision": "spiking-neuron-scientific-clock-v1",
+  "stages": {
+    "tau2000_depth12_samples3": {
+      "acceptance_audit_completed": true,
+      "active_cells": 2177,
+      "active_chart_counts": {
+        "0": 705,
+        "1": 1472
+      },
+      "all_morse_supports_quotient_connected": true,
+      "analytic_compact_domain_audit": {
+        "bottom_u_dot_min": 3.3,
+        "dwell_time_lower_bound": 1.5865608959402706,
+        "equilibrium_discriminant": -52.0,
+        "guard_v_dot_max": 53.575,
+        "guard_v_dot_min": 48.975,
+        "left_top_u_dot_max": -16.8,
+        "left_v_dot_min": 0.3,
+        "notch_v_dot_max": -0.9,
+        "passed": true,
+        "reset_u_lower_margin": 100.0,
+        "reset_u_upper_margin": 340.0,
+        "reset_v_margin": 10.0,
+        "right_top_u_dot_max": -6.0
+      },
+      "analytic_conley_label_attached": false,
+      "artifacts": {
+        "chart_aware_plot": "morse_support.png",
+        "relation_csr": "relation.csr",
+        "source_provenance": "provenance.jsonl.gz"
+      },
+      "axis_depth": 6,
+      "boxmap_revision": "spiking-neuron-l-domain-split-v1",
+      "connectivity_algorithm": "quadratic_geometry_with_exact_sparse_parity",
+      "diagnostic_source_provenance": {
+        "content_sha256": "8f3594d1e36007ad8ccf9f87596079c53251a0bfdb0ba454c51018d4e1dd580f",
+        "diagnostic_only": true,
+        "file_sha256": "4680b86aa4ea96069586436b7952609a84431965502384c88876974ef408eefe",
+        "path": "provenance.jsonl.gz",
+        "relation_csr_fingerprint": "a729bd7669f3cdd716e4783ddadc208533caa1c8f67c26cdb80f2cbb9d8b626e",
+        "schema": "spiking-neuron-source-provenance-reference-v1",
+        "source_records": 2177,
+        "trailer_fingerprint": "8cacac034424c2928c070b482d374a356a9828bb0a113c66a7d6d0cfb3917332"
+      },
+      "disconnected_images": 9,
+      "dwell_handle_jump_bound": {
+        "configured_limit_is_safe": true,
+        "configured_max_jumps": 10,
+        "formula": "ceil(t_star/(1+dwell_time_lower_bound))",
+        "required_upper_bound": 8
+      },
+      "elapsed_seconds": 5.739895584061742,
+      "empty_sources": 0,
+      "endpoint_cache_reuses": 10573,
+      "endpoint_precompute": {
+        "duplicate_tensor_points": 10573,
+        "elapsed_seconds": 35.502702167024836,
+        "fallback_reason": null,
+        "logical_tensor_points": 19593,
+        "mode": "process_pool",
+        "requested_workers": 8,
+        "scientific_postprocessing": "serial parent callback owns stratification, hulling, padding, L-domain split, and graph construction",
+        "unique_points": 9020,
+        "used_workers": 8
+      },
+      "endpoint_unique_evaluations": 9020,
+      "failed_sources": 0,
+      "family_fingerprint": "f32a327c6be8454a9051ec8d6c0e8fdba642ca82fde4904de69a4203f1bcb10e",
+      "finite_relation_conley_index_computed": false,
+      "formal_domain": "compact_L_shaped_N",
+      "guard": "v=35, -300<=u<=160, increasing crossings",
+      "jump_limit_failure_sources": 0,
+      "max_jumps": 10,
+      "max_step": 0.02,
+      "missing_sources": 0,
+      "model": "compact_quadratic_integrate_and_fire",
+      "morse_edges": [],
+      "morse_nodes": 1,
+      "morse_set_cell_counts": {
+        "0": {
+          "base": 179,
+          "handle": 384,
+          "quotient_connected": true,
+          "total": 563
+        }
+      },
+      "nonempty_images": 2177,
+      "numerically_rigorous_outer_approximation_claimed": false,
+      "open_sources": 0,
+      "padding_cells": 1.0,
+      "protocol_revision": "spiking-neuron-scientific-clock-v1",
+      "recurrent_problem_sources": 10,
+      "reference_cycle": {
+        "flight_time": 147.85450496954618,
+        "post_reset_u": 63.07833000947236,
+        "pre_reset_u": -36.92166999052761,
+        "suspension_period": 148.85450496954618,
+        "u_range": [
+          -36.92166999052761,
+          63.07833000947236
+        ],
+        "v_range": [
+          -56.108610623818926,
+          34.99999999999999
+        ]
+      },
+      "reference_endpoint_audit_passed": true,
+      "reference_endpoint_misses": 0,
+      "reference_endpoint_probes": 196,
+      "reference_node_hits": {
+        "0": 196
+      },
+      "reference_node_open_boundary_cells": 0,
+      "reference_nodes_containing_complete_cycle": [
+        0
+      ],
+      "reference_recurrent_problem_sources": 10,
+      "relation_csr": {
+        "configuration_sha256": "743e22b0ca4130b4352316fc96ef566590ae497cf5f3598b5ada093f59919500",
+        "edges": 53537,
+        "fingerprint": "a729bd7669f3cdd716e4783ddadc208533caa1c8f67c26cdb80f2cbb9d8b626e",
+        "path": "relation.csr",
+        "payload_bytes": 231572,
+        "schema": "spiking-neuron-mapgraph-csr-reference-v1",
+        "vertices": 2177
+      },
+      "relation_edges": 53537,
+      "relation_stage_completed": true,
+      "reset": "(35,u)->(-50,u+100)",
+      "samples_per_axis": 3,
+      "scc_count_used_as_acceptance_gate": false,
+      "schema": "spiking-neuron-atlas-acceptance-v1",
+      "scientific_protocol_revision": "spiking-neuron-scientific-clock-v1",
+      "sparse_incidence_parity": {
+        "axis_depth": 6,
+        "cells": 2177,
+        "compared_cell_rows": 2177,
+        "mismatched_rows": [],
+        "passed": true,
+        "schema": "spiking-neuron-sparse-incidence-parity-v1",
+        "sparse_undirected_edges": 8453
+      },
+      "stage_gates_passed": false,
+      "subdivisions_per_axis": 64,
+      "t_star": 20.0,
+      "total_depth": 12,
+      "unresolved_sources": 27,
+      "whole_cell_outer_enclosure_certified": false
+    },
+    "tau2000_depth14_samples3": {
+      "acceptance_audit_completed": true,
+      "active_cells": 8708,
+      "active_chart_counts": {
+        "0": 2820,
+        "1": 5888
+      },
+      "all_morse_supports_quotient_connected": true,
+      "analytic_compact_domain_audit": {
+        "bottom_u_dot_min": 3.3,
+        "dwell_time_lower_bound": 1.5865608959402706,
+        "equilibrium_discriminant": -52.0,
+        "guard_v_dot_max": 53.575,
+        "guard_v_dot_min": 48.975,
+        "left_top_u_dot_max": -16.8,
+        "left_v_dot_min": 0.3,
+        "notch_v_dot_max": -0.9,
+        "passed": true,
+        "reset_u_lower_margin": 100.0,
+        "reset_u_upper_margin": 340.0,
+        "reset_v_margin": 10.0,
+        "right_top_u_dot_max": -6.0
+      },
+      "analytic_conley_label_attached": false,
+      "artifacts": {
+        "chart_aware_plot": "morse_support.png",
+        "relation_csr": "relation.csr",
+        "source_provenance": "provenance.jsonl.gz"
+      },
+      "axis_depth": 7,
+      "boxmap_revision": "spiking-neuron-l-domain-split-v1",
+      "connectivity_algorithm": "exact_sparse_dyadic_plus_affine_seams",
+      "diagnostic_source_provenance": {
+        "content_sha256": "bf5bfd83b7a97a86fc4c810228ada18a047b1965ae82b256aa840d7c1f3bee7e",
+        "diagnostic_only": true,
+        "file_sha256": "d943d5a69d07785176c94874b85ccf486a2d473b28a66a523725e8aef5734cc4",
+        "path": "provenance.jsonl.gz",
+        "relation_csr_fingerprint": "c07e8fac9988cd5c774204c58d683846812ceab53c972be1a14de84881a38ed2",
+        "schema": "spiking-neuron-source-provenance-reference-v1",
+        "source_records": 8708,
+        "trailer_fingerprint": "dc66e272f8f46cd0dc9c9ef8c9a3ac26d7cbfed681e567a72230e2f362d65006"
+      },
+      "disconnected_images": 6,
+      "dwell_handle_jump_bound": {
+        "configured_limit_is_safe": true,
+        "configured_max_jumps": 10,
+        "formula": "ceil(t_star/(1+dwell_time_lower_bound))",
+        "required_upper_bound": 8
+      },
+      "elapsed_seconds": 8.198035500012338,
+      "empty_sources": 0,
+      "endpoint_cache_reuses": 42918,
+      "endpoint_precompute": {
+        "duplicate_tensor_points": 42918,
+        "elapsed_seconds": 130.6353284169454,
+        "fallback_reason": null,
+        "logical_tensor_points": 78372,
+        "mode": "process_pool",
+        "requested_workers": 8,
+        "scientific_postprocessing": "serial parent callback owns stratification, hulling, padding, L-domain split, and graph construction",
+        "unique_points": 35454,
+        "used_workers": 8
+      },
+      "endpoint_unique_evaluations": 35454,
+      "failed_sources": 0,
+      "family_fingerprint": "6c39876bad173f6a1e1584ffd267213573150d2586b1cd4a3dba513621bae4e6",
+      "finite_relation_conley_index_computed": false,
+      "formal_domain": "compact_L_shaped_N",
+      "guard": "v=35, -300<=u<=160, increasing crossings",
+      "jump_limit_failure_sources": 0,
+      "max_jumps": 10,
+      "max_step": 0.02,
+      "missing_sources": 0,
+      "model": "compact_quadratic_integrate_and_fire",
+      "morse_edges": [],
+      "morse_nodes": 1,
+      "morse_set_cell_counts": {
+        "0": {
+          "base": 378,
+          "handle": 896,
+          "quotient_connected": true,
+          "total": 1274
+        }
+      },
+      "nonempty_images": 8708,
+      "numerically_rigorous_outer_approximation_claimed": false,
+      "open_sources": 0,
+      "padding_cells": 1.0,
+      "protocol_revision": "spiking-neuron-scientific-clock-v1",
+      "recurrent_problem_sources": 8,
+      "reference_cycle": {
+        "flight_time": 147.85450496954618,
+        "post_reset_u": 63.07833000947236,
+        "pre_reset_u": -36.92166999052761,
+        "suspension_period": 148.85450496954618,
+        "u_range": [
+          -36.92166999052761,
+          63.07833000947236
+        ],
+        "v_range": [
+          -56.108610623818926,
+          34.99999999999999
+        ]
+      },
+      "reference_endpoint_audit_passed": true,
+      "reference_endpoint_misses": 0,
+      "reference_endpoint_probes": 196,
+      "reference_node_hits": {
+        "0": 196
+      },
+      "reference_node_open_boundary_cells": 0,
+      "reference_nodes_containing_complete_cycle": [
+        0
+      ],
+      "reference_recurrent_problem_sources": 8,
+      "relation_csr": {
+        "configuration_sha256": "a3cdfd2249342f3961e219f8a31dd8234156f46e2b9ffe6cc4443640d7fb7b07",
+        "edges": 226454,
+        "fingerprint": "c07e8fac9988cd5c774204c58d683846812ceab53c972be1a14de84881a38ed2",
+        "path": "relation.csr",
+        "payload_bytes": 975488,
+        "schema": "spiking-neuron-mapgraph-csr-reference-v1",
+        "vertices": 8708
+      },
+      "relation_edges": 226454,
+      "relation_stage_completed": true,
+      "reset": "(35,u)->(-50,u+100)",
+      "samples_per_axis": 3,
+      "scc_count_used_as_acceptance_gate": false,
+      "schema": "spiking-neuron-atlas-acceptance-v1",
+      "scientific_protocol_revision": "spiking-neuron-scientific-clock-v1",
+      "sparse_incidence_parity": {
+        "axis_depth": 7,
+        "cells": 8708,
+        "compared_cell_rows": 8708,
+        "mismatched_rows": [],
+        "passed": true,
+        "schema": "spiking-neuron-sparse-incidence-parity-v1",
+        "sparse_undirected_edges": 34319
+      },
+      "stage_gates_passed": false,
+      "subdivisions_per_axis": 128,
+      "t_star": 20.0,
+      "total_depth": 14,
+      "unresolved_sources": 31,
+      "whole_cell_outer_enclosure_certified": false
+    },
+    "tau4000_depth12_samples3": {
+      "acceptance_audit_completed": true,
+      "active_cells": 2177,
+      "active_chart_counts": {
+        "0": 705,
+        "1": 1472
+      },
+      "all_morse_supports_quotient_connected": true,
+      "analytic_compact_domain_audit": {
+        "bottom_u_dot_min": 3.3,
+        "dwell_time_lower_bound": 1.5865608959402706,
+        "equilibrium_discriminant": -52.0,
+        "guard_v_dot_max": 53.575,
+        "guard_v_dot_min": 48.975,
+        "left_top_u_dot_max": -16.8,
+        "left_v_dot_min": 0.3,
+        "notch_v_dot_max": -0.9,
+        "passed": true,
+        "reset_u_lower_margin": 100.0,
+        "reset_u_upper_margin": 340.0,
+        "reset_v_margin": 10.0,
+        "right_top_u_dot_max": -6.0
+      },
+      "analytic_conley_label_attached": false,
+      "artifacts": {
+        "chart_aware_plot": "morse_support.png",
+        "relation_csr": "relation.csr",
+        "source_provenance": "provenance.jsonl.gz"
+      },
+      "axis_depth": 6,
+      "boxmap_revision": "spiking-neuron-l-domain-split-v1",
+      "connectivity_algorithm": "exact_sparse_dyadic_plus_affine_seams",
+      "diagnostic_source_provenance": {
+        "content_sha256": "35f2830838a6f05ddb0a74d3987b468d564aafe0482b84469f84c7f685df0762",
+        "diagnostic_only": true,
+        "file_sha256": "a0ff4f1da8bc441710fd4c1ff3ca4be4069b46d9b4194fcf75a22142697e99d1",
+        "path": "provenance.jsonl.gz",
+        "relation_csr_fingerprint": "03d47198c32fa670cf55121b177b24f29d4825475c36d838b9c3ea0a0b3f9e2c",
+        "schema": "spiking-neuron-source-provenance-reference-v1",
+        "source_records": 2177,
+        "trailer_fingerprint": "5491492aacc3a256f4943c6cfbe4f8e80e70c714adcaea15776c1c3fb69ef32d"
+      },
+      "disconnected_images": 76,
+      "dwell_handle_jump_bound": {
+        "configured_limit_is_safe": true,
+        "configured_max_jumps": 20,
+        "formula": "ceil(t_star/(1+dwell_time_lower_bound))",
+        "required_upper_bound": 16
+      },
+      "elapsed_seconds": 3.0620297079440206,
+      "empty_sources": 0,
+      "endpoint_cache_reuses": 10573,
+      "endpoint_precompute": {
+        "duplicate_tensor_points": 10573,
+        "elapsed_seconds": 64.45308416697662,
+        "fallback_reason": null,
+        "logical_tensor_points": 19593,
+        "mode": "process_pool",
+        "requested_workers": 8,
+        "scientific_postprocessing": "serial parent callback owns stratification, hulling, padding, L-domain split, and graph construction",
+        "unique_points": 9020,
+        "used_workers": 8
+      },
+      "endpoint_unique_evaluations": 9020,
+      "failed_sources": 0,
+      "family_fingerprint": "f32a327c6be8454a9051ec8d6c0e8fdba642ca82fde4904de69a4203f1bcb10e",
+      "finite_relation_conley_index_computed": false,
+      "formal_domain": "compact_L_shaped_N",
+      "guard": "v=35, -300<=u<=160, increasing crossings",
+      "jump_limit_failure_sources": 0,
+      "max_jumps": 20,
+      "max_step": 0.02,
+      "missing_sources": 0,
+      "model": "compact_quadratic_integrate_and_fire",
+      "morse_edges": [],
+      "morse_nodes": 1,
+      "morse_set_cell_counts": {
+        "0": {
+          "base": 107,
+          "handle": 192,
+          "quotient_connected": true,
+          "total": 299
+        }
+      },
+      "nonempty_images": 2177,
+      "numerically_rigorous_outer_approximation_claimed": false,
+      "open_sources": 0,
+      "padding_cells": 1.0,
+      "protocol_revision": "spiking-neuron-scientific-clock-v1",
+      "recurrent_problem_sources": 10,
+      "reference_cycle": {
+        "flight_time": 147.85450496954618,
+        "post_reset_u": 63.07833000947236,
+        "pre_reset_u": -36.92166999052761,
+        "suspension_period": 148.85450496954618,
+        "u_range": [
+          -36.92166999052761,
+          63.07833000947236
+        ],
+        "v_range": [
+          -56.108610623818926,
+          34.99999999999999
+        ]
+      },
+      "reference_endpoint_audit_passed": false,
+      "reference_endpoint_misses": 5,
+      "reference_endpoint_probes": 196,
+      "reference_node_hits": {
+        "0": 196
+      },
+      "reference_node_open_boundary_cells": 0,
+      "reference_nodes_containing_complete_cycle": [
+        0
+      ],
+      "reference_recurrent_problem_sources": 10,
+      "relation_csr": {
+        "configuration_sha256": "5267de4994ae4994c9745a0cac37f55b178e5ecae0eea9e6b884d1cfec1dbd0c",
+        "edges": 54727,
+        "fingerprint": "03d47198c32fa670cf55121b177b24f29d4825475c36d838b9c3ea0a0b3f9e2c",
+        "path": "relation.csr",
+        "payload_bytes": 236332,
+        "schema": "spiking-neuron-mapgraph-csr-reference-v1",
+        "vertices": 2177
+      },
+      "relation_edges": 54727,
+      "relation_stage_completed": true,
+      "reset": "(35,u)->(-50,u+100)",
+      "samples_per_axis": 3,
+      "scc_count_used_as_acceptance_gate": false,
+      "schema": "spiking-neuron-atlas-acceptance-v1",
+      "scientific_protocol_revision": "spiking-neuron-scientific-clock-v1",
+      "sparse_incidence_parity": {
+        "axis_depth": 6,
+        "cells": 2177,
+        "compared_cell_rows": 2177,
+        "mismatched_rows": [],
+        "passed": true,
+        "schema": "spiking-neuron-sparse-incidence-parity-v1",
+        "sparse_undirected_edges": 8453
+      },
+      "stage_gates_passed": false,
+      "subdivisions_per_axis": 64,
+      "t_star": 40.0,
+      "total_depth": 12,
+      "unresolved_sources": 106,
+      "whole_cell_outer_enclosure_certified": false
+    },
+    "tau4000_depth14_samples3": {
+      "acceptance_audit_completed": true,
+      "active_cells": 8708,
+      "active_chart_counts": {
+        "0": 2820,
+        "1": 5888
+      },
+      "all_morse_supports_quotient_connected": true,
+      "analytic_compact_domain_audit": {
+        "bottom_u_dot_min": 3.3,
+        "dwell_time_lower_bound": 1.5865608959402706,
+        "equilibrium_discriminant": -52.0,
+        "guard_v_dot_max": 53.575,
+        "guard_v_dot_min": 48.975,
+        "left_top_u_dot_max": -16.8,
+        "left_v_dot_min": 0.3,
+        "notch_v_dot_max": -0.9,
+        "passed": true,
+        "reset_u_lower_margin": 100.0,
+        "reset_u_upper_margin": 340.0,
+        "reset_v_margin": 10.0,
+        "right_top_u_dot_max": -6.0
+      },
+      "analytic_conley_label_attached": false,
+      "artifacts": {
+        "chart_aware_plot": "morse_support.png",
+        "relation_csr": "relation.csr",
+        "source_provenance": "provenance.jsonl.gz"
+      },
+      "axis_depth": 7,
+      "boxmap_revision": "spiking-neuron-l-domain-split-v1",
+      "connectivity_algorithm": "exact_sparse_dyadic_plus_affine_seams",
+      "diagnostic_source_provenance": {
+        "content_sha256": "258628a63d1616cbab29459c9d528d29add634258659d449e1f89a913fd49f4a",
+        "diagnostic_only": true,
+        "file_sha256": "bed2618227bb34dc46155104aed94116eb043fc3d19572c0d7ef208e6cdd9636",
+        "path": "provenance.jsonl.gz",
+        "relation_csr_fingerprint": "d2c2b4429f548df5fd1176005d6829204235d8bd2684b49ecf2c1bf15a43dbac",
+        "schema": "spiking-neuron-source-provenance-reference-v1",
+        "source_records": 8708,
+        "trailer_fingerprint": "99914b0d568cd9ffa7cc9f1e2b014c9c9bc78ab3ff05b536535ab3f0ae1138f9"
+      },
+      "disconnected_images": 60,
+      "dwell_handle_jump_bound": {
+        "configured_limit_is_safe": true,
+        "configured_max_jumps": 20,
+        "formula": "ceil(t_star/(1+dwell_time_lower_bound))",
+        "required_upper_bound": 16
+      },
+      "elapsed_seconds": 8.270055999979377,
+      "empty_sources": 0,
+      "endpoint_cache_reuses": 42918,
+      "endpoint_precompute": {
+        "duplicate_tensor_points": 42918,
+        "elapsed_seconds": 270.8245045839576,
+        "fallback_reason": null,
+        "logical_tensor_points": 78372,
+        "mode": "process_pool",
+        "requested_workers": 8,
+        "scientific_postprocessing": "serial parent callback owns stratification, hulling, padding, L-domain split, and graph construction",
+        "unique_points": 35454,
+        "used_workers": 8
+      },
+      "endpoint_unique_evaluations": 35454,
+      "failed_sources": 0,
+      "family_fingerprint": "6c39876bad173f6a1e1584ffd267213573150d2586b1cd4a3dba513621bae4e6",
+      "finite_relation_conley_index_computed": false,
+      "formal_domain": "compact_L_shaped_N",
+      "guard": "v=35, -300<=u<=160, increasing crossings",
+      "jump_limit_failure_sources": 0,
+      "max_jumps": 20,
+      "max_step": 0.02,
+      "missing_sources": 0,
+      "model": "compact_quadratic_integrate_and_fire",
+      "morse_edges": [],
+      "morse_nodes": 1,
+      "morse_set_cell_counts": {
+        "0": {
+          "base": 310,
+          "handle": 640,
+          "quotient_connected": true,
+          "total": 950
+        }
+      },
+      "nonempty_images": 8708,
+      "numerically_rigorous_outer_approximation_claimed": false,
+      "open_sources": 0,
+      "padding_cells": 1.0,
+      "protocol_revision": "spiking-neuron-scientific-clock-v1",
+      "recurrent_problem_sources": 10,
+      "reference_cycle": {
+        "flight_time": 147.85450496954618,
+        "post_reset_u": 63.07833000947236,
+        "pre_reset_u": -36.92166999052761,
+        "suspension_period": 148.85450496954618,
+        "u_range": [
+          -36.92166999052761,
+          63.07833000947236
+        ],
+        "v_range": [
+          -56.108610623818926,
+          34.99999999999999
+        ]
+      },
+      "reference_endpoint_audit_passed": true,
+      "reference_endpoint_misses": 0,
+      "reference_endpoint_probes": 196,
+      "reference_node_hits": {
+        "0": 196
+      },
+      "reference_node_open_boundary_cells": 0,
+      "reference_nodes_containing_complete_cycle": [
+        0
+      ],
+      "reference_recurrent_problem_sources": 10,
+      "relation_csr": {
+        "configuration_sha256": "5d5f8fa76f55b5edf688a683044db9f1c51609aced315bed9710036b2beac9a3",
+        "edges": 268632,
+        "fingerprint": "d2c2b4429f548df5fd1176005d6829204235d8bd2684b49ecf2c1bf15a43dbac",
+        "path": "relation.csr",
+        "payload_bytes": 1144200,
+        "schema": "spiking-neuron-mapgraph-csr-reference-v1",
+        "vertices": 8708
+      },
+      "relation_edges": 268632,
+      "relation_stage_completed": true,
+      "reset": "(35,u)->(-50,u+100)",
+      "samples_per_axis": 3,
+      "scc_count_used_as_acceptance_gate": false,
+      "schema": "spiking-neuron-atlas-acceptance-v1",
+      "scientific_protocol_revision": "spiking-neuron-scientific-clock-v1",
+      "sparse_incidence_parity": {
+        "axis_depth": 7,
+        "cells": 8708,
+        "compared_cell_rows": 8708,
+        "mismatched_rows": [],
+        "passed": true,
+        "schema": "spiking-neuron-sparse-incidence-parity-v1",
+        "sparse_undirected_edges": 34319
+      },
+      "stage_gates_passed": false,
+      "subdivisions_per_axis": 128,
+      "t_star": 40.0,
+      "total_depth": 14,
+      "unresolved_sources": 93,
+      "whole_cell_outer_enclosure_certified": false
+    }
+  },
+  "whole_cell_outer_enclosure_certified": false
+}

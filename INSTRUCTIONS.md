@@ -42,6 +42,11 @@ When `enclosure=True` with `sampling_mode='corners'`:
 ### Jump Time Penalty
 When `jump_time_penalty=True`, each discrete jump consumes $\varepsilon$ time from the total horizon $\tau$. This prevents trajectories with many jumps from being flowed for an artificially long continuous time.
 
+This is a legacy simulation heuristic. It is **not** the unit-handle suspension
+clock `T = t + j` used by the hybrid-attractor theory. New fixed-time suspension
+computations should use `sampled_suspension.py` and retain a `PhaseCell` whenever
+the sampling horizon ends inside a reset handle.
+
 ### Boundary Bridging
 When `use_boundary_bridging=True` (default), boxes whose corners have mixed jump counts use a stratified enclosure that bridges the jump boundary more accurately.
 
@@ -55,6 +60,12 @@ Given the box map graph $G$:
 2. Filter to non-trivial SCCs (size > 1, or size 1 with self-loop) -- these are the Morse sets
 3. Build the condensation graph restricted to non-trivial SCCs
 4. Take the transitive reduction to get the Hasse diagram (partial order on Morse sets)
+
+The base-grid suspension algorithm retains handle phases as symbolic path or
+gadget descriptors.  It reconstructs the full SCC poset, including transient
+phase SCCs.  Collapsing those paths to a graph with only base vertices preserves
+only the base-intersecting recurrent/Morse structure, and only after the checks
+implemented by `assert_recurrent_morse_equivalence`.
 
 ## Regions of Attraction
 
@@ -77,6 +88,7 @@ hybrid_dynamics/
     box.py               # Box, SquareBox geometric primitives
     hybrid_boxmap.py     # HybridBoxMap: box map computation (sample-and-bloat)
     morse_graph.py       # create_morse_graph: SCC-based Morse decomposition
+    sampled_suspension.py # base-grid suspension clock and symbolic phase graph
     roa_utils.py         # compute_roa, analyze_roa_coverage
     multigrid.py         # MultiGrid, MultiGridBoxMap (multi-mode systems)
     cubifier.py          # DatasetCubifier: trajectory -> box representation
@@ -86,7 +98,7 @@ hybrid_dynamics/
     demo_utils.py        # Run directory management, caching
     data_utils.py        # GridEvaluationResult: save/load (.json, .npz)
     grid_utils.py        # Grid utility functions
-    print_utils.py       # Verbose printing
+    io_utils.py          # Atomic JSON output for scientific runners
     timing_utils.py      # Performance profiling
     trajectory_utils.py  # Trajectory helpers
   examples/

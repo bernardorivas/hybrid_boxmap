@@ -32,6 +32,7 @@ class HybridSystem:
         event_direction: int = -1,
         rtol: float = 1e-10,
         atol: float = 1e-12,
+        domain_predicate: Callable[[np.ndarray], bool] | None = None,
     ):
         """Initialize hybrid system.
 
@@ -41,14 +42,19 @@ class HybridSystem:
             reset_map: Discrete map r(x) -> x_new after event
             domain_bounds: Valid state space bounds [(x1_min, x1_max), ...]
             max_jumps: Maximum allowed discrete transitions
-            event_direction: Direction of event detection (-1: neg to pos, 0: both, 1: pos to neg)
+            event_direction: SciPy event-crossing direction
+                (-1: positive to negative, 0: both, 1: negative to positive).
             rtol: Relative tolerance for integration
             atol: Absolute tolerance for integration
+            domain_predicate: Optional additional membership test for a
+                nonrectangular state space.  When both domain descriptions are
+                supplied, a state must satisfy both.
         """
         self.ode = ode
         self.event_function = event_function
         self.reset_map = reset_map
         self.domain_bounds = domain_bounds
+        self.domain_predicate = domain_predicate
         self.max_jumps = max_jumps
         self.rtol = rtol
         self.atol = atol
@@ -67,17 +73,26 @@ class HybridSystem:
             self.event_function.direction = self.event_direction
 
     def _check_domain_bounds(self, state: np.ndarray) -> bool:
-        """Check if state is within domain bounds."""
-        if self.domain_bounds is None:
-            return True
+        """Check rectangular bounds and any additional domain predicate."""
+        point = np.asarray(state, dtype=float)
+        if point.ndim != 1 or not np.all(np.isfinite(point)):
+            return False
 
-        if len(state) != len(self.domain_bounds):
-            raise ValueError("State dimension must match domain bounds dimension")
+        if self.domain_bounds is not None:
+            if len(point) != len(self.domain_bounds):
+                raise ValueError("State dimension must match domain bounds dimension")
 
-        return all(
-            lower <= state[i] <= upper
-            for i, (lower, upper) in enumerate(self.domain_bounds)
-        )
+            if not all(
+                lower <= point[i] <= upper
+                for i, (lower, upper) in enumerate(self.domain_bounds)
+            ):
+                return False
+        if self.domain_predicate is not None:
+            try:
+                return bool(self.domain_predicate(point))
+            except (TypeError, ValueError, FloatingPointError):
+                return False
+        return True
 
     def simulate(
         self,

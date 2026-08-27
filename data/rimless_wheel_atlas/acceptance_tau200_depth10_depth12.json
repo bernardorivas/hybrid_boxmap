@@ -1,0 +1,101 @@
+{
+  "model": "rimless_wheel_fixed_time_suspension_atlas",
+  "computed_at": "2026-08-22",
+  "shared_configuration": {
+    "t_star": 2.0,
+    "base_chart": {
+      "coordinates": ["theta", "omega"],
+      "bounds": [[-0.2, 0.6], [-0.5, 1.0]]
+    },
+    "handle_chart": {
+      "coordinates": ["omega_guard", "s"],
+      "bounds": [[0.0, 1.0], [0.0, 1.0]]
+    },
+    "source_samples_per_axis": 3,
+    "padding_cells": 1.0,
+    "require_domain_path": true,
+    "max_step": 0.02
+  },
+  "runs": [
+    {
+      "atlas_depth": 10,
+      "subdivisions_per_axis_per_chart": 32,
+      "map_cells": 2048,
+      "morse_graph": {
+        "nodes": 8,
+        "edges": [[1, 0], [2, 1], [3, 0], [4, 3], [5, 4], [6, 5], [7, 6]],
+        "gait_node": 0,
+        "saddle_node": 2,
+        "saddle_to_gait_path": [2, 1, 0],
+        "saddle_to_gait_direct": false,
+        "morse_set_cell_counts": {
+          "0": {"base": 289, "handle": 326, "total": 615},
+          "1": {"base": 3, "handle": 3, "total": 6},
+          "2": {"base": 161, "handle": 21, "total": 182},
+          "3": {"base": 1, "handle": 0, "total": 1},
+          "4": {"base": 1, "handle": 0, "total": 1},
+          "5": {"base": 1, "handle": 0, "total": 1},
+          "6": {"base": 1, "handle": 0, "total": 1},
+          "7": {"base": 1, "handle": 0, "total": 1}
+        }
+      },
+      "acceptance_gates": {
+        "relation_scope": "nonempty local-window relation",
+        "walking_reference_endpoint_probes": 243,
+        "walking_reference_endpoint_misses": 0,
+        "walking_reference_evaluation_failures": 0,
+        "nonempty_source_images": 1647,
+        "disconnected_source_images_in_quotient": 0,
+        "empty_source_images": 401,
+        "callback_tensor_point_evaluations_across_two_cmgdb_passes": 36864,
+        "failed_callback_tensor_point_evaluations_across_two_cmgdb_passes": 8314,
+        "unresolved_sample_stage_edges": 0,
+        "walking_base_support_connected": true,
+        "walking_base_component_sizes": [289],
+        "empty_sources_excluded_from_connectivity_audit": true
+      },
+      "elapsed_seconds": 85.50276565551758
+    },
+    {
+      "atlas_depth": 12,
+      "subdivisions_per_axis_per_chart": 64,
+      "map_cells": 8192,
+      "morse_graph": {
+        "nodes": 2,
+        "edges": [[1, 0]],
+        "gait_node": 0,
+        "saddle_node": 1,
+        "saddle_to_gait_path": [1, 0],
+        "saddle_to_gait_direct": true,
+        "morse_set_cell_counts": {
+          "0": {"base": 548, "handle": 626, "total": 1174},
+          "1": {"base": 34, "handle": 0, "total": 34}
+        }
+      },
+      "acceptance_gates": {
+        "relation_scope": "nonempty local-window relation",
+        "walking_reference_endpoint_probes": 363,
+        "walking_reference_endpoint_misses": 0,
+        "walking_reference_evaluation_failures": 0,
+        "nonempty_source_images": 6463,
+        "disconnected_source_images_in_quotient": 0,
+        "empty_source_images": 1729,
+        "callback_tensor_point_evaluations_across_two_cmgdb_passes": 147456,
+        "failed_callback_tensor_point_evaluations_across_two_cmgdb_passes": 33290,
+        "unresolved_sample_stage_edges": 0,
+        "walking_base_support_connected": true,
+        "walking_base_component_sizes": [548],
+        "empty_sources_excluded_from_connectivity_audit": true
+      },
+      "elapsed_seconds": 341.02773690223694
+    }
+  ],
+  "scope": {
+    "relation_scope": "local-window computation on the nonempty recorded relation",
+    "whole_cell_outer_enclosure_certified": false,
+    "conley_index_computed": false,
+    "global_attractor_lattice_interpretation": false,
+    "global_interpretation_requires": "Either a forward-complete compactification/cemetery that records exits or a larger compact forward-invariant X with a valid outer relation on every source cell.",
+    "note": "Finite event-stratified samples and quotient-connectivity checks are falsification gates, not a proof of the whole-cell outer-relation hypothesis. Empty images are excluded from the connected-image count. Aggregate callback failures are distinct from the zero reference-gait evaluation failures."
+  }
+}

@@ -1,0 +1,175 @@
+{
+  "candidates": [
+    {
+      "analytic_conley_label_attached": false,
+      "candidate": "bouncing-ball-M0",
+      "carrier_certificate": {
+        "all_carrier_values_acyclic": true,
+        "carrier_value_cell_count_max": 1333,
+        "carrier_value_cell_count_min": 39,
+        "carrier_values_checked": 6260,
+        "chain_equation_dF_equals_Fd": true,
+        "chain_equation_failure_witnesses": [],
+        "coefficient_field": "GF(5)",
+        "construction": "actual Atlas MapGraph vertex union with connected P0-component extension",
+        "face_nesting_validated": true,
+        "nonzero_chain_entries_by_dimension": [
+          674,
+          3606,
+          1989,
+          18
+        ],
+        "selected_chain_map_subordinate": true
+      },
+      "cellular_pair": {
+        "P0_cells_by_dimension": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "P0_subset_P1": true,
+        "P1_cells_by_dimension": [
+          674,
+          2527,
+          2456,
+          603
+        ],
+        "carrier_preserves_pair": true,
+        "relative_basis_by_dimension": [
+          674,
+          2527,
+          2456,
+          603
+        ],
+        "selected_chain_map_preserves_P0": true,
+        "selected_chain_map_preserves_P1": true
+      },
+      "continuous_system_blockers": [
+        "whole_cell_outer_enclosure_not_certified",
+        "no_external_continuous_index_pair_theorem"
+      ],
+      "continuous_system_conley_index_certified": false,
+      "depth": 10,
+      "elapsed_seconds": 19.59081983298529,
+      "external_continuous_index_pair_theorem_available": false,
+      "finite_relation_blockers": [],
+      "finite_relation_conley_index": {
+        "cell_counts": [
+          674,
+          2527,
+          2456,
+          603
+        ],
+        "coefficient_field": 5,
+        "continuous_system_conley_index_certified": false,
+        "finite_relation_algebra_validated": true,
+        "homology_dimensions": [
+          1,
+          1,
+          0,
+          0
+        ],
+        "induced_maps": [
+          [
+            [
+              1
+            ]
+          ],
+          [
+            [
+              1
+            ]
+          ],
+          [],
+          []
+        ],
+        "result_scope": "finite_reset_quotient_relation",
+        "shift_class": [
+          "x-1",
+          "x-1",
+          "0",
+          "0"
+        ],
+        "validation": {
+          "boundary_squared_zero": true,
+          "chain_map_equation": true,
+          "matrix_shapes_and_entries": true
+        }
+      },
+      "finite_relation_shift_class": [
+        "x-1",
+        "x-1",
+        "0",
+        "0"
+      ],
+      "model": "bouncing-ball",
+      "quotient_nerve": {
+        "analytic_orbit_skeleton_used": false,
+        "boundary_squared_zero_validated": true,
+        "cells_by_dimension": [
+          674,
+          2527,
+          2456,
+          603
+        ],
+        "finite_intersections_verified_contractible": true,
+        "kind": "actual Atlas rectangles in reset quotient",
+        "vertices_are_actual_atlas_boxes": true
+      },
+      "relation_cache": "data/physical_conley/ball_tau150_depth10_relation.json.gz",
+      "relation_provenance": {
+        "X_sources_evaluated": 674,
+        "X_sources_total": 674,
+        "callback_failure_certificates": [],
+        "callback_failure_reason_counts": {},
+        "failed_samples_in_X": 0,
+        "failed_sources_in_A": [],
+        "failed_sources_in_S": [],
+        "failed_sources_in_X": [],
+        "original_exit_edges_retained": true,
+        "scope": "full_atlas",
+        "unresolved_event_stage_edges": 0
+      },
+      "t_star": 1.5,
+      "top_cell_pair": {
+        "a_targets_outside_x": [],
+        "a_top_cells": 0,
+        "closures_taken_at_this_stage": false,
+        "combinatorial_isolation_passed": true,
+        "construction": "X=S_union_F(S), A=F(S)_minus_S",
+        "empty_s_sources": [],
+        "f_s_top_cells": 674,
+        "first_condition": "F(X\\A) subset X",
+        "first_condition_violations": [],
+        "morse_node": 0,
+        "pair_invariance_passed": true,
+        "recurrent_component_sizes_in_x": [
+          674
+        ],
+        "recurrent_components_not_s_or_a": [],
+        "s_is_strongly_connected": true,
+        "s_top_cells": 674,
+        "second_condition": "F(A) intersection X subset A",
+        "second_condition_violations": [],
+        "unevaluated_S_sources": [],
+        "unevaluated_X_sources": [],
+        "x_top_cells": 674
+      },
+      "whole_cell_outer_enclosure_certified": false
+    }
+  ],
+  "certified_continuous_system_indices": 0,
+  "computed_at": "2026-08-22",
+  "computed_finite_relation_indices": 1,
+  "method": {
+    "analytic_labels_used": false,
+    "carrier": "face-nested acyclic carrier from actual MapGraph over GF(5)",
+    "cellular_pair": "induced reset-quotient nerve pair P1=N(X), P0=N(A)",
+    "continuous_policy": "report separately; never infer from finite relation",
+    "finite_relation_policy": "compute only after finite pair/carrier/chain gates",
+    "top_pair": "CMGDB X=S union F(S), A=F(S) minus S"
+  },
+  "schema": "physical-conley-finite-relation-audit-v2",
+  "withheld_finite_relation_indices": 0
+}

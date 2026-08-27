@@ -148,9 +148,11 @@ dmypy.json
 ehthumbs.db
 Thumbs.db
 
-# Project specific
-temp/
-tmp/*.pkl
+# Project-specific scratch space
+/temp/
+/tmp/
+/output/
+/logs/
 
 # Ignore large pickle files
 *.pkl
@@ -159,3 +161,13 @@ tmp/*.pkl
 # Uncomment the next lines if you want to ignore all generated data/figures:
 # data/
 # figures/
+
+# Large regenerable finite-relation checkpoints. Compact acceptance summaries,
+# review provenance, and fixtures under data/ remain eligible for versioning.
+/data/garcia_passive_walker_atlas/local_relation_tau050_depth16.json.gz
+/data/garcia_passive_walker_atlas/local_saturation_tau050.json
+/data/garcia_passive_walker_atlas/raw_relation_checkpoint_*.jsonl.gz
+/data/garcia_passive_walker_atlas/tube_relation_bundle_*/
+/data/garcia_passive_walker_atlas/tube_strict_source_restriction_*.json
+/data/garcia_passive_walker_guard_aligned/relation_audit_*.json
+/data/garcia_passive_walker_guard_aligned/relation_bundle_*/

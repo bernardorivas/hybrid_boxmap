@@ -1,0 +1,78 @@
+{
+  "configuration": {
+    "base_chart": {
+      "bounds": [
+        [-0.32, 0.32],
+        [-0.35, 0.05],
+        [-0.65, 0.65],
+        [-0.55, 0.15]
+      ],
+      "coordinates": ["theta", "theta_dot", "phi", "phi_dot"]
+    },
+    "depth": 4,
+    "handle_chart": {
+      "bounds": [
+        [-0.32, -0.05],
+        [-0.35, 0.024],
+        [0.0, 1.0],
+        [0.0, 1.0]
+      ],
+      "coordinates": ["theta_guard", "theta_dot_guard", "rho", "s"]
+    },
+    "padding_cells": 1.0,
+    "reference_base_samples_per_stride": 17,
+    "reference_handle_samples": 9,
+    "reference_max_step": 0.005,
+    "require_domain_path": true,
+    "samples_per_axis": 3,
+    "tau": 0.5
+  },
+  "model": "garcia_passive_walker_fixed_time_suspension_atlas",
+  "result": {
+    "active_subgrid_api_available": true,
+    "active_subgrid_used": false,
+    "box_map_empty_images_across_cmgdb_passes": 0,
+    "box_map_failed_samples": 1416,
+    "box_map_sampled_points_across_cmgdb_passes": 5184,
+    "box_map_source_boxes_across_cmgdb_passes": 64,
+    "box_map_unresolved_stage_edges": 0,
+    "callback_records_with_failures": 44,
+    "callback_records_with_only_failures": 0,
+    "conley_index_computed": false,
+    "depth": 4,
+    "disconnected_images": 0,
+    "domain_exit_sample_failures": 1416,
+    "empty_images": 0,
+    "empty_sources_excluded_from_connectivity_audit": true,
+    "failure_reasons": {
+      "ValueError: trajectory leaves the declared state-space bounds": 1416
+    },
+    "gait_reference_node_hits": {
+      "0": 8
+    },
+    "global_attractor_lattice_interpretation": false,
+    "map_cells": 32,
+    "morse_edges": [],
+    "morse_nodes": 1,
+    "nonempty_images": 32,
+    "other_sample_failures": 0,
+    "plumbing_gates_passed": true,
+    "reference_covered": true,
+    "reference_evaluation_failures": 0,
+    "reference_misses": 0,
+    "reference_probes": 54,
+    "relation_scope": "full rectangular charts with explicit partial-image failures",
+    "retained_callback_records": 64,
+    "run_role": "coarse fixed-depth plumbing acceptance",
+    "sampled_self_map_complete": false,
+    "scientific_morse_recovery_claimed": false,
+    "subdivisions_per_axis": 2,
+    "t_star": 0.5,
+    "target_chart_sample_failures": 0,
+    "whole_cell_outer_enclosure_certified": false
+  },
+  "scope": {
+    "note": "Coarse full-chart plumbing only. Passing finite endpoint, quotient-connectivity, and stage checks does not certify a whole-cell outer relation. Domain-path failures make the sampled self-map incomplete.",
+    "scientific_morse_recovery_claimed": false
+  }
+}
