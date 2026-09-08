@@ -195,7 +195,11 @@ def test_certificate_backed_finite_relation_labels_are_scoped_and_plotted(tmp_pa
     audit_path.write_text(json.dumps(_finite_relation_audit()), encoding="utf-8")
 
     annotations = load_atlas_finite_relation_index_annotations(audit_path, data)
-    plot = PlotHybridMorseSets(data, finite_relation_annotations=annotations)
+    plot = PlotHybridMorseSets(
+        data,
+        finite_relation_annotations=annotations,
+        show_status_note=True,
+    )
     try:
         assert annotations.shift_classes[0] == ("x-1", "x-1", "0")
         assert annotations.continuous_system_conley_index_certified is False

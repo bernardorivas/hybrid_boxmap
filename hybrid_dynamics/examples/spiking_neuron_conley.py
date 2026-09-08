@@ -27,6 +27,12 @@ from typing import Any, Mapping
 
 import numpy as np
 
+from ..src.atlas_morse_plot import (
+    PHYSICAL_CONLEY_FINITE_RELATION_AUDIT_SCHEMA,
+    AtlasMorseBox,
+    AtlasMorseNode,
+    AtlasMorsePlotData,
+)
 from ..src.suspension_complex import CMGDBRelativeHomologyPayload
 from .physical_conley import (
     AtlasNerveFiniteRelationAudit,
@@ -836,3 +842,139 @@ __all__ = [
     "validate_spiking_neuron_conley_summary",
     "write_spiking_neuron_conley_checkpoint",
 ]
+
+
+def spiking_neuron_atlas_morse_plot_data(
+    conley_input: SpikingNeuronConleyInput,
+) -> AtlasMorsePlotData:
+    """Project the authenticated neuron relation onto the shared Atlas plot data.
+
+    The boxes are the exact tagged top cells of the accepted stage, grouped by
+    the CMGDB Morse node recorded in the authenticated source provenance.  The
+    chart bounds are the seam-aligned ambient neuron charts, so the result can
+    be drawn by the same plotter as the bouncing-ball and rimless-wheel
+    diagnostics.  Node and chart-box counts are cross-checked against the stage
+    summary before the data is returned.
+    """
+
+    snapshot = conley_input.snapshot
+    summary = conley_input.stage_summary
+    charts = spiking_neuron_atlas_charts()
+    base_bounds = tuple(
+        (float(lower), float(upper)) for lower, upper in charts.base_bounds
+    )
+    handle_bounds = tuple(
+        (float(lower), float(upper)) for lower, upper in charts.guard_bounds
+    ) + ((0.0, 1.0),)
+    dimensions = {
+        int(charts.base_chart_id): len(base_bounds),
+        int(charts.handle_chart_id): len(handle_bounds),
+    }
+    grouped: dict[int, list[AtlasMorseBox]] = {
+        int(node): [] for node in snapshot.morse_nodes
+    }
+    for cell in snapshot.cells:
+        if cell.morse_node is None:
+            continue
+        if len(cell.bounds) != 2 * dimensions[int(cell.chart_id)]:
+            raise ValueError(f"source {cell.index} has a malformed chart box")
+        grouped[int(cell.morse_node)].append(
+            AtlasMorseBox(chart_id=int(cell.chart_id), bounds=tuple(cell.bounds))
+        )
+    expected_counts = summary["morse_set_cell_counts"]
+    nodes = []
+    for node, boxes in sorted(grouped.items()):
+        boxes.sort()
+        actual = {
+            "base": sum(box.chart_id == charts.base_chart_id for box in boxes),
+            "handle": sum(box.chart_id == charts.handle_chart_id for box in boxes),
+            "total": len(boxes),
+        }
+        recorded = {
+            key: int(expected_counts[str(node)][key]) for key in actual
+        }
+        if actual != recorded:
+            raise ValueError(
+                f"Morse node {node} chart-box counts {actual!r} differ from the "
+                f"stage summary {recorded!r}"
+            )
+        nodes.append(AtlasMorseNode(index=int(node), boxes=tuple(boxes)))
+    return AtlasMorsePlotData(
+        base_chart_id=int(charts.base_chart_id),
+        handle_chart_id=int(charts.handle_chart_id),
+        base_bounds=base_bounds,
+        handle_bounds=handle_bounds,
+        nodes=tuple(nodes),
+        edges=tuple(snapshot.morse_edges),
+        metadata={
+            "model": snapshot.model,
+            "depth": snapshot.depth,
+            "t_star": snapshot.t_star,
+            "relation_scope": snapshot.relation_scope,
+            "source_samples_per_axis": int(summary["samples_per_axis"]),
+            "padding_cells": float(summary["padding_cells"]),
+            "whole_cell_outer_enclosure_certified": False,
+            "global_attractor_lattice_interpretation": False,
+            "finite_relation_index_annotations_stored_separately": True,
+            "continuous_system_conley_index_certified": False,
+            "relation_csr_fingerprint": conley_input.relation_reference["fingerprint"],
+            "protocol_revision": summary.get("protocol_revision"),
+        },
+    )
+
+
+def spiking_neuron_finite_relation_index_audit(
+    conley_summary_path: str | Path,
+) -> dict[str, object]:
+    """Wrap a validated neuron Conley summary as a physical finite-relation audit.
+
+    The neuron summary already carries the candidate-shaped certificate objects
+    (top-cell pair, provenance, quotient nerve, cellular pair, carrier, CMGDB
+    payload) used by the bouncing-ball and rimless-wheel audits.  This adapter
+    only changes the envelope, so the shared annotation loader applies exactly
+    the same finite-topology and finite-algebra gates before a shift class may
+    label a Morse node.
+    """
+
+    path = Path(conley_summary_path)
+    validate_spiking_neuron_conley_summary(path)
+    summary = json.loads(path.read_text(encoding="utf-8"))
+    if not summary.get("finite_relation_conley_index_computed"):
+        raise ValueError("the neuron Conley summary reports no computed finite index")
+    if summary.get("continuous_system_conley_index_certified") is not False:
+        raise ValueError("the neuron Conley summary overstates continuous certification")
+    candidate = {
+        key: summary[key]
+        for key in (
+            "analytic_conley_label_attached",
+            "candidate",
+            "carrier_certificate",
+            "cellular_pair",
+            "continuous_system_blockers",
+            "continuous_system_conley_index_certified",
+            "depth",
+            "external_continuous_index_pair_theorem_available",
+            "finite_relation_blockers",
+            "finite_relation_conley_index",
+            "finite_relation_shift_class",
+            "model",
+            "quotient_nerve",
+            "relation_provenance",
+            "t_star",
+            "top_cell_pair",
+            "whole_cell_outer_enclosure_certified",
+        )
+    }
+    return {
+        "schema": PHYSICAL_CONLEY_FINITE_RELATION_AUDIT_SCHEMA,
+        "method": (
+            "finite reset-quotient relation index of the accepted spiking-neuron "
+            "stage, re-enveloped from its fingerprinted Conley summary"
+        ),
+        "source_conley_summary": str(path),
+        "source_conley_fingerprint": summary["fingerprint"],
+        "candidates": [candidate],
+        "computed_finite_relation_indices": 1,
+        "withheld_finite_relation_indices": 0,
+        "certified_continuous_system_indices": 0,
+    }

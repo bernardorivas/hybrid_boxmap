@@ -1,0 +1,206 @@
+{
+  "candidates": [
+    {
+      "analytic_conley_label_attached": false,
+      "candidate": "t20_reference_recurrent_component",
+      "carrier_certificate": {
+        "all_carrier_values_acyclic": true,
+        "carrier_value_cell_count_max": 3859,
+        "carrier_value_cell_count_min": 15,
+        "carrier_values_checked": 9866,
+        "chain_equation_dF_equals_Fd": true,
+        "chain_equation_failure_witnesses": [],
+        "coefficient_field": "GF(5)",
+        "construction": "actual Atlas MapGraph vertex union with connected P0-component extension",
+        "face_nesting_validated": true,
+        "nonzero_chain_entries_by_dimension": [
+          1113,
+          8576,
+          2696,
+          21,
+          0,
+          0
+        ],
+        "selected_chain_map_subordinate": true
+      },
+      "cellular_pair": {
+        "P0_cells_by_dimension": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "P0_subset_P1": true,
+        "P1_cells_by_dimension": [
+          1113,
+          3934,
+          3789,
+          994,
+          31,
+          5
+        ],
+        "carrier_preserves_pair": true,
+        "relative_basis_by_dimension": [
+          1113,
+          3934,
+          3789,
+          994,
+          31,
+          5
+        ],
+        "selected_chain_map_preserves_P0": true,
+        "selected_chain_map_preserves_P1": true
+      },
+      "continuous_system_blockers": [
+        "no_external_continuous_index_pair_theorem",
+        "sampled_box_map_not_a_rigorous_outer_enclosure",
+        "terminal_single_handle_carrier_is_an_explicit_modeling_assumption",
+        "whole_cell_outer_enclosure_not_certified"
+      ],
+      "continuous_system_conley_index_certified": false,
+      "depth": 16,
+      "external_continuous_index_pair_theorem_available": false,
+      "finite_relation_blockers": [],
+      "finite_relation_conley_index": {
+        "cell_counts": [
+          1113,
+          3934,
+          3789,
+          994,
+          31,
+          5
+        ],
+        "coefficient_field": 5,
+        "continuous_system_conley_index_certified": false,
+        "finite_relation_algebra_validated": true,
+        "homology_dimensions": [
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ],
+        "induced_maps": [
+          [
+            [
+              1
+            ]
+          ],
+          [
+            [
+              1
+            ]
+          ],
+          [],
+          [],
+          [],
+          []
+        ],
+        "result_scope": "finite_reset_quotient_relation",
+        "shift_class": [
+          "x-1",
+          "x-1",
+          "0",
+          "0",
+          "0",
+          "0"
+        ],
+        "validation": {
+          "boundary_squared_zero": true,
+          "chain_map_equation": true,
+          "matrix_shapes_and_entries": true
+        }
+      },
+      "finite_relation_shift_class": [
+        "x-1",
+        "x-1",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "model": "compact_quadratic_integrate_and_fire",
+      "quotient_nerve": {
+        "analytic_orbit_skeleton_used": false,
+        "boundary_squared_zero_validated": true,
+        "cells_by_dimension": [
+          1113,
+          3934,
+          3789,
+          994,
+          31,
+          5
+        ],
+        "finite_intersections_verified_contractible": true,
+        "interior_seam_subcomplex_audits": {
+          "reset": {
+            "all_incident_top_cofaces_present": true,
+            "base_face_cells": 32,
+            "complete_handle_face_attachment_cover": true,
+            "fixed_axis": 0,
+            "fixed_value": -50.0,
+            "handle_face_cells": 6,
+            "negative_side_base_cells": 14,
+            "no_base_top_cell_straddles": true,
+            "positive_side_base_cells": 18
+          }
+        },
+        "interior_seam_subcomplexes": [
+          "reset"
+        ],
+        "kind": "actual Atlas rectangles in reset quotient",
+        "maximum_dimension": 5,
+        "vertices_are_actual_atlas_boxes": true
+      },
+      "relation_provenance": {
+        "X_sources_evaluated": 1113,
+        "X_sources_total": 1113,
+        "callback_failure_certificates": [],
+        "callback_failure_reason_counts": {},
+        "failed_samples_in_X": 0,
+        "failed_sources_in_A": [],
+        "failed_sources_in_S": [],
+        "failed_sources_in_X": [],
+        "original_exit_edges_retained": true,
+        "scope": "full_atlas",
+        "unresolved_event_stage_edges": 0
+      },
+      "t_star": 20.0,
+      "top_cell_pair": {
+        "a_targets_outside_x": [],
+        "a_top_cells": 0,
+        "closures_taken_at_this_stage": false,
+        "combinatorial_isolation_passed": true,
+        "construction": "X=S_union_F(S), A=F(S)_minus_S",
+        "empty_s_sources": [],
+        "f_s_top_cells": 1113,
+        "first_condition": "F(X\\A) subset X",
+        "first_condition_violations": [],
+        "morse_node": 0,
+        "pair_invariance_passed": true,
+        "recurrent_component_sizes_in_x": [
+          1113
+        ],
+        "recurrent_components_not_s_or_a": [],
+        "s_is_strongly_connected": true,
+        "s_top_cells": 1113,
+        "second_condition": "F(A) intersection X subset A",
+        "second_condition_violations": [],
+        "unevaluated_S_sources": [],
+        "unevaluated_X_sources": [],
+        "x_top_cells": 1113
+      },
+      "whole_cell_outer_enclosure_certified": false
+    }
+  ],
+  "certified_continuous_system_indices": 0,
+  "computed_finite_relation_indices": 1,
+  "method": "finite reset-quotient relation index of the accepted spiking-neuron stage, re-enveloped from its fingerprinted Conley summary",
+  "schema": "physical-conley-finite-relation-audit-v2",
+  "source_conley_fingerprint": "2fc5d7869b41c7fb1afcc8c0b1074ec0d94a0486261744cb5f5e366ef69b74fb",
+  "source_conley_summary": "data/spiking_neuron_atlas/scientific_clock_v1/adaptive_terminal_bridge_v1/t20/conley_v2/finite_relation_conley.json",
+  "withheld_finite_relation_indices": 0
+}

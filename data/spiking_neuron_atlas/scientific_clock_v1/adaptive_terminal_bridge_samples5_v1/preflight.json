@@ -39,7 +39,7 @@
     }
   },
   "family_selected_before_sensitivity_results": true,
-  "fingerprint": "f22fc029302b49ec34313912b27503ffd33b0e7c92a9555d1c8ab90201cd5d36",
+  "fingerprint": "bbbd20468b30dd7d9d382dcfa70af468fc66f95eed5c7535b7647d3b4a94835b",
   "fixed_caps": {
     "max_csr_payload_bytes": 1073741824,
     "max_horizon_over_step_units": 200000000,
@@ -49,12 +49,12 @@
   },
   "frozen_inputs": {
     "active_cells": 9074,
-    "adaptive_preflight_fingerprint": "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c",
+    "adaptive_preflight_fingerprint": "4554dbbd8d31fa45df16e85486f508c03cc9ed0a87413635f3bb1b4506faabe1",
     "adaptive_preflight_path": "../adaptive_preflight_v1/t20/preflight.json",
     "family_fingerprint": "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706",
-    "primary_samples3_conley_fingerprint": "07f5dd2a26d265c4f11c22d2f9f52ef00231199efe52eb06ac84cd9596b5c02d",
-    "primary_samples3_reference_support_fingerprint": "e16441d9b262fd75f153a12fb1f6570fd1d6a589a7ef85dcd7170cf7f7e153a5",
-    "primary_samples3_relation_fingerprint": "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5",
+    "primary_samples3_conley_fingerprint": "2fc5d7869b41c7fb1afcc8c0b1074ec0d94a0486261744cb5f5e366ef69b74fb",
+    "primary_samples3_reference_support_fingerprint": "b6895ecc49a6b37b1eed76062efb5c66e83a1c791ccd644b06b4489f0ad8f275",
+    "primary_samples3_relation_fingerprint": "6a00731ee973c00cb906f5a454d9638028c1044e9c09cdcc3be2fc404c980661",
     "refined_parents": 122
   },
   "launch_authorized": true,
@@ -62,5 +62,5 @@
   "schema": "spiking-neuron-terminal-bridge-samples5-preflight-v1",
   "scientific_role": "fixed_sampling_sensitivity_of_accepted_t20_mixed_family",
   "selection_uses_scc_or_morse_count": false,
-  "timing_projection_not_a_guarantee_seconds": 479.13525292579556
+  "timing_projection_not_a_guarantee_seconds": 525.1295855548062
 }

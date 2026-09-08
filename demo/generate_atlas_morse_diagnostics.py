@@ -41,7 +41,8 @@ from hybrid_dynamics.examples.rimless_wheel_atlas import (
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CODE_ROOT = PROJECT_ROOT / "code"
-PAPER_OUTPUT = PROJECT_ROOT / "paper" / "figures" / "atlas-diagnostics"
+PAPER_OUTPUT = PROJECT_ROOT / "paper" / "figures"
+MANIFEST_OUTPUT = CODE_ROOT / "data" / "paper_figure_manifests"
 
 
 @dataclass(frozen=True)
@@ -336,7 +337,7 @@ def _load_or_compute(
 
 
 def _write_manifest(records: list[dict[str, object]]) -> None:
-    PAPER_OUTPUT.mkdir(parents=True, exist_ok=True)
+    MANIFEST_OUTPUT.mkdir(parents=True, exist_ok=True)
     payload = {
         "scope": "Atlas diagnostics included in the manuscript with explicit scope",
         "method": (
@@ -364,7 +365,7 @@ def _write_manifest(records: list[dict[str, object]]) -> None:
         },
         "figures": records,
     }
-    (PAPER_OUTPUT / "manifest.json").write_text(
+    (MANIFEST_OUTPUT / "atlas_diagnostics_manifest.json").write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )

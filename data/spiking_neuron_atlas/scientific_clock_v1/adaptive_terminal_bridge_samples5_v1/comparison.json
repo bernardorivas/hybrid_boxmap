@@ -13,7 +13,7 @@
   },
   "comparison_revision": "spiking-neuron-samples3-samples5-persistence-v1",
   "continuous_system_conley_index_certified": false,
-  "fingerprint": "dee78586b9e23b3ed4e5bd1a4e89acf7915f6ce4c697c3360033522b60d00226",
+  "fingerprint": "77d01be6eab45d47ca42f298755f900ee05892204694799a4ac903e1c5ca30bd",
   "finite_relation_shift_class": [
     "x-1",
     "x-1",
@@ -48,10 +48,10 @@
   ],
   "numerically_rigorous_outer_approximation_claimed": false,
   "primary_samples3": {
-    "chain_checkpoint_fingerprint": "0d67ed7104c29b53b223adafd8568722700f08e683abf06cad404423b59fc347",
-    "conley_summary_fingerprint": "07f5dd2a26d265c4f11c22d2f9f52ef00231199efe52eb06ac84cd9596b5c02d",
+    "chain_checkpoint_fingerprint": "9f2e6aad1cb4da3b1ec2706d6808cc17d57f654c9a5e87c776482b35ae0ca051",
+    "conley_summary_fingerprint": "2fc5d7869b41c7fb1afcc8c0b1074ec0d94a0486261744cb5f5e366ef69b74fb",
     "raw_unresolved_sources": 43,
-    "relation_csr_fingerprint": "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5",
+    "relation_csr_fingerprint": "6a00731ee973c00cb906f5a454d9638028c1044e9c09cdcc3be2fc404c980661",
     "relation_edges": 277834,
     "strict_validation": {
       "checkpoint": {
@@ -80,8 +80,8 @@
           0,
           0
         ],
-        "file_sha256": "1461e2590f0baf47be5b9387b8177e4a154d108b68fcd385946001dbf7d2fbd9",
-        "fingerprint": "0d67ed7104c29b53b223adafd8568722700f08e683abf06cad404423b59fc347",
+        "file_sha256": "3d18d30f7576fd44dabfe735138b53ed847ab1865937d9ffe4f97901e3cc0b47",
+        "fingerprint": "9f2e6aad1cb4da3b1ec2706d6808cc17d57f654c9a5e87c776482b35ae0ca051",
         "finite_relation_conley_index": {
           "cell_counts": [
             1113,
@@ -241,14 +241,14 @@
           8674,
           8678
         ],
-        "reference_support_fingerprint": "e16441d9b262fd75f153a12fb1f6570fd1d6a589a7ef85dcd7170cf7f7e153a5",
-        "relation_csr_fingerprint": "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5",
+        "reference_support_fingerprint": "b6895ecc49a6b37b1eed76062efb5c66e83a1c791ccd644b06b4489f0ad8f275",
+        "relation_csr_fingerprint": "6a00731ee973c00cb906f5a454d9638028c1044e9c09cdcc3be2fc404c980661",
         "schema": "spiking-neuron-conley-chain-reference-v1",
         "strict_reload_recomputed_shift_class": true
       },
-      "fingerprint": "07f5dd2a26d265c4f11c22d2f9f52ef00231199efe52eb06ac84cd9596b5c02d",
+      "fingerprint": "2fc5d7869b41c7fb1afcc8c0b1074ec0d94a0486261744cb5f5e366ef69b74fb",
       "path": "finite_relation_conley.json",
-      "relation_csr_fingerprint": "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5",
+      "relation_csr_fingerprint": "6a00731ee973c00cb906f5a454d9638028c1044e9c09cdcc3be2fc404c980661",
       "schema": "spiking-neuron-conley-summary-reference-v1",
       "strict_summary_and_checkpoint_bindings_validated": true
     },
@@ -333,10 +333,10 @@
   "schema": "spiking-neuron-sampling-persistence-comparison-v1",
   "selection_uses_scc_or_morse_count": false,
   "sensitivity_samples5": {
-    "chain_checkpoint_fingerprint": "08871b0cc0322f6bdc7a0dc698d9334c4cf886e1c55a1a47fd9143b70b4e19a9",
-    "conley_summary_fingerprint": "750bf1a22d5b69ed77a6221c4e10621ea95b08d01e791ede25b6e7ee3a44cee3",
+    "chain_checkpoint_fingerprint": "8187c142f31c90e48acb0ca338faff6b802e99f7543d2f8ff51cfc0c2c840738",
+    "conley_summary_fingerprint": "7a816b6c881c0428e6a7ccb900a3990df76540ace7a0da76422d64adcf2eeb44",
     "raw_unresolved_sources": 26,
-    "relation_csr_fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+    "relation_csr_fingerprint": "dcd7ca849049ddf1c7ea63fea88756a61d726286b32742b4c167120291823566",
     "relation_edges": 282448,
     "strict_validation": {
       "checkpoint": {
@@ -365,8 +365,8 @@
           0,
           0
         ],
-        "file_sha256": "d8c9fb75ed1fc27ac6b988b6fe626d3d3e0ac136aa9231ac0f8c09557dd85229",
-        "fingerprint": "08871b0cc0322f6bdc7a0dc698d9334c4cf886e1c55a1a47fd9143b70b4e19a9",
+        "file_sha256": "3d6df4751c7bac5c0e20ec56957f1014a42199aea4fb47cf41551bce2f0969d4",
+        "fingerprint": "8187c142f31c90e48acb0ca338faff6b802e99f7543d2f8ff51cfc0c2c840738",
         "finite_relation_conley_index": {
           "cell_counts": [
             1113,
@@ -526,14 +526,14 @@
           8674,
           8678
         ],
-        "reference_support_fingerprint": "ec6ed1ab16c3b37189bc2fb945bab26544a9819847f6c6d2c6af71dfaa6c431c",
-        "relation_csr_fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+        "reference_support_fingerprint": "1876e314459610a1a145e7cb1e44e81568869b49cd9dad4f15877f1903c3ccc9",
+        "relation_csr_fingerprint": "dcd7ca849049ddf1c7ea63fea88756a61d726286b32742b4c167120291823566",
         "schema": "spiking-neuron-conley-chain-reference-v1",
         "strict_reload_recomputed_shift_class": true
       },
-      "fingerprint": "750bf1a22d5b69ed77a6221c4e10621ea95b08d01e791ede25b6e7ee3a44cee3",
+      "fingerprint": "7a816b6c881c0428e6a7ccb900a3990df76540ace7a0da76422d64adcf2eeb44",
       "path": "finite_relation_conley.json",
-      "relation_csr_fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+      "relation_csr_fingerprint": "dcd7ca849049ddf1c7ea63fea88756a61d726286b32742b4c167120291823566",
       "schema": "spiking-neuron-conley-summary-reference-v1",
       "strict_summary_and_checkpoint_bindings_validated": true
     },

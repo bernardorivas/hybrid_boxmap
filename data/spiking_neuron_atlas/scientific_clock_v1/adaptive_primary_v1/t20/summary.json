@@ -12,12 +12,12 @@
   "adaptive_preflight": {
     "dynamics_launch_authorized_after_preflight_review": true,
     "family_fingerprint": "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706",
-    "fingerprint": "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c",
+    "fingerprint": "d44fc1ed7f980a4be5e62ed86c368c1ba98ff48027f984742344856a8137f26e",
     "path": "../../adaptive_preflight_v1/t20/preflight.json",
     "refined_parents": 122,
     "schema": "spiking-neuron-adaptive-preflight-reference-v1",
     "selection_uses_scc_or_morse_count": false,
-    "source_relation_csr_fingerprint": "c07e8fac9988cd5c774204c58d683846812ceab53c972be1a14de84881a38ed2",
+    "source_relation_csr_fingerprint": "10cb9ab298552c8c7c621e2ea6fc3f2a904f7c20f21d8135effdfe48cfc5042b",
     "tensor_point_fingerprint": "f8c7344cf9403fad8a7fa91fc92340daf0fb5732ed604ffe008c7ea5dae2d774"
   },
   "adaptive_protocol_revision": "spiking-neuron-adaptive-primary-t20-v1",
@@ -47,14 +47,14 @@
   "boxmap_revision": "spiking-neuron-l-domain-split-v1",
   "connectivity_algorithm": "exact_sparse_mixed_dyadic_plus_affine_seams_with_full_geometric_parity",
   "diagnostic_source_provenance": {
-    "content_sha256": "4a46c85bc5ea3a0b650433ad9814324a9def57f5460259678420cd9c12e4e622",
+    "content_sha256": "b8eb601d9bb4ec793612fc08387aef49fc03d16c200eb9b9512b160ccffa69ce",
     "diagnostic_only": true,
-    "file_sha256": "12e7b2c21edc5b50747a937e15f2201ec1098171e69c8083b4abbb7b813fe138",
+    "file_sha256": "27aa3b1d2f7f9bad1f2c201a3f1ecb7bf0561972b72beb598902db76c37934d5",
     "path": "provenance.jsonl.gz",
-    "relation_csr_fingerprint": "9cffa84c0d08fa4bfb31b3b75c5b586965c4c92c4adb1472a89f678901aae924",
+    "relation_csr_fingerprint": "b3ce2a1dbf906bbc9b14f9dfa289ba842bb627879473f0c7ce1d1dabbc74fe2a",
     "schema": "spiking-neuron-source-provenance-reference-v1",
     "source_records": 9074,
-    "trailer_fingerprint": "3d5a63ac67f0bc869f3546bf1a7311108b38ba624b18385226c907888da9e325"
+    "trailer_fingerprint": "722bd5c9e3ff7a46a2bdd01c32c1ba5e49d7624fd68668d689a05df82836cad7"
   },
   "disconnected_images": 8,
   "dwell_handle_jump_bound": {
@@ -63,12 +63,12 @@
     "formula": "ceil(t_star/(1+dwell_time_lower_bound))",
     "required_upper_bound": 8
   },
-  "elapsed_seconds": 8.41421033302322,
+  "elapsed_seconds": 8.911126374994637,
   "empty_sources": 0,
   "endpoint_cache_reuses": 44636,
   "endpoint_precompute": {
     "duplicate_tensor_points": 44636,
-    "elapsed_seconds": 128.42980537505355,
+    "elapsed_seconds": 133.9075160420034,
     "fallback_reason": null,
     "logical_tensor_points": 81666,
     "mode": "process_pool",
@@ -78,6 +78,7 @@
     "used_workers": 8
   },
   "endpoint_unique_evaluations": 37030,
+  "failed_single_handle_bridge_sources": 0,
   "failed_sources": 0,
   "family_fingerprint": "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706",
   "finite_relation_conley_index_computed": false,
@@ -104,6 +105,7 @@
   "open_sources": 0,
   "padding_cells": 1.0,
   "protocol_revision": "spiking-neuron-adaptive-primary-t20-v1",
+  "raw_unresolved_sources": 43,
   "recurrent_problem_sources": 13,
   "reference_cycle": {
     "flight_time": 147.85450496954618,
@@ -131,9 +133,9 @@
   ],
   "reference_recurrent_problem_sources": 13,
   "relation_csr": {
-    "configuration_sha256": "6f255eff1a478826ec54a64aabf51ec8e781f4c975d351c92eef9d3f68c7375a",
+    "configuration_sha256": "0ed4b19a76dda9c876e1f6f535b0eee2ef25869cdbee73dda7b778827721f396",
     "edges": 274029,
-    "fingerprint": "9cffa84c0d08fa4bfb31b3b75c5b586965c4c92c4adb1472a89f678901aae924",
+    "fingerprint": "b3ce2a1dbf906bbc9b14f9dfa289ba842bb627879473f0c7ce1d1dabbc74fe2a",
     "path": "relation.csr",
     "payload_bytes": 1168716,
     "schema": "spiking-neuron-mapgraph-csr-reference-v1",
@@ -145,6 +147,20 @@
   "samples_per_axis": 3,
   "scc_count_used_as_acceptance_gate": false,
   "schema": "spiking-neuron-atlas-acceptance-v1",
+  "single_handle_bridge_diagnostics": {
+    "algorithm_revision": "terminal-single-handle-bisection-v1",
+    "attempts": 0,
+    "failed_probes": 0,
+    "intermediate_time_graph_edges_added": false,
+    "probe_points": 0,
+    "raw_unresolved_stage_edges": 43,
+    "residual_unresolved_stage_edges": 43,
+    "synthesized": 0,
+    "terminal_image_carrier_only": true
+  },
+  "single_handle_bridge_enabled": false,
+  "single_handle_bridge_max_bisections": 12,
+  "single_handle_bridge_sources": 0,
   "source_total_depth": 14,
   "sparse_incidence_parity": {
     "cells": 9074,

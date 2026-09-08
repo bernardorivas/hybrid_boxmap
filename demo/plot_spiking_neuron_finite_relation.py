@@ -1,27 +1,43 @@
 #!/usr/bin/env python3
-"""Create the strict-report-backed vector diagnostic for the neuron example."""
+"""Draw the spiking-neuron Morse-set figure with the shared Atlas plotter.
+
+The accepted terminal-carrier stage is loaded through the strict Conley input
+reader (CSR relation, authenticated provenance, and stage summary all
+cross-checked), projected onto ``AtlasMorsePlotData``, and annotated with the
+finite-relation shift class through the same gated loader the bouncing-ball
+and rimless-wheel diagnostics use.  The figure therefore has the same layout,
+palette, and labeling conventions as those two.
+"""
 
 from __future__ import annotations
 
 import argparse
-import gzip
 import hashlib
 import json
-import shutil
 from pathlib import Path
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import numpy as np
-from matplotlib.patches import Polygon, Rectangle
+import matplotlib
 
-from hybrid_dynamics.examples.spiking_neuron_atlas import (
-    compute_neuron_reference_cycle,
-    validate_spiking_neuron_provenance,
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt
+
+from hybrid_dynamics import (
+    PlotHybridMorseSets,
+    load_atlas_finite_relation_index_annotations,
+    save_atlas_morse_plot_data,
+    save_hybrid_morse_figure,
 )
 from hybrid_dynamics.examples.spiking_neuron_conley import (
+    load_spiking_neuron_conley_input,
+    spiking_neuron_atlas_morse_plot_data,
+    spiking_neuron_finite_relation_index_audit,
     validate_spiking_neuron_conley_summary,
 )
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+FIGURE_STEM = "hybrid-morse-spiking-neuron-atlas-tau2000-depth16"
 
 
 def _arguments() -> argparse.Namespace:
@@ -37,12 +53,19 @@ def _arguments() -> argparse.Namespace:
         default=Path("output/pdf"),
     )
     parser.add_argument(
-        "--paper-figure",
+        "--paper-dir",
         type=Path,
-        default=Path(
-            "../paper/figures/atlas-diagnostics/"
-            "spiking_neuron_finite_relation_diagnostic.pdf"
-        ),
+        default=PROJECT_ROOT / "paper" / "figures",
+    )
+    parser.add_argument(
+        "--manifest-dir",
+        type=Path,
+        default=Path("data/paper_figure_manifests"),
+    )
+    parser.add_argument(
+        "--include-handles",
+        action="store_true",
+        help="add the intrinsic guard-coordinate/phase chart panel",
     )
     return parser.parse_args()
 
@@ -79,308 +102,109 @@ def _validate_comparison(path: Path) -> dict[str, object]:
     return payload
 
 
-def _morse_rectangles(
-    provenance: Path,
-    *,
-    expected_relation_csr_fingerprint: str,
-    expected_source_count: int,
-    expected_provenance_reference: dict[str, object],
-) -> tuple[dict[int, list[tuple[float, ...]]], dict[str, object]]:
-    authenticated = validate_spiking_neuron_provenance(
-        provenance,
-        expected_relation_csr_fingerprint=expected_relation_csr_fingerprint,
-    )
-    if authenticated != expected_provenance_reference:
-        raise ValueError(
-            "plotted provenance does not match the strict Conley input reference"
-        )
-    if authenticated["source_records"] != expected_source_count:
-        raise ValueError("plotted provenance source count is inconsistent")
-
-    result: dict[int, list[tuple[float, ...]]] = {0: [], 1: []}
-    seen_sources = 0
-    with gzip.open(provenance, "rt", encoding="utf-8") as stream:
-        header = json.loads(next(stream))
-        if not header["stage_gates_passed"]:
-            raise ValueError("figure source relation did not pass its gates")
-        if header.get("active_cells") != expected_source_count:
-            raise ValueError("figure source header has the wrong source count")
-        if (
-            header.get("relation_csr", {}).get("fingerprint")
-            != expected_relation_csr_fingerprint
-        ):
-            raise ValueError("figure source header is bound to a different relation")
-        for line in stream:
-            record = json.loads(line)
-            if record["record"] == "trailer":
-                break
-            if record["record"] != "source":
-                raise ValueError("unknown figure provenance record")
-            seen_sources += 1
-            if record["morse_node"] == 0:
-                result[int(record["chart_id"])].append(
-                    tuple(float(value) for value in record["bounds"])
-                )
-    if seen_sources != expected_source_count:
-        raise ValueError("figure source stream is incomplete")
-    return result, authenticated
-
-
-def _add_rectangles(
-    axis: plt.Axes,
-    rectangles: list[tuple[float, ...]],
-    *,
-    facecolor: str,
-    edgecolor: str,
-) -> None:
-    for x0, y0, x1, y1 in rectangles:
-        axis.add_patch(
-            Rectangle(
-                (x0, y0),
-                x1 - x0,
-                y1 - y0,
-                facecolor=facecolor,
-                edgecolor=edgecolor,
-                linewidth=0.22,
-                alpha=0.72,
-                rasterized=False,
-            )
-        )
-
-
-def _domain_inset(axis: plt.Axes) -> None:
-    inset = axis.inset_axes([0.72, 0.58, 0.25, 0.36])
-    domain = np.asarray(
-        [
-            (-80.0, -300.0),
-            (35.0, -300.0),
-            (35.0, 160.0),
-            (-40.0, 160.0),
-            (-40.0, 600.0),
-            (-80.0, 600.0),
-        ]
-    )
-    inset.add_patch(
-        Polygon(
-            domain,
-            closed=True,
-            facecolor="#eceff1",
-            edgecolor="#263238",
-            linewidth=1.0,
-        )
-    )
-    inset.add_patch(
-        Rectangle(
-            (-67.0, -85.0),
-            105.0,
-            190.0,
-            fill=False,
-            edgecolor="#c62828",
-            linewidth=1.1,
-        )
-    )
-    inset.set_xlim(-86, 41)
-    inset.set_ylim(-340, 640)
-    inset.set_xticks([])
-    inset.set_yticks([])
-    for spine in inset.spines.values():
-        spine.set_color("#78909c")
-        spine.set_linewidth(0.7)
-
-
-def _handle_inset(axis: plt.Axes) -> None:
-    inset = axis.inset_axes([0.72, 0.60, 0.25, 0.33])
-    inset.add_patch(
-        Rectangle(
-            (-300.0, 0.0),
-            460.0,
-            1.0,
-            facecolor="#fff3e0",
-            edgecolor="#263238",
-            linewidth=1.0,
-        )
-    )
-    inset.add_patch(
-        Rectangle(
-            (-75.0, 0.0),
-            70.0,
-            1.0,
-            fill=False,
-            edgecolor="#c62828",
-            linewidth=1.1,
-        )
-    )
-    inset.set_xlim(-330, 190)
-    inset.set_ylim(-0.08, 1.08)
-    inset.set_xticks([])
-    inset.set_yticks([])
-    for spine in inset.spines.values():
-        spine.set_color("#78909c")
-        spine.set_linewidth(0.7)
-
-
 def main() -> int:
     args = _arguments()
     primary = args.scientific_dir / "adaptive_terminal_bridge_v1/t20"
-    sensitivity = (
-        args.scientific_dir / "adaptive_terminal_bridge_samples5_v1/t20"
-    )
+    sensitivity = args.scientific_dir / "adaptive_terminal_bridge_samples5_v1/t20"
     primary_conley_path = primary / "conley_v2/finite_relation_conley.json"
     sensitivity_conley_path = sensitivity / "conley_v2/finite_relation_conley.json"
     validate_spiking_neuron_conley_summary(primary_conley_path)
     validate_spiking_neuron_conley_summary(sensitivity_conley_path)
-    conley = json.loads(primary_conley_path.read_text(encoding="utf-8"))
     comparison = _validate_comparison(
-        args.scientific_dir
-        / "adaptive_terminal_bridge_samples5_v1/comparison.json"
+        args.scientific_dir / "adaptive_terminal_bridge_samples5_v1/comparison.json"
     )
-    relation_reference = conley["input_artifacts"]["relation_csr"]
-    expected_provenance = conley["input_artifacts"]["source_provenance"]
-    rectangles, plotted_provenance = _morse_rectangles(
-        primary / "provenance.jsonl.gz",
-        expected_relation_csr_fingerprint=relation_reference["fingerprint"],
-        expected_source_count=int(relation_reference["vertices"]),
-        expected_provenance_reference=expected_provenance,
-    )
-    cycle = compute_neuron_reference_cycle()
-    times = np.linspace(0.0, cycle.flight_time, 1400)
-    orbit = np.asarray(cycle.solution(times), dtype=np.float64)
+    conley = json.loads(primary_conley_path.read_text(encoding="utf-8"))
 
-    mpl.rcParams.update(
-        {
-            "font.family": "DejaVu Sans",
-            "font.size": 9.0,
-            "axes.titlesize": 10.5,
-            "axes.labelsize": 9.5,
-            "xtick.labelsize": 8.0,
-            "ytick.labelsize": 8.0,
-            "pdf.fonttype": 42,
-            "ps.fonttype": 42,
-        }
-    )
-    figure, (base_axis, handle_axis) = plt.subplots(
-        1,
-        2,
-        figsize=(10.8, 4.9),
-        gridspec_kw={"wspace": 0.22},
-    )
-    figure.subplots_adjust(left=0.07, right=0.985, top=0.96, bottom=0.31)
+    conley_input = load_spiking_neuron_conley_input(primary)
+    if conley_input.relation_reference["fingerprint"] != (
+        conley["input_artifacts"]["relation_csr"]["fingerprint"]
+    ):
+        raise ValueError("stage relation and Conley summary are bound to different CSRs")
+    data = spiking_neuron_atlas_morse_plot_data(conley_input)
+    cache_path = primary / "morse_plot_tau2000_depth16.json"
+    save_atlas_morse_plot_data(data, cache_path)
 
-    _add_rectangles(
-        base_axis,
-        rectangles[0],
-        facecolor="#90caf9",
-        edgecolor="#1976d2",
+    audit_path = primary / "conley_v2/finite_relation_index_audit.json"
+    audit_path.write_text(
+        json.dumps(
+            spiking_neuron_finite_relation_index_audit(primary_conley_path),
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n",
+        encoding="utf-8",
     )
-    base_axis.plot(orbit[0], orbit[1], color="#111111", linewidth=1.7, zorder=5)
-    base_axis.plot(
-        [35.0, -50.0],
-        [cycle.pre_reset_u, cycle.post_reset_u],
-        color="#111111",
-        linewidth=1.25,
-        linestyle=(0, (4, 2)),
-        zorder=5,
-    )
-    base_axis.axvline(-50.0, color="#6a1b9a", linewidth=0.9, alpha=0.8)
-    base_axis.axvline(35.0, color="#c62828", linewidth=0.9, alpha=0.8)
-    base_axis.text(-49.0, 98.0, r"reset seam $v=-50$", color="#6a1b9a", fontsize=7.5)
-    base_axis.text(34.0, 98.0, r"guard", color="#c62828", fontsize=7.5, ha="right")
-    base_axis.set_xlim(-67.0, 38.0)
-    base_axis.set_ylim(-85.0, 105.0)
-    base_axis.set_xlabel(r"voltage $v$")
-    base_axis.set_ylabel(r"recovery $u$")
-    base_axis.grid(color="#cfd8dc", linewidth=0.45, alpha=0.6)
-    _domain_inset(base_axis)
+    annotations = load_atlas_finite_relation_index_annotations(audit_path, data)
 
-    _add_rectangles(
-        handle_axis,
-        rectangles[1],
-        facecolor="#ffcc80",
-        edgecolor="#ef6c00",
+    plot = PlotHybridMorseSets(
+        data,
+        finite_relation_annotations=annotations,
+        axis_labels=(r"$v$", r"$u$"),
+        handle_axis_labels=(r"$u_G$", r"$s$"),
+        show_handles=args.include_handles,
+        show_morse_graph=True,
+        show_legend=False,
+        show_panel_titles=False,
+        show_component_sizes=False,
+        show_status_note=False,
+        base_view="support",
+        fig_h=3.4,
     )
-    handle_axis.axvline(
-        cycle.pre_reset_u,
-        color="#111111",
-        linewidth=1.7,
-        zorder=5,
-    )
-    handle_axis.scatter(
-        [cycle.pre_reset_u, cycle.pre_reset_u],
-        [0.0, 1.0],
-        s=13,
-        color="#111111",
-        zorder=6,
-    )
-    handle_axis.set_xlim(-75.0, -5.0)
-    handle_axis.set_ylim(-0.02, 1.02)
-    handle_axis.set_xlabel(r"guard coordinate $u_g$")
-    handle_axis.set_ylabel(r"handle phase $s$")
-    handle_axis.grid(color="#cfd8dc", linewidth=0.45, alpha=0.6)
-    _handle_inset(handle_axis)
+    try:
+        outputs = save_hybrid_morse_figure(
+            plot,
+            args.output_dir / FIGURE_STEM,
+            formats=("pdf", "png"),
+            dpi=400,
+        )
+    finally:
+        plt.close(plot.figure)
+    pdf_path = next(path for path in outputs if path.suffix == ".pdf")
+    png_path = next(path for path in outputs if path.suffix == ".png")
+    args.paper_dir.mkdir(parents=True, exist_ok=True)
+    paper_copy = args.paper_dir / pdf_path.name
+    paper_copy.write_bytes(pdf_path.read_bytes())
 
-    shift = ", ".join(conley["finite_relation_shift_class"][:2])
-    figure.text(
-        0.5,
-        0.185,
-        (
-            r"Finite relation over $\mathbb{F}_5$: "
-            r"$H_0\cong H_1\cong\mathbb{F}_5$, $F_{*0}=F_{*1}=1$; "
-            rf"shift class $({shift})$"
-        ),
-        ha="center",
-        fontsize=9.1,
-        color="#0d47a1",
-    )
-    figure.text(
-        0.5,
-        0.092,
-        (
-            "Sampled terminal-carrier model only: no rigorous whole-cell outer "
-            "enclosure and no certified continuous-system Conley index."
-        ),
-        ha="center",
-        fontsize=8.1,
-        color="#b71c1c",
-    )
-    figure.text(
-        0.985,
-        0.018,
-        f"strict comparison {comparison['fingerprint'][:12]}...",
-        ha="right",
-        fontsize=5.8,
-        color="#607d8b",
-    )
-
-    args.output_dir.mkdir(parents=True, exist_ok=True)
-    pdf_path = args.output_dir / "spiking_neuron_finite_relation_diagnostic.pdf"
-    png_path = args.output_dir / "spiking_neuron_finite_relation_diagnostic.png"
-    figure.savefig(pdf_path, format="pdf", metadata={"CreationDate": None})
-    figure.savefig(png_path, format="png", dpi=260)
-    plt.close(figure)
-    args.paper_figure.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(pdf_path, args.paper_figure)
     manifest = {
-        "schema": "spiking-neuron-finite-relation-figure-v1",
+        "schema": "spiking-neuron-finite-relation-figure-v2",
+        "model": data.metadata["model"],
+        "depth": data.metadata["depth"],
+        "t_star": data.metadata["t_star"],
+        "plot_cache": str(cache_path),
+        "finite_relation_audit": str(audit_path),
         "primary_conley_fingerprint": conley["fingerprint"],
         "sensitivity_conley_fingerprint": json.loads(
             sensitivity_conley_path.read_text(encoding="utf-8")
         )["fingerprint"],
         "sampling_comparison_fingerprint": comparison["fingerprint"],
-        "primary_relation_csr_fingerprint": conley["input_artifacts"][
-            "relation_csr"
-        ]["fingerprint"],
-        "primary_source_provenance": plotted_provenance,
-        "finite_relation_only": True,
+        "primary_relation_csr_fingerprint": conley_input.relation_reference[
+            "fingerprint"
+        ],
+        "morse_nodes": list(data.vertex_ids),
+        "morse_edges": [list(edge) for edge in data.edges],
+        "morse_set_cell_counts": {
+            str(node.index): len(node.boxes) for node in data.nodes
+        },
+        "finite_relation_conley_index": {
+            "computed": True,
+            "coefficient_field": 5,
+            "result_scope": annotations.result_scope,
+            "shift_classes": {
+                str(node): list(entries)
+                for node, entries in annotations.shift_classes.items()
+            },
+        },
         "continuous_system_conley_index_certified": False,
-        "pdf": pdf_path.name,
+        "pdf": str(pdf_path),
         "pdf_sha256": _sha256_file(pdf_path),
-        "png": png_path.name,
+        "png": str(png_path),
         "png_sha256": _sha256_file(png_path),
-        "paper_copy": str(args.paper_figure),
-        "paper_copy_sha256": _sha256_file(args.paper_figure),
+        "paper_copy": str(paper_copy),
+        "paper_copy_sha256": _sha256_file(paper_copy),
     }
     manifest["fingerprint"] = hashlib.sha256(_canonical(manifest)).hexdigest()
-    (args.output_dir / "spiking_neuron_finite_relation_diagnostic.json").write_text(
+    args.manifest_dir.mkdir(parents=True, exist_ok=True)
+    (args.manifest_dir / "spiking_neuron_figure_manifest.json").write_text(
         json.dumps(manifest, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )

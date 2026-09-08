@@ -5,6 +5,10 @@
     "0": 2820,
     "1": 5888
   },
+  "active_leaf_depth_counts": {
+    "7": 8708
+  },
+  "adaptive_preflight": null,
   "all_morse_supports_quotient_connected": true,
   "analytic_compact_domain_audit": {
     "bottom_u_dot_min": 3.3,
@@ -31,14 +35,14 @@
   "boxmap_revision": "spiking-neuron-l-domain-split-v1",
   "connectivity_algorithm": "exact_sparse_dyadic_plus_affine_seams",
   "diagnostic_source_provenance": {
-    "content_sha256": "258628a63d1616cbab29459c9d528d29add634258659d449e1f89a913fd49f4a",
+    "content_sha256": "2d8e369ad1e6786e5aa8aaf262873325a8b5c6edd2370bc0d0832c71e443a1ae",
     "diagnostic_only": true,
-    "file_sha256": "bed2618227bb34dc46155104aed94116eb043fc3d19572c0d7ef208e6cdd9636",
+    "file_sha256": "77ed46236fed0a613b687ddddc66a092cdbf204ebbe4de8c50c8446dc9745913",
     "path": "provenance.jsonl.gz",
-    "relation_csr_fingerprint": "d2c2b4429f548df5fd1176005d6829204235d8bd2684b49ecf2c1bf15a43dbac",
+    "relation_csr_fingerprint": "7180631d23d5502c5719d0c800bccf2d7bb43ee5580f2b6077a133a24bd7953e",
     "schema": "spiking-neuron-source-provenance-reference-v1",
     "source_records": 8708,
-    "trailer_fingerprint": "99914b0d568cd9ffa7cc9f1e2b014c9c9bc78ab3ff05b536535ab3f0ae1138f9"
+    "trailer_fingerprint": "38ff1329e5b00bb3b937e1bbdd9801752512a00a0c47080e75f7064dc98913ac"
   },
   "disconnected_images": 60,
   "dwell_handle_jump_bound": {
@@ -47,12 +51,12 @@
     "formula": "ceil(t_star/(1+dwell_time_lower_bound))",
     "required_upper_bound": 16
   },
-  "elapsed_seconds": 8.270055999979377,
+  "elapsed_seconds": 8.238041959004477,
   "empty_sources": 0,
   "endpoint_cache_reuses": 42918,
   "endpoint_precompute": {
     "duplicate_tensor_points": 42918,
-    "elapsed_seconds": 270.8245045839576,
+    "elapsed_seconds": 239.87735529101337,
     "fallback_reason": null,
     "logical_tensor_points": 78372,
     "mode": "process_pool",
@@ -62,10 +66,12 @@
     "used_workers": 8
   },
   "endpoint_unique_evaluations": 35454,
+  "failed_single_handle_bridge_sources": 0,
   "failed_sources": 0,
   "family_fingerprint": "6c39876bad173f6a1e1584ffd267213573150d2586b1cd4a3dba513621bae4e6",
   "finite_relation_conley_index_computed": false,
   "formal_domain": "compact_L_shaped_N",
+  "grid_kind": "uniform",
   "guard": "v=35, -300<=u<=160, increasing crossings",
   "jump_limit_failure_sources": 0,
   "max_jumps": 20,
@@ -87,6 +93,7 @@
   "open_sources": 0,
   "padding_cells": 1.0,
   "protocol_revision": "spiking-neuron-scientific-clock-v1",
+  "raw_unresolved_sources": 93,
   "recurrent_problem_sources": 10,
   "reference_cycle": {
     "flight_time": 147.85450496954618,
@@ -114,9 +121,9 @@
   ],
   "reference_recurrent_problem_sources": 10,
   "relation_csr": {
-    "configuration_sha256": "5d5f8fa76f55b5edf688a683044db9f1c51609aced315bed9710036b2beac9a3",
+    "configuration_sha256": "e595f492b97377b03672c93f322b30ca0e74db1cbfd287eb02ad63a78f0ac78e",
     "edges": 268632,
-    "fingerprint": "d2c2b4429f548df5fd1176005d6829204235d8bd2684b49ecf2c1bf15a43dbac",
+    "fingerprint": "7180631d23d5502c5719d0c800bccf2d7bb43ee5580f2b6077a133a24bd7953e",
     "path": "relation.csr",
     "payload_bytes": 1144200,
     "schema": "spiking-neuron-mapgraph-csr-reference-v1",
@@ -129,6 +136,21 @@
   "scc_count_used_as_acceptance_gate": false,
   "schema": "spiking-neuron-atlas-acceptance-v1",
   "scientific_protocol_revision": "spiking-neuron-scientific-clock-v1",
+  "single_handle_bridge_diagnostics": {
+    "algorithm_revision": "terminal-single-handle-bisection-v1",
+    "attempts": 0,
+    "failed_probes": 0,
+    "intermediate_time_graph_edges_added": false,
+    "probe_points": 0,
+    "raw_unresolved_stage_edges": 93,
+    "residual_unresolved_stage_edges": 93,
+    "synthesized": 0,
+    "terminal_image_carrier_only": true
+  },
+  "single_handle_bridge_enabled": false,
+  "single_handle_bridge_max_bisections": 12,
+  "single_handle_bridge_sources": 0,
+  "source_total_depth": null,
   "sparse_incidence_parity": {
     "axis_depth": 7,
     "cells": 8708,

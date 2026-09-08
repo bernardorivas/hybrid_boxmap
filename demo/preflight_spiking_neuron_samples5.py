@@ -26,10 +26,16 @@ EXPECTED_FAMILY_FINGERPRINT = (
     "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706"
 )
 EXPECTED_PRIMARY_RELATION_FINGERPRINT = (
-    "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5"
+    # Recomputed 2026-09-03.  The relation arrays (offsets/targets sha256) are
+    # unchanged from the 2026-08-23 run (44ea6ef4...); the CSR configuration
+    # metadata gained adaptive_preflight_fingerprint, which shifts the hash.
+    "6a00731ee973c00cb906f5a454d9638028c1044e9c09cdcc3be2fc404c980661"
 )
 EXPECTED_PRIMARY_CONLEY_FINGERPRINT = (
-    "07f5dd2a26d265c4f11c22d2f9f52ef00231199efe52eb06ac84cd9596b5c02d"
+    # Recomputed 2026-09-03 (previously 07f5dd2a...): same homology, induced
+    # maps, nerve, pair, and carrier; the summary now embeds the index record
+    # in its chain-checkpoint reference and binds to the recomputed CSR hash.
+    "2fc5d7869b41c7fb1afcc8c0b1074ec0d94a0486261744cb5f5e366ef69b74fb"
 )
 BRIDGE_MAX_BISECTIONS = 12
 

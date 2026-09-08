@@ -6,7 +6,7 @@
       "7": 8586,
       "8": 488
     },
-    "adaptive_preflight_fingerprint": "f22fc029302b49ec34313912b27503ffd33b0e7c92a9555d1c8ab90201cd5d36",
+    "adaptive_preflight_fingerprint": "bbbd20468b30dd7d9d382dcfa70af468fc66f95eed5c7535b7647d3b4a94835b",
     "analytic_conley_label_attached": false,
     "axis_depth": 8,
     "boxmap_revision": "spiking-neuron-l-domain-split-v1",
@@ -28,7 +28,7 @@
     "total_depth": 16,
     "whole_cell_outer_enclosure_certified": false
   },
-  "configuration_sha256": "70a0464adab6b4e6a16000a9030864f0c1fdf42c6fdb015288785d7ee6a6f521",
+  "configuration_sha256": "425f356ef5a0bb21f586194dd77dadfbd02fe2d1333b286a02449c683556bdb5",
   "edges": 282448,
   "files": {
     "offsets": {
@@ -55,7 +55,7 @@
   "fingerprint": {
     "algorithm": "sha256",
     "fields": {
-      "configuration_sha256": "70a0464adab6b4e6a16000a9030864f0c1fdf42c6fdb015288785d7ee6a6f521",
+      "configuration_sha256": "425f356ef5a0bb21f586194dd77dadfbd02fe2d1333b286a02449c683556bdb5",
       "edges": 282448,
       "format_revision": 1,
       "offsets_dtype": "<i8",
@@ -65,7 +65,7 @@
       "targets_sha256": "36dea195c16999f52e15e68c49c19dc79afb20387e4a6f83a62e023745e15922",
       "vertices": 9074
     },
-    "sha256": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00"
+    "sha256": "dcd7ca849049ddf1c7ea63fea88756a61d726286b32742b4c167120291823566"
   },
   "format_revision": 1,
   "payload_bytes": 1202392,

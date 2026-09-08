@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 import hybrid_dynamics.examples.spiking_neuron_conley as neuron_conley
-from demo.plot_spiking_neuron_finite_relation import _morse_rectangles
+from hybrid_dynamics import load_atlas_finite_relation_index_annotations
 
 
 def _write_checkpoint(path: Path, payload: dict[str, object]) -> None:
@@ -271,7 +271,9 @@ def test_persisted_samples5_conley_and_comparison_strict_no_dynamics_reload(
     assert len(difference["changed_source_indices"]) == 68
 
 
-def test_figure_rectangles_are_bound_to_authenticated_primary_provenance() -> None:
+def test_figure_plot_data_and_annotations_come_from_the_shared_atlas_path(
+    tmp_path: Path,
+) -> None:
     root = Path(__file__).resolve().parents[2]
     stage = root / (
         "data/spiking_neuron_atlas/scientific_clock_v1/"
@@ -280,36 +282,34 @@ def test_figure_rectangles_are_bound_to_authenticated_primary_provenance() -> No
     summary_path = stage / "conley_v2/finite_relation_conley.json"
     if not summary_path.exists():
         pytest.skip("persisted neuron Conley artifact is not installed")
-    summary = json.loads(summary_path.read_text(encoding="utf-8"))
-    relation = summary["input_artifacts"]["relation_csr"]
-    provenance = summary["input_artifacts"]["source_provenance"]
-
-    rectangles, authenticated = _morse_rectangles(
-        stage / "provenance.jsonl.gz",
-        expected_relation_csr_fingerprint=relation["fingerprint"],
-        expected_source_count=relation["vertices"],
-        expected_provenance_reference=provenance,
-    )
-    assert {chart: len(boxes) for chart, boxes in rectangles.items()} == {
-        0: 345,
-        1: 768,
+    conley_input = neuron_conley.load_spiking_neuron_conley_input(stage)
+    data = neuron_conley.spiking_neuron_atlas_morse_plot_data(conley_input)
+    assert data.vertex_ids == (0,)
+    assert data.edges == ()
+    assert len(data.base_bounds) == 2 and len(data.handle_bounds) == 2
+    counts = {
+        chart: sum(box.chart_id == chart for box in data.nodes[0].boxes)
+        for chart in (data.base_chart_id, data.handle_chart_id)
     }
-    assert authenticated == provenance
+    assert counts == {0: 345, 1: 768}
+    assert data.metadata["model"] == "compact_quadratic_integrate_and_fire"
+    assert data.metadata["depth"] == 16
+    assert data.metadata["t_star"] == 20.0
 
-    with pytest.raises(ValueError, match="different CSR relation"):
-        _morse_rectangles(
-            stage / "provenance.jsonl.gz",
-            expected_relation_csr_fingerprint="0" * 64,
-            expected_source_count=relation["vertices"],
-            expected_provenance_reference=provenance,
-        )
+    audit_path = tmp_path / "audit.json"
+    audit_path.write_text(
+        json.dumps(
+            neuron_conley.spiking_neuron_finite_relation_index_audit(summary_path)
+        ),
+        encoding="utf-8",
+    )
+    annotations = load_atlas_finite_relation_index_annotations(audit_path, data)
+    assert annotations.shift_classes[0] == ("x-1", "x-1", "0", "0", "0", "0")
+    assert annotations.continuous_system_conley_index_certified is False
 
-    wrong_reference = dict(provenance)
-    wrong_reference["file_sha256"] = "0" * 64
-    with pytest.raises(ValueError, match="strict Conley input reference"):
-        _morse_rectangles(
-            stage / "provenance.jsonl.gz",
-            expected_relation_csr_fingerprint=relation["fingerprint"],
-            expected_source_count=relation["vertices"],
-            expected_provenance_reference=wrong_reference,
-        )
+    tampered = json.loads(summary_path.read_text(encoding="utf-8"))
+    tampered["finite_relation_shift_class"][0] = "x"
+    tampered_path = tmp_path / "tampered.json"
+    tampered_path.write_text(json.dumps(tampered), encoding="utf-8")
+    with pytest.raises(ValueError):
+        neuron_conley.spiking_neuron_finite_relation_index_audit(tampered_path)

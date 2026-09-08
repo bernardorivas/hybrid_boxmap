@@ -2,11 +2,16 @@
   "checkpoint_complete": true,
   "configuration": {
     "active_cells": 2177,
+    "active_leaf_depth_counts": {
+      "6": 2177
+    },
+    "adaptive_preflight_fingerprint": null,
     "analytic_conley_label_attached": false,
     "axis_depth": 6,
     "boxmap_revision": "spiking-neuron-l-domain-split-v1",
     "family_fingerprint": "f32a327c6be8454a9051ec8d6c0e8fdba642ca82fde4904de69a4203f1bcb10e",
     "formal_domain": "compact_L_shaped_N",
+    "grid_kind": "uniform",
     "max_jumps": 20,
     "max_step": 0.02,
     "model": "compact_quadratic_integrate_and_fire",
@@ -14,11 +19,15 @@
     "protocol_revision": "spiking-neuron-scientific-clock-v1",
     "samples_per_axis": 3,
     "schema": "spiking-neuron-mapgraph-csr-configuration-v1",
+    "single_handle_bridge_algorithm_revision": null,
+    "single_handle_bridge_enabled": false,
+    "single_handle_bridge_max_bisections": 12,
+    "source_total_depth": null,
     "t_star": 40.0,
     "total_depth": 12,
     "whole_cell_outer_enclosure_certified": false
   },
-  "configuration_sha256": "5267de4994ae4994c9745a0cac37f55b178e5ecae0eea9e6b884d1cfec1dbd0c",
+  "configuration_sha256": "e4c490fcf3938288c06881d98a3240068f8d142ba258d7290fcd28d91ff7ec98",
   "edges": 54727,
   "files": {
     "offsets": {
@@ -45,7 +54,7 @@
   "fingerprint": {
     "algorithm": "sha256",
     "fields": {
-      "configuration_sha256": "5267de4994ae4994c9745a0cac37f55b178e5ecae0eea9e6b884d1cfec1dbd0c",
+      "configuration_sha256": "e4c490fcf3938288c06881d98a3240068f8d142ba258d7290fcd28d91ff7ec98",
       "edges": 54727,
       "format_revision": 1,
       "offsets_dtype": "<i8",
@@ -55,7 +64,7 @@
       "targets_sha256": "0b09dd8ed4f360ae61e5567a37c84011490a693bcb01abb3c0c3c5172fb7fc41",
       "vertices": 2177
     },
-    "sha256": "03d47198c32fa670cf55121b177b24f29d4825475c36d838b9c3ea0a0b3f9e2c"
+    "sha256": "02bb1d97537375b6656920884a3f90bf08837c96440ad77cf90b802494a7f8fb"
   },
   "format_revision": 1,
   "payload_bytes": 236332,

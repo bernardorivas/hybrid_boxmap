@@ -5,6 +5,10 @@
     "0": 705,
     "1": 1472
   },
+  "active_leaf_depth_counts": {
+    "6": 2177
+  },
+  "adaptive_preflight": null,
   "all_morse_supports_quotient_connected": true,
   "analytic_compact_domain_audit": {
     "bottom_u_dot_min": 3.3,
@@ -29,16 +33,16 @@
   },
   "axis_depth": 6,
   "boxmap_revision": "spiking-neuron-l-domain-split-v1",
-  "connectivity_algorithm": "quadratic_geometry_with_exact_sparse_parity",
+  "connectivity_algorithm": "exact_sparse_dyadic_plus_affine_seams",
   "diagnostic_source_provenance": {
-    "content_sha256": "8f3594d1e36007ad8ccf9f87596079c53251a0bfdb0ba454c51018d4e1dd580f",
+    "content_sha256": "1fe95207d25d5c1f4211aaf87a67d82135710992006fa05f77e4793265ba17c4",
     "diagnostic_only": true,
-    "file_sha256": "4680b86aa4ea96069586436b7952609a84431965502384c88876974ef408eefe",
+    "file_sha256": "1220d66a4b5f69f2519f2f82d7e934902136513ef767c23b1ef26ed1b52f12be",
     "path": "provenance.jsonl.gz",
-    "relation_csr_fingerprint": "a729bd7669f3cdd716e4783ddadc208533caa1c8f67c26cdb80f2cbb9d8b626e",
+    "relation_csr_fingerprint": "25d82e4d25d575e9240c8126ec4cbaf6ea0698fe79d0ac86f7c9289a47a58bae",
     "schema": "spiking-neuron-source-provenance-reference-v1",
     "source_records": 2177,
-    "trailer_fingerprint": "8cacac034424c2928c070b482d374a356a9828bb0a113c66a7d6d0cfb3917332"
+    "trailer_fingerprint": "96ee21cb2109847ab77d4c38268bf03b6d16894902537ecf3f272e0a79d1b2db"
   },
   "disconnected_images": 9,
   "dwell_handle_jump_bound": {
@@ -47,12 +51,12 @@
     "formula": "ceil(t_star/(1+dwell_time_lower_bound))",
     "required_upper_bound": 8
   },
-  "elapsed_seconds": 5.739895584061742,
+  "elapsed_seconds": 2.8770509159949142,
   "empty_sources": 0,
   "endpoint_cache_reuses": 10573,
   "endpoint_precompute": {
     "duplicate_tensor_points": 10573,
-    "elapsed_seconds": 35.502702167024836,
+    "elapsed_seconds": 31.78902095797821,
     "fallback_reason": null,
     "logical_tensor_points": 19593,
     "mode": "process_pool",
@@ -62,10 +66,12 @@
     "used_workers": 8
   },
   "endpoint_unique_evaluations": 9020,
+  "failed_single_handle_bridge_sources": 0,
   "failed_sources": 0,
   "family_fingerprint": "f32a327c6be8454a9051ec8d6c0e8fdba642ca82fde4904de69a4203f1bcb10e",
   "finite_relation_conley_index_computed": false,
   "formal_domain": "compact_L_shaped_N",
+  "grid_kind": "uniform",
   "guard": "v=35, -300<=u<=160, increasing crossings",
   "jump_limit_failure_sources": 0,
   "max_jumps": 10,
@@ -87,6 +93,7 @@
   "open_sources": 0,
   "padding_cells": 1.0,
   "protocol_revision": "spiking-neuron-scientific-clock-v1",
+  "raw_unresolved_sources": 27,
   "recurrent_problem_sources": 10,
   "reference_cycle": {
     "flight_time": 147.85450496954618,
@@ -114,9 +121,9 @@
   ],
   "reference_recurrent_problem_sources": 10,
   "relation_csr": {
-    "configuration_sha256": "743e22b0ca4130b4352316fc96ef566590ae497cf5f3598b5ada093f59919500",
+    "configuration_sha256": "04d6acdcff82b1b4f947f53c9d38ac67401d8018b81c7d17b89567d7e72ecf96",
     "edges": 53537,
-    "fingerprint": "a729bd7669f3cdd716e4783ddadc208533caa1c8f67c26cdb80f2cbb9d8b626e",
+    "fingerprint": "25d82e4d25d575e9240c8126ec4cbaf6ea0698fe79d0ac86f7c9289a47a58bae",
     "path": "relation.csr",
     "payload_bytes": 231572,
     "schema": "spiking-neuron-mapgraph-csr-reference-v1",
@@ -129,6 +136,21 @@
   "scc_count_used_as_acceptance_gate": false,
   "schema": "spiking-neuron-atlas-acceptance-v1",
   "scientific_protocol_revision": "spiking-neuron-scientific-clock-v1",
+  "single_handle_bridge_diagnostics": {
+    "algorithm_revision": "terminal-single-handle-bisection-v1",
+    "attempts": 0,
+    "failed_probes": 0,
+    "intermediate_time_graph_edges_added": false,
+    "probe_points": 0,
+    "raw_unresolved_stage_edges": 27,
+    "residual_unresolved_stage_edges": 27,
+    "synthesized": 0,
+    "terminal_image_carrier_only": true
+  },
+  "single_handle_bridge_enabled": false,
+  "single_handle_bridge_max_bisections": 12,
+  "single_handle_bridge_sources": 0,
+  "source_total_depth": null,
   "sparse_incidence_parity": {
     "axis_depth": 6,
     "cells": 2177,

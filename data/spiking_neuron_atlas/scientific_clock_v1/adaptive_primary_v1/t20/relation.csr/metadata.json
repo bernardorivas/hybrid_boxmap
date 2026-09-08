@@ -6,7 +6,7 @@
       "7": 8586,
       "8": 488
     },
-    "adaptive_preflight_fingerprint": "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c",
+    "adaptive_preflight_fingerprint": "d44fc1ed7f980a4be5e62ed86c368c1ba98ff48027f984742344856a8137f26e",
     "analytic_conley_label_attached": false,
     "axis_depth": 8,
     "boxmap_revision": "spiking-neuron-l-domain-split-v1",
@@ -20,12 +20,15 @@
     "protocol_revision": "spiking-neuron-adaptive-primary-t20-v1",
     "samples_per_axis": 3,
     "schema": "spiking-neuron-mapgraph-csr-configuration-v1",
+    "single_handle_bridge_algorithm_revision": null,
+    "single_handle_bridge_enabled": false,
+    "single_handle_bridge_max_bisections": 12,
     "source_total_depth": 14,
     "t_star": 20.0,
     "total_depth": 16,
     "whole_cell_outer_enclosure_certified": false
   },
-  "configuration_sha256": "6f255eff1a478826ec54a64aabf51ec8e781f4c975d351c92eef9d3f68c7375a",
+  "configuration_sha256": "0ed4b19a76dda9c876e1f6f535b0eee2ef25869cdbee73dda7b778827721f396",
   "edges": 274029,
   "files": {
     "offsets": {
@@ -52,7 +55,7 @@
   "fingerprint": {
     "algorithm": "sha256",
     "fields": {
-      "configuration_sha256": "6f255eff1a478826ec54a64aabf51ec8e781f4c975d351c92eef9d3f68c7375a",
+      "configuration_sha256": "0ed4b19a76dda9c876e1f6f535b0eee2ef25869cdbee73dda7b778827721f396",
       "edges": 274029,
       "format_revision": 1,
       "offsets_dtype": "<i8",
@@ -62,7 +65,7 @@
       "targets_sha256": "a17b4355e90b0ed0a93d5a37bb940603bb8ddc2ddf477d5d515e2086a297fa72",
       "vertices": 9074
     },
-    "sha256": "9cffa84c0d08fa4bfb31b3b75c5b586965c4c92c4adb1472a89f678901aae924"
+    "sha256": "b3ce2a1dbf906bbc9b14f9dfa289ba842bb627879473f0c7ce1d1dabbc74fe2a"
   },
   "format_revision": 1,
   "payload_bytes": 1168716,

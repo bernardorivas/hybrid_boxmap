@@ -81,8 +81,8 @@
       0,
       0
     ],
-    "file_sha256": "d8c9fb75ed1fc27ac6b988b6fe626d3d3e0ac136aa9231ac0f8c09557dd85229",
-    "fingerprint": "08871b0cc0322f6bdc7a0dc698d9334c4cf886e1c55a1a47fd9143b70b4e19a9",
+    "file_sha256": "3d6df4751c7bac5c0e20ec56957f1014a42199aea4fb47cf41551bce2f0969d4",
+    "fingerprint": "8187c142f31c90e48acb0ca338faff6b802e99f7543d2f8ff51cfc0c2c840738",
     "finite_relation_conley_index": {
       "cell_counts": [
         1113,
@@ -242,14 +242,14 @@
       8674,
       8678
     ],
-    "reference_support_fingerprint": "ec6ed1ab16c3b37189bc2fb945bab26544a9819847f6c6d2c6af71dfaa6c431c",
-    "relation_csr_fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+    "reference_support_fingerprint": "1876e314459610a1a145e7cb1e44e81568869b49cd9dad4f15877f1903c3ccc9",
+    "relation_csr_fingerprint": "dcd7ca849049ddf1c7ea63fea88756a61d726286b32742b4c167120291823566",
     "schema": "spiking-neuron-conley-chain-reference-v1",
     "strict_reload_recomputed_shift_class": true
   },
   "coefficient_field": "GF(5)",
   "complete_unpruned_relation_used": true,
-  "conley_computation_seconds": 33.031705916975625,
+  "conley_computation_seconds": 33.81707191700116,
   "continuous_system_blockers": [
     "no_external_continuous_index_pair_theorem",
     "sampled_box_map_not_a_rigorous_outer_enclosure",
@@ -260,7 +260,7 @@
   "depth": 16,
   "expected_polynomial_gate_used": false,
   "external_continuous_index_pair_theorem_available": false,
-  "fingerprint": "750bf1a22d5b69ed77a6221c4e10621ea95b08d01e791ede25b6e7ee3a44cee3",
+  "fingerprint": "7a816b6c881c0428e6a7ccb900a3990df76540ace7a0da76422d64adcf2eeb44",
   "finite_relation_blockers": [],
   "finite_relation_conley_index": {
     "cell_counts": [
@@ -326,23 +326,23 @@
     "acceptance_stage_gates_passed": true,
     "family_fingerprint": "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706",
     "relation_csr": {
-      "configuration_sha256": "70a0464adab6b4e6a16000a9030864f0c1fdf42c6fdb015288785d7ee6a6f521",
+      "configuration_sha256": "425f356ef5a0bb21f586194dd77dadfbd02fe2d1333b286a02449c683556bdb5",
       "edges": 282448,
-      "fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+      "fingerprint": "dcd7ca849049ddf1c7ea63fea88756a61d726286b32742b4c167120291823566",
       "path": "relation.csr",
       "payload_bytes": 1202392,
       "schema": "spiking-neuron-mapgraph-csr-reference-v1",
       "vertices": 9074
     },
     "source_provenance": {
-      "content_sha256": "6857df980772e54dfe5f0b79f11c70089acf2cfd6259dbda3fd378a085b63e67",
+      "content_sha256": "b285ae4eef9fb7aa89917b21e827ae324c191c5a54000af0d4cb1f2fb72c27a0",
       "diagnostic_only": true,
-      "file_sha256": "2a879144071da24005a37ef51079f389ab294891c0df04006d92f68f09adcdd7",
+      "file_sha256": "b9ec4d435e4cefe3a25dd61f56a8feaae4a3f668307d63ae67fbc98eb602afdc",
       "path": "provenance.jsonl.gz",
-      "relation_csr_fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+      "relation_csr_fingerprint": "dcd7ca849049ddf1c7ea63fea88756a61d726286b32742b4c167120291823566",
       "schema": "spiking-neuron-source-provenance-reference-v1",
       "source_records": 9074,
-      "trailer_fingerprint": "ada5ebe5249d79f8e8d98dd192958b41d1d7b3db9e85f6864a1cf722254c8197"
+      "trailer_fingerprint": "41ac0ebefe51a6fd8557a2467edf5adec4c815f98fd01d9f273fb24b51662e57"
     }
   },
   "intersections_audited": 9866,
@@ -388,7 +388,7 @@
   "reference_support": {
     "all_labels_intersect_recurrent_pair": true,
     "base_samples": 129,
-    "fingerprint": "ec6ed1ab16c3b37189bc2fb945bab26544a9819847f6c6d2c6af71dfaa6c431c",
+    "fingerprint": "1876e314459610a1a145e7cb1e44e81568869b49cd9dad4f15877f1903c3ccc9",
     "handle_samples": 65,
     "labels": {
       "reference-base-0": [
@@ -1661,7 +1661,7 @@
       8674,
       8678
     ],
-    "relation_csr_fingerprint": "111c252936e322dfc386f460c7e48dd99c3e903a74c73c4fbe42bca8dc741c00",
+    "relation_csr_fingerprint": "dcd7ca849049ddf1c7ea63fea88756a61d726286b32742b4c167120291823566",
     "source_hits_with_multiplicity": 196,
     "source_ids": [
       590,

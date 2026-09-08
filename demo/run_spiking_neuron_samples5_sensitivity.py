@@ -33,16 +33,21 @@ from hybrid_dynamics.src.io_utils import atomic_write_json
 
 PROTOCOL_REVISION = "spiking-neuron-adaptive-terminal-bridge-samples5-t20-v1"
 EXPECTED_PREFLIGHT_FINGERPRINT = (
-    "f22fc029302b49ec34313912b27503ffd33b0e7c92a9555d1c8ab90201cd5d36"
+    # Recomputed 2026-09-03 (previously f22fc029...); see the relation note below.
+    "bbbd20468b30dd7d9d382dcfa70af468fc66f95eed5c7535b7647d3b4a94835b"
 )
 EXPECTED_ADAPTIVE_PREFLIGHT_FINGERPRINT = (
-    "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c"
+    # Recomputed 2026-09-03 (previously 0d35774f...); only source_artifacts changed.
+    "4554dbbd8d31fa45df16e85486f508c03cc9ed0a87413635f3bb1b4506faabe1"
 )
 EXPECTED_FAMILY_FINGERPRINT = (
     "45917b973ccf7e10eb891ad27276529377db5f9de961dedbb62468936d445706"
 )
 EXPECTED_PRIMARY_RELATION_FINGERPRINT = (
-    "44ea6ef42010fa8a0498a05b5c1d233ca95269dc438cd4e11bce7b86357eb1d5"
+    # Recomputed 2026-09-03.  The relation arrays (offsets/targets sha256) are
+    # unchanged from the 2026-08-23 run (44ea6ef4...); the CSR configuration
+    # metadata gained adaptive_preflight_fingerprint, which shifts the hash.
+    "6a00731ee973c00cb906f5a454d9638028c1044e9c09cdcc3be2fc404c980661"
 )
 EXPECTED_LOGICAL_POINTS = 226_850
 EXPECTED_UNIQUE_POINTS = 146_650

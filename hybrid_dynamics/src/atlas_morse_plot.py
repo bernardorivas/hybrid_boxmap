@@ -1045,7 +1045,7 @@ def plot_atlas_hybrid_morse_sets(
                 frameon=False,
                 fontsize=7.5,
             )
-    if finite_relation_annotations is not None:
+    if show_status_note and finite_relation_annotations is not None:
         figure.text(
             0.995,
             0.002,
@@ -1072,11 +1072,7 @@ def plot_atlas_hybrid_morse_sets(
         left=0.075,
         right=0.99,
         top=0.82 if title is not None else 0.96,
-        bottom=(
-            0.24
-            if show_legend
-            else (0.18 if finite_relation_annotations is not None else 0.15)
-        ),
+        bottom=0.24 if show_legend else (0.18 if show_status_note else 0.15),
         wspace=0.32,
     )
 

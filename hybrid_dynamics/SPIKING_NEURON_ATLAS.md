@@ -272,7 +272,9 @@ The two complete relations themselves are not identical: 68 source rows
 change, with 4,831 arrows added and 217 removed.  Thus the agreement is a
 genuine fixed sampling-sensitivity result rather than a copied label.  The
 authenticated comparison fingerprint is
-`dee78586b9e23b3ed4e5bd1a4e89acf7915f6ce4c697c3360033522b60d00226`.
+`77d01be6eab45d47ca42f298755f900ee05892204694799a4ac903e1c5ca30bd`
+(recomputed 2026-09-03; the earlier value `dee78586...` bound to the same
+relation arrays under an older CSR metadata schema).
 
 These statements concern the validated sampled finite relation only.  The
 whole-cell box map is not a numerically rigorous outer approximation, the
@@ -309,8 +311,15 @@ the sampling sensitivity and exact comparison are under
 `adaptive_terminal_bridge_samples5_v1/`.  Each Conley directory contains a
 self-fingerprinted summary and an exact compressed sparse boundary/chain-map
 checkpoint bound to the authoritative relation CSR and complete source
-provenance.  The vector diagnostic, PNG preview, and strict figure manifest
-are written under `output/pdf/`.
+provenance.  The paper figure is drawn by the shared Atlas plotter from the strictly
+loaded stage (CSR relation, authenticated provenance, and summary), with
+the finite-relation shift class passed through the same gated annotation
+loader as the bouncing-ball and rimless-wheel diagnostics.  The PDF and
+PNG are written under `output/pdf/`, the PDF is copied to
+`paper/figures/hybrid-morse-spiking-neuron-atlas-tau2000-depth16.pdf`,
+the plot cache and re-enveloped index audit are stored beside the stage,
+and the manifest goes to `data/paper_figure_manifests/`.  The figure
+carries no in-figure caption or status text.
 
 Each stage writes a fingerprinted memory-mapped CSR relation, complete
 per-source compressed diagnostic provenance with an authenticated trailer

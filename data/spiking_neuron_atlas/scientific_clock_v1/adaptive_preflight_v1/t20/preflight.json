@@ -13,7 +13,7 @@
     }
   },
   "fine_axis_depth": 8,
-  "fingerprint": "0d35774f217490d2e2f9c0c32992085bfd3fe51fecacf66860a78c86e44d911c",
+  "fingerprint": "4554dbbd8d31fa45df16e85486f508c03cc9ed0a87413635f3bb1b4506faabe1",
   "fixed_caps": {
     "max_csr_payload_bytes": 1073741824,
     "max_native_cache_bytes": 1073741824,
@@ -1038,8 +1038,8 @@
   "selection_uses_scc_or_morse_count": false,
   "source_artifacts": {
     "family_fingerprint": "6c39876bad173f6a1e1584ffd267213573150d2586b1cd4a3dba513621bae4e6",
-    "provenance_trailer_fingerprint": "dc66e272f8f46cd0dc9c9ef8c9a3ac26d7cbfed681e567a72230e2f362d65006",
-    "relation_csr_fingerprint": "c07e8fac9988cd5c774204c58d683846812ceab53c972be1a14de84881a38ed2"
+    "provenance_trailer_fingerprint": "f60f3bb20d2a56d8fdc4acd48d42642f1a13d9244442c59396165ee5ff34517e",
+    "relation_csr_fingerprint": "10cb9ab298552c8c7c621e2ea6fc3f2a904f7c20f21d8135effdfe48cfc5042b"
   },
   "source_axis_depth": 7,
   "source_paths": {
@@ -1050,9 +1050,9 @@
   "source_total_depth": 14,
   "t_star": 20.0,
   "timing_calibration": {
-    "linear_projected_precompute_seconds_not_a_guarantee": 136.4423255846869,
-    "no_dynamics_preflight_seconds": 0.9415338330436498,
-    "observed_uniform_precompute_seconds": 130.6353284169454,
+    "linear_projected_precompute_seconds_not_a_guarantee": 123.51190510470545,
+    "no_dynamics_preflight_seconds": 0.9428730829968117,
+    "observed_uniform_precompute_seconds": 118.25522774999263,
     "observed_uniform_unique_points": 35454
   },
   "witnesses": {
