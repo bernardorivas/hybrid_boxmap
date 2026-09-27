@@ -33,6 +33,9 @@ from matplotlib import patches
 from matplotlib.axes import Axes
 from matplotlib.collections import PatchCollection
 from matplotlib.figure import Figure
+from matplotlib.path import Path as MplPath
+from matplotlib.textpath import TextPath
+from matplotlib.transforms import Affine2D
 
 from .sampled_suspension import BaseCell, PhaseCell
 
@@ -825,7 +828,7 @@ def _morse_graph_positions(
     if dot is not None and len(graph.nodes) > 1:
         statements = [
             "digraph MorseOrder {",
-            'graph [rankdir=TB, ranksep="0.62", nodesep="0.38", ordering=out];',
+            'graph [rankdir=TB, ranksep="0.30", nodesep="0.22", ordering=out];',
         ]
         statements.extend(
             (
@@ -904,14 +907,95 @@ def _morse_graph_positions(
     return positions
 
 
+MORSE_LABEL_LINE_SPACING = 1.2
+"""Distance between label baselines, in multiples of the font size."""
+
+
 def _morse_node_size(label: str, font_size: float) -> tuple[float, float]:
-    """Return a compact ellipse size for a rendered graph-node label."""
+    """Return the ellipse size, in inches, that contains a node label.
+
+    The label is measured at ``font_size`` points.  The ellipse has semi-axes
+    ``sqrt(2)`` times the half-sides of the padded text box, so the corners of
+    the box lie on the ellipse and the whole label lies inside it.
+    """
 
     lines = label.splitlines() or [""]
-    font_scale = font_size / 7.2
-    width = max(0.76, (0.42 + 0.050 * max(map(len, lines))) * font_scale)
-    height = (0.46 if len(lines) == 1 else 0.66) * font_scale
-    return float(width), float(height)
+    text_width = max(
+        TextPath((0.0, 0.0), line, size=font_size).get_extents().width
+        if line
+        else 0.0
+        for line in lines
+    )
+    text_height = len(lines) * MORSE_LABEL_LINE_SPACING * font_size
+    padding = 0.35 * font_size
+    width = np.sqrt(2.0) * (text_width + padding) / 72.0
+    height = np.sqrt(2.0) * (text_height + padding) / 72.0
+    return float(max(width, 0.76 * font_size / 7.2)), float(height)
+
+
+class MorseNodeLabel(patches.PathPatch):
+    """The label of one Morse-graph node, drawn as a path.
+
+    ``text`` is the label as a string, one line per row of the drawing.
+    """
+
+    def __init__(self, path: MplPath, text: str, **kwargs: object) -> None:
+        super().__init__(path, **kwargs)
+        self.text = text
+
+
+def morse_graph_node_labels(axis: Axes) -> tuple[str, ...]:
+    """Return the node labels drawn on a Morse-graph axis."""
+
+    return tuple(
+        patch.text for patch in axis.patches if isinstance(patch, MorseNodeLabel)
+    )
+
+
+def _draw_morse_node_label(
+    axis: Axes,
+    center: tuple[float, float],
+    label: str,
+    font_size: float,
+) -> None:
+    """Draw a node label as a path in data coordinates.
+
+    The graph layout is in inches, and the label is drawn at ``font_size``
+    points in the same units, so it scales with its ellipse however large the
+    graph and however small the axis.  A text artist would keep its point size
+    and leave the ellipse when the axis shrinks the layout.
+    """
+
+    lines = label.splitlines()
+    size = font_size / 72.0
+    line_step = MORSE_LABEL_LINE_SPACING * size
+    first_center = center[1] + line_step * (len(lines) - 1) / 2.0
+    line_paths = []
+    for row, line in enumerate(lines):
+        if not line:
+            continue
+        path = TextPath((0.0, 0.0), line, size=size)
+        extents = path.get_extents()
+        baseline = first_center - row * line_step - 0.30 * size
+        line_paths.append(
+            path.transformed(
+                Affine2D().translate(
+                    center[0] - (extents.x0 + extents.width / 2.0),
+                    baseline,
+                )
+            )
+        )
+    if not line_paths:
+        return
+    axis.add_patch(
+        MorseNodeLabel(
+            MplPath.make_compound_path(*line_paths),
+            label,
+            facecolor="#111111",
+            edgecolor="none",
+            zorder=3,
+        ),
+    )
 
 
 def _ellipse_edge_point(
@@ -1027,15 +1111,11 @@ def _draw_morse_graph(
                 zorder=2,
             ),
         )
-        axis.text(
-            x_position,
-            y_position,
+        _draw_morse_node_label(
+            axis,
+            (x_position, y_position),
             labels[int(node)],
-            ha="center",
-            va="center",
-            fontsize=font_size,
-            color="#111111",
-            zorder=3,
+            font_size,
         )
 
     if positions:

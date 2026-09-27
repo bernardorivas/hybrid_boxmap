@@ -25,6 +25,7 @@ from hybrid_dynamics import (
     save_atlas_morse_plot_data,
     save_hybrid_morse_figure,
 )
+from hybrid_dynamics.src.hybrid_morse_plot import morse_graph_node_labels
 
 
 class _FakeAtlasMorseGraph:
@@ -177,7 +178,7 @@ def test_plot_hybrid_morse_sets_dispatches_to_native_atlas_path():
         assert set(plot.morse_graph.edges) == {(2, 1), (1, 0)}
         assert plot.projection_axes[0].get_xlabel() == r"$q$"
         assert len(plot.projection_axes[0].collections) == 3
-        assert {text.get_text() for text in plot.morse_graph_axis.texts} == {
+        assert set(morse_graph_node_labels(plot.morse_graph_axis)) == {
             "M(0)\n3 cells",
             "M(1)\n1 cells",
             "M(2)\n1 cells",
@@ -204,7 +205,7 @@ def test_certificate_backed_finite_relation_labels_are_scoped_and_plotted(tmp_pa
     try:
         assert annotations.shift_classes[0] == ("x-1", "x-1", "0")
         assert annotations.continuous_system_conley_index_certified is False
-        graph_labels = {text.get_text() for text in plot.morse_graph_axis.texts}
+        graph_labels = set(morse_graph_node_labels(plot.morse_graph_axis))
         assert "M(0)\n(x-1, x-1, 0)" in graph_labels
         assert "M(1)\n(0, x-1, 0)" in graph_labels
         assert any(

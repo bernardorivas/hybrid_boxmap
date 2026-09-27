@@ -28,6 +28,9 @@ from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
 from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
     AtlasFiniteRelationIndexAnnotations,
 )
+from hybrid_dynamics.src.hybrid_morse_plot import (  # noqa: E402
+    morse_graph_node_labels,
+)
 from hybrid_dynamics.src.suspension_grid_plot import (  # noqa: E402
     TRIVIAL_INDEX_REASON,
     decode_index_ranges,
@@ -140,7 +143,7 @@ def test_blocked_nodes_are_marked_and_hidden_nodes_keep_colors():
             node: colors[node] for node in selection.shown
         }
         assert tuple(sorted(plot.morse_graph.edges)) == selection.order
-        texts = sorted(text.get_text() for text in plot.morse_graph_axis.texts)
+        texts = sorted(morse_graph_node_labels(plot.morse_graph_axis))
         assert texts == ["M(0)\n(x-1, 0, 0)", "M(2)\nblocked", "M(4)\n(x-1, 0, 0)", "M(5)\n(x-1, 0, 0)"]
         ellipses = [
             patch for patch in plot.morse_graph_axis.patches if isinstance(patch, patches.Ellipse)

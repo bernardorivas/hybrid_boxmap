@@ -16,7 +16,11 @@ from matplotlib import patches
 
 from hybrid_dynamics.src.hybrid_morse_plot import (
     CMGDB_MORSE_PALETTE,
+    HybridMorseComponent,
+    MorseNodeLabel,
     PlotHybridMorseSets,
+    _draw_morse_graph,
+    morse_graph_node_labels,
     hybrid_morse_components,
     hybrid_morse_hasse,
     plot_hybrid_morse_sets,
@@ -116,7 +120,7 @@ def test_plot_separates_base_projections_handles_and_cemetery_marker():
         assert plot.projection_axes[1].get_ylabel() == r"$\dot\phi$"
         assert set(plot.morse_graph.nodes) == {0, 1}
         assert not plot.morse_graph.edges
-        assert {text.get_text() for text in plot.morse_graph_axis.texts} == {
+        assert set(morse_graph_node_labels(plot.morse_graph_axis)) == {
             "M(0)",
             "M(1)",
         }
@@ -147,7 +151,7 @@ def test_default_paper_view_omits_auxiliary_cemetery_component():
     try:
         assert [component.index for component in plot.components] == [0]
         assert set(plot.morse_graph.nodes) == {0}
-        assert {text.get_text() for text in plot.morse_graph_axis.texts} == {"M(0)"}
+        assert set(morse_graph_node_labels(plot.morse_graph_axis)) == {"M(0)"}
     finally:
         plt.close(plot.figure)
 
@@ -164,7 +168,7 @@ def test_no_handle_layout_propagates_explicit_conley_index_label():
         assert len(plot.projection_axes) == 1
         assert plot.morse_graph_axis is not None
         assert len(plot.figure.axes) == 2
-        assert {text.get_text() for text in plot.morse_graph_axis.texts} == {
+        assert set(morse_graph_node_labels(plot.morse_graph_axis)) == {
             "M(0)\n(x-1, 0)",
         }
         assert any(
@@ -211,3 +215,60 @@ def test_morse_order_uses_paths_through_transient_sccs():
 
     order = hybrid_morse_hasse(result)
     assert set(order.edges) == {(0, 1)}
+
+
+def test_node_labels_stay_inside_their_ellipses_in_a_small_axis():
+    graph = nx.DiGraph(
+        [(14, 8), (14, 13), (8, 5), (8, 6), (5, 2), (6, 2), (13, 12), (12, 11)]
+        + [(11, 10), (10, 4), (10, 9), (4, 0), (9, 7), (7, 3), (3, 1)]
+    )
+    components = [
+        HybridMorseComponent(
+            index=node,
+            label=f"M({node})",
+            color=CMGDB_MORSE_PALETTE[node % len(CMGDB_MORSE_PALETTE)],
+            nodes=frozenset((node,)),
+            base_cells=(),
+            phase_cells=(),
+            cemetery_cells=(),
+        )
+        for node in graph.nodes
+    ]
+    blocked = {3, 5, 6, 7, 8, 13, 14}
+    indices = {
+        node: ("x-1", "x-1", "0", "0") for node in graph.nodes if node not in blocked
+    }
+    figure, axis = plt.subplots(figsize=(1.0, 1.5))
+    try:
+        _draw_morse_graph(
+            axis,
+            graph,
+            components,
+            conley_indices=indices,
+            show_component_sizes=False,
+            show_title=False,
+            blocked_index_nodes=blocked,
+        )
+        figure.subplots_adjust(left=0.3, right=0.7)
+        ellipses = [p for p in axis.patches if isinstance(p, patches.Ellipse)]
+        labels = [p for p in axis.patches if isinstance(p, MorseNodeLabel)]
+        assert len(ellipses) == len(labels) == 15
+        assert sorted(morse_graph_node_labels(axis)) == sorted(
+            f"M({node})\n" + ("blocked" if node in blocked else "(x-1, x-1, 0, 0)")
+            for node in graph.nodes
+        )
+        for label in labels:
+            vertices = label.get_path().vertices
+            center = vertices.mean(axis=0)
+            ellipse = min(
+                ellipses,
+                key=lambda e: (e.center[0] - center[0]) ** 2
+                + (e.center[1] - center[1]) ** 2,
+            )
+            scaled = (
+                ((vertices[:, 0] - ellipse.center[0]) / (ellipse.width / 2.0)) ** 2
+                + ((vertices[:, 1] - ellipse.center[1]) / (ellipse.height / 2.0)) ** 2
+            )
+            assert scaled.max() < 1.0, label.text
+    finally:
+        plt.close(figure)
