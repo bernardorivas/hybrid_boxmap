@@ -15,8 +15,13 @@ outside the window.  ``--eval-mode center`` (padding forced) and
 the other CMGDB evaluation modes; ``--eval-mode tensor`` with
 ``--samples-per-axis`` is the earlier tensor rule.  ``--gap-refinement-depth``
 selects the opt-in gap refinement of :func:`compute_suspension_grid_relation`
-(corners and tensor only).  Output names carry a suffix for every
-non-default choice, for example ``-tensor3`` or ``-gap-refined``.
+(corners and tensor only).  Output names carry the
+evaluation mode (``-corners``, ``-center``, ``-random10d4s0``, ``-tensor3``)
+and, with gap refinement, the suffix ``-gap-refined``.  ``--tau EXAMPLE=T``
+replaces the default ``tau`` of an example.  For the impacting van der
+Pol-Duffing oscillator the summary also records which Morse sets contain
+points of the numerically known invariant sets ``F``, ``Z``, ``C``, ``S``,
+``U_Z``.
 
 Run from the ``code`` directory, for example::
 
@@ -50,6 +55,7 @@ from hybrid_dynamics import (  # noqa: E402
 )
 from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
     PAPER_GRID_PROBLEMS,
+    PAPER_GRID_REFERENCE_SETS,
     paper_grid_problem_factory,
 )
 from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
@@ -79,7 +85,12 @@ from hybrid_dynamics.src.suspension_grid_relation import (  # noqa: E402
 )
 
 
-DEFAULT_LEVELS = {"bouncing-ball": 5, "rimless-wheel": 6, "spiking-neuron": 8}
+DEFAULT_LEVELS = {
+    "bouncing-ball": 5,
+    "rimless-wheel": 6,
+    "spiking-neuron": 8,
+    "impact-vdp-duffing": 7,
+}
 FIGURE_STYLE = {
     "bouncing-ball": {"labels": (r"$h$", r"$v$"), "handle": (r"$v_G$", r"$s$"), "view": "domain"},
     "rimless-wheel": {
@@ -88,6 +99,11 @@ FIGURE_STYLE = {
         "view": "support",
     },
     "spiking-neuron": {"labels": (r"$v$", r"$u$"), "handle": (r"$u_G$", r"$s$"), "view": "support"},
+    "impact-vdp-duffing": {
+        "labels": (r"$x$", r"$v$"),
+        "handle": (r"$v_G$", r"$s$"),
+        "view": "domain",
+    },
 }
 
 
@@ -119,7 +135,14 @@ def _arguments() -> argparse.Namespace:
         action="append",
         default=[],
         metavar="EXAMPLE=N",
-        help="grid level per example (defaults: ball 5, wheel 6, neuron 8)",
+        help="grid level per example (defaults: ball 5, wheel 6, neuron 8, impact 7)",
+    )
+    parser.add_argument(
+        "--tau",
+        action="append",
+        default=[],
+        metavar="EXAMPLE=T",
+        help="suspension time per example (defaults: those of the example factories)",
     )
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument(
@@ -203,15 +226,57 @@ def _sampling_suffix(options: dict[str, object]) -> str:
         return f"-random{options['num_pts']}d{options['sample_depth']}s{options['seed']}"
     if mode == "tensor":
         return f"-tensor{options['samples_per_axis']}"
-    if mode == "center":
-        return "-center"
-    return ""
+    return f"-{mode}"
 
 
-def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, object]:
+def _identify_nodes(
+    grid, morse, reference_sets: dict[str, dict[str, np.ndarray]]
+) -> dict[str, object]:
+    """Which Morse sets contain points of the named invariant sets.
+
+    A point counts for a Morse set if a closed piece of one of its atoms
+    contains the point (base points on an identification count on both
+    sides).  Per set: the number of points, the count per Morse node, and
+    the count lying in no Morse set.
+    """
+
+    node_of_atom = np.full(grid.n_atoms, -1, dtype=np.int64)
+    for index, morse_set in enumerate(morse.morse_sets):
+        node_of_atom[morse_set] = index
+    result: dict[str, object] = {}
+    for name, points in reference_sets.items():
+        base = np.asarray(points["base"], dtype=float).reshape(-1, 2)
+        handle = np.asarray(points["handle"], dtype=float).reshape(-1, 2)
+        located_base = grid.locate_base_points(base)
+        located_handle = grid.locate_handle_points(handle[:, 0], handle[:, 1])
+        rows = np.concatenate(
+            (located_base.point_index, base.shape[0] + located_handle.point_index)
+        )
+        nodes = node_of_atom[grid.atom_of_piece[
+            np.concatenate((located_base.piece, located_handle.piece))
+        ]]
+        total = base.shape[0] + handle.shape[0]
+        per_node = {}
+        for node in np.unique(nodes[nodes >= 0]).tolist():
+            per_node[str(node)] = int(np.unique(rows[nodes == node]).size)
+        in_some = np.unique(rows[nodes >= 0])
+        result[name] = {
+            "points": int(total),
+            "base_points": int(base.shape[0]),
+            "handle_points": int(handle.shape[0]),
+            "points_per_node": per_node,
+            "points_in_no_morse_set": int(total - in_some.size),
+        }
+    return result
+
+
+def _run(
+    name: str, level: int, arguments: argparse.Namespace, tau: float | None = None
+) -> dict[str, object]:
     timings: dict[str, float] = {}
-    problem = PAPER_GRID_PROBLEMS[name]()
-    factory = paper_grid_problem_factory(name)
+    options = {} if tau is None else {"tau": float(tau)}
+    problem = PAPER_GRID_PROBLEMS[name](**options)
+    factory = paper_grid_problem_factory(name, **options)
     depth = int(arguments.gap_refinement_depth)
     sampling = _sampling_options(arguments)
     suffix = _sampling_suffix(sampling) + ("-gap-refined" if depth > 0 else "")
@@ -332,6 +397,13 @@ def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, obje
             }
         )
 
+    reference_sets = PAPER_GRID_REFERENCE_SETS.get(name)
+    identification = (
+        _identify_nodes(grid, morse, reference_sets(problem)) if reference_sets else None
+    )
+    if identification is not None:
+        print(f"node identification: {identification}", flush=True)
+
     conley: list[dict[str, object]] = []
     if not arguments.no_conley:
         started = time.perf_counter()
@@ -433,6 +505,7 @@ def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, obje
             "scc_count": morse.n_components,
         },
         "morse_graph_path_exit_policy": path_policy,
+        "reference_set_identification": identification,
         "conley": conley,
         "conley_labels_in_figure": {str(key): list(value) for key, value in labels.items()},
         "continuous_system_conley_index_certified": False,
@@ -460,8 +533,14 @@ def main() -> int:
         if key not in levels:
             raise SystemExit(f"unknown example in --level: {key}")
         levels[key] = int(value)
+    taus: dict[str, float] = {}
+    for entry in arguments.tau:
+        key, value = entry.split("=", 1)
+        if key not in PAPER_GRID_PROBLEMS:
+            raise SystemExit(f"unknown example in --tau: {key}")
+        taus[key] = float(value)
     for name in arguments.examples or list(PAPER_GRID_PROBLEMS):
-        _run(name, levels[name], arguments)
+        _run(name, levels[name], arguments, taus.get(name))
     return 0
 
 
