@@ -17,7 +17,11 @@ from matplotlib import patches  # noqa: E402
 
 from hybrid_dynamics import PlotHybridMorseSets, build_suspension_grid  # noqa: E402
 from hybrid_dynamics.examples.paper_grid_examples import bouncing_ball_problem  # noqa: E402
-from hybrid_dynamics.examples.paper_grid_figures import write_paper_grid_figures  # noqa: E402
+from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
+    FRAME_MARGIN,
+    draw_paper_grid_figure,
+    write_paper_grid_figures,
+)
 from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
     AtlasFiniteRelationIndexAnnotations,
 )
@@ -149,6 +153,57 @@ def test_blocked_nodes_are_marked_and_hidden_nodes_keep_colors():
     plt.close("all")
 
 
+def test_paper_figure_draws_the_handle_chart_and_enlarges_boundary_cells():
+    problem = bouncing_ball_problem(tau=0.5, level_offset=5)
+    grid = build_suspension_grid(problem.window, problem.guard, 2)
+    # The atoms of the handle pieces over the first guard interval: their base
+    # cells are two cells on the edge h = 0, at v = -5 and v = 4.
+    handle = np.unique(grid.atom_of_piece[grid.handle_piece(0, np.arange(grid.n_phase))])
+    base_cells = grid.base_bounds(grid.base_readout(handle))
+    assert len(base_cells) == 2 and np.all(base_cells[:, 0] == 0.0)
+    data = suspension_grid_morse_sets_plot_data(grid, [handle], [])
+    plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0,))
+    try:
+        (base_axis,) = plot.projection_axes
+        (handle_axis,) = plot.handle_axes
+        (h_lower, h_upper), _v_bounds = grid.window.ambient_bounds
+        margin = FRAME_MARGIN * (h_upper - h_lower)
+        assert base_axis.get_xlim() == pytest.approx((h_lower - margin, h_upper + margin))
+        assert handle_axis.get_xlabel() == r"$v_G$"
+        assert handle_axis.get_ylabel() == r"$s$"
+        assert handle_axis.get_ylim() == pytest.approx((-FRAME_MARGIN, 1.0 + FRAME_MARGIN))
+        # The handle pieces of its atoms are drawn in the color of the set.
+        pieces = np.concatenate([grid.atom(int(atom)) for atom in handle])
+        (cells,) = handle_axis.collections
+        assert len(cells.get_paths()) == np.count_nonzero(pieces >= grid.n_base) >= grid.n_phase
+        assert tuple(cells.get_facecolor()[0][:3]) == pytest.approx(
+            matplotlib.colors.to_rgb(plot.components[0].color)
+        )
+        # The two base cells are specks too far apart for a zoom: marked.
+        assert plot.zooms == ()
+        assert plot.marked_sets == (("base", 0),)
+        (marks,) = base_axis.lines
+        assert sorted(marks.get_ydata()) == pytest.approx(
+            sorted(0.5 * (base_cells[:, 1] + base_cells[:, 3]))
+        )
+    finally:
+        plt.close(plot.figure)
+
+    # The base cell at the origin alone gets a zoom next to the base panel.
+    lower_corners = grid.base_bounds(np.arange(grid.n_base))[:, :2]
+    origin = int(grid.d_map[int(np.argmin(np.abs(lower_corners).sum(axis=1)))])
+    data = suspension_grid_morse_sets_plot_data(grid, [np.array([origin])], [])
+    plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0,))
+    try:
+        (zoom,) = plot.zooms
+        assert (zoom.label, zoom.chart, zoom.morse_nodes) == ("A", "base", (0,))
+        assert zoom.x_limits[0] < 0.0 < zoom.x_limits[1]
+        assert plot.marked_sets == ()
+        assert plot.zoom_axes[0].get_title(loc="left") == "A"
+    finally:
+        plt.close(plot.figure)
+
+
 def _load_replot_script():
     path = CODE_ROOT / "demo" / "replot_paper_grid.py"
     spec = importlib.util.spec_from_file_location("replot_paper_grid", path)
@@ -182,6 +237,9 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     assert all(Path(path).is_file() for path in figures["figures"])
     nontrivial = figures["figure_variants"]["nontrivial"]
     assert nontrivial["shown_nodes"] == [0, 2, 4, 5]
+    assert all(
+        isinstance(record["zooms"], list) for record in figures["figure_variants"].values()
+    )
     assert [entry["morse_node"] for entry in nontrivial["hidden_nodes"]] == [1, 3]
 
     # A JSON summary with the fields the runner writes.

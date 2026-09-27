@@ -6,6 +6,14 @@ run on ``Xi_n`` in the figure variants of :mod:`suspension_grid_plot`:
 trivial finite-relation index hidden, blocked nodes kept and marked).  The
 ``all`` figure is written to ``<stem>.pdf``/``.png`` and the ``nontrivial``
 figure to ``<stem>-nontrivial.pdf``/``.png``.
+
+Each figure has the base chart (the base readout ``d_n^{-1}(M)`` of each Morse
+set), the handle chart (its handle pieces, guard coordinate against the phase
+``s`` in ``[0, 1]``), and the Morse graph, in the same colors.  A Morse set too
+small to see in a chart panel gets a zoom panel (``A``, ``B``, ...) next to
+it; its window is outlined and labeled in the panel, and the zoom shows the
+other Morse sets in the window faded.  Cells that are still specks in a zoom,
+or that are too far apart for one zoom, are marked by squares.
 """
 
 from __future__ import annotations
@@ -17,8 +25,13 @@ from typing import Any
 import matplotlib.pyplot as plt
 import numpy.typing as npt
 
-from ..src.atlas_morse_plot import AtlasFiniteRelationIndexAnnotations
-from ..src.hybrid_morse_plot import PlotHybridMorseSets, save_hybrid_morse_figure
+from ..src.atlas_morse_plot import (
+    AtlasFiniteRelationIndexAnnotations,
+    AtlasHybridMorsePlot,
+    AtlasMorsePlotData,
+    plot_atlas_hybrid_morse_sets,
+)
+from ..src.hybrid_morse_plot import CMGDB_MORSE_PALETTE, save_hybrid_morse_figure
 from ..src.suspension_grid import SuspensionGrid
 from ..src.suspension_grid_plot import (
     FIGURE_VARIANTS,
@@ -27,7 +40,12 @@ from ..src.suspension_grid_plot import (
 )
 
 
-#: Axis labels and base view of the figure of each example.
+#: Fraction of the chart span added on each side of a chart shown whole, so
+#: cells on the window boundary (the ball's Zeno cap at ``h = 0``, the
+#: oscillator's Zeno point on the wall) are not drawn under the axis lines.
+FRAME_MARGIN = 0.02
+
+#: Axis labels of the base and handle charts and the base view of each example.
 PAPER_GRID_FIGURE_STYLE: dict[str, dict[str, Any]] = {
     "bouncing-ball": {"labels": (r"$h$", r"$v$"), "handle": (r"$v_G$", r"$s$"), "view": "domain"},
     "rimless-wheel": {
@@ -53,6 +71,45 @@ def figure_variant_stem(stem: str | Path, variant: str) -> Path:
     return stem if variant == "all" else stem.with_name(f"{stem.name}-{variant}")
 
 
+def draw_paper_grid_figure(
+    plot_data: AtlasMorsePlotData,
+    *,
+    example: str,
+    shown: Sequence[int],
+    blocked: Sequence[int] = (),
+    annotations: AtlasFiniteRelationIndexAnnotations | None = None,
+) -> AtlasHybridMorsePlot:
+    """Draw the figure of the Morse nodes ``shown``: base chart, handle chart, graph.
+
+    The base chart uses the view of :data:`PAPER_GRID_FIGURE_STYLE`; the
+    handle chart shows the whole guard interval against the phase ``s`` in
+    ``[0, 1]``.  Both are widened by :data:`FRAME_MARGIN` when shown whole, and
+    a Morse set too small to see in a chart panel gets a zoom panel.
+    """
+
+    style = PAPER_GRID_FIGURE_STYLE[example]
+    return plot_atlas_hybrid_morse_sets(
+        plot_data,
+        clist=CMGDB_MORSE_PALETTE,
+        morse_nodes=shown,
+        finite_relation_annotations=annotations,
+        blocked_index_nodes=blocked,
+        axis_labels=style["labels"],
+        handle_axis_labels=style["handle"],
+        show_handles=True,
+        show_morse_graph=True,
+        show_legend=False,
+        show_panel_titles=False,
+        show_component_sizes=False,
+        show_status_note=False,
+        base_view=style["view"],
+        handle_view="domain",
+        frame_margin=FRAME_MARGIN,
+        detail_zooms=True,
+        fig_h=3.4,
+    )
+
+
 def write_paper_grid_figures(
     grid: SuspensionGrid,
     morse_sets: Sequence[npt.ArrayLike],
@@ -73,7 +130,9 @@ def write_paper_grid_figures(
     ``conley`` holds the index records of the run (the ``conley`` list of its
     JSON summary).  Returns ``{"figures": [...], "figure_variants": {...}}``,
     where each variant records its files, the shown and hidden nodes (with
-    the reason), the blocked nodes it marks, and the order it draws.
+    the reason), the blocked nodes it marks, the order it draws, its zoom
+    panels (label, chart, window, and the Morse nodes they are drawn for),
+    and the Morse sets whose cells are marked by squares in a chart panel.
     """
 
     plot_data = suspension_grid_morse_sets_plot_data(
@@ -87,7 +146,6 @@ def write_paper_grid_figures(
         for entry in conley
         if entry["computed"]
     }
-    style = PAPER_GRID_FIGURE_STYLE[example]
     figures: list[str] = []
     records: dict[str, Any] = {}
     for variant in dict.fromkeys(variants):
@@ -109,21 +167,12 @@ def write_paper_grid_figures(
             if shown_labels
             else None
         )
-        plot = PlotHybridMorseSets(
+        plot = draw_paper_grid_figure(
             plot_data,
-            morse_nodes=selection.shown,
-            finite_relation_annotations=annotations,
-            blocked_index_nodes=selection.blocked,
-            axis_labels=style["labels"],
-            handle_axis_labels=style["handle"],
-            show_handles=False,
-            show_morse_graph=True,
-            show_legend=False,
-            show_panel_titles=False,
-            show_component_sizes=False,
-            show_status_note=False,
-            base_view=style["view"],
-            fig_h=3.4,
+            example=example,
+            shown=selection.shown,
+            blocked=selection.blocked,
+            annotations=annotations,
         )
         try:
             drawn = tuple(sorted((int(p), int(q)) for p, q in plot.morse_graph.edges))
@@ -136,6 +185,10 @@ def write_paper_grid_figures(
             )
         finally:
             plt.close(plot.figure)
+        record["zooms"] = [zoom.to_dict() for zoom in plot.zooms]
+        record["marked_in_panel"] = [
+            {"chart": chart, "morse_node": node} for chart, node in plot.marked_sets
+        ]
         record["files"] = [display_path(path) for path in outputs]
         figures.extend(record["files"])
         records[variant] = record
@@ -143,7 +196,9 @@ def write_paper_grid_figures(
 
 
 __all__ = [
+    "FRAME_MARGIN",
     "PAPER_GRID_FIGURE_STYLE",
+    "draw_paper_grid_figure",
     "figure_variant_stem",
     "write_paper_grid_figures",
 ]
