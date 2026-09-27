@@ -120,14 +120,17 @@
   ],
   "figures_replotted": {
     "code": {
-      "commit": "ff7ca7729b2d75ccab795cd82dfc7ae232953749",
-      "dirty": false
+      "commit": "6b779ab646c5062b6bd271a72004f275366354f0",
+      "dirty": true
     },
     "command_line": [
       "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.json",
       "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.json"
+      "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined.json"
     ],
     "script": "demo/replot_paper_grid.py"
   },
