@@ -332,6 +332,8 @@ class FiniteCellComplex:
             by_dimension[normalized_dimensions[cell]].append(cell)
 
         self._cells = ordered_cells
+        self._cell_set = frozenset(ordered_cells)
+        self._position = {cell: position for position, cell in enumerate(ordered_cells)}
         self._dimensions = MappingProxyType(normalized_dimensions)
         self._boundaries = MappingProxyType(normalized_boundaries)
         self._by_dimension = tuple(tuple(group) for group in by_dimension)
@@ -343,7 +345,7 @@ class FiniteCellComplex:
 
     @property
     def cell_set(self) -> FrozenSet[Cell]:
-        return frozenset(self._cells)
+        return self._cell_set
 
     @property
     def max_dimension(self) -> int:
@@ -428,9 +430,14 @@ class FiniteCellComplex:
         if not subset:
             return ()
 
+        # Basis of each chain group in the complex's cell order, assembled
+        # from the subset itself rather than by scanning every cell.
+        grouped: List[List[Cell]] = [[] for _ in self._by_dimension]
+        for cell in subset:
+            grouped[self._dimensions[cell]].append(cell)
+        position = self._position
         basis = tuple(
-            tuple(cell for cell in group if cell in subset)
-            for group in self._by_dimension
+            tuple(sorted(group, key=position.__getitem__)) for group in grouped
         )
         ranks = [0] * len(basis)
         for dimension in range(1, len(basis)):

@@ -399,6 +399,13 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
             )
         self._seam_subcomplex_audits = MappingProxyType(seam_subcomplex_audits)
 
+        # Candidate neighbors: cells whose chart footprints (own rectangle and,
+        # for handle cells on a seam, the embedded seam segment) meet.  Every
+        # nonempty pairwise quotient intersection audited below is a meeting
+        # of such footprints, so restricting the candidate scan to this
+        # superset leaves the enumerated simplices unchanged.
+        self._neighbors = self._candidate_neighbors(normalized)
+
         simplices: list[AtlasNerveSimplex] = []
         frontier = [AtlasNerveSimplex((cell.index,)) for cell in normalized]
         while frontier:
@@ -413,11 +420,12 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
                         f"{simplex.vertices!r}: {audit.reason}"
                     )
                 simplices.append(simplex)
+                neighbors = self._neighbors[simplex.vertices[0]]
                 if len(simplex.vertices) >= self.maximum_simplex_size:
                     candidates_exist = any(
                         candidate > simplex.vertices[-1]
                         and self._all_pairwise_intersect(simplex.vertices, candidate)
-                        for candidate in self._cell_by_index
+                        for candidate in neighbors
                     )
                     if candidates_exist:
                         raise AtlasGoodCoverError(
@@ -425,7 +433,7 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
                             "explicit bound before claiming a complete nerve"
                         )
                     continue
-                for candidate in self._cell_by_index:
+                for candidate in neighbors:
                     if candidate <= simplex.vertices[-1]:
                         continue
                     if not self._all_pairwise_intersect(simplex.vertices, candidate):
@@ -544,6 +552,63 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
         return frozenset(
             simplex for simplex in self._simplices if set(simplex.vertices) <= selected
         )
+
+    def _candidate_neighbors(
+        self, cells: Sequence[AtlasRectangleCell2D]
+    ) -> dict[int, tuple[int, ...]]:
+        """Sorted superset of the cells whose closure may meet each cell.
+
+        Footprints are bucketed on a uniform chart grid; two cells are
+        candidates exactly when two of their footprints in the same chart
+        intersect within ``atol``.
+        """
+
+        footprints: dict[int, list[tuple[int, Bounds2D]]] = {}
+        for cell in cells:
+            entries = [(cell.chart_id, cell.bounds)]
+            for option in self._seam_options(cell):
+                entries.append((self.gluing.base_chart_id, option.base_bounds))
+            footprints[cell.index] = entries
+
+        by_chart: dict[int, list[tuple[int, Bounds2D]]] = {}
+        for index, entries in footprints.items():
+            for chart_id, bounds in entries:
+                by_chart.setdefault(chart_id, []).append((index, bounds))
+
+        neighbors: dict[int, set[int]] = {cell.index: set() for cell in cells}
+        for entries in by_chart.values():
+            widths = sorted(bounds[2] - bounds[0] for _index, bounds in entries)
+            heights = sorted(bounds[3] - bounds[1] for _index, bounds in entries)
+            positive_w = [value for value in widths if value > self.atol]
+            positive_h = [value for value in heights if value > self.atol]
+            size_x = positive_w[len(positive_w) // 2] if positive_w else 1.0
+            size_y = positive_h[len(positive_h) // 2] if positive_h else 1.0
+            buckets: dict[tuple[int, int], list[int]] = {}
+            spans: list[tuple[int, Bounds2D, int, int, int, int]] = []
+            for position, (index, bounds) in enumerate(entries):
+                x0 = math.floor((bounds[0] - self.atol) / size_x)
+                x1 = math.floor((bounds[2] + self.atol) / size_x)
+                y0 = math.floor((bounds[1] - self.atol) / size_y)
+                y1 = math.floor((bounds[3] + self.atol) / size_y)
+                spans.append((index, bounds, x0, x1, y0, y1))
+                for bx in range(x0, x1 + 1):
+                    for by in range(y0, y1 + 1):
+                        buckets.setdefault((bx, by), []).append(position)
+            for position, (index, bounds, x0, x1, y0, y1) in enumerate(spans):
+                seen: set[int] = set()
+                for bx in range(x0, x1 + 1):
+                    for by in range(y0, y1 + 1):
+                        for other_position in buckets[(bx, by)]:
+                            if other_position in seen:
+                                continue
+                            seen.add(other_position)
+                            other_index, other_bounds = entries[other_position][:2]
+                            if other_index == index:
+                                continue
+                            if _intersects(bounds, other_bounds, self.atol):
+                                neighbors[index].add(other_index)
+                                neighbors[other_index].add(index)
+        return {index: tuple(sorted(values)) for index, values in neighbors.items()}
 
     def _all_pairwise_intersect(
         self, vertices: tuple[int, ...], candidate: int
@@ -1641,14 +1706,28 @@ def prepare_atlas_relation_conley_2d(
             vertex_images[source] = normalized_relation[source]
 
     complex_ = pair.complex
+    # Index the simplices by their smallest vertex so that the induced
+    # subcomplex on a vertex set T is assembled from the simplices whose
+    # smallest vertex lies in T (each simplex is examined at most once).
+    by_first_vertex: dict[int, list[AtlasNerveSimplex]] = {}
+    for cell in complex_.cells:
+        by_first_vertex.setdefault(cell.vertices[0], []).append(cell)
+    induced_cache: dict[frozenset[int], frozenset[AtlasNerveSimplex]] = {}
     carrier_generators: dict[AtlasNerveSimplex, frozenset[AtlasNerveSimplex]] = {}
     for source in complex_.cells:
         target_vertices: set[int] = set()
         for vertex in source.vertices:
             target_vertices.update(vertex_images[vertex])
-        target_subcomplex = frozenset(
-            cell for cell in complex_.cells if set(cell.vertices) <= target_vertices
-        )
+        key = frozenset(target_vertices)
+        target_subcomplex = induced_cache.get(key)
+        if target_subcomplex is None:
+            target_subcomplex = frozenset(
+                cell
+                for vertex in key
+                for cell in by_first_vertex.get(vertex, ())
+                if key.issuperset(cell.vertices)
+            )
+            induced_cache[key] = target_subcomplex
         if not target_subcomplex:
             raise ValueError(f"relation carrier of {source!r} is empty")
         carrier_generators[source] = target_subcomplex
