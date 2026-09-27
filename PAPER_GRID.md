@@ -201,10 +201,12 @@ outline. Its second line gives the dimensions of the relative homology of
 its pair from degree 0 up, as `dim H (0, 1, 1, 0)`, or `blocked` when they
 are not known.
 
-Each figure has three panels in the same colors: the base chart (the base
-readout `d_n^{-1}(M)` of each Morse set), the handle chart (its handle pieces
-`pi(J x I_{n,k})`, guard coordinate against the phase `s` in `[0, 1]`, over
-the whole guard interval), and the Morse graph. A chart shown whole is
+Each figure shows, in the same colors, the base chart (the base readout
+`d_n^{-1}(M)` of each Morse set) and the Morse graph. The handle chart (the
+handle pieces `pi(J x I_{n,k})`, guard coordinate against the phase `s` in
+`[0, 1]`, over the whole guard interval) is added only when a shown Morse
+set has no base cell, since the base chart would not show that set; no
+current run has such a set. A chart shown whole is
 widened by 2% of its span on each side, so cells on the boundary of the
 window lie inside the axis lines. A Morse set too small to see in a chart
 panel (its cells cover less than 16 of 200 x 200 panel bins) is drawn in a
@@ -764,11 +766,9 @@ it), and C (Z with `M(5)`, `M(6)`, `M(8)` at the stop, window
 `[0.782, 0.812] x [-0.067, 0.074]`: `M(6)` and one cell of `M(8)` just
 above Z, `M(5)` and the other cell of `M(8)` just below). The 32 base cells
 of `M(13)` lie along U_Z, too spread for a zoom that magnifies, and are
-outlined in the base chart. In the handle chart, the pieces of `M(5)`,
-`M(6)`, `M(8)` lie along the right edge of the band of Z (`v_G` in
-`[0.039, 0.077]`) and those of `M(13)` along the right edge of the band of
-U_Z (`v_G` in `[0.682, 0.703]`); they are outlined there, and no zoom can
-enlarge them, since each spans most of the phase interval. The `all` figure of the
+outlined in the base chart. The handle pieces of `M(5)`, `M(6)`, `M(8)`
+lie over `v_G` in `[0.039, 0.077]` and those of `M(13)` over `v_G` in
+`[0.682, 0.703]`; the figures no longer have a handle chart. The `all` figure of the
 `tau = 0.5` run has the zooms A (the ring `M(3)`), B (S and the sixteen
 trivial cells around it), and C (Z).
 Node labels stay inside their ellipses; on the 15- and 22-node graphs they

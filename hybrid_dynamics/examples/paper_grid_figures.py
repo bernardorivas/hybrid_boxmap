@@ -9,8 +9,9 @@ with the dimensions of the relative homology of their pair).  The
 figure to ``<stem>-nontrivial.pdf``/``.png``.
 
 Each figure has the base chart (the base readout ``d_n^{-1}(M)`` of each Morse
-set), the handle chart (its handle pieces, guard coordinate against the phase
-``s`` in ``[0, 1]``), and the Morse graph, in the same colors.  A Morse set too
+set) and the Morse graph, in the same colors.  The handle chart (handle pieces,
+guard coordinate against the phase ``s`` in ``[0, 1]``) is added only when a
+shown Morse set has no base cell, since the base chart would not show it.  A Morse set too
 small to see in a chart panel gets a zoom panel (``A``, ``B``, ...) next to
 it, unless it is too spread for a zoom that magnifies at least about twice;
 the window is outlined and labeled in the panel, and the zoom shows the
@@ -99,16 +100,24 @@ def draw_paper_grid_figure(
     blocked: Sequence[int] | Mapping[int, str] = (),
     annotations: AtlasFiniteRelationIndexAnnotations | None = None,
 ) -> AtlasHybridMorsePlot:
-    """Draw the figure of the Morse nodes ``shown``: base chart, handle chart, graph.
+    """Draw the figure of the Morse nodes ``shown``: base chart and Morse graph.
 
-    ``example`` is the name of an example or a variant.  The base chart uses
-    the view of :data:`PAPER_GRID_FIGURE_STYLE`; the handle chart shows the
-    whole guard interval against the phase ``s`` in ``[0, 1]``.  Both are
-    widened by :data:`FRAME_MARGIN` when shown whole, and a Morse set too
-    small to see in a chart panel gets a zoom panel.
+    ``example`` is the name of an example or a variant.  The base chart shows
+    the base readout ``d_n^{-1}(M)`` of each Morse set in the view of
+    :data:`PAPER_GRID_FIGURE_STYLE`, widened by :data:`FRAME_MARGIN` when
+    shown whole, and a Morse set too small to see gets a zoom panel.  The
+    handle chart (guard coordinate against the phase ``s``) is drawn only
+    when a shown Morse set has no base cell, since such a set would
+    otherwise not appear in the figure.
     """
 
     style = PAPER_GRID_FIGURE_STYLE[paper_grid_example(example)]
+    shown_set = {int(node) for node in shown}
+    show_handles = any(
+        not any(box.chart_id == plot_data.base_chart_id for box in node.boxes)
+        for node in plot_data.nodes
+        if int(node.index) in shown_set
+    )
     return plot_atlas_hybrid_morse_sets(
         plot_data,
         clist=CMGDB_MORSE_PALETTE,
@@ -117,7 +126,7 @@ def draw_paper_grid_figure(
         blocked_index_nodes=blocked,
         axis_labels=style["labels"],
         handle_axis_labels=style["handle"],
-        show_handles=True,
+        show_handles=show_handles,
         show_morse_graph=True,
         show_legend=False,
         show_panel_titles=False,

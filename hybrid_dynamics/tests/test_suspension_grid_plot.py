@@ -160,7 +160,7 @@ def test_blocked_nodes_are_marked_and_hidden_nodes_keep_colors():
     plt.close("all")
 
 
-def test_paper_figure_draws_the_handle_chart_and_enlarges_boundary_cells():
+def test_paper_figure_draws_the_base_chart_and_enlarges_boundary_cells():
     problem = bouncing_ball_problem(tau=0.5, level_offset=5)
     grid = build_suspension_grid(problem.window, problem.guard, 2)
     # The atoms of the handle pieces over the first guard interval: their base
@@ -172,20 +172,11 @@ def test_paper_figure_draws_the_handle_chart_and_enlarges_boundary_cells():
     plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0,))
     try:
         (base_axis,) = plot.projection_axes
-        (handle_axis,) = plot.handle_axes
+        # The set has base cells, so the figure has no handle chart.
+        assert plot.handle_axes == ()
         (h_lower, h_upper), _v_bounds = grid.window.ambient_bounds
         margin = FRAME_MARGIN * (h_upper - h_lower)
         assert base_axis.get_xlim() == pytest.approx((h_lower - margin, h_upper + margin))
-        assert handle_axis.get_xlabel() == r"$v_G$"
-        assert handle_axis.get_ylabel() == r"$s$"
-        assert handle_axis.get_ylim() == pytest.approx((-FRAME_MARGIN, 1.0 + FRAME_MARGIN))
-        # The handle pieces of its atoms are drawn in the color of the set.
-        pieces = np.concatenate([grid.atom(int(atom)) for atom in handle])
-        cells = handle_axis.collections[0]
-        assert len(cells.get_paths()) == np.count_nonzero(pieces >= grid.n_base) >= grid.n_phase
-        assert tuple(cells.get_facecolor()[0][:3]) == pytest.approx(
-            matplotlib.colors.to_rgb(plot.components[0].color)
-        )
         # The two base cells are specks too far apart for a zoom: drawn at
         # their true extent and outlined in the color of the set, no symbol.
         assert plot.zooms == ()
@@ -434,5 +425,30 @@ def test_a_node_without_a_label_shows_its_homology_dimensions():
             if isinstance(patch, patches.Ellipse) and patch.get_linestyle() != "solid"
         ]
         assert len(dashed) == 1
+    finally:
+        plt.close(plot.figure)
+
+
+def test_paper_figure_draws_the_handle_chart_only_for_a_set_without_base_cells():
+    problem = bouncing_ball_problem(tau=0.5, level_offset=5)
+    grid = build_suspension_grid(problem.window, problem.guard, 2)
+    # Atoms of the middle phase pieces over the first guard interval: no base
+    # cell reads out to them, so the base chart alone would not show the set.
+    middle = np.arange(grid.n_phase // 4, 3 * grid.n_phase // 4)
+    atoms = np.unique(grid.atom_of_piece[grid.handle_piece(0, middle)])
+    assert grid.base_readout(atoms).size == 0
+    data = suspension_grid_morse_sets_plot_data(grid, [atoms], [])
+    plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0,))
+    try:
+        (handle_axis,) = plot.handle_axes
+        assert handle_axis.get_xlabel() == r"$v_G$"
+        assert handle_axis.get_ylabel() == r"$s$"
+        assert handle_axis.get_ylim() == pytest.approx((-FRAME_MARGIN, 1.0 + FRAME_MARGIN))
+        pieces = np.concatenate([grid.atom(int(atom)) for atom in atoms])
+        cells = handle_axis.collections[0]
+        assert len(cells.get_paths()) == np.count_nonzero(pieces >= grid.n_base)
+        assert tuple(cells.get_facecolor()[0][:3]) == pytest.approx(
+            matplotlib.colors.to_rgb(plot.components[0].color)
+        )
     finally:
         plt.close(plot.figure)
