@@ -11,6 +11,7 @@ import matplotlib
 matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pytest
 
 from hybrid_dynamics import (
@@ -347,5 +348,133 @@ def test_native_cmgdb_atlas_morse_graph_plots_without_untagging_boxes():
             for component in plot.components
             for box in component.boxes
         } == {0, 1}
+    finally:
+        plt.close(plot.figure)
+
+
+def _small_set_data():
+    """A large set, a thin strip on the left edge, and specks in a ring."""
+
+    from hybrid_dynamics.src.atlas_morse_plot import (
+        AtlasMorseBox,
+        AtlasMorseNode,
+        AtlasMorsePlotData,
+    )
+
+    large = (
+        AtlasMorseBox(0, (0.5, -0.5, 1.5, 0.5)),
+        AtlasMorseBox(1, (0.2, 0.0, 0.6, 1.0)),
+    )
+    strip = tuple(
+        AtlasMorseBox(0, (x, y, x + 0.002, y + 0.002))
+        for x in (0.0, 0.002)
+        for y in np.linspace(-0.1, 0.098, 100)
+    )
+    angles = np.linspace(0.0, 2.0 * np.pi, 8, endpoint=False)
+    specks = tuple(
+        AtlasMorseBox(0, (x, y, x + 0.002, y + 0.002))
+        for x, y in zip(1.8 + 0.1 * np.cos(angles), 0.7 + 0.1 * np.sin(angles))
+    )
+    return AtlasMorsePlotData(
+        base_chart_id=0,
+        handle_chart_id=1,
+        base_bounds=((0.0, 2.0), (-1.0, 1.0)),
+        handle_bounds=((0.0, 1.0), (0.0, 1.0)),
+        nodes=(
+            AtlasMorseNode(0, tuple(sorted(large))),
+            AtlasMorseNode(1, strip),
+            AtlasMorseNode(2, tuple(sorted(specks))),
+        ),
+        edges=((1, 0), (2, 0)),
+        metadata={},
+    )
+
+
+def test_bin_coverage_is_the_covered_area_fraction_of_each_bin():
+    from hybrid_dynamics.src.atlas_morse_plot import _bin_coverage
+
+    bounds = np.array([[0.0, 0.0, 0.5, 0.25], [0.6, 0.3, 0.7, 0.4], [0.0, 0.5, 1.0, 1.0]])
+    coverage = _bin_coverage(bounds, (0.0, 1.0), (0.0, 1.0), 4)
+    assert coverage.sum() == pytest.approx(16 * (0.125 + 0.01 + 0.5))
+    assert coverage[:2, 0] == pytest.approx([1.0, 1.0])
+    assert coverage[2, 1] == pytest.approx(0.16)
+    assert coverage[:, 2:] == pytest.approx(np.ones((4, 2)))
+    # A cell across a bin corner splits its area among four bins.
+    corner = _bin_coverage(np.array([[0.2, 0.2, 0.3, 0.3]]), (0.0, 1.0), (0.0, 1.0), 4)
+    assert corner[:2, :2] == pytest.approx(np.full((2, 2), 0.04))
+
+
+def test_frame_margin_keeps_boundary_cells_inside_the_axis_lines():
+    from hybrid_dynamics.src.atlas_morse_plot import plot_atlas_hybrid_morse_sets
+
+    data = _small_set_data()
+    plot = plot_atlas_hybrid_morse_sets(
+        data,
+        clist=("#1f77b4", "#e6550d", "#31a354"),
+        show_handles=True,
+        show_morse_graph=False,
+        base_view="domain",
+        frame_margin=0.02,
+    )
+    try:
+        base_axis = plot.projection_axes[0]
+        assert base_axis.get_xlim() == pytest.approx((-0.04, 2.04))
+        assert base_axis.get_ylim() == pytest.approx((-1.04, 1.04))
+        assert plot.handle_axis.get_ylim() == pytest.approx((-0.02, 1.02))
+        cells = min(collection.get_zorder() for collection in base_axis.collections)
+        assert all(spine.get_zorder() < cells for spine in base_axis.spines.values())
+        assert plot.zooms == () and plot.zoom_axes == ()
+    finally:
+        plt.close(plot.figure)
+
+
+def test_detail_zooms_enlarge_the_sets_too_small_to_see():
+    from hybrid_dynamics.src.atlas_morse_plot import plot_atlas_hybrid_morse_sets
+
+    data = _small_set_data()
+    plot = plot_atlas_hybrid_morse_sets(
+        data,
+        clist=("#1f77b4", "#e6550d", "#31a354"),
+        show_handles=True,
+        base_view="domain",
+        handle_view="domain",
+        frame_margin=0.02,
+        detail_zooms=True,
+    )
+    try:
+        # The strip on the left edge and the specks get one zoom each, left
+        # to right; the large set and the handle chart get none.
+        assert [(zoom.label, zoom.chart, zoom.morse_nodes) for zoom in plot.zooms] == [
+            ("A", "base", (1,)),
+            ("B", "base", (2,)),
+        ]
+        assert len(plot.zoom_axes) == 2
+        for zoom, node in zip(plot.zooms, (1, 2)):
+            boxes = data.nodes[node].boxes
+            assert zoom.x_limits[0] <= min(box.lower[0] for box in boxes)
+            assert zoom.x_limits[1] >= max(box.upper[0] for box in boxes)
+            assert zoom.y_limits[0] <= min(box.lower[1] for box in boxes)
+            assert zoom.y_limits[1] >= max(box.upper[1] for box in boxes)
+            x_span = zoom.x_limits[1] - zoom.x_limits[0]
+            y_span = zoom.y_limits[1] - zoom.y_limits[0]
+            # Magnifications differ from the base panel's by at most 3.
+            ratio = (x_span / 2.08) / (y_span / 2.08)
+            assert 1.0 / 3.0 - 1e-9 <= ratio <= 3.0 + 1e-9
+            assert zoom.to_dict()["morse_nodes"] == [node]
+        # Windows outlined and labeled in the base panel.
+        base_axis = plot.projection_axes[0]
+        outlines = [patch for patch in base_axis.patches if not patch.get_fill()]
+        assert len(outlines) == 2
+        assert sorted(text.get_text() for text in base_axis.texts) == ["A", "B"]
+        assert [axis.get_title(loc="left") for axis in plot.zoom_axes] == ["A", "B"]
+        # The specks are still below the resolution of their zoom: marked.
+        assert not plot.zoom_axes[0].lines
+        (marks,) = plot.zoom_axes[1].lines
+        assert len(marks.get_xdata()) == 8
+        # The large set does not meet window A: zoom A draws the strip alone, opaque.
+        assert all(
+            collection.get_alpha() == pytest.approx(0.9)
+            for collection in plot.zoom_axes[0].collections
+        )
     finally:
         plt.close(plot.figure)

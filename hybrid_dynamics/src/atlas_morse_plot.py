@@ -140,6 +140,33 @@ class AtlasHybridMorseComponent:
 
 
 @dataclass(frozen=True)
+class AtlasDetailZoom:
+    """A zoom panel on Morse sets too small to see in their chart panel.
+
+    ``morse_nodes`` are the Morse sets the zoom is drawn for; the zoom also
+    shows, faded, the cells of every other drawn Morse set in its window
+    ``x_limits x y_limits`` (chart coordinates of ``projection``).
+    """
+
+    label: str
+    chart: str
+    projection: tuple[int, int]
+    x_limits: tuple[float, float]
+    y_limits: tuple[float, float]
+    morse_nodes: tuple[int, ...]
+
+    def to_dict(self) -> dict[str, object]:
+        return {
+            "label": self.label,
+            "chart": self.chart,
+            "projection": list(self.projection),
+            "x_limits": list(self.x_limits),
+            "y_limits": list(self.y_limits),
+            "morse_nodes": list(self.morse_nodes),
+        }
+
+
+@dataclass(frozen=True)
 class AtlasHybridMorsePlot:
     """Handles and metadata returned by the Atlas plotting path."""
 
@@ -152,6 +179,9 @@ class AtlasHybridMorsePlot:
     handle_projections: tuple[tuple[int, int], ...]
     components: tuple[AtlasHybridMorseComponent, ...]
     data: AtlasMorsePlotData
+    zoom_axes: tuple[Axes, ...] = ()
+    zooms: tuple[AtlasDetailZoom, ...] = ()
+    marked_sets: tuple[tuple[str, int], ...] = ()
 
     @property
     def handle_axis(self) -> Axes | None:
@@ -723,10 +753,12 @@ def _normalize_projections(
     return normalized
 
 
-def _projected_rectangles(
+def _projected_bounds(
     boxes: Sequence[AtlasMorseBox],
     projection: tuple[int, int],
-) -> tuple[patches.Rectangle, ...]:
+) -> np.ndarray:
+    """Distinct projected rectangles ``(x0, y0, x1, y1)``, sorted, as an array."""
+
     first, second = projection
     unique: set[tuple[float, float, float, float]] = set()
     for box in boxes:
@@ -740,9 +772,13 @@ def _projected_rectangles(
                 box.upper[second],
             )
         unique.add(tuple(float(value) for value in key))
+    return np.array(sorted(unique), dtype=float).reshape(-1, 4)
+
+
+def _rectangles(bounds: np.ndarray) -> tuple[patches.Rectangle, ...]:
     return tuple(
         patches.Rectangle((x_lower, y_lower), x_upper - x_lower, y_upper - y_lower)
-        for x_lower, y_lower, x_upper, y_upper in sorted(unique)
+        for x_lower, y_lower, x_upper, y_upper in bounds.tolist()
     )
 
 
@@ -777,49 +813,407 @@ def _padded_interval(
     return float(lower - margin), float(upper + margin)
 
 
+def _chart_boxes(
+    component: AtlasHybridMorseComponent,
+    chart_kind: str,
+) -> tuple[AtlasMorseBox, ...]:
+    return component.base_boxes if chart_kind == "base" else component.handle_boxes
+
+
+def _chart_limits(
+    components: Sequence[AtlasHybridMorseComponent],
+    *,
+    chart_kind: str,
+    projection: tuple[int, int],
+    chart_bounds: Sequence[Sequence[float]],
+    view: str,
+    frame_margin: float,
+) -> tuple[tuple[float, float], tuple[float, float]]:
+    """Axis limits of a chart panel.
+
+    ``"domain"`` shows the chart bounds widened by ``frame_margin`` times
+    their span on each side, so cells on the boundary of the chart are not
+    drawn under the axis lines; ``"support"`` pads the drawn cells.
+    """
+
+    first, second = projection
+    if view == "domain":
+        x_limits = tuple(chart_bounds[first])
+        y_limits = (0.0, 1.0) if first == second else tuple(chart_bounds[second])
+        if frame_margin > 0.0:
+            x_limits, y_limits = (
+                (lower - frame_margin * (upper - lower), upper + frame_margin * (upper - lower))
+                for lower, upper in (x_limits, y_limits)
+            )
+        return (float(x_limits[0]), float(x_limits[1])), (
+            float(y_limits[0]),
+            float(y_limits[1]),
+        )
+    visible = [box for component in components for box in _chart_boxes(component, chart_kind)]
+    return _support_limits(visible, projection, chart_bounds)
+
+
+def _draw_cells(
+    axis: Axes,
+    components: Sequence[AtlasHybridMorseComponent],
+    *,
+    chart_kind: str,
+    projection: tuple[int, int],
+    window: tuple[tuple[float, float], tuple[float, float]] | None = None,
+    emphasized: Iterable[int] | None = None,
+) -> None:
+    """Draw the cells of each component in its color.
+
+    With ``window``, only the cells meeting it are drawn.  With
+    ``emphasized``, the other components are drawn faded.
+    """
+
+    emphasized_nodes = None if emphasized is None else frozenset(emphasized)
+    for component in components:
+        bounds = _projected_bounds(_chart_boxes(component, chart_kind), projection)
+        if window is not None and len(bounds):
+            (x_lower, x_upper), (y_lower, y_upper) = window
+            bounds = bounds[
+                (bounds[:, 2] >= x_lower)
+                & (bounds[:, 0] <= x_upper)
+                & (bounds[:, 3] >= y_lower)
+                & (bounds[:, 1] <= y_upper)
+            ]
+        if not len(bounds):
+            continue
+        faded = emphasized_nodes is not None and component.index not in emphasized_nodes
+        axis.add_collection(
+            PatchCollection(
+                _rectangles(bounds),
+                facecolor=component.color,
+                edgecolor="none",
+                linewidth=0.0,
+                alpha=0.3 if faded else 0.9,
+                antialiased=False,
+                rasterized=len(bounds) > 2500,
+                zorder=2,
+            )
+        )
+
+
+# A Morse set is enlarged in a zoom panel when its cells cover less than
+# DETAIL_ZOOM_MIN_AREA bins of the DETAIL_ZOOM_BINS x DETAIL_ZOOM_BINS bins of
+# its chart panel (area counted at most once per bin) and its bounding box
+# spans at most DETAIL_ZOOM_MAX_EXTENT of the panel in each direction.  At the
+# paper-figure size a bin is about one point, so such a set is a speck, a
+# hairline a few points long, or cells scattered below the resolution of the
+# panel; a longer curve is left to the panel, where a zoom would not help.
+DETAIL_ZOOM_BINS = 200
+DETAIL_ZOOM_MIN_AREA = 16.0
+DETAIL_ZOOM_MAX_EXTENT = 0.3
+# Small sets closer than this (fraction of the panel) share a zoom panel.
+DETAIL_ZOOM_GROUP_GAP = 0.06
+# A zoom magnifies its two axes by factors that differ at most by this ratio.
+DETAIL_ZOOM_MAX_ASPECT = 3.0
+DETAIL_ZOOM_MAX_PER_PANEL = 3
+# In a zoom, a set it is drawn for with at most DETAIL_ZOOM_MARKED_CELLS cells
+# in the window, one of them narrower than DETAIL_ZOOM_MARKED_CELL_SIZE of the
+# window, has each cell marked by a square at its center.  A set too small to
+# see whose bounding box is too large for a zoom has its cells marked in the
+# panel when it has at most DETAIL_ZOOM_MARKED_CELLS cells.
+DETAIL_ZOOM_MARKED_CELLS = 64
+DETAIL_ZOOM_MARKED_CELL_SIZE = 0.02
+
+
+def _bin_coverage(
+    bounds: np.ndarray,
+    x_limits: tuple[float, float],
+    y_limits: tuple[float, float],
+    bins: int,
+) -> np.ndarray:
+    """Area fraction of each of ``bins x bins`` panel bins covered by ``bounds``."""
+
+    coverage = np.zeros((bins, bins), dtype=float)
+    if not len(bounds):
+        return coverage
+    x_scale = bins / float(x_limits[1] - x_limits[0])
+    y_scale = bins / float(y_limits[1] - y_limits[0])
+    x0 = np.clip((bounds[:, 0] - x_limits[0]) * x_scale, 0.0, bins)
+    x1 = np.clip((bounds[:, 2] - x_limits[0]) * x_scale, 0.0, bins)
+    y0 = np.clip((bounds[:, 1] - y_limits[0]) * y_scale, 0.0, bins)
+    y1 = np.clip((bounds[:, 3] - y_limits[0]) * y_scale, 0.0, bins)
+    keep = (x1 > x0) & (y1 > y0)
+    x0, x1, y0, y1 = x0[keep], x1[keep], y0[keep], y1[keep]
+    i0 = np.floor(x0).astype(np.int64)
+    j0 = np.floor(y0).astype(np.int64)
+    ni = np.ceil(x1).astype(np.int64) - i0
+    nj = np.ceil(y1).astype(np.int64) - j0
+    small = (ni <= 4) & (nj <= 4)
+    for di in range(4):
+        for dj in range(4):
+            selected = small & (di < ni) & (dj < nj)
+            if not np.any(selected):
+                continue
+            i = i0[selected] + di
+            j = j0[selected] + dj
+            overlap_x = np.minimum(x1[selected], i + 1) - np.maximum(x0[selected], i)
+            overlap_y = np.minimum(y1[selected], j + 1) - np.maximum(y0[selected], j)
+            np.add.at(coverage, (i, j), overlap_x * overlap_y)
+    for index in np.flatnonzero(~small):
+        columns = np.arange(i0[index], i0[index] + ni[index])
+        rows = np.arange(j0[index], j0[index] + nj[index])
+        overlap_x = np.minimum(x1[index], columns + 1) - np.maximum(x0[index], columns)
+        overlap_y = np.minimum(y1[index], rows + 1) - np.maximum(y0[index], rows)
+        coverage[columns[0] : columns[-1] + 1, rows[0] : rows[-1] + 1] += np.outer(
+            overlap_x, overlap_y
+        )
+    return coverage
+
+
+def _detail_zooms(
+    components: Sequence[AtlasHybridMorseComponent],
+    *,
+    chart_kind: str,
+    projection: tuple[int, int],
+    x_limits: tuple[float, float],
+    y_limits: tuple[float, float],
+) -> tuple[
+    list[tuple[tuple[int, ...], tuple[float, float], tuple[float, float]]],
+    tuple[int, ...],
+]:
+    """Zoom windows and marked sets for the sets too small to see in a panel.
+
+    Returns the zoom windows ``(nodes, x_limits, y_limits)`` and the nodes
+    whose few cells are too far apart for one zoom; their cells are marked in
+    the panel.
+    """
+
+    if projection[0] == projection[1]:
+        return [], ()
+    x_span = float(x_limits[1] - x_limits[0])
+    y_span = float(y_limits[1] - y_limits[0])
+    # Each small set: node, bounding box and median cell size in panel fractions.
+    small: list[tuple[int, np.ndarray, np.ndarray]] = []
+    marked: list[int] = []
+    for component in components:
+        bounds = _projected_bounds(_chart_boxes(component, chart_kind), projection)
+        if not len(bounds):
+            continue
+        coverage = _bin_coverage(bounds, x_limits, y_limits, DETAIL_ZOOM_BINS)
+        if float(np.minimum(coverage, 1.0).sum()) >= DETAIL_ZOOM_MIN_AREA:
+            continue
+        fractions = np.column_stack(
+            (
+                (bounds[:, 0] - x_limits[0]) / x_span,
+                (bounds[:, 1] - y_limits[0]) / y_span,
+                (bounds[:, 2] - x_limits[0]) / x_span,
+                (bounds[:, 3] - y_limits[0]) / y_span,
+            )
+        )
+        box = np.array(
+            (
+                fractions[:, 0].min(),
+                fractions[:, 1].min(),
+                fractions[:, 2].max(),
+                fractions[:, 3].max(),
+            )
+        )
+        if max(box[2] - box[0], box[3] - box[1]) > DETAIL_ZOOM_MAX_EXTENT:
+            # A hairline long enough to see, or specks spread over the panel.
+            if len(bounds) <= DETAIL_ZOOM_MARKED_CELLS:
+                marked.append(int(component.index))
+            continue
+        cell = np.median(fractions[:, 2:] - fractions[:, :2], axis=0)
+        small.append((component.index, box, cell))
+    if not small:
+        return [], tuple(marked)
+
+    def gap(first: np.ndarray, second: np.ndarray) -> float:
+        return float(
+            max(
+                0.0,
+                first[0] - second[2],
+                second[0] - first[2],
+                first[1] - second[3],
+                second[1] - first[3],
+            )
+        )
+
+    groups = [([node], box.copy(), [cell]) for node, box, cell in small]
+    while True:
+        pairs = [
+            (gap(groups[a][1], groups[b][1]), a, b)
+            for a in range(len(groups))
+            for b in range(a + 1, len(groups))
+        ]
+        if not pairs:
+            break
+        distance, a, b = min(pairs)
+        if distance >= DETAIL_ZOOM_GROUP_GAP and len(groups) <= DETAIL_ZOOM_MAX_PER_PANEL:
+            break
+        nodes = groups[a][0] + groups[b][0]
+        box = np.array(
+            (
+                min(groups[a][1][0], groups[b][1][0]),
+                min(groups[a][1][1], groups[b][1][1]),
+                max(groups[a][1][2], groups[b][1][2]),
+                max(groups[a][1][3], groups[b][1][3]),
+            )
+        )
+        groups[a] = (nodes, box, groups[a][2] + groups[b][2])
+        del groups[b]
+
+    windows = []
+    for nodes, box, cells in groups:
+        cell = np.median(np.array(cells), axis=0)
+        size = box[2:] - box[:2]
+        padded = size + 2.0 * np.maximum(0.3 * size, 3.0 * cell)
+        padded[0] = max(padded[0], padded[1] / DETAIL_ZOOM_MAX_ASPECT)
+        padded[1] = max(padded[1], padded[0] / DETAIL_ZOOM_MAX_ASPECT)
+        padded = np.minimum(padded, 1.0)
+        center = np.clip(0.5 * (box[:2] + box[2:]), padded / 2.0, 1.0 - padded / 2.0)
+        lower = center - padded / 2.0
+        upper = center + padded / 2.0
+        windows.append(
+            (
+                tuple(sorted(int(node) for node in nodes)),
+                (
+                    float(x_limits[0] + lower[0] * x_span),
+                    float(x_limits[0] + upper[0] * x_span),
+                ),
+                (
+                    float(y_limits[0] + lower[1] * y_span),
+                    float(y_limits[0] + upper[1] * y_span),
+                ),
+            )
+        )
+    # Left to right, then top to bottom.
+    windows.sort(key=lambda window: (sum(window[1]), -sum(window[2])))
+    return windows, tuple(marked)
+
+
+def _mark_cells(axis: Axes, bounds: np.ndarray, color: str) -> None:
+    """Mark each cell by a square at its center (cells too small to see)."""
+
+    axis.plot(
+        0.5 * (bounds[:, 0] + bounds[:, 2]),
+        0.5 * (bounds[:, 1] + bounds[:, 3]),
+        linestyle="none",
+        marker="s",
+        markersize=3.2,
+        markerfacecolor=color,
+        markeredgecolor="#202020",
+        markeredgewidth=0.4,
+        zorder=3,
+    )
+
+
+def _draw_detail_zoom(
+    axis: Axes,
+    zoom_axis: Axes,
+    zoom: AtlasDetailZoom,
+    components: Sequence[AtlasHybridMorseComponent],
+) -> None:
+    """Draw a zoom panel and mark its window, with its label, on ``axis``."""
+
+    from matplotlib import patheffects
+    from matplotlib.ticker import MaxNLocator
+
+    window = (zoom.x_limits, zoom.y_limits)
+    _draw_cells(
+        zoom_axis,
+        components,
+        chart_kind=zoom.chart,
+        projection=zoom.projection,
+        window=window,
+        emphasized=zoom.morse_nodes,
+    )
+    # Few cells that are still specks at the scale of the zoom are marked.
+    (x_lower, x_upper), (y_lower, y_upper) = window
+    members = frozenset(zoom.morse_nodes)
+    for component in components:
+        if component.index not in members:
+            continue
+        bounds = _projected_bounds(_chart_boxes(component, zoom.chart), zoom.projection)
+        bounds = bounds[
+            (bounds[:, 2] >= x_lower)
+            & (bounds[:, 0] <= x_upper)
+            & (bounds[:, 3] >= y_lower)
+            & (bounds[:, 1] <= y_upper)
+        ]
+        if not len(bounds) or len(bounds) > DETAIL_ZOOM_MARKED_CELLS:
+            continue
+        smallest = min(
+            float(np.min(bounds[:, 2] - bounds[:, 0])) / (x_upper - x_lower),
+            float(np.min(bounds[:, 3] - bounds[:, 1])) / (y_upper - y_lower),
+        )
+        if smallest >= DETAIL_ZOOM_MARKED_CELL_SIZE:
+            continue
+        _mark_cells(zoom_axis, bounds, component.color)
+    zoom_axis.set_xlim(zoom.x_limits)
+    zoom_axis.set_ylim(zoom.y_limits)
+    zoom_axis.set_box_aspect(1.0)
+    zoom_axis.set_anchor("W")
+    zoom_axis.xaxis.set_major_locator(MaxNLocator(nbins=2, min_n_ticks=2))
+    zoom_axis.yaxis.set_major_locator(MaxNLocator(nbins=2, min_n_ticks=2))
+    zoom_axis.tick_params(labelsize=5.5, length=2.0, pad=1.5, width=0.5)
+    for spine in zoom_axis.spines.values():
+        spine.set_linewidth(0.6)
+    zoom_axis.set_title(zoom.label, loc="left", fontsize=7.5, pad=2.0)
+
+    axis.add_patch(
+        patches.Rectangle(
+            (x_lower, y_lower),
+            x_upper - x_lower,
+            y_upper - y_lower,
+            fill=False,
+            edgecolor="#202020",
+            linewidth=0.6,
+            zorder=4,
+        )
+    )
+    panel_x = axis.get_xlim()
+    panel_y = axis.get_ylim()
+    right_side = (x_upper - panel_x[0]) / (panel_x[1] - panel_x[0]) < 0.85
+    upper_side = (y_upper - panel_y[0]) / (panel_y[1] - panel_y[0]) < 0.9
+    axis.annotate(
+        zoom.label,
+        xy=(x_upper if right_side else x_lower, y_upper if upper_side else y_lower),
+        xytext=(2.0 if right_side else -2.0, 1.0 if upper_side else -1.0),
+        textcoords="offset points",
+        ha="left" if right_side else "right",
+        va="bottom" if upper_side else "top",
+        fontsize=7.5,
+        color="#111111",
+        zorder=5,
+        path_effects=[patheffects.withStroke(linewidth=1.8, foreground="white")],
+    )
+
+
 def _draw_chart_projection(
     axis: Axes,
     components: Sequence[AtlasHybridMorseComponent],
     *,
     chart_kind: str,
     projection: tuple[int, int],
-    chart_bounds: Sequence[Sequence[float]],
+    limits: tuple[tuple[float, float], tuple[float, float]],
     labels: Sequence[str],
-    base_view: str,
     show_grid: bool,
     show_panel_title: bool,
+    spines_below_cells: bool = False,
+    marked_nodes: Iterable[int] = (),
 ) -> None:
-    all_visible: list[AtlasMorseBox] = []
+    _draw_cells(axis, components, chart_kind=chart_kind, projection=projection)
+    marked = frozenset(int(node) for node in marked_nodes)
     for component in components:
-        boxes = (
-            component.base_boxes
-            if chart_kind == "base"
-            else component.handle_boxes
-        )
-        all_visible.extend(boxes)
-        rectangles = _projected_rectangles(boxes, projection)
-        if rectangles:
-            axis.add_collection(
-                PatchCollection(
-                    rectangles,
-                    facecolor=component.color,
-                    edgecolor="none",
-                    linewidth=0.0,
-                    alpha=0.9,
-                    antialiased=False,
-                    rasterized=len(rectangles) > 2500,
-                    zorder=2,
-                )
+        if component.index in marked:
+            _mark_cells(
+                axis,
+                _projected_bounds(_chart_boxes(component, chart_kind), projection),
+                component.color,
             )
-
     first, second = projection
-    if base_view == "domain":
-        x_limits = tuple(chart_bounds[first])
-        y_limits = (0.0, 1.0) if first == second else tuple(chart_bounds[second])
-    else:
-        x_limits, y_limits = _support_limits(all_visible, projection, chart_bounds)
+    x_limits, y_limits = limits
     axis.set_xlim(x_limits)
     axis.set_ylim(y_limits)
+    if spines_below_cells:
+        for spine in axis.spines.values():
+            spine.set_zorder(1.5)
     axis.set_xlabel(labels[first])
     if first == second:
         axis.set_ylabel("display strip")
@@ -863,6 +1257,9 @@ def plot_atlas_hybrid_morse_sets(
     show_panel_titles: bool = False,
     show_component_sizes: bool = False,
     base_view: str = "support",
+    handle_view: str | None = None,
+    frame_margin: float = 0.0,
+    detail_zooms: bool = False,
     title: str | None = None,
     fig_w: float | None = None,
     fig_h: float = 3.6,
@@ -875,6 +1272,16 @@ def plot_atlas_hybrid_morse_sets(
     colors, and the drawn order is reachability through the hidden nodes,
     transitively reduced.  Nodes in ``blocked_index_nodes`` are marked as
     blocked in the Morse graph.
+
+    ``base_view`` and ``handle_view`` (default: ``base_view``) are
+    ``"support"`` or ``"domain"``.  ``frame_margin`` widens the ``"domain"``
+    view by that fraction of the chart span on each side and draws the axis
+    lines below the cells, so cells on the chart boundary stay visible.  With
+    ``detail_zooms``, the Morse sets that are too small to see in a chart
+    panel (see :data:`DETAIL_ZOOM_MIN_AREA`) get zoom panels, labeled ``A``,
+    ``B``, ... in a column next to the panel, whose windows are outlined and
+    labeled in the panel; such a set whose few cells are too far apart for a
+    zoom has its cells marked by squares in the panel (``marked_sets``).
     """
 
     # Import at call time so the public dispatcher in hybrid_morse_plot can
@@ -898,6 +1305,13 @@ def plot_atlas_hybrid_morse_sets(
 
     if base_view not in {"support", "domain"}:
         raise ValueError("base_view must be 'support' or 'domain'")
+    if handle_view is None:
+        handle_view = base_view
+    if handle_view not in {"support", "domain"}:
+        raise ValueError("handle_view must be 'support' or 'domain'")
+    frame_margin = float(frame_margin)
+    if not (np.isfinite(frame_margin) and 0.0 <= frame_margin < 0.5):
+        raise ValueError("frame_margin must be in [0, 0.5)")
     base_dimension = len(data.base_bounds)
     handle_dimension = len(data.handle_bounds)
     base_default = ((0, 0),) if base_dimension == 1 else (
@@ -963,63 +1377,104 @@ def plot_atlas_hybrid_morse_sets(
             f"blocked index nodes are not Morse nodes: {sorted(unknown_blocked)!r}"
         )
     order = atlas_morse_hasse(data, (component.index for component in components))
-    panel_count = len(projections) + len(handle_projections) + int(show_morse_graph)
+
+    # Chart panels in drawing order, each with its limits and zoom windows.
+    chart_panels = []
+    for chart_kind, chart_projections, chart_bounds, chart_labels, view in (
+        ("base", projections, data.base_bounds, base_labels, base_view),
+        ("handle", handle_projections, data.handle_bounds, handle_labels, handle_view),
+    ):
+        for projection in chart_projections:
+            limits = _chart_limits(
+                components,
+                chart_kind=chart_kind,
+                projection=projection,
+                chart_bounds=chart_bounds,
+                view=view,
+                frame_margin=frame_margin,
+            )
+            windows, marked = (
+                _detail_zooms(
+                    components,
+                    chart_kind=chart_kind,
+                    projection=projection,
+                    x_limits=limits[0],
+                    y_limits=limits[1],
+                )
+                if detail_zooms
+                else ([], ())
+            )
+            chart_panels.append(
+                (chart_kind, projection, limits, chart_labels, windows, marked)
+            )
+    zoom_labels = iter("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    zooms_per_panel = [
+        [
+            AtlasDetailZoom(
+                label=next(zoom_labels),
+                chart=chart_kind,
+                projection=projection,
+                x_limits=x_window,
+                y_limits=y_window,
+                morse_nodes=nodes,
+            )
+            for nodes, x_window, y_window in windows
+        ]
+        for chart_kind, projection, _limits, _labels, windows, _marked in chart_panels
+    ]
+
+    panel_count = len(chart_panels) + int(show_morse_graph)
     if panel_count <= 0:
         raise ValueError("at least one plot panel must be enabled")
+    zoom_columns = sum(1 for zooms in zooms_per_panel if zooms)
+    zoom_ratio = 0.40
     if fig_w is None:
-        fig_w = 3.25 * panel_count
-    width_ratios = (
-        [1.0] * len(projections)
-        + [0.92] * len(handle_projections)
-        + (
-            [
-                1.0
-                if finite_relation_annotations is not None
-                else (0.70 if len(components) <= 4 else 1.0)
-            ]
-            if show_morse_graph
-            else []
+        fig_w = 3.25 * panel_count + 3.25 * zoom_ratio * zoom_columns
+    width_ratios: list[float] = []
+    for (chart_kind, *_rest), zooms in zip(chart_panels, zooms_per_panel):
+        width_ratios.append(1.0 if chart_kind == "base" else 0.92)
+        if zooms:
+            width_ratios.append(zoom_ratio)
+    if show_morse_graph:
+        width_ratios.append(
+            1.0
+            if finite_relation_annotations is not None
+            else (0.70 if len(components) <= 4 else 1.0)
         )
-    )
-    figure, raw_axes = plt.subplots(
-        1,
-        panel_count,
-        figsize=(fig_w, fig_h),
-        dpi=dpi,
-        squeeze=False,
-        gridspec_kw={"width_ratios": width_ratios},
-    )
-    axes = tuple(raw_axes[0])
-    projection_axes = axes[: len(projections)]
-    for axis, projection in zip(projection_axes, projections):
+    figure = plt.figure(figsize=(fig_w, fig_h), dpi=dpi)
+    grid = figure.add_gridspec(1, len(width_ratios), width_ratios=width_ratios)
+    column = 0
+    chart_axes: list[Axes] = []
+    zoom_axes: list[Axes] = []
+    for (chart_kind, projection, limits, chart_labels, _windows, marked), zooms in zip(
+        chart_panels, zooms_per_panel
+    ):
+        axis = figure.add_subplot(grid[0, column])
+        column += 1
+        chart_axes.append(axis)
         _draw_chart_projection(
             axis,
             components,
-            chart_kind="base",
+            chart_kind=chart_kind,
             projection=projection,
-            chart_bounds=data.base_bounds,
-            labels=base_labels,
-            base_view=base_view,
+            limits=limits,
+            labels=chart_labels,
             show_grid=show_grid,
             show_panel_title=show_panel_titles,
+            spines_below_cells=frame_margin > 0.0,
+            marked_nodes=marked,
         )
+        if zooms:
+            rows = grid[0, column].subgridspec(len(zooms), 1, hspace=0.45)
+            column += 1
+            for row, zoom in enumerate(zooms):
+                zoom_axis = figure.add_subplot(rows[row, 0])
+                _draw_detail_zoom(axis, zoom_axis, zoom, components)
+                zoom_axes.append(zoom_axis)
+    projection_axes = tuple(chart_axes[: len(projections)])
+    handle_axes = tuple(chart_axes[len(projections) :])
 
-    handle_start = len(projections)
-    handle_axes = axes[handle_start : handle_start + len(handle_projections)]
-    for axis, projection in zip(handle_axes, handle_projections):
-        _draw_chart_projection(
-            axis,
-            components,
-            chart_kind="handle",
-            projection=projection,
-            chart_bounds=data.handle_bounds,
-            labels=handle_labels,
-            base_view=base_view,
-            show_grid=show_grid,
-            show_panel_title=show_panel_titles,
-        )
-
-    graph_axis = axes[-1] if show_morse_graph else None
+    graph_axis = figure.add_subplot(grid[0, column]) if show_morse_graph else None
     if graph_axis is not None:
         _draw_morse_graph(
             graph_axis,
@@ -1100,6 +1555,11 @@ def plot_atlas_hybrid_morse_sets(
         handle_projections=handle_projections,
         components=components,
         data=data,
+        zoom_axes=tuple(zoom_axes),
+        zooms=tuple(zoom for zooms in zooms_per_panel for zoom in zooms),
+        marked_sets=tuple(
+            (panel[0], int(node)) for panel in chart_panels for node in panel[5]
+        ),
     )
     if fig_fname is not None:
         output = Path(fig_fname)
@@ -1117,6 +1577,8 @@ __all__ = [
     "AtlasMorsePlotData",
     "AtlasHybridMorseComponent",
     "AtlasHybridMorsePlot",
+    "AtlasDetailZoom",
+    "DETAIL_ZOOM_MIN_AREA",
     "extract_atlas_morse_plot_data",
     "atlas_morse_plot_data_payload",
     "save_atlas_morse_plot_data",
