@@ -1016,15 +1016,15 @@
       "colors": {
         "morse_node_colors": [
           {
-            "color": "#332288",
+            "color": "#1f77b4",
             "morse_node": 0
           },
           {
-            "color": "#DDCC77",
+            "color": "#e6550d",
             "morse_node": 1
           },
           {
-            "color": "#88CCEE",
+            "color": "#31a354",
             "morse_node": 2
           },
           {
@@ -1060,7 +1060,7 @@
             "morse_node": 10
           },
           {
-            "color": "#117733",
+            "color": "#fccde5",
             "morse_node": 11
           },
           {
@@ -1100,24 +1100,55 @@
             "morse_node": 20
           },
           {
-            "color": "#CC6677",
+            "color": "#c5b0d5",
             "morse_node": 21
           }
         ],
-        "palette": "Paul Tol muted",
+        "palette": "CMGDB default",
         "palette_colors": [
-          "#332288",
-          "#DDCC77",
-          "#88CCEE",
-          "#117733",
-          "#CC6677",
-          "#999933",
-          "#44AA99",
-          "#882255",
-          "#AA4499"
+          "#1f77b4",
+          "#e6550d",
+          "#31a354",
+          "#d62728",
+          "#9467bd",
+          "#8c564b",
+          "#e377c2",
+          "#7f7f7f",
+          "#bcbd22",
+          "#80b1d3",
+          "#ffffb3",
+          "#fccde5",
+          "#b3de69",
+          "#fdae6b",
+          "#6a3d9a",
+          "#c49c94",
+          "#fb8072",
+          "#dbdb8d",
+          "#bc80bd",
+          "#ffed6f",
+          "#637939",
+          "#c5b0d5",
+          "#636363",
+          "#c7c7c7",
+          "#8dd3c7",
+          "#b15928",
+          "#e8cb32",
+          "#9e9ac8",
+          "#74c476",
+          "#ff7f0e",
+          "#9edae5",
+          "#90d743",
+          "#e7969c",
+          "#17becf",
+          "#7b4173",
+          "#8ca252",
+          "#ad494a",
+          "#8c6d31",
+          "#a55194",
+          "#00cc49"
         ],
         "palette_cycled": false,
-        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; the other Morse nodes (nontrivial label, or no label) take the palette colors in order of node number, so a node has the same color in every figure and panel of the run",
+        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; Morse node i with a nontrivial label, or without a label, takes palette color i as in CMGDB (the next color that is not gray, when color i is gray), so a node has the same color in every figure and panel of the run",
         "trivial_index_color": "#BBBBBB"
       },
       "files": [
@@ -1354,15 +1385,15 @@
       "colors": {
         "morse_node_colors": [
           {
-            "color": "#332288",
+            "color": "#1f77b4",
             "morse_node": 0
           },
           {
-            "color": "#DDCC77",
+            "color": "#e6550d",
             "morse_node": 1
           },
           {
-            "color": "#88CCEE",
+            "color": "#31a354",
             "morse_node": 2
           },
           {
@@ -1398,7 +1429,7 @@
             "morse_node": 10
           },
           {
-            "color": "#117733",
+            "color": "#fccde5",
             "morse_node": 11
           },
           {
@@ -1438,24 +1469,55 @@
             "morse_node": 20
           },
           {
-            "color": "#CC6677",
+            "color": "#c5b0d5",
             "morse_node": 21
           }
         ],
-        "palette": "Paul Tol muted",
+        "palette": "CMGDB default",
         "palette_colors": [
-          "#332288",
-          "#DDCC77",
-          "#88CCEE",
-          "#117733",
-          "#CC6677",
-          "#999933",
-          "#44AA99",
-          "#882255",
-          "#AA4499"
+          "#1f77b4",
+          "#e6550d",
+          "#31a354",
+          "#d62728",
+          "#9467bd",
+          "#8c564b",
+          "#e377c2",
+          "#7f7f7f",
+          "#bcbd22",
+          "#80b1d3",
+          "#ffffb3",
+          "#fccde5",
+          "#b3de69",
+          "#fdae6b",
+          "#6a3d9a",
+          "#c49c94",
+          "#fb8072",
+          "#dbdb8d",
+          "#bc80bd",
+          "#ffed6f",
+          "#637939",
+          "#c5b0d5",
+          "#636363",
+          "#c7c7c7",
+          "#8dd3c7",
+          "#b15928",
+          "#e8cb32",
+          "#9e9ac8",
+          "#74c476",
+          "#ff7f0e",
+          "#9edae5",
+          "#90d743",
+          "#e7969c",
+          "#17becf",
+          "#7b4173",
+          "#8ca252",
+          "#ad494a",
+          "#8c6d31",
+          "#a55194",
+          "#00cc49"
         ],
         "palette_cycled": false,
-        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; the other Morse nodes (nontrivial label, or no label) take the palette colors in order of node number, so a node has the same color in every figure and panel of the run",
+        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; Morse node i with a nontrivial label, or without a label, takes palette color i as in CMGDB (the next color that is not gray, when color i is gray), so a node has the same color in every figure and panel of the run",
         "trivial_index_color": "#BBBBBB"
       },
       "files": [
@@ -1645,8 +1707,8 @@
   ],
   "figures_replotted": {
     "code": {
-      "commit": "c896334c5d3b45119f801e6a453f4ecc8d8217fd",
-      "dirty": false
+      "commit": "4e63a3fd0418f0d13111708b581bf7f903318fb1",
+      "dirty": true
     },
     "command_line": [
       "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",
