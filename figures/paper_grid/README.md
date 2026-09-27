@@ -23,7 +23,10 @@ Each run has a JSON summary and its figures under the same stem.
   with `<variant stem>` = `<stem>` or `<stem>-nontrivial`. Each JSON lists
   them under `figure_variants.<variant>.panel_files` and in `figures`. Every
   run in `./` was redrawn at `98ee08d` with `demo/replot_paper_grid.py`,
-  which added the panel figures and left the combined figures as they were.
+  which added the panel figures and left the combined figures as they were,
+  and again at `eeba2a0`, which gave the zoom panel figures axis labels and
+  the dark Morse graph nodes white text (combined and panel figures); the
+  base panels are unchanged.
 - `sweep-bouncing-ball/`, `sweep-rimless-wheel/`, `sweep-spiking-neuron/`,
   `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs),
   figures in the earlier layout.
