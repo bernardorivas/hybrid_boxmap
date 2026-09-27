@@ -199,11 +199,29 @@ The runner writes two figure variants per run (`--figure-variants`, default
 In both variants a node without a label is kept and drawn with a dashed
 outline. Its second line gives the dimensions of the relative homology of
 its pair from degree 0 up, as `dim H (0, 1, 1, 0)`, or `blocked` when they
-are not known. The text of a node is near black (`#111111`) or white,
-whichever has the higher WCAG contrast ratio on the node color. It is white
-on the darker colors of the palette, such as the purple `#6a3d9a`, the
-brown `#8c564b`, the red `#d62728`, and the blue `#1f77b4`: a contrast of
-4.8 to 7.6 on these colors, where near black gives 2.5 to 3.9.
+are not known.
+
+The Morse sets are colored with Paul Tol's "muted" qualitative palette,
+which is safe for color-blind readers and made for print and screen. A
+Morse set whose index is computed and trivial is gray, `#BBBBBB` (the gray
+of Tol's bright and vibrant schemes; the muted pale gray `#DDDDDD` is too
+faint for small cells), so gray appears only in the `all` variant. Every
+other Morse set takes the palette colors in order of node number, so a set
+has the same color in both variants and in every panel of a run. The
+palette order is indigo `#332288`, sand `#DDCC77`, cyan `#88CCEE`, green
+`#117733`, rose `#CC6677`, olive `#999933`, teal `#44AA99`, wine
+`#882255`, purple `#AA4499`. Since most figures show one to five colored
+sets, the first two are the pair farthest apart and each next color is the
+one whose smallest distance to those before it is largest (CIEDE2000, the
+smallest of its values for normal vision and simulated protanopia,
+deuteranopia, and tritanopia); indigo precedes sand as it is also farther
+from white and from the gray. With more than nine such sets the colors
+repeat, and the JSON summary says so; the runs in `figures/paper_grid/`
+have at most six. The text of a node is near black (`#111111`) or white,
+whichever has the higher WCAG contrast ratio on the node color (white on
+indigo, green, wine, and purple). This is `paper_grid_morse_colors` in
+`hybrid_dynamics/examples/paper_grid_figures.py`; the other plotting entry
+points keep the CMGDB palette.
 
 Each figure shows, in the same colors, the base chart (the base readout
 `d_n^{-1}(M)` of each Morse set) and the Morse graph. The handle chart (the
@@ -270,20 +288,24 @@ zoom windows, sets outlined) with `plot_atlas_hybrid_morse_sets`.
 
 The JSON summary records each variant under
 `figure_variants` (shown nodes, hidden nodes with the reason, blocked nodes,
-the order drawn, the zooms with their windows and nodes, files, and under
-`panel_files` the files of each panel by name) and stores
+the order drawn, the zooms with their windows and nodes, files, under
+`panel_files` the files of each panel by name, and under `colors` the
+palette name, its colors in order, the gray, the rule, the color of every
+Morse node, and `palette_cycled`, with a `palette_cycled_note` when the
+colors repeat) and stores
 the atoms of every Morse set under `morse_graph.morse_set_atoms` (strings of
 atom ranges, `a-b` for the closed range). The `figures` list has the files
 of each variant followed by those of its panels. Records written before
 cells were outlined also list, under `marked_in_panel`, the sets whose cells
-were marked by squares in a chart panel, and records written before the
-panel figures have no `panel_files`. `demo/replot_paper_grid.py` redraws both
+were marked by squares in a chart panel, records written before the
+panel figures have no `panel_files`, and records written before the Tol
+palette have no `colors`. `demo/replot_paper_grid.py` redraws both
 variants and their panels from a summary: it rebuilds `Xi_n` from the
 example and level, checks it against the recorded `grid`, and replaces
 `figures` and `figure_variants` in the JSON (dropping `marked_in_panel`).
 Summaries written before the atoms were stored (schema `paper-suspension-grid-run-v2`
-and earlier) cannot be redrawn and have to be rerun. Selection and replot are
-tested in `hybrid_dynamics/tests/test_suspension_grid_plot.py`.
+and earlier) cannot be redrawn and have to be rerun. Selection, colors, and
+replot are tested in `hybrid_dynamics/tests/test_suspension_grid_plot.py`.
 
 ## Reproduction
 

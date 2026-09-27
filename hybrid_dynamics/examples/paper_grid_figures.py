@@ -25,6 +25,11 @@ and written next to the figure of its variant, as ``<variant stem>-base``,
 ``<variant stem>-zoom-A``, ... (one per zoom), ``<variant stem>-graph``, and
 ``<variant stem>-handle`` when the handle chart is drawn, each as PDF and PNG,
 where ``<variant stem>`` is ``<stem>`` or ``<stem>-nontrivial``.
+
+The colors are those of :func:`paper_grid_morse_colors`: a Morse set whose
+index is computed and trivial is gray, and the other Morse sets take the
+colors of Paul Tol's "muted" palette in order of node number, so a set has
+the same color in both variants and in every panel of a run.
 """
 
 from __future__ import annotations
@@ -45,14 +50,117 @@ from ..src.atlas_morse_plot import (
     plot_atlas_hybrid_morse_panels,
     plot_atlas_hybrid_morse_sets,
 )
-from ..src.hybrid_morse_plot import CMGDB_MORSE_PALETTE, save_hybrid_morse_figure
+from ..src.hybrid_morse_plot import save_hybrid_morse_figure
 from ..src.suspension_grid import SuspensionGrid
 from ..src.suspension_grid_plot import (
     FIGURE_VARIANTS,
+    index_status,
     morse_figure_selection,
     suspension_grid_morse_sets_plot_data,
 )
 from .paper_grid_examples import paper_grid_example
+
+
+#: Name of the palette of the Morse sets, as recorded in the JSON summary.
+PAPER_GRID_PALETTE_NAME = "Paul Tol muted"
+
+#: The nine colors of Paul Tol's "muted" qualitative scheme (from his notes
+#: "Colour Schemes"), which is safe for color-blind readers and made for print
+#: and screen.  Tol's order is rose, indigo, sand, green, cyan, wine, teal,
+#: olive, purple.  Here the colors are ordered so that the first few are as
+#: far apart as possible, since most figures show one to five colored sets:
+#: the first two are the pair farthest apart, and each next color is the one
+#: whose smallest distance to the colors before it is largest.  The distance
+#: is CIEDE2000, the smallest of its values for normal vision and for
+#: simulated protanopia, deuteranopia, and tritanopia.  Of the first pair,
+#: indigo and sand, indigo comes first, as it is also farther from the white
+#: background and from the gray of TRIVIAL_INDEX_COLOR.
+PAPER_GRID_PALETTE: tuple[str, ...] = (
+    "#332288",  # indigo
+    "#DDCC77",  # sand
+    "#88CCEE",  # cyan
+    "#117733",  # green
+    "#CC6677",  # rose
+    "#999933",  # olive
+    "#44AA99",  # teal
+    "#882255",  # wine
+    "#AA4499",  # purple
+)
+
+#: Color of a Morse set whose finite-relation index is computed and trivial.
+#: This is the gray of Tol's bright and vibrant schemes; the pale gray
+#: ``#DDDDDD`` of the muted scheme is too faint for small cells on white and
+#: next to the faded sets of a zoom.
+TRIVIAL_INDEX_COLOR = "#BBBBBB"
+
+COLOR_RULE = (
+    "Morse nodes whose finite-relation index is computed and trivial are gray; "
+    "the other Morse nodes (nontrivial label, or no label) take the palette colors "
+    "in order of node number, so a node has the same color in every figure and "
+    "panel of the run"
+)
+
+
+def paper_grid_morse_colors(
+    n_nodes: int,
+    conley: Sequence[Mapping[str, Any]] = (),
+) -> dict[int, str]:
+    """Color of each Morse node of a run, the same in every figure and panel.
+
+    ``conley`` holds the index records of the run (possibly none).  A node
+    whose index is computed and trivial is :data:`TRIVIAL_INDEX_COLOR`.  The
+    other nodes, with a nontrivial label or without a label, take the colors
+    of :data:`PAPER_GRID_PALETTE` in order of node number, starting again from
+    the first color when there are more such nodes than colors.
+    """
+
+    colors = dict.fromkeys(range(int(n_nodes)), TRIVIAL_INDEX_COLOR)
+    for count, node in enumerate(_palette_nodes(n_nodes, conley)):
+        colors[node] = PAPER_GRID_PALETTE[count % len(PAPER_GRID_PALETTE)]
+    return colors
+
+
+def _palette_nodes(n_nodes: int, conley: Sequence[Mapping[str, Any]]) -> list[int]:
+    """The Morse nodes that take a palette color: all but the trivial ones."""
+
+    trivial = {
+        int(entry["morse_node"]) for entry in conley if index_status(entry) == "trivial"
+    }
+    return [node for node in range(int(n_nodes)) if node not in trivial]
+
+
+def paper_grid_color_record(
+    n_nodes: int,
+    conley: Sequence[Mapping[str, Any]] = (),
+) -> dict[str, Any]:
+    """The ``colors`` record of a figure variant in the JSON summary.
+
+    It names the palette and lists the color of every Morse node of the run
+    (a node hidden in the variant is not drawn).  When more nodes take
+    palette colors than the palette has, ``palette_cycled`` is true and
+    ``palette_cycled_note`` says from which node the colors repeat.
+    """
+
+    colors = paper_grid_morse_colors(n_nodes, conley)
+    palette_nodes = _palette_nodes(n_nodes, conley)
+    cycled = len(palette_nodes) > len(PAPER_GRID_PALETTE)
+    record: dict[str, Any] = {
+        "palette": PAPER_GRID_PALETTE_NAME,
+        "palette_colors": list(PAPER_GRID_PALETTE),
+        "trivial_index_color": TRIVIAL_INDEX_COLOR,
+        "rule": COLOR_RULE,
+        "morse_node_colors": [
+            {"morse_node": node, "color": color} for node, color in colors.items()
+        ],
+        "palette_cycled": cycled,
+    }
+    if cycled:
+        record["palette_cycled_note"] = (
+            f"{len(palette_nodes)} Morse nodes take palette colors and the palette has "
+            f"{len(PAPER_GRID_PALETTE)}; the colors repeat from Morse node "
+            f"{palette_nodes[len(PAPER_GRID_PALETTE)]} on"
+        )
+    return record
 
 
 #: Fraction of the chart span added on each side of a chart shown whole, so
@@ -126,8 +234,13 @@ def _paper_grid_plot_options(
     shown: Sequence[int],
     blocked: Sequence[int] | Mapping[int, str],
     annotations: AtlasFiniteRelationIndexAnnotations | None,
+    colors: Mapping[int, str] | None,
 ) -> dict[str, Any]:
-    """Options shared by the figure of a variant and its panel figures."""
+    """Options shared by the figure of a variant and its panel figures.
+
+    Without ``colors``, every node takes a palette color, as when the run
+    has no index records.
+    """
 
     style = PAPER_GRID_FIGURE_STYLE[paper_grid_example(example)]
     shown_set = {int(node) for node in shown}
@@ -136,8 +249,10 @@ def _paper_grid_plot_options(
         for node in plot_data.nodes
         if int(node.index) in shown_set
     )
+    if colors is None:
+        colors = paper_grid_morse_colors(len(plot_data.nodes))
     return {
-        "clist": CMGDB_MORSE_PALETTE,
+        "clist": dict(colors),
         "morse_nodes": shown,
         "finite_relation_annotations": annotations,
         "blocked_index_nodes": blocked,
@@ -160,6 +275,7 @@ def draw_paper_grid_figure(
     shown: Sequence[int],
     blocked: Sequence[int] | Mapping[int, str] = (),
     annotations: AtlasFiniteRelationIndexAnnotations | None = None,
+    colors: Mapping[int, str] | None = None,
 ) -> AtlasHybridMorsePlot:
     """Draw the figure of the Morse nodes ``shown``: base chart and Morse graph.
 
@@ -169,13 +285,20 @@ def draw_paper_grid_figure(
     shown whole, and a Morse set too small to see gets a zoom panel.  The
     handle chart (guard coordinate against the phase ``s``) is drawn only
     when a shown Morse set has no base cell, since such a set would
-    otherwise not appear in the figure.
+    otherwise not appear in the figure.  ``colors`` maps each Morse node to
+    its color (see :func:`paper_grid_morse_colors`); without it, every node
+    takes a palette color, as when the run has no index records.
     """
 
     return plot_atlas_hybrid_morse_sets(
         plot_data,
         **_paper_grid_plot_options(
-            plot_data, example=example, shown=shown, blocked=blocked, annotations=annotations
+            plot_data,
+            example=example,
+            shown=shown,
+            blocked=blocked,
+            annotations=annotations,
+            colors=colors,
         ),
         show_legend=False,
         show_panel_titles=False,
@@ -191,6 +314,7 @@ def draw_paper_grid_panels(
     shown: Sequence[int],
     blocked: Sequence[int] | Mapping[int, str] = (),
     annotations: AtlasFiniteRelationIndexAnnotations | None = None,
+    colors: Mapping[int, str] | None = None,
     dpi: int = 300,
 ) -> AtlasMorsePanelFigures:
     """Draw each panel of :func:`draw_paper_grid_figure` as its own figure.
@@ -204,7 +328,12 @@ def draw_paper_grid_panels(
     return plot_atlas_hybrid_morse_panels(
         plot_data,
         **_paper_grid_plot_options(
-            plot_data, example=example, shown=shown, blocked=blocked, annotations=annotations
+            plot_data,
+            example=example,
+            shown=shown,
+            blocked=blocked,
+            annotations=annotations,
+            colors=colors,
         ),
         dpi=dpi,
     )
@@ -232,12 +361,15 @@ def write_paper_grid_figures(
     where each variant records its files, the shown and hidden nodes (with
     the reason), the blocked nodes it marks, the order it draws, its zoom
     panels (label, chart, window, and the Morse nodes they are drawn for),
-    and under ``panel_files`` the files of each panel drawn as its own
-    figure (``base``, ``zoom-A``, ..., ``handle``, ``graph``).  ``figures``
-    lists the files of each variant, then those of its panels.  Summaries
-    written before cells were outlined also have a ``marked_in_panel`` list
-    (sets whose cells were marked by squares), and summaries written before
-    the panel figures have no ``panel_files``; a replot replaces the record.
+    under ``panel_files`` the files of each panel drawn as its own figure
+    (``base``, ``zoom-A``, ..., ``handle``, ``graph``), and under ``colors``
+    the palette and the color of every Morse node
+    (:func:`paper_grid_color_record`).  ``figures`` lists the files of each
+    variant, then those of its panels.  Summaries written before cells were
+    outlined also have a ``marked_in_panel`` list (sets whose cells were
+    marked by squares), summaries written before the panel figures have no
+    ``panel_files``, and summaries written before the Tol palette have no
+    ``colors``; a replot replaces the record.
     """
 
     plot_data = suspension_grid_morse_sets_plot_data(
@@ -246,6 +378,7 @@ def write_paper_grid_figures(
         edges,
         metadata={"model": example, "t_star": tau, "level": level},
     )
+    colors = paper_grid_morse_colors(len(morse_sets), conley)
     labels = {
         int(entry["morse_node"]): tuple(str(value) for value in entry["shift_class"])
         for entry in conley
@@ -261,6 +394,7 @@ def write_paper_grid_figures(
     for variant in dict.fromkeys(variants):
         selection = morse_figure_selection(len(morse_sets), edges, conley, variant)
         record = selection.to_dict()
+        record["colors"] = paper_grid_color_record(len(morse_sets), conley)
         if not selection.shown:
             record["files"] = []
             record["panel_files"] = {}
@@ -283,7 +417,9 @@ def write_paper_grid_figures(
             "shown": selection.shown,
             "blocked": {node: blocked_lines[node] for node in selection.blocked},
             "annotations": annotations,
+            "colors": colors,
         }
+        shown_colors = {node: colors[node] for node in selection.shown}
         variant_stem = figure_variant_stem(output_stem, variant)
         plot = draw_paper_grid_figure(plot_data, **options)
         try:
@@ -292,6 +428,8 @@ def write_paper_grid_figures(
                 raise AssertionError(
                     f"drawn Morse order {drawn!r} differs from the selection {selection.order!r}"
                 )
+            if {part.index: part.color for part in plot.components} != shown_colors:
+                raise AssertionError("the figure has other colors than the color record")
             outputs = save_hybrid_morse_figure(
                 plot, variant_stem, formats=("pdf", "png"), dpi=dpi
             )
@@ -301,6 +439,8 @@ def write_paper_grid_figures(
         try:
             if panels.zooms != plot.zooms:
                 raise AssertionError("the panel figures have other zooms than the figure")
+            if {part.index: part.color for part in panels.components} != shown_colors:
+                raise AssertionError("the panel figures have other colors than the color record")
             panel_outputs = {
                 name: save_hybrid_morse_figure(
                     figure,
@@ -325,11 +465,17 @@ def write_paper_grid_figures(
 
 
 __all__ = [
+    "COLOR_RULE",
     "FRAME_MARGIN",
     "PAPER_GRID_FIGURE_STYLE",
+    "PAPER_GRID_PALETTE",
+    "PAPER_GRID_PALETTE_NAME",
     "PANEL_MAX_PIXELS",
+    "TRIVIAL_INDEX_COLOR",
     "draw_paper_grid_figure",
     "draw_paper_grid_panels",
     "figure_variant_stem",
+    "paper_grid_color_record",
+    "paper_grid_morse_colors",
     "write_paper_grid_figures",
 ]

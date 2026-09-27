@@ -1,9 +1,11 @@
 """Plot data for Morse sets on the paper suspension grid.
 
 The figures reuse the Atlas plotter of :mod:`atlas_morse_plot`, so they have
-the layout and palette of the earlier manuscript figures.  Each Morse node is
-represented by the closed base cells of its base readout ``d_n^{-1}(M)`` and,
-in the handle chart ``(u, s)``, by the handle pieces of its atoms.
+the layout of the earlier manuscript figures; the paper-grid figures color
+the Morse sets as in :mod:`hybrid_dynamics.examples.paper_grid_figures`.
+Each Morse node is represented by the closed base cells of its base readout
+``d_n^{-1}(M)`` and, in the handle chart ``(u, s)``, by the handle pieces of
+its atoms.
 
 Two figure variants are defined.  ``all`` shows every Morse node.
 ``nontrivial`` hides the Morse nodes whose finite-relation index was computed

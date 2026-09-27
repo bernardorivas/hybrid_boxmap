@@ -675,13 +675,24 @@ def atlas_morse_components(
     data: AtlasMorsePlotData,
     *,
     morse_nodes: Iterable[int] | None = None,
-    palette: Sequence[str],
+    palette: Sequence[str] | Mapping[int, str],
 ) -> tuple[AtlasHybridMorseComponent, ...]:
-    """Prepare deterministic colors and chart partitions for selected nodes."""
+    """Prepare deterministic colors and chart partitions for selected nodes.
+
+    ``palette`` is a list of colors, where node ``i`` takes color ``i`` modulo
+    the length of the list, or a mapping from each selected node to its color.
+    """
 
     if not palette:
         raise ValueError("palette must contain at least one color")
     selected = _selected_vertex_ids(data, morse_nodes)
+    if isinstance(palette, Mapping):
+        uncolored = sorted(set(selected).difference(int(node) for node in palette))
+        if uncolored:
+            raise ValueError(f"palette gives no color for the Morse nodes {uncolored!r}")
+        node_colors = {int(node): str(color) for node, color in palette.items()}
+    else:
+        node_colors = {index: str(palette[index % len(palette)]) for index in selected}
     by_index = {node.index: node for node in data.nodes}
     components = []
     for index in selected:
@@ -690,7 +701,7 @@ def atlas_morse_components(
             AtlasHybridMorseComponent(
                 index=index,
                 label=f"M({index})",
-                color=str(palette[index % len(palette)]),
+                color=node_colors[index],
                 boxes=boxes,
                 base_boxes=tuple(
                     box for box in boxes if box.chart_id == data.base_chart_id
@@ -1405,7 +1416,7 @@ def _atlas_plot_layout(
     morse_nodes: Iterable[int] | None,
     proj_dims: Sequence[int] | Sequence[Sequence[int]] | None,
     handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None,
-    clist: Sequence[str],
+    clist: Sequence[str] | Mapping[int, str],
     axis_labels: Sequence[str] | None,
     handle_axis_labels: Sequence[str] | None,
     show_handles: bool,
@@ -1579,7 +1590,7 @@ def plot_atlas_hybrid_morse_sets(
     morse_nodes: Iterable[int] | None = None,
     proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
     handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
-    clist: Sequence[str],
+    clist: Sequence[str] | Mapping[int, str],
     axis_labels: Sequence[str] | None = None,
     handle_axis_labels: Sequence[str] | None = None,
     show_handles: bool = False,
@@ -1603,7 +1614,9 @@ def plot_atlas_hybrid_morse_sets(
 
     ``morse_nodes`` selects the drawn nodes; they keep their numbers and
     colors, and the drawn order is reachability through the hidden nodes,
-    transitively reduced.  Nodes in ``blocked_index_nodes`` are marked as
+    transitively reduced.  ``clist`` is a list of colors, where node ``i``
+    takes color ``i`` modulo the length of the list, or a mapping from each
+    drawn node to its color.  Nodes in ``blocked_index_nodes`` are marked as
     blocked in the Morse graph; with a mapping, the text given for a node
     replaces the word ``blocked``.
 
@@ -1859,7 +1872,7 @@ def plot_atlas_hybrid_morse_panels(
     morse_nodes: Iterable[int] | None = None,
     proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
     handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
-    clist: Sequence[str],
+    clist: Sequence[str] | Mapping[int, str],
     axis_labels: Sequence[str] | None = None,
     handle_axis_labels: Sequence[str] | None = None,
     show_handles: bool = False,

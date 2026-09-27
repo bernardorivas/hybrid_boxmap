@@ -21,11 +21,17 @@ from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
     paper_grid_problem,
 )
 from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
+    COLOR_RULE,
     FRAME_MARGIN,
     PANEL_MAX_PIXELS,
+    PAPER_GRID_PALETTE,
+    PAPER_GRID_PALETTE_NAME,
+    TRIVIAL_INDEX_COLOR,
     _panel_dpi,
     draw_paper_grid_figure,
     draw_paper_grid_panels,
+    paper_grid_color_record,
+    paper_grid_morse_colors,
     write_paper_grid_figures,
 )
 from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
@@ -36,8 +42,11 @@ from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
     PANEL_ZOOM_SIZE,
     ZOOM_FIGURE_STYLE,
     AtlasFiniteRelationIndexAnnotations,
+    atlas_morse_components,
 )
 from hybrid_dynamics.src.hybrid_morse_plot import (  # noqa: E402
+    MORSE_LABEL_DARK,
+    MORSE_LABEL_LIGHT,
     MorseNodeLabel,
     _morse_node_size,
     morse_graph_node_labels,
@@ -276,10 +285,24 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
         for record in figures["figure_variants"].values()
     )
     assert [entry["morse_node"] for entry in nontrivial["hidden_nodes"]] == [1, 3]
+    # Each variant records the palette and the color of every Morse node, the
+    # same in both variants.
+    for record in figures["figure_variants"].values():
+        assert record["colors"] == paper_grid_color_record(6, CONLEY)
+        assert record["colors"]["palette"] == PAPER_GRID_PALETTE_NAME == "Paul Tol muted"
+        assert record["colors"]["palette_colors"] == list(PAPER_GRID_PALETTE)
+        assert record["colors"]["trivial_index_color"] == TRIVIAL_INDEX_COLOR
+        assert record["colors"]["rule"] == COLOR_RULE
+        assert record["colors"]["morse_node_colors"] == [
+            {"morse_node": node, "color": color}
+            for node, color in paper_grid_morse_colors(6, CONLEY).items()
+        ]
+        assert record["colors"]["palette_cycled"] is False
+        assert "palette_cycled_note" not in record["colors"]
 
     # A JSON summary with the fields the runner writes; its figure records are
     # in the older form that listed the sets marked by squares in a panel and
-    # had no panel figures.
+    # had no panel figures or colors.
     summary = {
         "schema": "paper-suspension-grid-run-v3",
         "example": "bouncing-ball",
@@ -297,7 +320,11 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
         ],
         "figure_variants": {
             variant: {
-                **{key: value for key, value in record.items() if key != "panel_files"},
+                **{
+                    key: value
+                    for key, value in record.items()
+                    if key not in {"panel_files", "colors"}
+                },
                 "marked_in_panel": [{"chart": "base", "morse_node": 0}],
             }
             for variant, record in figures["figure_variants"].items()
@@ -320,6 +347,10 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     assert updated["figure_variants"]["all"]["panel_files"] == figures["figure_variants"][
         "all"
     ]["panel_files"]
+    assert all(
+        record["colors"] == paper_grid_color_record(6, CONLEY)
+        for record in updated["figure_variants"].values()
+    )
     assert updated["figures"] == figures["figures"]
     assert updated["figures_replotted"]["script"] == "demo/replot_paper_grid.py"
 
@@ -687,3 +718,141 @@ def test_a_very_large_panel_png_has_a_lower_resolution():
         assert _panel_dpi(figure, 400) == 400
     finally:
         plt.close(figure)
+
+
+# Paul Tol's "muted" qualitative scheme, by the names Tol gives the colors.
+TOL_MUTED = {
+    "#CC6677": "rose",
+    "#332288": "indigo",
+    "#DDCC77": "sand",
+    "#117733": "green",
+    "#88CCEE": "cyan",
+    "#882255": "wine",
+    "#44AA99": "teal",
+    "#999933": "olive",
+    "#AA4499": "purple",
+}
+
+
+def test_the_paper_grid_palette_is_tol_muted_and_trivial_sets_are_gray():
+    assert sorted(PAPER_GRID_PALETTE) == sorted(TOL_MUTED)
+    assert [TOL_MUTED[color] for color in PAPER_GRID_PALETTE] == [
+        "indigo",
+        "sand",
+        "cyan",
+        "green",
+        "rose",
+        "olive",
+        "teal",
+        "wine",
+        "purple",
+    ]
+    assert TRIVIAL_INDEX_COLOR == "#BBBBBB" and TRIVIAL_INDEX_COLOR not in PAPER_GRID_PALETTE
+
+    # Nodes 1 and 3 have a trivial index and are gray; the others (a
+    # nontrivial label, or node 2 without a label) take the palette colors in
+    # order of node number.
+    palette = PAPER_GRID_PALETTE
+    assert paper_grid_morse_colors(6, CONLEY) == {
+        0: palette[0],
+        1: TRIVIAL_INDEX_COLOR,
+        2: palette[1],
+        3: TRIVIAL_INDEX_COLOR,
+        4: palette[2],
+        5: palette[3],
+    }
+    # Without index records every node takes a palette color.
+    assert paper_grid_morse_colors(3) == {0: palette[0], 1: palette[1], 2: palette[2]}
+
+    # More nodes than colors: the colors repeat, and the record says so.
+    record = paper_grid_color_record(11)
+    assert [entry["color"] for entry in record["morse_node_colors"]] == [
+        *palette,
+        palette[0],
+        palette[1],
+    ]
+    assert record["palette_cycled"] is True
+    assert "repeat from Morse node 9" in record["palette_cycled_note"]
+    # Gray nodes take no palette color, so nine colored nodes of ten do not cycle.
+    conley = [_record(0, "trivial")] + [_record(node, "nontrivial") for node in range(1, 10)]
+    record = paper_grid_color_record(10, conley)
+    assert record["palette_cycled"] is False and "palette_cycled_note" not in record
+    assert [entry["color"] for entry in record["morse_node_colors"]] == [
+        TRIVIAL_INDEX_COLOR,
+        *palette,
+    ]
+
+    # A palette given as a mapping must color every drawn node.
+    _problem, grid, morse_sets = _ball_run()
+    data = suspension_grid_morse_sets_plot_data(grid, morse_sets, EDGES)
+    with pytest.raises(ValueError, match="no color for the Morse nodes"):
+        atlas_morse_components(data, morse_nodes=(0, 1), palette={0: "#000000"})
+
+
+def _fill_colors(axis) -> set[str]:
+    """Colors of the cells drawn on a chart axis (not of their outlines)."""
+
+    return {
+        matplotlib.colors.to_hex(collection.get_facecolor()[0][:3])
+        for collection in axis.collections
+        if not np.any(collection.get_linewidths())
+    }
+
+
+def test_a_morse_set_has_one_color_in_every_variant_and_panel():
+    _problem, grid, morse_sets = _ball_run()
+    data = suspension_grid_morse_sets_plot_data(grid, morse_sets, EDGES)
+    colors = paper_grid_morse_colors(6, CONLEY)
+    # Label text is white on the dark indigo and green, near black elsewhere.
+    label_colors = {
+        0: MORSE_LABEL_LIGHT,
+        1: MORSE_LABEL_DARK,
+        2: MORSE_LABEL_DARK,
+        3: MORSE_LABEL_DARK,
+        4: MORSE_LABEL_DARK,
+        5: MORSE_LABEL_LIGHT,
+    }
+    drawn_colors = {}
+    for variant in ("all", "nontrivial"):
+        selection = morse_figure_selection(6, EDGES, CONLEY, variant)
+        options = {
+            "example": "bouncing-ball",
+            "shown": selection.shown,
+            "blocked": selection.blocked,
+            "colors": colors,
+        }
+        plot = draw_paper_grid_figure(data, **options)
+        panels = draw_paper_grid_panels(data, **options, dpi=60)
+        try:
+            expected = {node: colors[node] for node in selection.shown}
+            for drawing in (plot, panels):
+                assert {part.index: part.color for part in drawing.components} == expected
+            chart_axes = [*plot.projection_axes, *plot.handle_axes, *plot.zoom_axes] + [
+                axis for name, axis in panels.axes.items() if name != "graph"
+            ]
+            allowed = {color.lower() for color in expected.values()}
+            for axis in chart_axes:
+                assert _fill_colors(axis) <= allowed
+            for axis in (plot.morse_graph_axis, panels.axes["graph"]):
+                ellipses = [patch for patch in axis.patches if isinstance(patch, patches.Ellipse)]
+                labels = [patch for patch in axis.patches if isinstance(patch, MorseNodeLabel)]
+                nodes = sorted(selection.shown)
+                assert [matplotlib.colors.to_hex(patch.get_facecolor()) for patch in ellipses] == [
+                    colors[node].lower() for node in nodes
+                ]
+                assert [matplotlib.colors.to_hex(patch.get_facecolor()) for patch in labels] == [
+                    label_colors[node] for node in nodes
+                ]
+            drawn_colors[variant] = {
+                part.index: part.color for part in [*plot.components, *panels.components]
+            }
+        finally:
+            plt.close(plot.figure)
+            panels.close()
+    # The gray of the trivial sets is drawn only in the all variant, and the
+    # other sets have the same color in both variants.
+    assert {drawn_colors["all"][node] for node in (1, 3)} == {TRIVIAL_INDEX_COLOR}
+    assert TRIVIAL_INDEX_COLOR not in drawn_colors["nontrivial"].values()
+    assert drawn_colors["nontrivial"] == {
+        node: color for node, color in drawn_colors["all"].items() if node not in (1, 3)
+    }
