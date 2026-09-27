@@ -208,6 +208,15 @@ induced `P0` nerve. This is a pair-preserving extension on cells that vanish in
 resulting carrier value must still pass the same acyclicity, subordination,
 pair-preservation, and chain-map checks.
 
+The carrier values of `prepare_atlas_relation_conley_2d` are assembled on
+demand while `FixedTimeCarrier` validates them in the order of the cells, so
+a relation whose carrier fails the acyclicity gate stops at the first failing
+cell without assembling the carriers of the later ones; the values and the
+first failure are those of assembling every carrier first
+(`hybrid_dynamics/tests/test_suspension_grid_scaling.py`). Equal carrier
+values are stored once, and the chain selector reuses the echelon form of the
+boundary matrix of a carrier value for the cells that share it.
+
 ## CMGDB boundary
 
 `compute_finite_relation_shift_class()` calls the CMGDB explicit-chain bridge

@@ -341,13 +341,18 @@ class SuspensionFlow:
 
 @dataclass
 class EndpointBatch:
-    """Endpoints of a batch of sample points at suspension time ``tau``."""
+    """Endpoints of a batch of sample points at suspension time ``tau``.
+
+    ``failures[i]`` is the message of a failed evaluation and
+    ``failure_rows[i]`` the first row of the batch it concerns.
+    """
 
     kind: IntArray
     state: FloatArray
     phase: FloatArray
     left_window: npt.NDArray[np.bool_]
     failures: list[str] = field(default_factory=list)
+    failure_rows: list[int] = field(default_factory=list)
 
     @classmethod
     def empty(cls, size: int) -> "EndpointBatch":
@@ -366,7 +371,25 @@ class EndpointBatch:
             phase=np.concatenate([batch.phase for batch in batches]),
             left_window=np.concatenate([batch.left_window for batch in batches]),
             failures=[message for batch in batches for message in batch.failures],
+            failure_rows=[
+                offset + row
+                for offset, batch in zip(
+                    np.cumsum([0] + [batch.kind.shape[0] for batch in batches[:-1]]).tolist(),
+                    batches,
+                )
+                for row in batch.failure_rows
+            ],
         )
+
+    def assign(self, rows: IntArray, other: "EndpointBatch") -> None:
+        """Write ``other`` into ``rows`` of this batch (failures appended)."""
+
+        self.kind[rows] = other.kind
+        self.state[rows] = other.state
+        self.phase[rows] = other.phase
+        self.left_window[rows] = other.left_window
+        self.failures.extend(other.failures)
+        self.failure_rows.extend(int(rows[row]) for row in other.failure_rows)
 
 
 def _make_flow(problem: SuspensionGridProblem, level: int) -> SuspensionFlow:
@@ -408,6 +431,7 @@ def evaluate_base_endpoints(
             kind, state, phase = path.evaluate(tau)
         except (RuntimeError, ValueError, FloatingPointError) as error:
             batch.failures.append(f"base sample {points[index].tolist()}: {error}")
+            batch.failure_rows.append(index)
             continue
         batch.kind[index] = kind[0]
         batch.state[index] = state[0]
@@ -471,6 +495,7 @@ def evaluate_handle_endpoints(
         except (RuntimeError, ValueError, FloatingPointError) as error:
             batch = EndpointBatch.empty(phases.shape[0])
             batch.failures.append(f"handle sample u={u_values[index]!r}: {error}")
+            batch.failure_rows.append(0)
         batches.append(batch)
     return EndpointBatch.concatenate(batches)
 
@@ -559,6 +584,27 @@ def _forward_closure(matrix: sparse.csr_matrix, seeds: npt.ArrayLike) -> IntArra
 
 
 def _unique_rows(values: IntArray) -> tuple[IntArray, IntArray]:
+    """``np.unique(values, axis=0, return_inverse=True)`` for integer pairs.
+
+    Nonnegative pairs ``(a, b)`` are sorted as the integers ``a * span + b``
+    with ``span > max b``, which is the lexicographic order of the rows, so
+    the result is that of ``np.unique`` along axis 0 without its row sort.
+    """
+
+    values = np.asarray(values)
+    if (
+        values.ndim == 2
+        and values.shape[1] == 2
+        and values.shape[0]
+        and np.issubdtype(values.dtype, np.integer)
+        and int(values.min()) >= 0
+    ):
+        span = int(values[:, 1].max()) + 1
+        if int(values[:, 0].max()) < np.iinfo(np.int64).max // span - 1:
+            codes = values[:, 0].astype(np.int64) * span + values[:, 1].astype(np.int64)
+            unique_codes, inverse = np.unique(codes, return_inverse=True)
+            unique = np.stack((unique_codes // span, unique_codes % span), axis=1)
+            return unique.astype(values.dtype, copy=False), inverse.reshape(-1)
     unique, inverse = np.unique(values, axis=0, return_inverse=True)
     return unique, inverse.reshape(-1)
 
@@ -713,12 +759,117 @@ def _evaluate_handle_pairs(
             tau,
             path_cache=path_cache,
         )
-        batch.kind[members] = evaluated.kind
-        batch.state[members] = evaluated.state
-        batch.phase[members] = evaluated.phase
-        batch.left_window[members] = evaluated.left_window
-        batch.failures.extend(evaluated.failures)
+        batch.assign(members, evaluated)
     return batch
+
+
+class EndpointCache:
+    """Endpoints of evaluated samples, shared by relations on one grid and problem.
+
+    :func:`compute_suspension_grid_relation` with ``endpoint_cache=cache``
+    looks every sample up by its exact coordinates (base point ``(x, y)`` or
+    handle point ``(u, s)``, compared bit for bit) and evaluates only the
+    samples that are not yet in the cache.  The endpoint of a sample is a
+    deterministic function of the grid, the problem, and the sample, so a
+    relation computed with the cache equals the relation computed without
+    it, including the failure messages and their order.  The runner uses one
+    cache for the relations under ``exit_policy="endpoint"`` and ``"path"``:
+    the second reuses every endpoint of the first (with gap refinement, the
+    gaps under ``"path"`` are among those under ``"endpoint"``).
+
+    A cache serves the grid and problem of its first use; any other raises
+    ``ValueError``.
+    """
+
+    def __init__(self) -> None:
+        self._grid: SuspensionGrid | None = None
+        self._problem: SuspensionGridProblem | None = None
+        self._rows: tuple[dict[bytes, int], dict[bytes, int]] = ({}, {})
+        self._chunks: tuple[list[EndpointBatch], list[EndpointBatch]] = ([], [])
+        self._joined: list[EndpointBatch | None] = [None, None]
+        self._failures: tuple[dict[bytes, str], dict[bytes, str]] = ({}, {})
+        self.evaluated = 0
+        self.reused = 0
+
+    def __len__(self) -> int:
+        return len(self._rows[0]) + len(self._rows[1])
+
+    def bind(self, grid: SuspensionGrid, problem: SuspensionGridProblem) -> None:
+        if self._grid is None:
+            self._grid, self._problem = grid, problem
+        elif self._grid is not grid or self._problem is not problem:
+            raise ValueError("an EndpointCache serves one grid and one problem")
+
+    @staticmethod
+    def _keys(values: FloatArray) -> list[bytes]:
+        array = np.ascontiguousarray(values, dtype=np.float64)
+        return array.view(np.dtype((np.void, array.dtype.itemsize * array.shape[1]))).ravel().tolist()
+
+    def evaluate(
+        self,
+        handle: bool,
+        coordinates: FloatArray,
+        evaluator: Callable[[FloatArray], EndpointBatch],
+    ) -> EndpointBatch:
+        """Endpoints of the samples ``coordinates`` (rows ``(x, y)`` or ``(u, s)``).
+
+        Missing samples are evaluated with ``evaluator`` in one call.  The
+        failure messages are returned in the order of a direct evaluation:
+        row order for base samples, and one message per failed guard
+        coordinate, in increasing ``u``, for handle samples (a handle path
+        fails for all its phases).
+        """
+
+        side = int(bool(handle))
+        coordinates = np.asarray(coordinates, dtype=np.float64).reshape(-1, 2)
+        rows_of = self._rows[side]
+        keys = self._keys(coordinates)
+        rows = np.fromiter((rows_of.get(key, -1) for key in keys), dtype=np.int64, count=len(keys))
+        missing = np.flatnonzero(rows < 0)
+        if missing.size:
+            # Evaluate each missing sample once, in the order of first request.
+            fresh_keys: dict[bytes, int] = {}
+            for index in missing.tolist():
+                fresh_keys.setdefault(keys[index], index)
+            first = np.fromiter(fresh_keys.values(), dtype=np.int64, count=len(fresh_keys))
+            batch = evaluator(coordinates[first])
+            offset = len(rows_of)
+            for local, key in enumerate(fresh_keys):
+                rows_of[key] = offset + local
+            failures = self._failures[side]
+            for message, row in zip(batch.failures, batch.failure_rows):
+                point = coordinates[first[row]]
+                failures[self._keys(point[: 1 + (1 - side)].reshape(1, -1))[0]] = message
+            self._chunks[side].append(batch)
+            self._joined[side] = None
+            rows = np.fromiter((rows_of[key] for key in keys), dtype=np.int64, count=len(keys))
+            self.evaluated += int(first.size)
+        self.reused += int(coordinates.shape[0] - missing.size)
+        joined = self._joined[side]
+        if joined is None:
+            joined = EndpointBatch.concatenate(self._chunks[side]) if self._chunks[side] else EndpointBatch.empty(0)
+            joined.failures, joined.failure_rows = [], []
+            self._joined[side] = joined
+        result = EndpointBatch(
+            kind=joined.kind[rows],
+            state=joined.state[rows],
+            phase=joined.phase[rows],
+            left_window=joined.left_window[rows],
+        )
+        failures = self._failures[side]
+        if failures:
+            if handle:
+                distinct, first_row = np.unique(coordinates[:, 0], return_index=True)
+                labels = self._keys(distinct.reshape(-1, 1))
+                ordered = zip(labels, first_row.tolist())
+            else:
+                ordered = zip(keys, range(len(keys)))
+            for key, row in ordered:
+                message = failures.get(key)
+                if message is not None:
+                    result.failures.append(message)
+                    result.failure_rows.append(int(row))
+        return result
 
 
 def _lattice_edges(sample_of_piece: IntArray, q: int) -> tuple[IntArray, IntArray]:
@@ -754,6 +905,7 @@ def compute_suspension_grid_relation(
     problem_factory: Callable[[], SuspensionGridProblem] | None = None,
     chunk_size: int = 256,
     progress: Callable[[str], None] | None = None,
+    endpoint_cache: EndpointCache | None = None,
 ) -> SuspensionGridRelation:
     """Sample ``F_n`` on ``Xi_n`` as described in the Examples section.
 
@@ -800,6 +952,10 @@ def compute_suspension_grid_relation(
 
     With ``workers > 1`` the base samples are evaluated in worker processes,
     each rebuilding the problem from the picklable ``problem_factory``.
+
+    ``endpoint_cache`` (an :class:`EndpointCache`) reuses the endpoints of
+    samples evaluated by an earlier call on the same grid and problem; the
+    relation is the same with or without it.
     """
 
     if eval_mode not in EVAL_MODES:
@@ -847,6 +1003,26 @@ def compute_suspension_grid_relation(
         problem_factory=problem_factory,
         chunk_size=chunk_size,
     )
+    if endpoint_cache is not None:
+        endpoint_cache.bind(grid, problem)
+
+    def evaluate_base_samples(points: FloatArray) -> EndpointBatch:
+        if endpoint_cache is None:
+            return evaluate_base(points)
+        return endpoint_cache.evaluate(False, points, evaluate_base)
+
+    def evaluate_handle_samples(
+        coordinates: FloatArray, paths: dict[float, SuspensionPath] | None
+    ) -> EndpointBatch:
+        def evaluate(values: FloatArray) -> EndpointBatch:
+            return _evaluate_handle_pairs(
+                flow, grid.guard, values[:, 0], values[:, 1], tau, path_cache=paths
+            )
+
+        if endpoint_cache is None:
+            return evaluate(coordinates)
+        return endpoint_cache.evaluate(True, coordinates, evaluate)
+
     try:
         # Base samples: integer keys on the lattice of step width / denominator.
         base_lattice = (
@@ -859,7 +1035,7 @@ def compute_suspension_grid_relation(
         report(f"base samples: {base_points.shape[0]} unique points")
 
         t0 = time.perf_counter()
-        base_batch = evaluate_base(base_points)
+        base_batch = evaluate_base_samples(base_points)
         base_seconds = time.perf_counter() - t0
         report(f"base endpoints evaluated in {base_seconds:.1f} s")
 
@@ -883,13 +1059,9 @@ def compute_suspension_grid_relation(
         handle_sample_of_piece = handle_inverse.reshape(grid.n_handle, numerators.shape[0])
         t0 = time.perf_counter()
         path_cache: dict[float, SuspensionPath] = {}
-        handle_batch = _evaluate_handle_pairs(
-            flow,
-            grid.guard,
-            handle_u,
-            handle_s,
-            tau,
-            path_cache=path_cache if gap_refinement_depth > 0 else None,
+        handle_batch = evaluate_handle_samples(
+            np.stack((handle_u, handle_s), axis=1),
+            path_cache if gap_refinement_depth > 0 else None,
         )
         handle_seconds = time.perf_counter() - t0
         report(f"handle endpoints evaluated in {handle_seconds:.1f} s")
@@ -958,27 +1130,12 @@ def compute_suspension_grid_relation(
                 new_batch = EndpointBatch.empty(middle.shape[0])
                 base_rows = np.flatnonzero(~middle_handle)
                 if base_rows.size:
-                    evaluated = evaluate_base(middle[base_rows])
-                    new_batch.kind[base_rows] = evaluated.kind
-                    new_batch.state[base_rows] = evaluated.state
-                    new_batch.phase[base_rows] = evaluated.phase
-                    new_batch.left_window[base_rows] = evaluated.left_window
-                    new_batch.failures.extend(evaluated.failures)
+                    new_batch.assign(base_rows, evaluate_base_samples(middle[base_rows]))
                 handle_rows = np.flatnonzero(middle_handle)
                 if handle_rows.size:
-                    evaluated = _evaluate_handle_pairs(
-                        flow,
-                        grid.guard,
-                        middle[handle_rows, 0],
-                        middle[handle_rows, 1],
-                        tau,
-                        path_cache=path_cache,
+                    new_batch.assign(
+                        handle_rows, evaluate_handle_samples(middle[handle_rows], path_cache)
                     )
-                    new_batch.kind[handle_rows] = evaluated.kind
-                    new_batch.state[handle_rows] = evaluated.state
-                    new_batch.phase[handle_rows] = evaluated.phase
-                    new_batch.left_window[handle_rows] = evaluated.left_window
-                    new_batch.failures.extend(evaluated.failures)
                     # Paths at new guard coordinates serve one round only.
                     for key in list(path_cache):
                         if key not in lattice_keys:
@@ -1226,29 +1383,100 @@ def atom_set_components(grid: SuspensionGrid, atoms: npt.ArrayLike) -> int:
     return int(csgraph.connected_components(sub, directed=False)[0])
 
 
+def row_set_components(
+    rows: sparse.csr_matrix,
+    adjacency: sparse.csr_matrix,
+    *,
+    chunk_entries: int = 1 << 18,
+) -> IntArray:
+    """Components of every row set of ``rows`` in the graph ``adjacency``.
+
+    Entry ``a`` of the result is the number of connected components of the
+    subgraph of ``adjacency`` (read as undirected) induced on the column
+    indices of row ``a`` (``0`` for an empty row), that is,
+    :func:`atom_set_components` of that set when ``adjacency`` is
+    ``grid.atom_adjacency``.  All rows are treated at once: the entries of a
+    block of rows are the vertices of one graph, joined when they lie in the
+    same row and their columns are adjacent, and the components of that
+    graph are counted per row.  Blocks hold about ``chunk_entries`` entries.
+    Every edge ``(b, c)`` of ``adjacency`` is found from the entry ``b``, so
+    ``adjacency`` need not be symmetric.
+    """
+
+    rows = sparse.csr_matrix(rows)
+    if not rows.has_canonical_format:
+        rows = rows.copy()
+        rows.sum_duplicates()
+    adjacency = sparse.csr_matrix(adjacency)
+    n_rows, n_columns = rows.shape
+    indptr = rows.indptr.astype(np.int64)
+    indices = rows.indices.astype(np.int64)
+    adjacency_indptr = adjacency.indptr.astype(np.int64)
+    adjacency_indices = adjacency.indices.astype(np.int64)
+    result = np.zeros(n_rows, dtype=np.int64)
+    start_row = 0
+    while start_row < n_rows:
+        # The largest block of rows with at most chunk_entries entries (at
+        # least one row).
+        stop_row = int(
+            np.searchsorted(indptr, indptr[start_row] + chunk_entries, side="right") - 1
+        )
+        stop_row = min(max(stop_row, start_row + 1), n_rows)
+        first, last = int(indptr[start_row]), int(indptr[stop_row])
+        count = last - first
+        if count == 0:
+            start_row = stop_row
+            continue
+        local_row = np.repeat(
+            np.arange(stop_row - start_row, dtype=np.int64), np.diff(indptr[start_row : stop_row + 1])
+        )
+        column = indices[first:last]
+        # Sorted keys (row, column) of the entries of the block.
+        keys = local_row * n_columns + column
+        # Neighbors of each entry's column in the adjacency graph.
+        degree = adjacency_indptr[column + 1] - adjacency_indptr[column]
+        entry = np.repeat(np.arange(count, dtype=np.int64), degree)
+        starts = np.repeat(adjacency_indptr[column], degree)
+        within = np.arange(entry.size, dtype=np.int64) - np.repeat(
+            np.cumsum(degree) - degree, degree
+        )
+        neighbor = adjacency_indices[starts + within]
+        neighbor_keys = local_row[entry] * n_columns + neighbor
+        position = np.searchsorted(keys, neighbor_keys)
+        found = position < count
+        found[found] = keys[position[found]] == neighbor_keys[found]
+        graph = sparse.csr_matrix(
+            (np.ones(int(np.count_nonzero(found)), dtype=np.int8), (entry[found], position[found])),
+            shape=(count, count),
+        )
+        _n, labels = csgraph.connected_components(graph, directed=False)
+        # Components never cross rows: count the distinct labels of each row.
+        first_of_label = np.unique(labels, return_index=True)[1]
+        result[start_row:stop_row] = np.bincount(
+            local_row[first_of_label], minlength=stop_row - start_row
+        )
+        start_row = stop_row
+    return result
+
+
 def relation_image_connectivity(relation: SuspensionGridRelation) -> dict[str, int]:
     """Count atoms whose recorded image is disconnected in ``Sigma X``.
 
     The image of a connected atom under the continuous map ``f_tau`` is
     connected, so a disconnected recorded image (restricted to the window)
     indicates either an exit through the window boundary or a sampling gap.
+    The components of all images are counted at once
+    (:func:`row_set_components`); the counts equal those of
+    :func:`atom_set_components` applied to each image.
     """
 
     grid = relation.grid
-    disconnected_padded = 0
-    disconnected_sampled = 0
-    for atom in range(grid.n_atoms):
-        image = relation.image(atom)
-        if image.size and atom_set_components(grid, image) > 1:
-            disconnected_padded += 1
-        start, stop = relation.sampled.indptr[atom], relation.sampled.indptr[atom + 1]
-        sampled = relation.sampled.indices[start:stop]
-        if sampled.size and atom_set_components(grid, sampled) > 1:
-            disconnected_sampled += 1
+    padded = row_set_components(relation.matrix, grid.atom_adjacency)
+    sampled = row_set_components(relation.sampled, grid.atom_adjacency)
     return {
         "atoms": grid.n_atoms,
-        "disconnected_padded_images": disconnected_padded,
-        "disconnected_sampled_images": disconnected_sampled,
+        "disconnected_padded_images": int(np.count_nonzero(padded > 1)),
+        "disconnected_sampled_images": int(np.count_nonzero(sampled > 1)),
     }
 
 
@@ -1412,6 +1640,7 @@ __all__ = [
     "ENDPOINT_HANDLE",
     "EVAL_MODES",
     "EndpointBatch",
+    "EndpointCache",
     "SuspensionFlow",
     "SuspensionGridProblem",
     "SuspensionGridRelation",
@@ -1425,4 +1654,5 @@ __all__ = [
     "evaluate_handle_endpoints",
     "piece_evaluation_offsets",
     "relation_image_connectivity",
+    "row_set_components",
 ]

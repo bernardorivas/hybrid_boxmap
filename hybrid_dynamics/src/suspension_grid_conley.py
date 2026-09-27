@@ -45,6 +45,10 @@ BASE_CHART = 0
 HANDLE_CHART = 1
 
 
+class IndexSizeLimitError(RuntimeError):
+    """The pair of a Morse set has more elementary pieces than the caller allows."""
+
+
 def _affine_seam(
     curve,
     u_bounds: tuple[float, float],
@@ -162,12 +166,16 @@ def compute_suspension_grid_conley_index(
     *,
     morse_node: int = 0,
     maximum_simplex_size: int = 16,
+    max_pieces: int | None = None,
 ) -> SuspensionGridConleyResult:
     """Shift class of the index map on ``(S cup F(S), F(S) minus S)``.
 
     Any failed gate (good cover of the quotient nerve, carrier acyclicity,
     pair preservation, chain map) is returned as ``blocker`` instead of a
-    label.
+    label.  With ``max_pieces``, a pair whose ``X`` has more elementary
+    pieces is not attempted: the blocker is ``IndexSizeLimitError``.  The
+    quotient nerve has about ten simplices per piece and is held in memory,
+    so this bounds the time and memory of the computation on fine grids.
     """
 
     started = time.perf_counter()
@@ -189,6 +197,11 @@ def compute_suspension_grid_conley_index(
         pair_pieces={"X": int(x_pieces.size), "A": int(a_pieces.size)},
     )
     try:
+        if max_pieces is not None and x_pieces.size > int(max_pieces):
+            raise IndexSizeLimitError(
+                f"X = S cup F(S) has {x_pieces.size} elementary pieces, more than "
+                f"max_pieces={int(max_pieces)}; the index was not attempted"
+            )
         gluing = suspension_grid_gluing(grid)
         cells = piece_rectangles(grid, x_pieces)
         nerve = AtlasQuotientNerveComplex2D(
@@ -228,6 +241,7 @@ def compute_suspension_grid_conley_index(
 
 
 __all__ = [
+    "IndexSizeLimitError",
     "SuspensionGridConleyResult",
     "compute_suspension_grid_conley_index",
     "piece_rectangles",

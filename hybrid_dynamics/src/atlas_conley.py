@@ -152,6 +152,12 @@ class AtlasNerveSimplex:
         if not vertices or tuple(sorted(set(vertices))) != vertices:
             raise ValueError("nerve simplex vertices must be nonempty, unique, and sorted")
         object.__setattr__(self, "vertices", vertices)
+        # The value of the generated dataclass hash, computed once: simplices
+        # are hashed very often in the carrier and chain-map constructions.
+        object.__setattr__(self, "_hash", hash((vertices,)))
+
+    def __hash__(self) -> int:
+        return self._hash
 
     @property
     def dimension(self) -> int:
@@ -531,7 +537,11 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
 
     @property
     def atlas_indices(self) -> frozenset[int]:
-        return frozenset(self._cell_by_index)
+        indices = getattr(self, "_atlas_indices", None)
+        if indices is None:
+            indices = frozenset(self._cell_by_index)
+            self._atlas_indices = indices
+        return indices
 
     @property
     def seam_subcomplex_audits(
@@ -1631,6 +1641,61 @@ def prepare_atlas_mapping_cylinder_conley(
     )
 
 
+class _InducedCarrierGenerators(Mapping[AtlasNerveSimplex, frozenset[AtlasNerveSimplex]]):
+    """Relation carrier generators of every cell, assembled when looked up.
+
+    The value at a simplex ``sigma`` is the subcomplex induced on the union
+    ``T`` of the vertex images of its vertices: the simplices of the complex
+    whose vertices all lie in ``T``.  The simplices are indexed by their
+    smallest vertex, so the induced subcomplex is assembled from the
+    simplices whose smallest vertex lies in ``T``.  Recently used values are
+    kept for simplices with the same ``T`` (for example the pieces of one
+    atom).
+    """
+
+    def __init__(
+        self,
+        complex_: FiniteCellComplex,
+        vertex_images: Mapping[int, frozenset[int]],
+        *,
+        cache_size: int = 4096,
+    ) -> None:
+        self._complex = complex_
+        self._vertex_images = vertex_images
+        by_first_vertex: dict[int, list[AtlasNerveSimplex]] = {}
+        for cell in complex_.cells:
+            by_first_vertex.setdefault(cell.vertices[0], []).append(cell)
+        self._by_first_vertex = by_first_vertex
+        self._cache: dict[frozenset[int], frozenset[AtlasNerveSimplex]] = {}
+        self._cache_size = int(cache_size)
+
+    def __getitem__(self, source: AtlasNerveSimplex) -> frozenset[AtlasNerveSimplex]:
+        if source not in self._complex.cell_set:
+            raise KeyError(source)
+        target_vertices: set[int] = set()
+        for vertex in source.vertices:
+            target_vertices.update(self._vertex_images[vertex])
+        key = frozenset(target_vertices)
+        value = self._cache.get(key)
+        if value is None:
+            value = frozenset(
+                cell
+                for vertex in key
+                for cell in self._by_first_vertex.get(vertex, ())
+                if key.issuperset(cell.vertices)
+            )
+            if len(self._cache) >= self._cache_size:
+                self._cache.pop(next(iter(self._cache)))
+            self._cache[key] = value
+        return value
+
+    def __iter__(self):
+        return iter(self._complex.cells)
+
+    def __len__(self) -> int:
+        return len(self._complex.cells)
+
+
 def prepare_atlas_relation_conley_2d(
     pair: AtlasRelativeIndexPair2D,
     *,
@@ -1727,31 +1792,19 @@ def prepare_atlas_relation_conley_2d(
             vertex_images[source] = normalized_relation[source]
 
     complex_ = pair.complex
-    # Index the simplices by their smallest vertex so that the induced
-    # subcomplex on a vertex set T is assembled from the simplices whose
-    # smallest vertex lies in T (each simplex is examined at most once).
-    by_first_vertex: dict[int, list[AtlasNerveSimplex]] = {}
-    for cell in complex_.cells:
-        by_first_vertex.setdefault(cell.vertices[0], []).append(cell)
-    induced_cache: dict[frozenset[int], frozenset[AtlasNerveSimplex]] = {}
-    carrier_generators: dict[AtlasNerveSimplex, frozenset[AtlasNerveSimplex]] = {}
+    # The carrier of a simplex is the induced subcomplex on the union of the
+    # images of its vertices.  Every vertex image is a nonempty set of
+    # vertices of P1, and every vertex of P1 is a 0-simplex of the complex,
+    # so a carrier is empty exactly when that union is empty.
     for source in complex_.cells:
-        target_vertices: set[int] = set()
-        for vertex in source.vertices:
-            target_vertices.update(vertex_images[vertex])
-        key = frozenset(target_vertices)
-        target_subcomplex = induced_cache.get(key)
-        if target_subcomplex is None:
-            target_subcomplex = frozenset(
-                cell
-                for vertex in key
-                for cell in by_first_vertex.get(vertex, ())
-                if key.issuperset(cell.vertices)
-            )
-            induced_cache[key] = target_subcomplex
-        if not target_subcomplex:
+        if not any(vertex_images[vertex] for vertex in source.vertices):
             raise ValueError(f"relation carrier of {source!r} is empty")
-        carrier_generators[source] = target_subcomplex
+    # The carriers are assembled on demand while FixedTimeCarrier validates
+    # them in the order of the cells, so a relation whose carrier fails the
+    # acyclicity gate stops at the first failing cell without assembling the
+    # others.  The values, and the first failure, are those of assembling
+    # every carrier first.
+    carrier_generators = _InducedCarrierGenerators(complex_, vertex_images)
 
     carrier = FixedTimeCarrier(
         complex_,

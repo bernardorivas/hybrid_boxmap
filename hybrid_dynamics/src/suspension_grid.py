@@ -393,8 +393,7 @@ class SuspensionGrid:
     n_phase: int
     guard_bottom_cells: tuple[IntArray, ...]  # finest cells containing gamma(J)
     guard_top_cells: tuple[IntArray, ...]  # finest cells containing r(gamma(J))
-    signatures: tuple[tuple[int, ...], ...]
-    generators: tuple[GeneratorKey, ...]
+    n_generators: int  # generators K_j(mu), Q_j(mu, k) with a piece, j <= n
     atom_of_piece: IntArray
     atom_offsets: IntArray  # CSR offsets into atom_pieces
     atom_pieces: IntArray
@@ -405,6 +404,25 @@ class SuspensionGrid:
     reset_profile: _CurveProfile
     location_tolerance: float
     metadata: dict[str, Any] = field(default_factory=dict)
+    _reference: tuple[Any, ...] | None = field(default=None, repr=False, compare=False)
+
+    # -- generators -------------------------------------------------------------
+    @property
+    def signatures(self) -> tuple[tuple[int, ...], ...]:
+        """Sorted generator ids of every piece (computed on first use)."""
+
+        return self._reference_signatures()[0]
+
+    @property
+    def generators(self) -> tuple[GeneratorKey, ...]:
+        """Generator keys in the order of their ids (computed on first use)."""
+
+        return self._reference_signatures()[1]
+
+    def _reference_signatures(self) -> tuple[Any, ...]:
+        if self._reference is None:
+            self._reference = reference_signatures(self)
+        return self._reference
 
     # -- sizes ------------------------------------------------------------
     @property
@@ -759,7 +777,7 @@ class SuspensionGrid:
             "phase_intervals": self.n_phase,
             "handle_pieces": self.n_handle,
             "pieces": self.n_pieces,
-            "generators": len(self.generators),
+            "generators": self.n_generators,
             "atoms": self.n_atoms,
             "atoms_in_d_image": int(np.count_nonzero(d_atoms)),
             "atoms_without_base_cell": int(self.n_atoms - np.count_nonzero(d_atoms)),
@@ -871,8 +889,7 @@ def build_suspension_grid(
         n_phase=2 ** (level + 2),
         guard_bottom_cells=(),
         guard_top_cells=(),
-        signatures=(),
-        generators=(),
+        n_generators=0,
         atom_of_piece=np.zeros(0, dtype=np.int64),
         atom_offsets=np.zeros(1, dtype=np.int64),
         atom_pieces=np.zeros(0, dtype=np.int64),
@@ -911,7 +928,186 @@ def build_suspension_grid(
     grid.guard_bottom_cells = tuple(bottom_cells)
     grid.guard_top_cells = tuple(top_cells)
 
-    # Signatures.
+    # Atoms: nonempty classes of pieces with a common signature, numbered in
+    # the order of their first piece.
+    atom_of_piece, n_generators = _signature_classes(
+        addresses, grid.guard_bottom_cells, grid.guard_top_cells, level, grid.n_phase,
+        window.level_offset,
+    )
+    order = np.argsort(atom_of_piece, kind="stable")
+    counts = np.bincount(atom_of_piece)
+    atom_offsets = np.r_[0, np.cumsum(counts)].astype(np.int64)
+
+    grid.n_generators = int(n_generators)
+    grid.atom_of_piece = atom_of_piece
+    grid.atom_offsets = atom_offsets
+    grid.atom_pieces = order.astype(np.int64)
+    grid.d_map = atom_of_piece[:n_base].copy()
+
+    # Closed-set incidence of pieces in the suspension quotient.
+    grid.piece_adjacency = _piece_adjacency(grid)
+    membership = sparse.csr_matrix(
+        (np.ones(grid.n_pieces), (np.arange(grid.n_pieces), atom_of_piece)),
+        shape=(grid.n_pieces, grid.n_atoms),
+    )
+    atom_adjacency = (membership.T @ grid.piece_adjacency @ membership).tocsr()
+    atom_adjacency.data[:] = 1.0
+    grid.atom_adjacency = atom_adjacency
+    grid.metadata = {
+        "construction": "paper suspension grid Xi_n (def:suspension-grid), levels 0..n",
+        "window": window.name,
+        "guard": guard.name,
+    }
+    return grid
+
+
+def _last_top_levels(level: int, n_phase: int) -> IntArray:
+    """For each phase ``k``: the largest ``j`` with ``k >> (n-j) = 2^{j+2}-1``, or ``-1``.
+
+    The levels ``j`` at which the phase piece ``k`` lies in a top collar
+    ``[1 - a_j, 1]`` form the initial segment ``0, ..., J(k)``.
+    """
+
+    phases = np.arange(n_phase, dtype=np.int64)
+    result = np.full(n_phase, -1, dtype=np.int64)
+    for j in range(level + 1):
+        result[(phases >> (level - j)) == 2 ** (j + 2) - 1] = j
+    return result
+
+
+def _padded_rows(rows: Sequence[IntArray], width: int) -> IntArray:
+    result = np.full((len(rows), width), -1, dtype=np.int64)
+    for index, values in enumerate(rows):
+        result[index, : values.size] = values
+    return result
+
+
+def _signature_classes(
+    addresses: IntArray,
+    bottom_cells: Sequence[IntArray],
+    top_cells: Sequence[IntArray],
+    level: int,
+    n_phase: int,
+    level_offset: int,
+) -> tuple[IntArray, int]:
+    """Atoms of the pieces (numbered by first piece) and the number of generators.
+
+    The generator signature of a piece (the set of ``K_j(nu)`` and
+    ``Q_j(nu, k)`` containing it) is determined by a short key:
+
+    * a base piece ``mu`` lies in ``K_j(mu_j)`` for its ancestors ``mu_j``,
+      and in no ``Q``: key ``K{mu}``;
+    * a handle piece over ``J`` at phase ``0`` lies in ``K_j`` of the
+      level-``j`` cells meeting ``gamma(J)`` for every ``j``: key ``K B_n(J)``
+      with ``B_n(J)`` the finest cells meeting ``gamma(J)``;
+    * at the last phase: key ``K T_n(J)`` with ``T_n(J)`` the finest cells
+      meeting ``r(gamma(J))``;
+    * at a middle phase ``k``: it lies in ``Q_n(nu, k)`` for ``nu`` in
+      ``B_n(J)``, in ``K_j`` or ``Q_j`` of the ancestors of ``B_n(J)`` at the
+      levels where ``k`` is a bottom or middle phase, and in ``K_j`` of the
+      level-``j`` cells of ``T_n(J)`` at the levels ``j <= J(k)`` where it is
+      a top phase (:func:`_last_top_levels`): key ``(k, B_n(J), J(k),
+      T_{J(k)}(J))``.
+
+    A ``K``-only signature is determined by its finest-level generators,
+    which are ``K_n`` of the given cells, so two ``K``-only keys give the same
+    signature exactly when their cell sets agree; a middle key contains
+    ``Q_n(., k)`` and so never equals a ``K``-only one.  Base pieces are the
+    first pieces and have distinct signatures, so the atom of base piece
+    ``mu`` is ``mu``; a handle piece with key ``K{mu}`` joins that atom.  This
+    reproduces the first-occurrence numbering of the signature classes, which
+    :func:`reference_signatures` computes from the generator sets
+    themselves (the tests compare the two).
+    """
+
+    n_base = int(addresses.shape[0])
+    n_guard = len(bottom_cells)
+    width = max(
+        1,
+        max((values.size for values in bottom_cells), default=0),
+        max((values.size for values in top_cells), default=0),
+    )
+    bottom = _padded_rows([np.asarray(values, dtype=np.int64) for values in bottom_cells], width)
+    top = _padded_rows([np.asarray(values, dtype=np.int64) for values in top_cells], width)
+    # Level-j cells of T_n(J), encoded ix * 2^(j + offset) + iy, per level.
+    top_by_level = np.full((level + 1, n_guard, width), -1, dtype=np.int64)
+    for j in range(level + 1):
+        side = 2 ** (j + level_offset)
+        rows = []
+        for values in top_cells:
+            coarse = addresses[np.asarray(values, dtype=np.int64)] >> (level - j)
+            rows.append(np.unique(coarse[:, 0] * side + coarse[:, 1]))
+        top_by_level[j] = _padded_rows(rows, width)
+
+    # Keys (class, phase, B or K set, J(k), T_J set) of the handle pieces.
+    top_level = _last_top_levels(level, n_phase)
+    columns = 3 + 2 * width
+    keys = np.full((n_guard, n_phase, columns), -1, dtype=np.int64)
+    keys[:, :, 0] = 1
+    keys[:, :, 1] = np.arange(n_phase, dtype=np.int64)[None, :]
+    keys[:, :, 2 : 2 + width] = bottom[:, None, :]
+    keys[:, :, 2 + width] = top_level[None, :]
+    has_top = np.flatnonzero(top_level >= 0)
+    keys[:, has_top, 3 + width :] = top_by_level[top_level[has_top]].transpose(1, 0, 2)
+    keys[:, 0, :] = -1
+    keys[:, 0, 0] = 0
+    keys[:, 0, 2 : 2 + width] = bottom
+    keys[:, n_phase - 1, :] = -1
+    keys[:, n_phase - 1, 0] = 0
+    keys[:, n_phase - 1, 2 : 2 + width] = top
+    keys = keys.reshape(n_guard * n_phase, columns)
+
+    atom_of_piece = np.empty(n_base + keys.shape[0], dtype=np.int64)
+    atom_of_piece[:n_base] = np.arange(n_base, dtype=np.int64)
+    if keys.shape[0]:
+        _unique, first, inverse = np.unique(
+            keys, axis=0, return_index=True, return_inverse=True
+        )
+        inverse = inverse.reshape(-1)
+        unique_keys = keys[first]
+        # A K-only key with one cell (column 3 is the second cell, or J(k) = -1
+        # when the sets have one column) is the key of a base piece.
+        joins_base = (unique_keys[:, 0] == 0) & (unique_keys[:, 3] == -1)
+        atom_of_class = np.empty(first.size, dtype=np.int64)
+        atom_of_class[joins_base] = unique_keys[joins_base, 2]
+        new = np.flatnonzero(~joins_base)
+        rank = np.empty(new.size, dtype=np.int64)
+        rank[np.argsort(first[new], kind="stable")] = np.arange(new.size)
+        atom_of_class[new] = n_base + rank
+        atom_of_piece[n_base:] = atom_of_class[inverse]
+
+    # Generators: K_j(nu) for the level-j ancestors nu of the cells of R, and
+    # Q_j(nu, c) for the level-j cells nu meeting the guard and the
+    # 2^{j+2} - 2 middle phases c of level j.
+    bottom_all = np.unique(np.concatenate([np.asarray(v, np.int64) for v in bottom_cells]))
+    n_generators = 0
+    for j in range(level + 1):
+        side = 2 ** (j + level_offset)
+        coarse = addresses >> (level - j)
+        n_generators += int(np.unique(coarse[:, 0] * side + coarse[:, 1]).size)
+        coarse = addresses[bottom_all] >> (level - j)
+        n_generators += int(np.unique(coarse[:, 0] * side + coarse[:, 1]).size) * (
+            2 ** (j + 2) - 2
+        )
+    return atom_of_piece, n_generators
+
+
+def reference_signatures(
+    grid: SuspensionGrid,
+) -> tuple[tuple[tuple[int, ...], ...], tuple[GeneratorKey, ...], IntArray]:
+    """Generator signatures of the pieces, enumerated generator by generator.
+
+    Returns ``(signatures, generators, atom_of_piece)``: the sorted generator
+    ids of every piece, the generator keys in the order of their ids, and the
+    classes of equal signatures numbered by first piece.  This is the direct
+    transcription of ``def:suspension-grid``;
+    :func:`build_suspension_grid` computes the same atoms from short keys
+    (:func:`_signature_classes`).  Its cost is linear in the number of
+    generator memberships, so it is meant for tests and small grids.
+    """
+
+    level = grid.level
+    addresses = grid.base_addresses
     generator_ids: dict[GeneratorKey, int] = {}
 
     def generator(key: GeneratorKey) -> int:
@@ -936,9 +1132,9 @@ def build_suspension_grid(
         signatures.append(tuple(sorted(signature)))
 
     n_phase = grid.n_phase
-    for guard_index in range(n_guard):
-        bottom_addresses = addresses[bottom_cells[guard_index]]
-        top_addresses = addresses[top_cells[guard_index]]
+    for guard_index in range(grid.n_guard):
+        bottom_addresses = addresses[grid.guard_bottom_cells[guard_index]]
+        top_addresses = addresses[grid.guard_top_cells[guard_index]]
         bottom_by_level = [
             sorted({(int(a) >> (level - j), int(b) >> (level - j)) for a, b in bottom_addresses})
             for j in range(level + 1)
@@ -971,7 +1167,6 @@ def build_suspension_grid(
                     )
             signatures.append(tuple(sorted(set(signature))))
 
-    # Atoms: nonempty classes of pieces with a common signature.
     atom_ids: dict[tuple[int, ...], int] = {}
     atom_of_piece = np.empty(len(signatures), dtype=np.int64)
     for piece, signature in enumerate(signatures):
@@ -982,35 +1177,10 @@ def build_suspension_grid(
             atom = len(atom_ids)
             atom_ids[signature] = atom
         atom_of_piece[piece] = atom
-    order = np.argsort(atom_of_piece, kind="stable")
-    counts = np.bincount(atom_of_piece, minlength=len(atom_ids))
-    atom_offsets = np.r_[0, np.cumsum(counts)].astype(np.int64)
-
-    grid.signatures = tuple(signatures)
-    keys = [None] * len(generator_ids)
+    keys: list[GeneratorKey | None] = [None] * len(generator_ids)
     for key, value in generator_ids.items():
         keys[value] = key
-    grid.generators = tuple(keys)  # type: ignore[arg-type]
-    grid.atom_of_piece = atom_of_piece
-    grid.atom_offsets = atom_offsets
-    grid.atom_pieces = order.astype(np.int64)
-    grid.d_map = atom_of_piece[:n_base].copy()
-
-    # Closed-set incidence of pieces in the suspension quotient.
-    grid.piece_adjacency = _piece_adjacency(grid)
-    membership = sparse.csr_matrix(
-        (np.ones(grid.n_pieces), (np.arange(grid.n_pieces), atom_of_piece)),
-        shape=(grid.n_pieces, grid.n_atoms),
-    )
-    atom_adjacency = (membership.T @ grid.piece_adjacency @ membership).tocsr()
-    atom_adjacency.data[:] = 1.0
-    grid.atom_adjacency = atom_adjacency
-    grid.metadata = {
-        "construction": "paper suspension grid Xi_n (def:suspension-grid), levels 0..n",
-        "window": window.name,
-        "guard": guard.name,
-    }
-    return grid
+    return tuple(signatures), tuple(keys), atom_of_piece  # type: ignore[arg-type]
 
 
 def _piece_adjacency(grid: SuspensionGrid) -> sparse.csr_matrix:
@@ -1231,4 +1401,5 @@ __all__ = [
     "UnsupportedSuspensionGridError",
     "build_suspension_grid",
     "check_suspension_grid",
+    "reference_signatures",
 ]

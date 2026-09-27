@@ -1,9 +1,11 @@
 """The examples of the manuscript on the paper suspension grid.
 
 Each factory returns a :class:`SuspensionGridProblem` with the system, the
-base window ``R`` (as dyadic grids ``X_j`` with ``2**j`` cells per axis of the
-ambient rectangle), the guard parametrization of ``G cap R``, the reset on it,
-and the time ``tau`` stated in the Examples section:
+base window ``R`` (as dyadic grids ``X_j`` with ``2**(j + level_offset)``
+cells per axis of the ambient rectangle; ``level_offset = 0`` by default, and
+a positive offset makes the base grid of level ``j`` finer than its phase grid
+of width ``2**(-j-2)``), the guard parametrization of ``G cap R``, the reset
+on it, and the time ``tau`` stated in the Examples section:
 
 * bouncing ball: ``g = 9.81``, ``c = 0.8``, ``R = [0,2] x [-5,5]``,
   ``G cap R = {(0, v) : -5 <= v <= 0}``, ``r(0, v) = (0, -c v)``,
@@ -62,6 +64,7 @@ def bouncing_ball_problem(
     restitution: float = 0.8,
     tau: float = 1.5,
     max_step: float | None = 0.02,
+    level_offset: int = 0,
 ) -> SuspensionGridProblem:
     ball = BouncingBall(
         domain_bounds=[(-1.0e6, 1.0e6), (-1.0e6, 1.0e6)],
@@ -76,7 +79,7 @@ def bouncing_ball_problem(
         reset_point=lambda u: np.stack((np.zeros_like(u), -c * u), axis=-1),
         name="ball guard h=0, v<=0; reset v -> -c v",
     )
-    window = DyadicBaseWindow(BALL_BOUNDS, name="R=[0,2]x[-5,5]")
+    window = DyadicBaseWindow(BALL_BOUNDS, level_offset=level_offset, name="R=[0,2]x[-5,5]")
     return SuspensionGridProblem(
         system=ball.system,
         window=window,
@@ -102,6 +105,7 @@ def rimless_wheel_problem(
     gamma: float = 0.2,
     tau: float = 2.0,
     max_step: float | None = 0.02,
+    level_offset: int = 0,
 ) -> SuspensionGridProblem:
     wheel = RimlessWheel(
         domain_bounds=[(-1.0e6, 1.0e6), (-1.0e6, 1.0e6)],
@@ -118,7 +122,9 @@ def rimless_wheel_problem(
         reset_point=lambda u: np.stack((np.full_like(u, reset_angle), factor * u), axis=-1),
         name="wheel guard theta=alpha+gamma, omega>=0; reset (gamma-alpha, cos(2 alpha) omega)",
     )
-    window = DyadicBaseWindow(WHEEL_BOUNDS, name="R=[-0.2,0.6]x[-0.5,1]")
+    window = DyadicBaseWindow(
+        WHEEL_BOUNDS, level_offset=level_offset, name="R=[-0.2,0.6]x[-0.5,1]"
+    )
     return SuspensionGridProblem(
         system=wheel.system,
         window=window,
@@ -150,6 +156,7 @@ def spiking_neuron_problem(
     *,
     tau: float = 20.0,
     max_step: float | None = 0.02,
+    level_offset: int = 0,
 ) -> SuspensionGridProblem:
     neuron = SpikingNeuron(max_jumps=1000)
     guard = GuardResetSpec(
@@ -161,6 +168,7 @@ def spiking_neuron_problem(
     )
     window = DyadicBaseWindow(
         NEURON_AMBIENT_BOUNDS,
+        level_offset=level_offset,
         region=_neuron_region,
         name="L-shaped X=([-80,-40]x[-300,600]) u ([-40,35]x[-300,160]) in [-120,200]x[-400,880]",
     )
@@ -190,6 +198,7 @@ def impact_vdp_duffing_problem(
     restitution: float = 0.7,
     tau: float = 3.0,
     max_step: float | None = 0.02,
+    level_offset: int = 0,
 ) -> SuspensionGridProblem:
     oscillator = ImpactVanDerPolDuffing(
         domain_bounds=[(-1.0e6, 1.0e6), (-1.0e6, 1.0e6)],
@@ -208,7 +217,9 @@ def impact_vdp_duffing_problem(
         reset_point=lambda u: np.stack((np.full_like(u, w), -c * u), axis=-1),
         name="impact guard x=w, v>=0; reset v -> -c v",
     )
-    window = DyadicBaseWindow(bounds, name=f"R=[{IMPACT_X_MIN},{w}]x[-2.35,1.95]")
+    window = DyadicBaseWindow(
+        bounds, level_offset=level_offset, name=f"R=[{IMPACT_X_MIN},{w}]x[-2.35,1.95]"
+    )
     return SuspensionGridProblem(
         system=oscillator.system,
         window=window,

@@ -168,6 +168,14 @@ def _solve_linear_system_mod_prime(
 
     modulus = _require_prime(modulus)
     row_index = {cell: index for index, cell in enumerate(rows)}
+    _check_right_hand_side(row_index, right_hand_side)
+    pivots = _eliminate_columns_mod_prime(row_index, columns, column_entries, modulus)
+    return _solve_with_pivots(row_index, pivots, columns, right_hand_side, modulus)
+
+
+def _check_right_hand_side(
+    row_index: Mapping[Cell, int], right_hand_side: Mapping[Cell, int]
+) -> None:
     unknown_rows = set(right_hand_side).difference(row_index)
     if unknown_rows:
         raise ValueError(
@@ -175,22 +183,35 @@ def _solve_linear_system_mod_prime(
             f"{sorted(unknown_rows, key=repr)!r}"
         )
 
-    def add_scaled(
-        accumulator: Dict[int, int],
-        vector: Mapping[int, int],
-        scale: int,
-    ) -> None:
-        scale %= modulus
-        if not scale:
-            return
-        for coordinate, coefficient in vector.items():
-            value = (
-                accumulator.get(coordinate, 0) + scale * coefficient
-            ) % modulus
-            if value:
-                accumulator[coordinate] = value
-            else:
-                accumulator.pop(coordinate, None)
+
+def _add_scaled_mod(
+    accumulator: Dict[int, int],
+    vector: Mapping[int, int],
+    scale: int,
+    modulus: int,
+) -> None:
+    scale %= modulus
+    if not scale:
+        return
+    for coordinate, coefficient in vector.items():
+        value = (accumulator.get(coordinate, 0) + scale * coefficient) % modulus
+        if value:
+            accumulator[coordinate] = value
+        else:
+            accumulator.pop(coordinate, None)
+
+
+def _eliminate_columns_mod_prime(
+    row_index: Mapping[Cell, int],
+    columns: Sequence[Cell],
+    column_entries: Mapping[Cell, Mapping[Cell, int]],
+    modulus: int,
+) -> Dict[int, Tuple[Dict[int, int], Dict[int, int]]]:
+    """Pivots of the column echelon form used by :func:`_solve_linear_system_mod_prime`.
+
+    The result depends only on the rows, the columns, and their entries, so
+    it serves every right-hand side of the same system.
+    """
 
     # Store a normalized sparse boundary vector and the corresponding sparse
     # combination of original columns at every pivot.  Cellular boundary
@@ -218,8 +239,8 @@ def _solve_linear_system_mod_prime(
             if pivot in pivots:
                 pivot_vector, pivot_combination = pivots[pivot]
                 scale = -vector[pivot]
-                add_scaled(vector, pivot_vector, scale)
-                add_scaled(combination, pivot_combination, scale)
+                _add_scaled_mod(vector, pivot_vector, scale, modulus)
+                _add_scaled_mod(combination, pivot_combination, scale, modulus)
                 continue
 
             inverse = pow(vector[pivot], -1, modulus)
@@ -235,6 +256,17 @@ def _solve_linear_system_mod_prime(
             }
             pivots[pivot] = (vector, combination)
             break
+    return pivots
+
+
+def _solve_with_pivots(
+    row_index: Mapping[Cell, int],
+    pivots: Mapping[int, Tuple[Dict[int, int], Dict[int, int]]],
+    columns: Sequence[Cell],
+    right_hand_side: Mapping[Cell, int],
+    modulus: int,
+) -> Dict[Cell, int]:
+    """Reduce a right-hand side with the pivots; free variables are zero."""
 
     residual = {
         row_index[row]: coefficient % modulus
@@ -248,8 +280,8 @@ def _solve_linear_system_mod_prime(
             raise ValueError("the boundary equation has no solution in the carrier")
         pivot_vector, pivot_combination = pivots[pivot]
         scale = residual[pivot]
-        add_scaled(residual, pivot_vector, -scale)
-        add_scaled(solution, pivot_combination, scale)
+        _add_scaled_mod(residual, pivot_vector, -scale, modulus)
+        _add_scaled_mod(solution, pivot_combination, scale, modulus)
 
     return {
         columns[column_number]: coefficient
@@ -427,6 +459,13 @@ class FiniteCellComplex:
             if cells is None
             else self.require_subcomplex(cells, description="homology cells")
         )
+        return self._subcomplex_betti_numbers(subset, modulus)
+
+    def _subcomplex_betti_numbers(
+        self, subset: FrozenSet[Cell], modulus: int
+    ) -> Tuple[int, ...]:
+        """Betti numbers of a subcomplex already checked to be one."""
+
         if not subset:
             return ()
 
@@ -470,7 +509,7 @@ class FiniteCellComplex:
         subset = self.require_subcomplex(cells, description="acyclicity cells")
         if not subset:
             return False
-        betti = self.betti_numbers(subset, modulus=modulus)
+        betti = self._subcomplex_betti_numbers(subset, _require_prime(modulus))
         return bool(betti) and betti[0] == 1 and all(value == 0 for value in betti[1:])
 
 
@@ -1976,17 +2015,22 @@ class FixedTimeCarrier:
         # induced target subcomplex.  Homology depends only on that closed
         # target cell set, so validate each distinct carrier value once while
         # still retaining and checking the value for every source cell.
-        acyclicity_cache: Dict[FrozenSet[Cell], bool] = {}
+        # Equal values are stored as one object.
+        acyclicity_cache: Dict[FrozenSet[Cell], Tuple[bool, FrozenSet[Cell]]] = {}
         for source in complex_.cells:
             generators = tuple(image_generators[source])
             if not generators:
                 raise ValueError(f"carrier image of {source!r} must be nonempty")
             image = complex_.closure(generators)
+            cached = acyclicity_cache.get(image)
+            if cached is None:
+                acyclic = (
+                    complex_.is_acyclic(image, modulus=modulus) if validate_acyclic else True
+                )
+                acyclicity_cache[image] = (acyclic, image)
+            else:
+                acyclic, image = cached
             if validate_acyclic:
-                acyclic = acyclicity_cache.get(image)
-                if acyclic is None:
-                    acyclic = complex_.is_acyclic(image, modulus=modulus)
-                    acyclicity_cache[image] = acyclic
                 if not acyclic:
                     raise ValueError(
                         f"carrier image of {source!r} is not acyclic over GF({modulus})"
@@ -2080,15 +2124,25 @@ class FixedTimeCarrier:
             self.require_preserves_pair(pair)
 
         images: Dict[Cell, Dict[Cell, int]] = {}
+        position = self.complex._position
+        cell_dimension = self.complex._dimensions
+        eliminated: Dict[Tuple[int, int], Tuple[Dict[Cell, int], object, Tuple[Cell, ...]]] = {}
+
+        def cells_in_order(carrier_value: FrozenSet[Cell], dimension: int) -> Tuple[Cell, ...]:
+            # The cells of the carrier value of one dimension in the order of
+            # the complex, which is the order of cells_of_dimension.
+            return tuple(
+                sorted(
+                    (cell for cell in carrier_value if cell_dimension[cell] == dimension),
+                    key=position.__getitem__,
+                )
+            )
+
         for dimension in range(self.complex.max_dimension + 1):
             for source in self.complex.cells_of_dimension(dimension):
                 carrier_value = self._images[source]
                 if dimension == 0:
-                    vertices = tuple(
-                        cell
-                        for cell in self.complex.cells_of_dimension(0)
-                        if cell in carrier_value
-                    )
+                    vertices = cells_in_order(carrier_value, 0)
                     if not vertices:
                         raise ValueError(
                             f"carrier value of {source!r} contains no zero-cell"
@@ -2108,26 +2162,33 @@ class FixedTimeCarrier:
                         else:
                             right_hand_side.pop(target, None)
 
-                target_rows = tuple(
-                    cell
-                    for cell in self.complex.cells_of_dimension(dimension - 1)
-                    if cell in carrier_value
-                )
-                target_columns = tuple(
-                    cell
-                    for cell in self.complex.cells_of_dimension(dimension)
-                    if cell in carrier_value
-                )
                 try:
-                    images[source] = _solve_linear_system_mod_prime(
-                        target_rows,
-                        target_columns,
-                        {
-                            cell: self.complex.boundary(cell)
-                            for cell in target_columns
-                        },
-                        right_hand_side,
-                        self.modulus,
+                    # The echelon form of the boundary matrix of a carrier
+                    # value depends only on the value and the degree; equal
+                    # values are one object (see __init__), so recent forms
+                    # are reused by identity.
+                    key = (id(carrier_value), dimension)
+                    system = eliminated.get(key)
+                    if system is None:
+                        target_rows = cells_in_order(carrier_value, dimension - 1)
+                        target_columns = cells_in_order(carrier_value, dimension)
+                        row_index = {cell: index for index, cell in enumerate(target_rows)}
+                        _check_right_hand_side(row_index, right_hand_side)
+                        pivots = _eliminate_columns_mod_prime(
+                            row_index,
+                            target_columns,
+                            {cell: self.complex.boundary(cell) for cell in target_columns},
+                            self.modulus,
+                        )
+                        system = (row_index, pivots, target_columns)
+                        if len(eliminated) >= 256:
+                            eliminated.pop(next(iter(eliminated)))
+                        eliminated[key] = system
+                    else:
+                        _check_right_hand_side(system[0], right_hand_side)
+                    row_index, pivots, target_columns = system
+                    images[source] = _solve_with_pivots(
+                        row_index, pivots, target_columns, right_hand_side, self.modulus
                     )
                 except ValueError as error:
                     raise ValueError(
