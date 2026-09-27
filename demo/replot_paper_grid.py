@@ -7,9 +7,12 @@ deterministic construction; the rebuilt grid must match the ``grid`` record of
 the run), reads the Morse sets (``morse_graph.morse_set_atoms``), the Morse
 graph, and the index records (``conley``), and writes the figure variants next
 to the JSON (or to ``--output-dir``): ``all`` (``<stem>.pdf``/``.png``) and
-``nontrivial`` (``<stem>-nontrivial.pdf``/``.png``).  No dynamics is
-resampled.  The ``figures`` and ``figure_variants`` records of the JSON are
-updated to the files written, and ``figures_replotted`` records the code.
+``nontrivial`` (``<stem>-nontrivial.pdf``/``.png``), and each panel of a
+variant as its own figure (``<variant stem>-base``, ``-zoom-A``, ...,
+``-handle``, ``-graph``, PDF and PNG).  No dynamics is resampled.  The
+``figures`` and ``figure_variants`` records of the JSON are updated to the
+files written (the panel files under ``panel_files`` of each variant; older
+summaries have none), and ``figures_replotted`` records the code.
 
 Summaries written before the runner stored the Morse sets have no
 ``morse_graph.morse_set_atoms`` and cannot be redrawn; rerun them.
@@ -206,7 +209,8 @@ def main() -> int:
             print(
                 f"{path}: {variant}: {len(record['shown_nodes'])} shown, "
                 f"{len(record['hidden_nodes'])} hidden, "
-                f"{len(record['blocked_nodes_shown'])} blocked; {record['files']}",
+                f"{len(record['blocked_nodes_shown'])} blocked; {record['files']}; "
+                f"panels {sorted(record['panel_files'])}",
                 flush=True,
             )
     return 1 if failures else 0

@@ -1192,43 +1192,87 @@ def _detail_zooms(
     return windows
 
 
-def _draw_detail_zoom(
-    axis: Axes,
+@dataclass(frozen=True)
+class _ZoomStyle:
+    """Ticks, lines, and label of a zoom panel (sizes in points)."""
+
+    ticks: int
+    tick_label_size: float
+    tick_length: float
+    tick_width: float
+    tick_pad: float
+    spine_width: float
+    label_size: float
+
+
+# A zoom panel in the column next to its chart panel, and a zoom panel drawn
+# as its own figure (larger, so its tick labels can be larger too).
+ZOOM_COLUMN_STYLE = _ZoomStyle(
+    ticks=2,
+    tick_label_size=5.5,
+    tick_length=2.0,
+    tick_width=0.5,
+    tick_pad=1.5,
+    spine_width=0.6,
+    label_size=7.5,
+)
+ZOOM_FIGURE_STYLE = _ZoomStyle(
+    ticks=3,
+    tick_label_size=8.0,
+    tick_length=3.0,
+    tick_width=0.6,
+    tick_pad=2.0,
+    spine_width=0.8,
+    label_size=9.0,
+)
+
+
+def _draw_zoom_panel(
     zoom_axis: Axes,
     zoom: AtlasDetailZoom,
     components: Sequence[AtlasHybridMorseComponent],
     outlined: Iterable[int] = (),
+    style: _ZoomStyle = ZOOM_COLUMN_STYLE,
 ) -> None:
-    """Draw a zoom panel and mark its window, with its label, on ``axis``.
+    """Draw the cells in the window of a zoom, with its label as title.
 
     ``outlined`` are the Morse sets too small to see in the chart panel.
     """
 
-    from matplotlib import patheffects
     from matplotlib.ticker import MaxNLocator
 
-    window = (zoom.x_limits, zoom.y_limits)
     _draw_cells(
         zoom_axis,
         components,
         chart_kind=zoom.chart,
         projection=zoom.projection,
-        window=window,
+        window=(zoom.x_limits, zoom.y_limits),
         emphasized=zoom.morse_nodes,
         outlined=outlined,
     )
-    (x_lower, x_upper), (y_lower, y_upper) = window
     zoom_axis.set_xlim(zoom.x_limits)
     zoom_axis.set_ylim(zoom.y_limits)
     zoom_axis.set_box_aspect(1.0)
     zoom_axis.set_anchor("W")
-    zoom_axis.xaxis.set_major_locator(MaxNLocator(nbins=2, min_n_ticks=2))
-    zoom_axis.yaxis.set_major_locator(MaxNLocator(nbins=2, min_n_ticks=2))
-    zoom_axis.tick_params(labelsize=5.5, length=2.0, pad=1.5, width=0.5)
+    zoom_axis.xaxis.set_major_locator(MaxNLocator(nbins=style.ticks, min_n_ticks=2))
+    zoom_axis.yaxis.set_major_locator(MaxNLocator(nbins=style.ticks, min_n_ticks=2))
+    zoom_axis.tick_params(
+        labelsize=style.tick_label_size,
+        length=style.tick_length,
+        pad=style.tick_pad,
+        width=style.tick_width,
+    )
     for spine in zoom_axis.spines.values():
-        spine.set_linewidth(0.6)
-    zoom_axis.set_title(zoom.label, loc="left", fontsize=7.5, pad=2.0)
+        spine.set_linewidth(style.spine_width)
+    zoom_axis.set_title(zoom.label, loc="left", fontsize=style.label_size, pad=2.0)
 
+
+def _mark_zoom_window(axis: Axes, zoom: AtlasDetailZoom) -> None:
+    """Outline the window of a zoom on its chart panel ``axis``, with its label."""
+
+    from matplotlib import patheffects
+
+    (x_lower, x_upper), (y_lower, y_upper) = zoom.x_limits, zoom.y_limits
     axis.add_patch(
         patches.Rectangle(
             (x_lower, y_lower),
@@ -1308,62 +1352,54 @@ def _status_text(data: AtlasMorsePlotData) -> str:
     return rf"{scope}, $\tau={float(tau):g}$"
 
 
-def plot_atlas_hybrid_morse_sets(
+@dataclass(frozen=True)
+class _ChartPanel:
+    """One chart panel: projection, limits, zooms, and the sets too small to see."""
+
+    chart_kind: str
+    projection: tuple[int, int]
+    limits: tuple[tuple[float, float], tuple[float, float]]
+    labels: tuple[str, ...]
+    zooms: tuple[AtlasDetailZoom, ...]
+    small: tuple[int, ...]
+
+
+@dataclass(frozen=True)
+class _AtlasPlotLayout:
+    """What the combined figure and the panel figures of an Atlas plot share."""
+
+    data: AtlasMorsePlotData
+    components: tuple[AtlasHybridMorseComponent, ...]
+    order: nx.DiGraph
+    projections: tuple[tuple[int, int], ...]
+    handle_projections: tuple[tuple[int, int], ...]
+    panels: tuple[_ChartPanel, ...]
+    blocked_nodes: Mapping[int, str] | frozenset[int]
+
+    @property
+    def zooms(self) -> tuple[AtlasDetailZoom, ...]:
+        return tuple(zoom for panel in self.panels for zoom in panel.zooms)
+
+
+def _atlas_plot_layout(
     source: AtlasMorsePlotData | object,
     *,
-    atlas_charts: SuspensionAtlasCharts | None = None,
-    finite_relation_annotations: AtlasFiniteRelationIndexAnnotations | None = None,
-    blocked_index_nodes: Iterable[int] | Mapping[int, str] = (),
-    morse_nodes: Iterable[int] | None = None,
-    proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
-    handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
+    atlas_charts: SuspensionAtlasCharts | None,
+    finite_relation_annotations: AtlasFiniteRelationIndexAnnotations | None,
+    blocked_index_nodes: Iterable[int] | Mapping[int, str],
+    morse_nodes: Iterable[int] | None,
+    proj_dims: Sequence[int] | Sequence[Sequence[int]] | None,
+    handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None,
     clist: Sequence[str],
-    axis_labels: Sequence[str] | None = None,
-    handle_axis_labels: Sequence[str] | None = None,
-    show_handles: bool = False,
-    show_morse_graph: bool = True,
-    show_grid: bool = False,
-    show_status_note: bool = False,
-    show_legend: bool = False,
-    show_panel_titles: bool = False,
-    show_component_sizes: bool = False,
-    base_view: str = "support",
-    handle_view: str | None = None,
-    frame_margin: float = 0.0,
-    detail_zooms: bool = False,
-    title: str | None = None,
-    fig_w: float | None = None,
-    fig_h: float = 3.6,
-    fig_fname: str | Path | None = None,
-    dpi: int = 300,
-) -> AtlasHybridMorsePlot:
-    """Plot actual CMGDB Atlas Morse boxes and the CMGDB Morse order.
-
-    ``morse_nodes`` selects the drawn nodes; they keep their numbers and
-    colors, and the drawn order is reachability through the hidden nodes,
-    transitively reduced.  Nodes in ``blocked_index_nodes`` are marked as
-    blocked in the Morse graph; with a mapping, the text given for a node
-    replaces the word ``blocked``.
-
-    ``base_view`` and ``handle_view`` (default: ``base_view``) are
-    ``"support"`` or ``"domain"``.  ``frame_margin`` widens the ``"domain"``
-    view by that fraction of the chart span on each side and draws the axis
-    lines below the cells, so cells on the chart boundary stay visible.  With
-    ``detail_zooms``, the Morse sets that are too small to see in a chart
-    panel (see :data:`DETAIL_ZOOM_MIN_AREA`) get zoom panels, labeled ``A``,
-    ``B``, ... in a column next to the panel, whose windows are outlined and
-    labeled in the panel.  A window spans at most
-    :data:`DETAIL_ZOOM_MAX_WINDOW` of the panel in each direction, so every
-    zoom magnifies; a small set too spread for such a window gets no zoom.
-    Every cell is drawn at its true extent; the cells
-    of a set too small to see in its chart panel are also outlined in the
-    color of the set (:data:`CELL_OUTLINE_WIDTH`), in the panel and in its
-    zooms, so a cell smaller than a point is still seen.
-    """
-
-    # Import at call time so the public dispatcher in hybrid_morse_plot can
-    # route here without a module-import cycle.
-    from .hybrid_morse_plot import _draw_morse_graph
+    axis_labels: Sequence[str] | None,
+    handle_axis_labels: Sequence[str] | None,
+    show_handles: bool,
+    base_view: str,
+    handle_view: str | None,
+    frame_margin: float,
+    detail_zooms: bool,
+) -> _AtlasPlotLayout:
+    """Check the options of an Atlas plot; find its chart panels and zooms."""
 
     if isinstance(source, AtlasMorsePlotData):
         if atlas_charts is not None:
@@ -1459,8 +1495,10 @@ def plot_atlas_hybrid_morse_sets(
         )
     order = atlas_morse_hasse(data, (component.index for component in components))
 
-    # Chart panels in drawing order, each with its limits and zoom windows.
-    chart_panels = []
+    # Chart panels in drawing order, each with its limits and zoom windows;
+    # the zooms are labeled A, B, ... across the panels.
+    zoom_labels = iter("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    panels = []
     for chart_kind, chart_projections, chart_bounds, chart_labels, view in (
         ("base", projections, data.base_bounds, base_labels, base_view),
         ("handle", handle_projections, data.handle_bounds, handle_labels, handle_view),
@@ -1492,36 +1530,120 @@ def plot_atlas_hybrid_morse_sets(
                 x_limits=limits[0],
                 y_limits=limits[1],
             )
-            chart_panels.append(
-                (chart_kind, projection, limits, chart_labels, windows, small)
+            zooms = tuple(
+                AtlasDetailZoom(
+                    label=next(zoom_labels),
+                    chart=chart_kind,
+                    projection=projection,
+                    x_limits=x_window,
+                    y_limits=y_window,
+                    morse_nodes=nodes,
+                )
+                for nodes, x_window, y_window in windows
             )
-    zoom_labels = iter("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    zooms_per_panel = [
-        [
-            AtlasDetailZoom(
-                label=next(zoom_labels),
-                chart=chart_kind,
-                projection=projection,
-                x_limits=x_window,
-                y_limits=y_window,
-                morse_nodes=nodes,
+            panels.append(
+                _ChartPanel(chart_kind, projection, limits, chart_labels, zooms, small)
             )
-            for nodes, x_window, y_window in windows
-        ]
-        for chart_kind, projection, _limits, _labels, windows, _small in chart_panels
-    ]
+    return _AtlasPlotLayout(
+        data=data,
+        components=components,
+        order=order,
+        projections=projections,
+        handle_projections=handle_projections,
+        panels=tuple(panels),
+        blocked_nodes=blocked_nodes,
+    )
 
-    panel_count = len(chart_panels) + int(show_morse_graph)
+
+def plot_atlas_hybrid_morse_sets(
+    source: AtlasMorsePlotData | object,
+    *,
+    atlas_charts: SuspensionAtlasCharts | None = None,
+    finite_relation_annotations: AtlasFiniteRelationIndexAnnotations | None = None,
+    blocked_index_nodes: Iterable[int] | Mapping[int, str] = (),
+    morse_nodes: Iterable[int] | None = None,
+    proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
+    handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
+    clist: Sequence[str],
+    axis_labels: Sequence[str] | None = None,
+    handle_axis_labels: Sequence[str] | None = None,
+    show_handles: bool = False,
+    show_morse_graph: bool = True,
+    show_grid: bool = False,
+    show_status_note: bool = False,
+    show_legend: bool = False,
+    show_panel_titles: bool = False,
+    show_component_sizes: bool = False,
+    base_view: str = "support",
+    handle_view: str | None = None,
+    frame_margin: float = 0.0,
+    detail_zooms: bool = False,
+    title: str | None = None,
+    fig_w: float | None = None,
+    fig_h: float = 3.6,
+    fig_fname: str | Path | None = None,
+    dpi: int = 300,
+) -> AtlasHybridMorsePlot:
+    """Plot actual CMGDB Atlas Morse boxes and the CMGDB Morse order.
+
+    ``morse_nodes`` selects the drawn nodes; they keep their numbers and
+    colors, and the drawn order is reachability through the hidden nodes,
+    transitively reduced.  Nodes in ``blocked_index_nodes`` are marked as
+    blocked in the Morse graph; with a mapping, the text given for a node
+    replaces the word ``blocked``.
+
+    ``base_view`` and ``handle_view`` (default: ``base_view``) are
+    ``"support"`` or ``"domain"``.  ``frame_margin`` widens the ``"domain"``
+    view by that fraction of the chart span on each side and draws the axis
+    lines below the cells, so cells on the chart boundary stay visible.  With
+    ``detail_zooms``, the Morse sets that are too small to see in a chart
+    panel (see :data:`DETAIL_ZOOM_MIN_AREA`) get zoom panels, labeled ``A``,
+    ``B``, ... in a column next to the panel, whose windows are outlined and
+    labeled in the panel.  A window spans at most
+    :data:`DETAIL_ZOOM_MAX_WINDOW` of the panel in each direction, so every
+    zoom magnifies; a small set too spread for such a window gets no zoom.
+    Every cell is drawn at its true extent; the cells
+    of a set too small to see in its chart panel are also outlined in the
+    color of the set (:data:`CELL_OUTLINE_WIDTH`), in the panel and in its
+    zooms, so a cell smaller than a point is still seen.
+    :func:`plot_atlas_hybrid_morse_panels` draws each panel as its own figure.
+    """
+
+    # Import at call time so the public dispatcher in hybrid_morse_plot can
+    # route here without a module-import cycle.
+    from .hybrid_morse_plot import _draw_morse_graph
+
+    layout = _atlas_plot_layout(
+        source,
+        atlas_charts=atlas_charts,
+        finite_relation_annotations=finite_relation_annotations,
+        blocked_index_nodes=blocked_index_nodes,
+        morse_nodes=morse_nodes,
+        proj_dims=proj_dims,
+        handle_proj_dims=handle_proj_dims,
+        clist=clist,
+        axis_labels=axis_labels,
+        handle_axis_labels=handle_axis_labels,
+        show_handles=show_handles,
+        base_view=base_view,
+        handle_view=handle_view,
+        frame_margin=frame_margin,
+        detail_zooms=detail_zooms,
+    )
+    data = layout.data
+    components = layout.components
+
+    panel_count = len(layout.panels) + int(show_morse_graph)
     if panel_count <= 0:
         raise ValueError("at least one plot panel must be enabled")
-    zoom_columns = sum(1 for zooms in zooms_per_panel if zooms)
+    zoom_columns = sum(1 for panel in layout.panels if panel.zooms)
     zoom_ratio = 0.40
     if fig_w is None:
         fig_w = 3.25 * panel_count + 3.25 * zoom_ratio * zoom_columns
     width_ratios: list[float] = []
-    for (chart_kind, *_rest), zooms in zip(chart_panels, zooms_per_panel):
-        width_ratios.append(1.0 if chart_kind == "base" else 0.92)
-        if zooms:
+    for panel in layout.panels:
+        width_ratios.append(1.0 if panel.chart_kind == "base" else 0.92)
+        if panel.zooms:
             width_ratios.append(zoom_ratio)
     if show_morse_graph:
         width_ratios.append(
@@ -1534,39 +1656,38 @@ def plot_atlas_hybrid_morse_sets(
     column = 0
     chart_axes: list[Axes] = []
     zoom_axes: list[Axes] = []
-    for (chart_kind, projection, limits, chart_labels, _windows, small), zooms in zip(
-        chart_panels, zooms_per_panel
-    ):
+    for panel in layout.panels:
         axis = figure.add_subplot(grid[0, column])
         column += 1
         chart_axes.append(axis)
         _draw_chart_projection(
             axis,
             components,
-            chart_kind=chart_kind,
-            projection=projection,
-            limits=limits,
-            labels=chart_labels,
+            chart_kind=panel.chart_kind,
+            projection=panel.projection,
+            limits=panel.limits,
+            labels=panel.labels,
             show_grid=show_grid,
             show_panel_title=show_panel_titles,
-            spines_below_cells=frame_margin > 0.0,
-            outlined=small,
+            spines_below_cells=float(frame_margin) > 0.0,
+            outlined=panel.small,
         )
-        if zooms:
-            rows = grid[0, column].subgridspec(len(zooms), 1, hspace=0.45)
+        if panel.zooms:
+            rows = grid[0, column].subgridspec(len(panel.zooms), 1, hspace=0.45)
             column += 1
-            for row, zoom in enumerate(zooms):
+            for row, zoom in enumerate(panel.zooms):
                 zoom_axis = figure.add_subplot(rows[row, 0])
-                _draw_detail_zoom(axis, zoom_axis, zoom, components, outlined=small)
+                _draw_zoom_panel(zoom_axis, zoom, components, outlined=panel.small)
+                _mark_zoom_window(axis, zoom)
                 zoom_axes.append(zoom_axis)
-    projection_axes = tuple(chart_axes[: len(projections)])
-    handle_axes = tuple(chart_axes[len(projections) :])
+    projection_axes = tuple(chart_axes[: len(layout.projections)])
+    handle_axes = tuple(chart_axes[len(layout.projections) :])
 
     graph_axis = figure.add_subplot(grid[0, column]) if show_morse_graph else None
     if graph_axis is not None:
         _draw_morse_graph(
             graph_axis,
-            order,
+            layout.order,
             components,
             conley_indices=(
                 None
@@ -1576,7 +1697,7 @@ def plot_atlas_hybrid_morse_sets(
             show_component_sizes=show_component_sizes,
             show_title=show_panel_titles,
             graph_title="Morse graph",
-            blocked_index_nodes=blocked_nodes,
+            blocked_index_nodes=layout.blocked_nodes,
         )
 
     if title is not None:
@@ -1638,19 +1759,216 @@ def plot_atlas_hybrid_morse_sets(
         projection_axes=projection_axes,
         handle_axes=handle_axes,
         morse_graph_axis=graph_axis,
-        morse_graph=order,
-        projections=projections,
-        handle_projections=handle_projections,
+        morse_graph=layout.order,
+        projections=layout.projections,
+        handle_projections=layout.handle_projections,
         components=components,
         data=data,
         zoom_axes=tuple(zoom_axes),
-        zooms=tuple(zoom for zooms in zooms_per_panel for zoom in zooms),
+        zooms=layout.zooms,
     )
     if fig_fname is not None:
         output = Path(fig_fname)
         output.parent.mkdir(parents=True, exist_ok=True)
         figure.savefig(output, dpi=dpi, bbox_inches="tight", facecolor="white")
     return plot
+
+
+# Sizes, in inches, of the axes of a panel drawn as its own figure.  A chart
+# panel keeps about its size in the combined figure (3.4 inches high, with a
+# zoom column and a Morse graph next to it); the handle chart is a little
+# narrower, as there.  A zoom panel is square and about 0.6 times as wide as
+# the chart panel, so its tick labels can be 8 points instead of 5.5.
+PANEL_CHART_SIZE = (2.6, 2.75)
+PANEL_HANDLE_SIZE = (2.4, 2.75)
+PANEL_ZOOM_SIZE = (1.6, 1.6)
+# Space around the axes (left, bottom, right, top), in inches, for the tick
+# labels, the axis labels, and the letter of a zoom.  The files are saved
+# with a tight bounding box, so unused space is cut.
+PANEL_CHART_MARGINS = (0.75, 0.6, 0.15, 0.15)
+PANEL_ZOOM_MARGINS = (0.65, 0.4, 0.15, 0.3)
+# Font size, in points, of the node labels of the Morse graph drawn as its own
+# figure.  The figure is the size of the graph layout in inches, so the labels
+# print at this size when the figure is shown at its natural size.
+PANEL_GRAPH_FONT_SIZE = 7.0
+
+
+@dataclass(frozen=True)
+class AtlasMorsePanelFigures:
+    """Each panel of an Atlas Morse plot drawn as its own figure.
+
+    ``figures`` and ``axes`` map a panel name to its figure and axes, in the
+    order of the combined figure: ``base`` (``base-1``, ``base-2``, ... when
+    there are several base projections), ``zoom-A``, ``zoom-B``, ... for the
+    zooms of that chart, ``handle`` (named like ``base``) and its zooms, and
+    ``graph``.
+    """
+
+    figures: Mapping[str, Figure]
+    axes: Mapping[str, Axes]
+    morse_graph: nx.DiGraph
+    components: tuple[AtlasHybridMorseComponent, ...]
+    data: AtlasMorsePlotData
+    zooms: tuple[AtlasDetailZoom, ...] = ()
+
+    def close(self) -> None:
+        """Close every figure."""
+
+        for figure in self.figures.values():
+            plt.close(figure)
+
+
+def _figure_with_axes(
+    size: tuple[float, float],
+    margins: tuple[float, float, float, float],
+    dpi: int,
+) -> tuple[Figure, Axes]:
+    """A figure with one axes of ``size`` inches and ``margins`` inches around it."""
+
+    left, bottom, right, top = margins
+    width = left + size[0] + right
+    height = bottom + size[1] + top
+    figure = plt.figure(figsize=(width, height), dpi=dpi)
+    axis = figure.add_axes(
+        (left / width, bottom / height, size[0] / width, size[1] / height)
+    )
+    return figure, axis
+
+
+def plot_atlas_hybrid_morse_panels(
+    source: AtlasMorsePlotData | object,
+    *,
+    atlas_charts: SuspensionAtlasCharts | None = None,
+    finite_relation_annotations: AtlasFiniteRelationIndexAnnotations | None = None,
+    blocked_index_nodes: Iterable[int] | Mapping[int, str] = (),
+    morse_nodes: Iterable[int] | None = None,
+    proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
+    handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
+    clist: Sequence[str],
+    axis_labels: Sequence[str] | None = None,
+    handle_axis_labels: Sequence[str] | None = None,
+    show_handles: bool = False,
+    show_morse_graph: bool = True,
+    show_grid: bool = False,
+    show_component_sizes: bool = False,
+    base_view: str = "support",
+    handle_view: str | None = None,
+    frame_margin: float = 0.0,
+    detail_zooms: bool = False,
+    graph_font_size: float = PANEL_GRAPH_FONT_SIZE,
+    dpi: int = 300,
+) -> AtlasMorsePanelFigures:
+    """Draw each panel of :func:`plot_atlas_hybrid_morse_sets` as its own figure.
+
+    The options are those of :func:`plot_atlas_hybrid_morse_sets`, and each
+    panel has the same colors, cells, limits, and zoom windows as there: a
+    chart panel outlines the window of each of its zooms, with its letter,
+    and a zoom panel has its letter as title.  A chart panel has axes of
+    :data:`PANEL_CHART_SIZE` inches (:data:`PANEL_HANDLE_SIZE` for the handle
+    chart) and a zoom panel :data:`PANEL_ZOOM_SIZE`, with larger tick labels
+    than in the combined figure.  The Morse graph is drawn with labels of
+    ``graph_font_size`` points in a figure the size of its layout in inches,
+    so a larger graph gives a larger figure, and the labels print at that
+    size when the figure is shown at its natural size.
+    """
+
+    from .hybrid_morse_plot import _draw_morse_graph
+
+    layout = _atlas_plot_layout(
+        source,
+        atlas_charts=atlas_charts,
+        finite_relation_annotations=finite_relation_annotations,
+        blocked_index_nodes=blocked_index_nodes,
+        morse_nodes=morse_nodes,
+        proj_dims=proj_dims,
+        handle_proj_dims=handle_proj_dims,
+        clist=clist,
+        axis_labels=axis_labels,
+        handle_axis_labels=handle_axis_labels,
+        show_handles=show_handles,
+        base_view=base_view,
+        handle_view=handle_view,
+        frame_margin=frame_margin,
+        detail_zooms=detail_zooms,
+    )
+    components = layout.components
+    figures: dict[str, Figure] = {}
+    axes: dict[str, Axes] = {}
+    try:
+        for chart_kind, chart_projections in (
+            ("base", layout.projections),
+            ("handle", layout.handle_projections),
+        ):
+            chart_panels = [panel for panel in layout.panels if panel.chart_kind == chart_kind]
+            for number, panel in enumerate(chart_panels, start=1):
+                name = chart_kind if len(chart_projections) == 1 else f"{chart_kind}-{number}"
+                figure, axis = _figure_with_axes(
+                    PANEL_CHART_SIZE if chart_kind == "base" else PANEL_HANDLE_SIZE,
+                    PANEL_CHART_MARGINS,
+                    dpi,
+                )
+                figures[name], axes[name] = figure, axis
+                _draw_chart_projection(
+                    axis,
+                    components,
+                    chart_kind=chart_kind,
+                    projection=panel.projection,
+                    limits=panel.limits,
+                    labels=panel.labels,
+                    show_grid=show_grid,
+                    show_panel_title=False,
+                    spines_below_cells=float(frame_margin) > 0.0,
+                    outlined=panel.small,
+                )
+                for zoom in panel.zooms:
+                    _mark_zoom_window(axis, zoom)
+                    zoom_name = f"zoom-{zoom.label}"
+                    zoom_figure, zoom_axis = _figure_with_axes(
+                        PANEL_ZOOM_SIZE, PANEL_ZOOM_MARGINS, dpi
+                    )
+                    figures[zoom_name], axes[zoom_name] = zoom_figure, zoom_axis
+                    _draw_zoom_panel(
+                        zoom_axis,
+                        zoom,
+                        components,
+                        outlined=panel.small,
+                        style=ZOOM_FIGURE_STYLE,
+                    )
+        if show_morse_graph:
+            # Drawn first on a whole-figure axis, then the figure is given the
+            # size of the layout: one unit of the axis is then one inch.
+            figure = plt.figure(figsize=(1.0, 1.0), dpi=dpi)
+            axis = figure.add_axes((0.0, 0.0, 1.0, 1.0))
+            figures["graph"], axes["graph"] = figure, axis
+            _draw_morse_graph(
+                axis,
+                layout.order,
+                components,
+                conley_indices=(
+                    None
+                    if finite_relation_annotations is None
+                    else finite_relation_annotations.shift_classes
+                ),
+                show_component_sizes=show_component_sizes,
+                show_title=False,
+                blocked_index_nodes=layout.blocked_nodes,
+                font_size=graph_font_size,
+            )
+            x_lower, x_upper = axis.get_xlim()
+            y_lower, y_upper = axis.get_ylim()
+            figure.set_size_inches(x_upper - x_lower, y_upper - y_lower)
+    except BaseException:
+        for figure in figures.values():
+            plt.close(figure)
+        raise
+    return AtlasMorsePanelFigures(
+        figures=figures,
+        axes=axes,
+        morse_graph=layout.order,
+        components=components,
+        data=layout.data,
+        zooms=layout.zooms,
+    )
 
 
 __all__ = [
@@ -1663,9 +1981,14 @@ __all__ = [
     "AtlasHybridMorseComponent",
     "AtlasHybridMorsePlot",
     "AtlasDetailZoom",
+    "AtlasMorsePanelFigures",
     "CELL_OUTLINE_WIDTH",
     "DETAIL_ZOOM_MAX_WINDOW",
     "DETAIL_ZOOM_MIN_AREA",
+    "PANEL_CHART_SIZE",
+    "PANEL_GRAPH_FONT_SIZE",
+    "PANEL_HANDLE_SIZE",
+    "PANEL_ZOOM_SIZE",
     "extract_atlas_morse_plot_data",
     "atlas_morse_plot_data_payload",
     "save_atlas_morse_plot_data",
@@ -1673,5 +1996,6 @@ __all__ = [
     "load_atlas_finite_relation_index_annotations",
     "atlas_morse_components",
     "atlas_morse_hasse",
+    "plot_atlas_hybrid_morse_panels",
     "plot_atlas_hybrid_morse_sets",
 ]

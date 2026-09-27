@@ -22,14 +22,24 @@ from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
 )
 from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
     FRAME_MARGIN,
+    PANEL_MAX_PIXELS,
+    _panel_dpi,
     draw_paper_grid_figure,
+    draw_paper_grid_panels,
     write_paper_grid_figures,
 )
 from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
     CELL_OUTLINE_WIDTH,
+    PANEL_CHART_SIZE,
+    PANEL_GRAPH_FONT_SIZE,
+    PANEL_HANDLE_SIZE,
+    PANEL_ZOOM_SIZE,
+    ZOOM_FIGURE_STYLE,
     AtlasFiniteRelationIndexAnnotations,
 )
 from hybrid_dynamics.src.hybrid_morse_plot import (  # noqa: E402
+    MorseNodeLabel,
+    _morse_node_size,
     morse_graph_node_labels,
 )
 from hybrid_dynamics.src.suspension_grid_plot import (  # noqa: E402
@@ -218,6 +228,16 @@ def test_paper_figure_draws_the_base_chart_and_enlarges_boundary_cells():
         plt.close(plot.figure)
 
 
+def _combined_names(figures) -> list[str]:
+    """Names of the combined figure files of each variant, without the panels."""
+
+    return [
+        Path(path).name
+        for record in figures["figure_variants"].values()
+        for path in record["files"]
+    ]
+
+
 def _load_replot_script():
     path = CODE_ROOT / "demo" / "replot_paper_grid.py"
     spec = importlib.util.spec_from_file_location("replot_paper_grid", path)
@@ -242,7 +262,7 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
         variants=("all", "nontrivial"),
         dpi=60,
     )
-    assert [Path(path).name for path in figures["figures"]] == [
+    assert _combined_names(figures) == [
         "paper-grid-bouncing-ball-tau150-level2-corners.pdf",
         "paper-grid-bouncing-ball-tau150-level2-corners.png",
         "paper-grid-bouncing-ball-tau150-level2-corners-nontrivial.pdf",
@@ -258,7 +278,8 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     assert [entry["morse_node"] for entry in nontrivial["hidden_nodes"]] == [1, 3]
 
     # A JSON summary with the fields the runner writes; its figure records are
-    # in the older form that listed the sets marked by squares in a panel.
+    # in the older form that listed the sets marked by squares in a panel and
+    # had no panel figures.
     summary = {
         "schema": "paper-suspension-grid-run-v3",
         "example": "bouncing-ball",
@@ -271,9 +292,14 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
             "morse_set_atoms": [encode_index_ranges(values) for values in morse_sets],
         },
         "conley": CONLEY,
-        "figures": figures["figures"],
+        "figures": [
+            path for record in figures["figure_variants"].values() for path in record["files"]
+        ],
         "figure_variants": {
-            variant: {**record, "marked_in_panel": [{"chart": "base", "morse_node": 0}]}
+            variant: {
+                **{key: value for key, value in record.items() if key != "panel_files"},
+                "marked_in_panel": [{"chart": "base", "morse_node": 0}],
+            }
             for variant, record in figures["figure_variants"].items()
         },
     }
@@ -283,16 +309,18 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
 
     replot = _load_replot_script()
     result = replot.replot(summary_path)
-    assert result["figure_variants"] == {
-        variant: {**record, "files": result["figure_variants"][variant]["files"]}
-        for variant, record in figures["figure_variants"].items()
-    }
+    assert result["figure_variants"] == figures["figure_variants"]
+    assert result["figures"] == figures["figures"]
     assert all(Path(path).is_file() for path in result["figures"])
     updated = json.loads(summary_path.read_text(encoding="utf-8"))
     assert updated["figure_variants"]["nontrivial"]["hidden_nodes"] == nontrivial["hidden_nodes"]
     assert all(
         "marked_in_panel" not in record for record in updated["figure_variants"].values()
     )
+    assert updated["figure_variants"]["all"]["panel_files"] == figures["figure_variants"][
+        "all"
+    ]["panel_files"]
+    assert updated["figures"] == figures["figures"]
     assert updated["figures_replotted"]["script"] == "demo/replot_paper_grid.py"
 
     older = dict(
@@ -359,7 +387,7 @@ def test_a_variant_has_its_own_output_names_and_replots(tmp_path):
     summary_path = tmp_path / "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.json"
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
     result = _load_replot_script().replot(summary_path, variants=("all",))
-    assert [Path(path).name for path in result["figures"]] == [
+    assert _combined_names(result) == [
         "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.pdf",
         "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.png",
     ]
@@ -391,7 +419,7 @@ def test_replot_rebuilds_the_base_offset_of_the_run(tmp_path):
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
     replot = _load_replot_script()
     result = replot.replot(summary_path)
-    assert [Path(path).name for path in result["figures"]] == [
+    assert _combined_names(result) == [
         "paper-grid-bouncing-ball-tau150-level2-base8-corners.pdf",
         "paper-grid-bouncing-ball-tau150-level2-base8-corners.png",
         "paper-grid-bouncing-ball-tau150-level2-base8-corners-nontrivial.pdf",
@@ -452,3 +480,201 @@ def test_paper_figure_draws_the_handle_chart_only_for_a_set_without_base_cells()
         )
     finally:
         plt.close(plot.figure)
+
+
+def _zoom_and_handle_run():
+    """A ball run with a Morse set drawn in a zoom and one with no base cell.
+
+    ``M(0)`` is the base cell at the origin, too small to see in the base
+    chart; ``M(1)`` is the atoms of the middle phase pieces over the first
+    guard interval, drawn only in the handle chart.
+    """
+
+    problem = bouncing_ball_problem(tau=0.5, level_offset=5)
+    grid = build_suspension_grid(problem.window, problem.guard, 2)
+    lower_corners = grid.base_bounds(np.arange(grid.n_base))[:, :2]
+    origin = int(grid.d_map[int(np.argmin(np.abs(lower_corners).sum(axis=1)))])
+    middle = np.arange(grid.n_phase // 4, 3 * grid.n_phase // 4)
+    handle = np.unique(grid.atom_of_piece[grid.handle_piece(0, middle)])
+    return problem, grid, [np.array([origin]), handle]
+
+
+def _cells(axis) -> list[tuple[object, ...]]:
+    """Per collection of an axis: its rectangles, line widths, and colors."""
+
+    return [
+        (
+            sorted(
+                tuple(np.round(np.r_[path.vertices.min(axis=0), path.vertices.max(axis=0)], 12))
+                for path in collection.get_paths()
+            ),
+            tuple(collection.get_linewidths()),
+            tuple(map(tuple, collection.get_facecolor())),
+            tuple(map(tuple, collection.get_edgecolor())),
+        )
+        for collection in axis.collections
+    ]
+
+
+def _axes_inches(axis) -> tuple[float, float]:
+    position = axis.get_position()
+    width, height = axis.figure.get_size_inches()
+    return (position.width * width, position.height * height)
+
+
+def test_each_panel_is_written_and_recorded_for_both_variants(tmp_path):
+    problem, grid, morse_sets = _zoom_and_handle_run()
+    # M(1), the set drawn in the handle chart, has a trivial index, so the
+    # nontrivial variant has no handle chart.
+    conley = [_record(0, "nontrivial"), _record(1, "trivial")]
+    stem = tmp_path / "paper-grid-bouncing-ball-tau050-level2-corners"
+    figures = write_paper_grid_figures(
+        grid,
+        morse_sets,
+        [(1, 0)],
+        conley,
+        example="bouncing-ball",
+        tau=problem.tau,
+        level=2,
+        output_stem=stem,
+        audit_path=stem.with_suffix(".json"),
+        variants=("all", "nontrivial"),
+        dpi=60,
+    )
+    expected = {
+        "all": (stem.name, ["base", "zoom-A", "handle", "graph"]),
+        "nontrivial": (f"{stem.name}-nontrivial", ["base", "zoom-A", "graph"]),
+    }
+    listed: list[str] = []
+    for variant, (variant_stem, panels) in expected.items():
+        record = figures["figure_variants"][variant]
+        assert [Path(path).name for path in record["files"]] == [
+            f"{variant_stem}.pdf",
+            f"{variant_stem}.png",
+        ]
+        assert [zoom["label"] for zoom in record["zooms"]] == ["A"]
+        assert list(record["panel_files"]) == panels
+        for name, paths in record["panel_files"].items():
+            assert [Path(path).name for path in paths] == [
+                f"{variant_stem}-{name}.pdf",
+                f"{variant_stem}-{name}.png",
+            ]
+            assert all(Path(path).is_file() for path in paths)
+        listed += record["files"]
+        listed += [path for paths in record["panel_files"].values() for path in paths]
+    # The figures list has the files of each variant, then those of its panels.
+    assert figures["figures"] == listed
+
+
+def test_panel_figures_match_the_combined_figure():
+    _problem, grid, morse_sets = _zoom_and_handle_run()
+    data = suspension_grid_morse_sets_plot_data(grid, morse_sets, [(1, 0)])
+    plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0, 1))
+    panels = draw_paper_grid_panels(data, example="bouncing-ball", shown=(0, 1))
+    try:
+        assert list(panels.figures) == ["base", "zoom-A", "handle", "graph"]
+        (zoom,) = plot.zooms
+        assert panels.zooms == plot.zooms
+        # Each chart panel has the limits, labels, and cells of the combined
+        # figure (with the same outline rule), at about the same size.
+        for name, combined, size in (
+            ("base", plot.projection_axes[0], PANEL_CHART_SIZE),
+            ("handle", plot.handle_axes[0], PANEL_HANDLE_SIZE),
+        ):
+            axis = panels.axes[name]
+            assert axis.get_xlim() == combined.get_xlim()
+            assert axis.get_ylim() == combined.get_ylim()
+            assert (axis.get_xlabel(), axis.get_ylabel()) == (
+                combined.get_xlabel(),
+                combined.get_ylabel(),
+            )
+            assert _cells(axis) == _cells(combined)
+            assert _axes_inches(axis) == pytest.approx(size)
+        # The base panel outlines the zoom window, with its letter, as the
+        # combined figure does.
+        for axis in (panels.axes["base"], plot.projection_axes[0]):
+            (mark,) = [patch for patch in axis.patches if isinstance(patch, patches.Rectangle)]
+            assert (
+                mark.get_x(),
+                mark.get_x() + mark.get_width(),
+                mark.get_y(),
+                mark.get_y() + mark.get_height(),
+            ) == pytest.approx((*zoom.x_limits, *zoom.y_limits))
+            assert [text.get_text() for text in axis.texts] == ["A"]
+        # The zoom panel shows the same window and cells, with its letter, in
+        # a square of PANEL_ZOOM_SIZE with larger tick labels.
+        zoom_axis = panels.axes["zoom-A"]
+        (combined_zoom,) = plot.zoom_axes
+        assert zoom_axis.get_xlim() == combined_zoom.get_xlim() == pytest.approx(zoom.x_limits)
+        assert zoom_axis.get_ylim() == combined_zoom.get_ylim() == pytest.approx(zoom.y_limits)
+        assert zoom_axis.get_title(loc="left") == "A"
+        assert _cells(zoom_axis) == _cells(combined_zoom)
+        assert _axes_inches(zoom_axis) == pytest.approx(PANEL_ZOOM_SIZE)
+        tick = zoom_axis.xaxis.get_major_ticks()[0]
+        assert tick.label1.get_fontsize() == ZOOM_FIGURE_STYLE.tick_label_size
+        assert sorted(morse_graph_node_labels(panels.axes["graph"])) == sorted(
+            morse_graph_node_labels(plot.morse_graph_axis)
+        )
+    finally:
+        plt.close(plot.figure)
+        panels.close()
+
+
+def test_the_graph_panel_is_sized_from_its_layout():
+    _problem, grid, morse_sets = _ball_run()
+    chain = [(node + 1, node) for node in range(5)]
+    data = suspension_grid_morse_sets_plot_data(grid, morse_sets, chain)
+    annotations = AtlasFiniteRelationIndexAnnotations(
+        shift_classes={node: ("x-1", "0", "0") for node in range(6)},
+        coefficient_field=5,
+        result_scope="finite_reset_quotient_relation",
+        audit_path=Path("run.json"),
+    )
+    sizes = []
+    for shown in ((0, 1), tuple(range(6))):
+        panels = draw_paper_grid_panels(
+            data, example="bouncing-ball", shown=shown, annotations=annotations, dpi=100
+        )
+        try:
+            figure, axis = panels.figures["graph"], panels.axes["graph"]
+            # The figure is the layout, and one unit of the layout is one
+            # inch, so the labels print at PANEL_GRAPH_FONT_SIZE points.
+            layout = (np.diff(axis.get_xlim())[0], np.diff(axis.get_ylim())[0])
+            assert tuple(figure.get_size_inches()) == pytest.approx(layout)
+            origin, unit = axis.transData.transform([(0.0, 0.0), (1.0, 1.0)])
+            assert unit - origin == pytest.approx([figure.dpi, figure.dpi])
+            ellipses = [patch for patch in axis.patches if isinstance(patch, patches.Ellipse)]
+            labels = [patch for patch in axis.patches if isinstance(patch, MorseNodeLabel)]
+            assert len(ellipses) == len(labels) == len(shown)
+            for label in labels:
+                vertices = label.get_path().vertices
+                center = vertices.mean(axis=0)
+                ellipse = min(
+                    ellipses,
+                    key=lambda patch: float(np.hypot(*(np.asarray(patch.center) - center))),
+                )
+                assert (ellipse.width, ellipse.height) == pytest.approx(
+                    _morse_node_size(label.text, PANEL_GRAPH_FONT_SIZE)
+                )
+                scaled = ((vertices[:, 0] - ellipse.center[0]) / (ellipse.width / 2.0)) ** 2 + (
+                    (vertices[:, 1] - ellipse.center[1]) / (ellipse.height / 2.0)
+                ) ** 2
+                assert scaled.max() < 1.0, label.text
+            sizes.append(tuple(figure.get_size_inches()))
+        finally:
+            panels.close()
+    (small_width, small_height), (large_width, large_height) = sizes
+    assert large_height > small_height + 1.0 and large_width >= small_width
+
+
+def test_a_very_large_panel_png_has_a_lower_resolution():
+    figure = plt.figure(figsize=(40.0, 10.0))
+    try:
+        # The side of the saved file includes the padding of the tight box.
+        side = 40.0 + 2.0 * plt.rcParams["savefig.pad_inches"]
+        dpi = _panel_dpi(figure, 400)
+        assert dpi < 400 and dpi * side <= PANEL_MAX_PIXELS < (dpi + 1) * side
+        figure.set_size_inches(3.0, 3.0)
+        assert _panel_dpi(figure, 400) == 400
+    finally:
+        plt.close(figure)

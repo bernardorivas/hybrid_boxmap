@@ -1028,6 +1028,7 @@ def _draw_morse_graph(
     show_title: bool,
     graph_title: str = "Conley--Morse graph",
     blocked_index_nodes: Collection[int] | Mapping[int, str] = (),
+    font_size: float | None = None,
 ) -> None:
     """Draw a compact CMGDB-style Conley--Morse Hasse diagram.
 
@@ -1035,6 +1036,11 @@ def _draw_morse_graph(
     returned a blocker) have a dashed outline.  Their second line is
     ``blocked``, or the text given for the node when ``blocked_index_nodes``
     is a mapping.
+
+    The layout is in inches, with labels of ``font_size`` points (by default
+    7.2, 6.7, or 6.1 as the graph has up to 4, up to 10, or more nodes), so
+    an axis of the size of its limits in inches shows the labels at that
+    size.
     """
 
     by_index = {component.index: component for component in components}
@@ -1052,7 +1058,9 @@ def _draw_morse_graph(
                 f"{labeled_and_blocked!r}"
             )
     node_count = len(graph.nodes)
-    if node_count <= 4:
+    if font_size is not None:
+        font_size = float(font_size)
+    elif node_count <= 4:
         font_size = 7.2
     elif node_count <= 10:
         font_size = 6.7

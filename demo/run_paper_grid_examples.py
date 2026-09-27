@@ -59,9 +59,12 @@ hides the Morse nodes whose finite-relation index was computed and is trivial
 with the dimensions of the relative homology of their pair, and draws the
 order between the remaining nodes as reachability in
 the full Morse graph, transitively reduced.  Both are written by default when
-the index labels are computed.  The JSON summary records, per variant, the
-shown and hidden nodes with the reason, and stores the atoms of every Morse
-set, so ``demo/replot_paper_grid.py`` can redraw the figures from it.
+the index labels are computed.  Each panel of a variant is also written as
+its own figure, ``<variant stem>-base``, ``-zoom-A``, ..., ``-graph`` (and
+``-handle`` when drawn).  The JSON summary records, per variant, the shown
+and hidden nodes with the reason and the panel files, and stores the atoms
+of every Morse set, so ``demo/replot_paper_grid.py`` can redraw the figures
+from it.
 
 Run from the ``code`` directory, for example::
 

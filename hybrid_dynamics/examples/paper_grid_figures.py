@@ -19,6 +19,12 @@ other Morse sets in the window faded.  Every cell is drawn at its true extent,
 with no symbol; the cells of a set too small to see in a chart panel are also
 outlined by a thin line in the color of the set, in the panel and in its
 zooms, so cells smaller than a point are still seen.
+
+Each panel is also drawn as its own figure (:func:`draw_paper_grid_panels`)
+and written next to the figure of its variant, as ``<variant stem>-base``,
+``<variant stem>-zoom-A``, ... (one per zoom), ``<variant stem>-graph``, and
+``<variant stem>-handle`` when the handle chart is drawn, each as PDF and PNG,
+where ``<variant stem>`` is ``<stem>`` or ``<stem>-nontrivial``.
 """
 
 from __future__ import annotations
@@ -29,11 +35,14 @@ from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy.typing as npt
+from matplotlib.figure import Figure
 
 from ..src.atlas_morse_plot import (
     AtlasFiniteRelationIndexAnnotations,
     AtlasHybridMorsePlot,
+    AtlasMorsePanelFigures,
     AtlasMorsePlotData,
+    plot_atlas_hybrid_morse_panels,
     plot_atlas_hybrid_morse_sets,
 )
 from ..src.hybrid_morse_plot import CMGDB_MORSE_PALETTE, save_hybrid_morse_figure
@@ -69,6 +78,24 @@ PAPER_GRID_FIGURE_STYLE: dict[str, dict[str, Any]] = {
 }
 
 
+#: Largest side, in pixels, of the PNG of a panel figure.  A Morse graph with
+#: hundreds of nodes is many inches wide at its natural size (the 332 nodes
+#: of the neuron at ``tau = 1`` take 16 x 27 inches); its PNG is written at a
+#: lower resolution so that it keeps within this size.
+PANEL_MAX_PIXELS = 8000
+
+
+def _panel_dpi(figure: Figure, dpi: int) -> int:
+    """Resolution of a panel figure: ``dpi``, lowered for a very large figure.
+
+    The side is counted with the padding of the tight bounding box the
+    files are saved with.
+    """
+
+    side = max(figure.get_size_inches()) + 2.0 * float(plt.rcParams["savefig.pad_inches"])
+    return max(1, min(int(dpi), int(PANEL_MAX_PIXELS / side)))
+
+
 def figure_variant_stem(stem: str | Path, variant: str) -> Path:
     """Output stem of a figure variant (``all`` keeps the run's stem)."""
 
@@ -92,6 +119,40 @@ def blocked_index_line(entry: Mapping[str, Any]) -> str:
     return "blocked"
 
 
+def _paper_grid_plot_options(
+    plot_data: AtlasMorsePlotData,
+    *,
+    example: str,
+    shown: Sequence[int],
+    blocked: Sequence[int] | Mapping[int, str],
+    annotations: AtlasFiniteRelationIndexAnnotations | None,
+) -> dict[str, Any]:
+    """Options shared by the figure of a variant and its panel figures."""
+
+    style = PAPER_GRID_FIGURE_STYLE[paper_grid_example(example)]
+    shown_set = {int(node) for node in shown}
+    show_handles = any(
+        not any(box.chart_id == plot_data.base_chart_id for box in node.boxes)
+        for node in plot_data.nodes
+        if int(node.index) in shown_set
+    )
+    return {
+        "clist": CMGDB_MORSE_PALETTE,
+        "morse_nodes": shown,
+        "finite_relation_annotations": annotations,
+        "blocked_index_nodes": blocked,
+        "axis_labels": style["labels"],
+        "handle_axis_labels": style["handle"],
+        "show_handles": show_handles,
+        "show_morse_graph": True,
+        "show_component_sizes": False,
+        "base_view": style["view"],
+        "handle_view": "domain",
+        "frame_margin": FRAME_MARGIN,
+        "detail_zooms": True,
+    }
+
+
 def draw_paper_grid_figure(
     plot_data: AtlasMorsePlotData,
     *,
@@ -111,32 +172,41 @@ def draw_paper_grid_figure(
     otherwise not appear in the figure.
     """
 
-    style = PAPER_GRID_FIGURE_STYLE[paper_grid_example(example)]
-    shown_set = {int(node) for node in shown}
-    show_handles = any(
-        not any(box.chart_id == plot_data.base_chart_id for box in node.boxes)
-        for node in plot_data.nodes
-        if int(node.index) in shown_set
-    )
     return plot_atlas_hybrid_morse_sets(
         plot_data,
-        clist=CMGDB_MORSE_PALETTE,
-        morse_nodes=shown,
-        finite_relation_annotations=annotations,
-        blocked_index_nodes=blocked,
-        axis_labels=style["labels"],
-        handle_axis_labels=style["handle"],
-        show_handles=show_handles,
-        show_morse_graph=True,
+        **_paper_grid_plot_options(
+            plot_data, example=example, shown=shown, blocked=blocked, annotations=annotations
+        ),
         show_legend=False,
         show_panel_titles=False,
-        show_component_sizes=False,
         show_status_note=False,
-        base_view=style["view"],
-        handle_view="domain",
-        frame_margin=FRAME_MARGIN,
-        detail_zooms=True,
         fig_h=3.4,
+    )
+
+
+def draw_paper_grid_panels(
+    plot_data: AtlasMorsePlotData,
+    *,
+    example: str,
+    shown: Sequence[int],
+    blocked: Sequence[int] | Mapping[int, str] = (),
+    annotations: AtlasFiniteRelationIndexAnnotations | None = None,
+    dpi: int = 300,
+) -> AtlasMorsePanelFigures:
+    """Draw each panel of :func:`draw_paper_grid_figure` as its own figure.
+
+    The panels are ``base``, ``zoom-A``, ``zoom-B``, ..., ``handle`` (when
+    the figure has the handle chart), and ``graph``, with the same colors,
+    cells, and zoom windows as the figure (see
+    :func:`plot_atlas_hybrid_morse_panels` for their sizes).
+    """
+
+    return plot_atlas_hybrid_morse_panels(
+        plot_data,
+        **_paper_grid_plot_options(
+            plot_data, example=example, shown=shown, blocked=blocked, annotations=annotations
+        ),
+        dpi=dpi,
     )
 
 
@@ -160,11 +230,14 @@ def write_paper_grid_figures(
     ``conley`` holds the index records of the run (the ``conley`` list of its
     JSON summary).  Returns ``{"figures": [...], "figure_variants": {...}}``,
     where each variant records its files, the shown and hidden nodes (with
-    the reason), the blocked nodes it marks, the order it draws, and its
-    zoom panels (label, chart, window, and the Morse nodes they are drawn
-    for).  Summaries written before cells were outlined also have a
-    ``marked_in_panel`` list (sets whose cells were marked by squares); a
-    replot replaces the record and drops it.
+    the reason), the blocked nodes it marks, the order it draws, its zoom
+    panels (label, chart, window, and the Morse nodes they are drawn for),
+    and under ``panel_files`` the files of each panel drawn as its own
+    figure (``base``, ``zoom-A``, ..., ``handle``, ``graph``).  ``figures``
+    lists the files of each variant, then those of its panels.  Summaries
+    written before cells were outlined also have a ``marked_in_panel`` list
+    (sets whose cells were marked by squares), and summaries written before
+    the panel figures have no ``panel_files``; a replot replaces the record.
     """
 
     plot_data = suspension_grid_morse_sets_plot_data(
@@ -190,6 +263,7 @@ def write_paper_grid_figures(
         record = selection.to_dict()
         if not selection.shown:
             record["files"] = []
+            record["panel_files"] = {}
             record["not_written"] = "every Morse node is hidden"
             records[variant] = record
             continue
@@ -204,13 +278,14 @@ def write_paper_grid_figures(
             if shown_labels
             else None
         )
-        plot = draw_paper_grid_figure(
-            plot_data,
-            example=example,
-            shown=selection.shown,
-            blocked={node: blocked_lines[node] for node in selection.blocked},
-            annotations=annotations,
-        )
+        options = {
+            "example": example,
+            "shown": selection.shown,
+            "blocked": {node: blocked_lines[node] for node in selection.blocked},
+            "annotations": annotations,
+        }
+        variant_stem = figure_variant_stem(output_stem, variant)
+        plot = draw_paper_grid_figure(plot_data, **options)
         try:
             drawn = tuple(sorted((int(p), int(q)) for p, q in plot.morse_graph.edges))
             if drawn != selection.order:
@@ -218,13 +293,33 @@ def write_paper_grid_figures(
                     f"drawn Morse order {drawn!r} differs from the selection {selection.order!r}"
                 )
             outputs = save_hybrid_morse_figure(
-                plot, figure_variant_stem(output_stem, variant), formats=("pdf", "png"), dpi=dpi
+                plot, variant_stem, formats=("pdf", "png"), dpi=dpi
             )
         finally:
             plt.close(plot.figure)
+        panels = draw_paper_grid_panels(plot_data, **options, dpi=dpi)
+        try:
+            if panels.zooms != plot.zooms:
+                raise AssertionError("the panel figures have other zooms than the figure")
+            panel_outputs = {
+                name: save_hybrid_morse_figure(
+                    figure,
+                    variant_stem.with_name(f"{variant_stem.name}-{name}"),
+                    formats=("pdf", "png"),
+                    dpi=_panel_dpi(figure, dpi),
+                )
+                for name, figure in panels.figures.items()
+            }
+        finally:
+            panels.close()
         record["zooms"] = [zoom.to_dict() for zoom in plot.zooms]
         record["files"] = [display_path(path) for path in outputs]
+        record["panel_files"] = {
+            name: [display_path(path) for path in paths] for name, paths in panel_outputs.items()
+        }
         figures.extend(record["files"])
+        for paths in record["panel_files"].values():
+            figures.extend(paths)
         records[variant] = record
     return {"figures": figures, "figure_variants": records}
 
@@ -232,7 +327,9 @@ def write_paper_grid_figures(
 __all__ = [
     "FRAME_MARGIN",
     "PAPER_GRID_FIGURE_STYLE",
+    "PANEL_MAX_PIXELS",
     "draw_paper_grid_figure",
+    "draw_paper_grid_panels",
     "figure_variant_stem",
     "write_paper_grid_figures",
 ]

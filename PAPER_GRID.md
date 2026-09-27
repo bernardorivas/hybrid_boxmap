@@ -231,17 +231,51 @@ in the panel. Larger sets are not outlined. This is
 with the options `frame_margin`, `handle_view`, and `detail_zooms` of
 `plot_atlas_hybrid_morse_sets`.
 
+Each panel of a variant is also written as its own figure, PDF and PNG, next
+to the figure of the variant: `<variant stem>-base`, `<variant stem>-zoom-A`,
+`-zoom-B`, ... (one per zoom), `<variant stem>-graph`, and
+`<variant stem>-handle` when the handle chart is drawn, where
+`<variant stem>` is `<stem>` or `<stem>-nontrivial`. The combined figure is
+kept for checking; the panel figures let the paper arrange the panels
+freely. A panel is drawn on its own, not cut from the combined figure, from the same
+data, colors, zoom windows, and outline rule; the base panel outlines each
+zoom window with its letter, and each zoom panel has its letter. The sizes:
+
+- chart panel: axes of 2.6 x 2.75 inches (2.4 x 2.75 for the handle
+  chart), about its size in the combined figure, with the same 10 pt tick
+  and axis labels;
+- zoom panel: a square of 1.6 inches, with up to four ticks per axis and
+  8 pt tick labels (5.5 pt in the combined figure, where a zoom is 0.7 to
+  1 inch wide);
+- Morse graph: labels of 7 pt, whatever the number of nodes, in a figure
+  of the size of its Graphviz layout in inches (with a margin of 0.12
+  inches), so the labels print at 7 pt when the figure is shown at its
+  natural size and a larger graph gives a larger figure. The saved graph
+  of the 15 nodes of the oscillator at `beta = 0.76`, `tau = 1`, is 3.75 x
+  6.29 inches, that of its 5 nontrivial nodes 3.13 x 2.19, and that of the
+  single node of the ball 1.45 x 0.82. A PNG is at most 8000 pixels on a
+  side, so the 332 nodes of the neuron at `tau = 1` (16.1 x 26.8 inches)
+  are written at about 300 dpi instead of 400.
+
+All files are saved with a tight bounding box (0.1 inches of padding). This is
+`draw_paper_grid_panels`, through `plot_atlas_hybrid_morse_panels` in
+`hybrid_dynamics/src/atlas_morse_plot.py`, which shares its layout (limits,
+zoom windows, sets outlined) with `plot_atlas_hybrid_morse_sets`.
+
 The JSON summary records each variant under
 `figure_variants` (shown nodes, hidden nodes with the reason, blocked nodes,
-the order drawn, the zooms with their windows and nodes, files) and stores
+the order drawn, the zooms with their windows and nodes, files, and under
+`panel_files` the files of each panel by name) and stores
 the atoms of every Morse set under `morse_graph.morse_set_atoms` (strings of
-atom ranges, `a-b` for the closed range). Records written before cells were
-outlined also list, under `marked_in_panel`, the sets whose cells were
-marked by squares in a chart panel. `demo/replot_paper_grid.py` redraws both
-variants from a summary: it rebuilds `Xi_n` from the example and level,
-checks it against the recorded `grid`, and replaces `figures` and
-`figure_variants` in the JSON (dropping `marked_in_panel`). Summaries
-written before the atoms were stored (schema `paper-suspension-grid-run-v2`
+atom ranges, `a-b` for the closed range). The `figures` list has the files
+of each variant followed by those of its panels. Records written before
+cells were outlined also list, under `marked_in_panel`, the sets whose cells
+were marked by squares in a chart panel, and records written before the
+panel figures have no `panel_files`. `demo/replot_paper_grid.py` redraws both
+variants and their panels from a summary: it rebuilds `Xi_n` from the
+example and level, checks it against the recorded `grid`, and replaces
+`figures` and `figure_variants` in the JSON (dropping `marked_in_panel`).
+Summaries written before the atoms were stored (schema `paper-suspension-grid-run-v2`
 and earlier) cannot be redrawn and have to be rerun. Selection and replot are
 tested in `hybrid_dynamics/tests/test_suspension_grid_plot.py`.
 
@@ -407,7 +441,9 @@ of the author:
   is not ruled out.
 - Each run is drawn with every Morse node (`<stem>.pdf`, `.png`) and without
   the nodes whose computed index is trivial (`<stem>-nontrivial.pdf`,
-  `.png`); see Figures.
+  `.png`), and each panel of the two figures is also its own figure
+  (`<stem>-base`, `<stem>-zoom-A`, ..., `<stem>-graph`, and the same after
+  `<stem>-nontrivial`); see Figures.
 
 ### Recommended configurations
 
@@ -431,7 +467,9 @@ figure variants are in `figures/paper_grid/`.
 | impact, `beta = 0.8` | 1 | 6 (256) | 1024 | 9 nodes: C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`; S, U_Z, and a ring around F blocked; 3 trivial | 1,396 | not recomputed | passed |
 
 Figures (`<stem>.png` shows every node, `<stem>-nontrivial.png` hides the
-trivial ones; PDFs alongside), with `<stem>` in `figures/paper_grid/`:
+trivial ones; PDFs alongside, and the panel figures `<stem>-base.png`,
+`<stem>-zoom-A.png`, ..., `<stem>-graph.png`, `<stem>-nontrivial-base.png`,
+...), with `<stem>` in `figures/paper_grid/`:
 
 - ball: `paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined`
 - wheel: `paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined`
@@ -442,8 +480,9 @@ trivial ones; PDFs alongside), with `<stem>` in `figures/paper_grid/`:
 The wheel and neuron files were copied from the sweep. The figures of all
 four were redrawn at `ff7ca77` with `demo/replot_paper_grid.py` in the layout
 of Figures (base chart, zoom panels, handle chart, Morse graph); the figures
-of the sweep, and of the neuron run at `tau = 1` below, have the earlier
-layout of a base chart and a Morse graph. The folder also keeps
+of the sweep have the earlier layout of a base chart and a Morse graph.
+Every run in the folder, the neuron run at `tau = 1` below included, was
+then redrawn with its panel figures. The folder also keeps
 `paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined`, the
 sweep's first pick for the neuron, a rerun that equals the sweep run except
 for timings and paths.
@@ -678,8 +717,10 @@ records, as described below.
 | 1 | 6 (256) | 1024 | 388 (643 at `a7ac462`) | 7.0 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | U_Z, `dim H (0, 1, 1, 0)` | 10 |
 | 0.5 | 7 (512) | 2048 | 1,673 (780 at `a7ac462`, without C's label) | 22.9 | 4,198,401 | 1,037,721 | 22 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | U_Z, `dim H (0, 1, 1, 0)` | 17 |
 
-Stems in `figures/paper_grid/` (JSON, and `<stem>.pdf/.png`,
-`<stem>-nontrivial.pdf/.png`):
+Stems in `figures/paper_grid/` (JSON, `<stem>.pdf/.png`,
+`<stem>-nontrivial.pdf/.png`, and the panel figures of both, as
+`<stem>-base.pdf/.png`, `<stem>-zoom-A.pdf/.png`, ..., `<stem>-graph.pdf/.png`
+and `<stem>-nontrivial-base.pdf/.png`, ...):
 
 - `paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined`
 - `paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined`
