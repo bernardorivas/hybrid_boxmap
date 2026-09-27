@@ -205,6 +205,10 @@ options in force, the offsets, and the command line are recorded under
 `figures/paper_grid/`; every non-default choice adds a suffix to the file
 names (`-center`, `-random10d4s0`, `-tensor3`, `-gap-refined`), and a base
 offset adds `-base<cells per axis>` after the level (see the next section).
+The commands above use the manuscript's `tau`; the configurations for the
+paper figures are in "Paper figures at small `tau`". Recorded runs are sorted
+into subfolders of `figures/paper_grid/`, listed in
+`figures/paper_grid/README.md`.
 
 ## Base grids finer than the phase grid
 
@@ -302,7 +306,532 @@ peaks of about 4 GB for the neuron and 9 to 11 GB for the others. Since `1eedf06
 relation; on the 2048 ball grid with a synthetic map (72.7 million edges)
 this lowered the peak from 9.8 to 7.6 GB. The 2048 rows predate it.
 
-## Recorded runs
+## Paper figures at small `tau`
+
+### Criteria
+
+The configurations for the figures of Section "Examples" follow three rules
+of the author:
+
+- `tau` is small, as in CMGDB practice: just large enough that the
+  time-`tau` map is not close to the identity at the scale of the grid. The
+  CMGDB ODE examples use `tau` from 0.1 to 1.
+- Extra Morse nodes are acceptable, and a figure may show them. A spurious
+  node with a nontrivial index would be incorrect. A blocked index is
+  unknown, not trivial, so a blocked spurious node is not ruled out.
+- Each run is drawn with every Morse node (`<stem>.pdf`, `.png`) and without
+  the nodes whose computed index is trivial (`<stem>-nontrivial.pdf`,
+  `.png`); see Figures.
+
+### Recommended configurations
+
+All four runs use corner sampling with gap refinement of depth 14,
+`--workers 3`, and code `8e99989` on a clean tree. Each was chosen from the
+sweep below and then checked independently: the grid was rebuilt, the Morse
+sets decoded from the JSON, the invariant sets located in them, and the
+order recomputed from the edges. The JSON summaries and both figure variants
+are in `figures/paper_grid/`.
+
+| Example | `tau` | level (phase cells) | base cells | Morse graph and labels | wall (s) | check |
+|---|---|---|---|---|---|---|
+| ball | 0.5 | 6 (256) | 1024 | 1 node: `Z~` `(x-1, x-1, 0, 0)` | 528 | passed |
+| wheel | 0.5 | 7 (512) | 2048 | 17 nodes: saddle `(0, x-1, 0, 0)` -> gait `(x-1, x-1, 0, 0)`; 15 trivial | 1,797 | passed; this is the gap-refined twin of the sweep's pick |
+| neuron | 5 | 7 (512) | 1024 | 1 node: cycle `(x-1, x-1, 0, 0, 0, 0)` | 1,232 | the sweep's pick, `tau = 1`, failed the `tau` rule |
+| impact | 1 | 6 (256) | 1024 | 9 nodes: C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`; S, U_Z, and a ring around F blocked; 3 trivial | 1,396 | passed |
+
+Figures (`<stem>.png` shows every node, `<stem>-nontrivial.png` hides the
+trivial ones; PDFs alongside), with `<stem>` in `figures/paper_grid/`:
+
+- ball: `paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined`
+- wheel: `paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined`
+- neuron: `paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined`
+- impact: `paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined`
+
+The wheel and neuron files were copied from the sweep and redrawn with
+`demo/replot_paper_grid.py` (the figures are byte-identical to the sweep's).
+The folder also keeps
+`paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined`, the
+sweep's first pick for the neuron, a rerun that equals the sweep run except
+for timings and paths.
+
+To reproduce, from `code/` (add `--output-dir`, or the runner overwrites the
+recorded files of the same name):
+
+```bash
+.venv/bin/python demo/run_paper_grid_examples.py bouncing-ball --level bouncing-ball=6 \
+    --level-offset bouncing-ball=4 --tau bouncing-ball=0.5 --gap-refinement-depth 14 \
+    --workers 3 --index-max-pieces 100000
+.venv/bin/python demo/run_paper_grid_examples.py rimless-wheel --level rimless-wheel=7 \
+    --level-offset rimless-wheel=4 --tau rimless-wheel=0.5 --gap-refinement-depth 14 \
+    --workers 3 --index-max-pieces 100000
+.venv/bin/python demo/run_paper_grid_examples.py spiking-neuron --level spiking-neuron=7 \
+    --level-offset spiking-neuron=3 --tau spiking-neuron=5 --gap-refinement-depth 14 \
+    --workers 3 --index-max-pieces 100000
+.venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing --level impact-vdp-duffing=6 \
+    --level-offset impact-vdp-duffing=4 --tau impact-vdp-duffing=1 --gap-refinement-depth 14 \
+    --workers 3 --index-max-pieces 150000
+```
+
+#### Ball
+
+The only invariant set is `Z~`, the periodic orbit of the Zeno point through
+the handle (`prop:ball-window`). In all 40 runs of the sweep one Morse node
+contains the origin cell and all 257 sampled points of `Z~`. `tau = 0.5` is
+the smallest tested `tau` with a run that has no other node (this grid, and
+level 5 with 512 cells). Every gap-refined run at `tau = 0.25` and `0.375`
+has 1 to 10 extra nodes, all blocked. `tau = 1` has no extra node on any
+grid, but 1 is the period of `Z~`, so the time-1 map is the identity on the
+attractor.
+
+The pair has `A` empty and 13,270 pieces, homology dimensions `(1, 2, 0, 0)`,
+and shift class `x-1` in degrees 0 and 1. The check reran the configuration
+and matched every field except timings and paths, with byte-identical PNGs.
+It confirmed `dim H_1 = 2` by counting the Euler characteristic of the pieces
+with both seams glued, and attributes the second class to gaps of the handle
+part over five phase intervals.
+
+Caveats:
+
+- The result is fragile. At `tau = 0.5` the five other gap-refined grids have
+  one to three blocked extra nodes.
+- The endpoint probe covers 150 random base cells and 20 guard intervals,
+  none chosen near `Z~`.
+- The figure shows no geometry of the Morse set. Its base readout (105 cells,
+  `h` in `[0, 0.0039]`, `v` in `[-0.215, 0.303]`) is drawn under the left
+  axis line, and its 13,165 handle pieces (99.2% of the pieces) are not drawn
+  (`show_handles=False` in `hybrid_dynamics/examples/paper_grid_figures.py`).
+  The two variants are identical, since no node is trivial.
+
+#### Wheel
+
+The invariant sets in `R = [-0.2, 0.6] x [-0.5, 1]` are the saddle at
+`(0, 0)` and the gait, with speed 0.540 after impact, 0.502 at `theta = 0`,
+and 0.775 before impact. The right unstable branch of the saddle reaches the
+guard and converges to the gait, so saddle -> gait.
+
+The sweep picked the corner run of this grid: 18 nodes, the same labels, and
+saddle -> gait through trivial nodes. The check passed it, but in that run
+3,574 atoms have a disconnected padded image, which cannot be an outer
+approximation of a connected image. The gap-refined run of the same grid has
+no such atom, the same nontrivial nodes and order, and one trivial node
+fewer, so it is the one recommended here.
+
+In the recommended run the gait node spans `theta` in `[-0.2, 0.6]` with
+`thetadot` in `[0.492, 0.785]`, which contains the gait, and meets all 512
+phase intervals. The saddle node is 72 base cells in
+`[-0.0031, 0.0031] x [-0.0034, 0.0032]`, with no handle piece. The saddle
+reaches the gait along `M(9) -> M(7) -> M(4) -> M(0)` and
+`M(9) -> M(8) -> M(6) -> M(3) -> M(0)`, through trivial nodes only. The 15
+trivial nodes are single base cells inside the bounding box of the saddle
+node.
+
+Why `tau = 0.5`: at `tau = 0.5` the grids with four base cells per phase
+cell (1024 at level 6, 2048 at level 7) have no blocked node, with or without
+gap refinement. At `tau = 0.25` every base grid finer than 256 cells has 2
+to 7 blocked nodes, which gap refinement does not remove. At 256 cells the
+corner runs are clean, which the sweep attributes to a wide gait enclosure
+(`thetadot` from 0.32 to 0.91), and the gap-refined runs already have a
+blocked node. The check calls this a judgment rather than a demonstrated
+failure: the blocked counts are not monotone in the base grid (at
+`tau = 0.5`: 1, 10 to 17, 0, and 0 or 1 for 256 to 2048 cells), and
+`tau = 0.25` at level 7 with 2048 cells was not run.
+
+Figure: the saddle set is about one pixel wide in the PNG, in a color close
+to that of the gait. The run at `tau = 0.5`, level 6, 1024 base cells,
+gap-refined, gives the same Morse graph and labels with a saddle set twice as
+wide (17 nodes, none blocked, 732 s; in `sweep-rimless-wheel/`).
+
+#### Neuron
+
+The only invariant set is the spiking cycle: the guard return map has the
+single fixed point `u* = -36.92`, the flow period is 147.85, and the cycle
+lies in `v` in `[-56.11, 35]`, `u` in `[-36.92, 63.08]`; there is no
+equilibrium. In every gap-refined run of the sweep one node, the unique sink,
+contains all 22,002 sampled points of the cycle and its handle orbit and is
+labeled `(x-1, x-1, 0, 0, 0, 0)`. Every other node has trivial index and is
+a small set of base cells (at most 27 atoms, no handle piece) in the slow
+region, `v` in `[-80, -26.25]`.
+
+The sweep picked the smallest `tau`, `tau = 1`: 332 nodes, 331 of them
+trivial. The check rejected it under the `tau` rule. It measured how far the
+time-`tau` map moves points of the cycle, in cells of the 1024 grid: at
+`tau = 1` the median is 0.52 cells, and the displacement is below one cell
+for 74% of the cycle time; at `tau = 2` the median is 1.04 cells, below one
+cell 48% of the time; at `tau = 5` it never falls below 1.33 cells (median
+2.54). So `tau = 5` is the smallest tested value that satisfies the rule.
+The sweep report had already named it as the alternative with a tight Morse
+set and no extra node.
+
+At `tau = 5`, level 7, 1024 base cells, the Morse graph is a single node
+with 6,549 base cells in `v` in `[-58.75, 35]`, `u` in `[-48.75, 76.25]`, all
+512 phase intervals, and `X` of 16,773 pieces. The 512-cell grid also gives
+a single node. For the `tau = 1` run the check confirmed every recorded
+field: the other 331 nodes all reach `M(0)`, and the `all` figure, with 332
+overlapping labels, cannot be read.
+
+#### Impacting oscillator
+
+The runner locates five named sets (`impact_vdp_duffing_reference_sets`):
+F, the attracting focus at `(-1, 0)`; S, the saddle at `(0, 0)`; Z, the
+point `(0.8, 0)` on the wall with its handle orbit; C, the attracting impact
+cycle; and U_Z, the repelling impact cycle around Z. The expected order is
+U_Z -> Z, U_Z -> S, S -> C, S -> F.
+
+No run labels all five sets: S and U_Z are never labeled. The recommended
+run separates the five sets, labels C, F, and Z as expected, and has exactly
+the expected order. Among the runs that do this, it has the fewest blocked
+nodes (3), as do level 7 on the same grid (at a higher cost) and `tau = 2`
+at 512 cells. The smaller `tau = 0.5` also labels C, F, and Z at 1024 cells
+but leaves 12 or 13 spurious blocked nodes. The blocked nodes:
+
+- U_Z (`M(8)`): its exit set `F(S) minus S` is two annuli, and
+  `prepare_atlas_relation_conley_2d(use_exit_component_carrier=True)` sends
+  each exit vertex to its whole exit component, which is then not acyclic.
+  This is a limitation of the code, not of the sampling, and it blocks U_Z
+  in every run of the sweep. The pair has relative homology of rank
+  `(0, 1, 1)`, consistent with the expected `(0, x-1, x-1)`.
+- S (`M(5)`): the Morse set (8,160 cells) is a thin set along the left
+  unstable branch of S, which passes inside the stable branch at distance
+  0.0143, about five base cells. One exit component is an annulus.
+- `M(3)`: 16 cells in 9 components around F, a period-9 combinatorial cycle
+  of the slow rotation of the focus. The check showed that its index is
+  trivial although the code reports it blocked: each of the 9 components of
+  `X` is acyclic and contains one acyclic exit component, so
+  `H_*(X, A) = 0` over `GF(5)`.
+
+The trivial nodes `M(4)`, `M(6)`, and `M(7)` are one or two cells on the
+connections S -> C and U_Z -> S. The nontrivial figure hides them and draws
+U_Z -> Z, U_Z -> S, S -> C, and S -> `M(3)` -> F. The check found the labels,
+the order, and the locations in agreement with an independent computation of
+C (multiplier 0.2448) and U_Z (multiplier 2.024).
+
+Caveats:
+
+- "No spurious nontrivial node" holds for the computed indices only. The
+  runs at `tau = 0.25` and `0.5` that separate C and F leave 12 to 19
+  spurious blocked nodes whose index is unknown.
+- Z is not visible in either figure: its 42 base cells (`x` in
+  `[0.7946, 0.8]`) lie under the right axis line, and its 6,308 handle pieces
+  are not drawn. `M(3)` shows as about 17 pixels around F, and in the `all`
+  variant the labels of `M(2)` and `M(7)`, and of `M(1)` and `M(0)`, overlap.
+
+### Sweep
+
+Code `8e99989` on a clean tree, corner sampling, `--workers 3`, and
+`--index-max-pieces` 100,000 for the ball, wheel, and neuron and 150,000 for
+the oscillator, except where a row states another limit. Level `n` has
+`2^(n+2)` phase cells, and the base grid is set with `--level-offset`. The
+files are in `figures/paper_grid/sweep-<example>/`. Wall time is that of the
+runner. Several sweeps ran at once on 14 cores (load average up to about
+70), so wall times are inflated and uneven between runs of the same size.
+
+Columns:
+
+- nodes: Morse nodes. nontrivial: index computed, with a nonzero homology
+  dimension. blocked: index not computed (a carrier that is not acyclic, or
+  `X` over the piece limit). The remaining nodes have trivial index.
+- nontrivial labels: each nontrivial node with the invariant set it
+  contains. For the ball and neuron the sweep located sampled points of `Z~`
+  and of the cycle; for the wheel the label identifies the node, and the
+  saddle node contains `(0, 0)`; for the oscillator the JSON record
+  `reference_set_identification` names the sets in each node, including the
+  blocked ones (`+` joins sets that share a node).
+- order: for the ball and neuron, whether every other node reaches the
+  labeled node (it is the unique sink in every run where it is labeled). For
+  the wheel, how the saddle reaches the gait in the full Morse graph:
+  `direct` (an edge), `via trivial` (a path whose intermediate nodes all have
+  trivial index), or `via blocked` (every path passes a blocked node). For
+  the oscillator, reachability among the nodes that contain named sets,
+  blocked ones included, transitively reduced among them.
+- spurious nontrivial: nontrivial nodes that contain no invariant set.
+- missed probes: probe points (a `5 x 5` lattice in 150 random base cells
+  and 7 phases in 20 random guard intervals) whose endpoint lies in `D` but
+  outside the computed image, out of those whose endpoint lies in `D`.
+
+#### Ball (40 runs)
+
+| `tau` | level | base cells | gap | nodes | nontrivial | blocked | nontrivial labels | order | spurious nontrivial | missed probes | wall (s) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.25 | 5 | 256 | yes | 4 | 1 | 3 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2795 | 153 |
+| 0.25 | 5 | 512 | yes | 11 | 1 | 10 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2840 | 250 |
+| 0.25 | 5 | 1024 | yes | 4 | 1 | 3 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2883 | 317 |
+| 0.25 | 6 | 256 | yes | 2 | 1 | 1 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2795 | 1,468 |
+| 0.25 | 6 | 512 | yes | 5 | 1 | 4 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2840 | 2,225 |
+| 0.25 | 6 | 1024 | yes | 4 | 1 | 3 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2883 | 2,276 |
+| 0.25 | 7 | 1024 | yes | 5 | 1 | 4 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2883 | 798 |
+| 0.375 | 6 | 1024 | yes | 4 | 1 | 3 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2725 | 586 |
+| 0.5 | 5 | 256 | yes | 4 | 1 | 3 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2404 | 90 |
+| 0.5 | 5 | 512 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | - | none | 0/2515 | 208 |
+| 0.5 | 5 | 1024 | yes | 2 | 1 | 1 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2515 | 480 |
+| 0.5 | 6 | 256 | yes | 2 | 1 | 1 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2404 | 147 |
+| 0.5 | 6 | 512 | yes | 2 | 1 | 1 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2515 | 260 |
+| 0.5 | 6 | 1024 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | - | none | 0/2515 | 528 |
+| 0.5 | 6 | 2048 | yes | 2 | 1 | 1 | `Z~` `(x-1, x-1, 0, 0)` | all other nodes reach it | none | 0/2590 | 1,922 |
+| 1 | 5 | 256 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | - | none | 0/2005 | 50 |
+| 1 | 5 | 512 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | - | none | 0/1940 | 120 |
+| 1 | 5 | 1024 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | - | none | 0/1840 | 349 |
+| 1 | 6 | 256 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | - | none | 0/2005 | 85 |
+| 1 | 6 | 512 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | - | none | 0/1940 | 130 |
+| 1 | 6 | 1024 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | - | none | 0/1840 | 398 |
+| 0.25 | 5 | 256 | no | 4 | 0 | 4 | none (`Z~` blocked) | - | none | 0/2795 | 18 |
+| 0.25 | 5 | 512 | no | 12 | 0 | 12 | none (`Z~` blocked) | - | none | 4/2840 | 47 |
+| 0.25 | 5 | 1024 | no | 4 | 0 | 4 | none (`Z~` blocked) | - | none | 19/2883 | 174 |
+| 0.25 | 6 | 256 | no | 2 | 0 | 2 | none (`Z~` blocked) | - | none | 5/2795 | 81 |
+| 0.25 | 6 | 512 | no | 4 | 0 | 4 | none (`Z~` blocked) | - | none | 0/2840 | 307 |
+| 0.25 | 6 | 1024 | no | 4 | 0 | 4 | none (`Z~` blocked) | - | none | 13/2883 | 1,106 |
+| 0.25 | 6 | 2048 | no | 4 | 0 | 4 | none (`Z~` blocked) | - | none | 28/2990 | 649 |
+| 0.5 | 5 | 256 | no | 4 | 0 | 4 | none (`Z~` blocked) | - | none | 0/2404 | 36 |
+| 0.5 | 5 | 512 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 13/2515 | 95 |
+| 0.5 | 5 | 1024 | no | 2 | 0 | 2 | none (`Z~` blocked) | - | none | 35/2515 | 347 |
+| 0.5 | 6 | 256 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 5/2404 | 93 |
+| 0.5 | 6 | 512 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 0/2515 | 99 |
+| 0.5 | 6 | 1024 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 7/2515 | 333 |
+| 1 | 5 | 256 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 14/2005 | 162 |
+| 1 | 5 | 512 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 14/1940 | 94 |
+| 1 | 5 | 1024 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 53/1840 | 389 |
+| 1 | 6 | 256 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 17/2005 | 60 |
+| 1 | 6 | 512 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 4/1940 | 130 |
+| 1 | 6 | 1024 | no | 1 | 0 | 1 | none (`Z~` blocked) | - | none | 20/1840 | 416 |
+
+- Gap refinement is needed for the label: every unrefined run blocks `Z~`
+  (a single-vertex carrier), and unrefined runs miss up to 53 probes.
+- No node other than the one of `Z~` ever received a computed index. The
+  extra nodes lie in a thin shell just outside it, usually the second row of
+  base cells above the ground with handle pieces over the matching guard
+  intervals, and all reach it. Their number does not decrease monotonically
+  with the grid, and at `tau = 0.25` it does not vanish at level 7 or at 2048
+  cells.
+- A smaller `tau` gives more extra nodes; `tau = 1` gives none. Gap
+  refinement can add an extra node (level 6 at `tau = 0.5` with 256 and 512
+  cells).
+
+#### Wheel (40 runs)
+
+| `tau` | level | base cells | gap | nodes | nontrivial | blocked | nontrivial labels | order | spurious nontrivial | missed probes | wall (s) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.25 | 6 | 256 | yes | 66 | 2 | 1 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 0/3615 | 367 |
+| 0.25 | 6 | 512 | yes | 67 | 2 | 2 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3704 | 605 |
+| 0.25 | 6 | 1024 | yes | 67 | 2 | 2 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 0/3640 | 772 |
+| 0.25 | 7 | 256 | yes | 66 | 2 | 1 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 0/3615 | 692 |
+| 0.25 | 7 | 512 | yes | 72 | 2 | 7 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3704 | 667 |
+| 0.25 | 7 | 1024 | yes | 68 | 2 | 3 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` (piece limit 140,000) | saddle -> gait (via blocked) | none | 0/3640 | 945 |
+| 0.5 | 6 | 256 | yes | 18 | 2 | 1 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3436 | 191 |
+| 0.5 | 6 | 512 | yes | 27 | 2 | 10 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 0/3615 | 267 |
+| 0.5 | 6 | 1024 | yes | 17 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3415 | 732 |
+| 0.5 | 6 | 2048 | yes | 17 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3565 | 1,438 |
+| 0.5 | 7 | 256 | yes | 18 | 2 | 1 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3436 | 267 |
+| 0.5 | 7 | 512 | yes | 34 | 2 | 17 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 0/3615 | 377 |
+| 0.5 | 7 | 1024 | yes | 17 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3415 | 740 |
+| 0.5 | 7 | 2048 | yes | 17 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3565 | 1,797 |
+| 1 | 6 | 256 | yes | 5 | 2 | 1 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (direct) | none | 0/3258 | 116 |
+| 1 | 6 | 512 | yes | 4 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3291 | 329 |
+| 1 | 6 | 1024 | yes | 4 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (direct) | none | 0/3233 | 862 |
+| 1 | 7 | 256 | yes | 4 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (direct) | none | 0/3258 | 175 |
+| 1 | 7 | 512 | yes | 4 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3291 | 344 |
+| 1 | 7 | 1024 | yes | 4 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (direct) | none | 0/3233 | 892 |
+| 0.25 | 6 | 256 | no | 66 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3615 | 352 |
+| 0.25 | 6 | 512 | no | 68 | 2 | 2 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3704 | 2,363 |
+| 0.25 | 6 | 1024 | no | 68 | 2 | 2 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 0/3640 | 926 |
+| 0.25 | 7 | 256 | no | 66 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 1/3615 | 624 |
+| 0.25 | 7 | 512 | no | 73 | 2 | 7 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3704 | 733 |
+| 0.25 | 7 | 1024 | no | 69 | 2 | 3 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` (piece limit 140,000) | saddle -> gait (via blocked) | none | 4/3640 | 1,032 |
+| 0.5 | 6 | 256 | no | 19 | 2 | 1 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 8/3436 | 156 |
+| 0.5 | 6 | 512 | no | 29 | 2 | 11 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 0/3615 | 1,411 |
+| 0.5 | 6 | 1024 | no | 18 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3415 | 539 |
+| 0.5 | 6 | 2048 | no | 18 | 1 | 1 | saddle `(0, x-1, 0, 0)`; gait blocked | - | none | 4/3565 | 1,094 |
+| 0.5 | 7 | 256 | no | 19 | 2 | 1 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 25/3436 | 276 |
+| 0.5 | 7 | 512 | no | 35 | 2 | 17 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 0/3615 | 402 |
+| 0.5 | 7 | 1024 | no | 18 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 4/3415 | 727 |
+| 0.5 | 7 | 2048 | no | 18 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3565 | 1,691 |
+| 1 | 6 | 256 | no | 8 | 2 | 2 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via blocked) | none | 20/3258 | 83 |
+| 1 | 6 | 512 | no | 6 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3291 | 185 |
+| 1 | 6 | 1024 | no | 6 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (direct) | none | 0/3233 | 514 |
+| 1 | 7 | 256 | no | 8 | 1 | 3 | saddle `(0, x-1, 0, 0)`; gait blocked | - | none | 124/3258 | 44 |
+| 1 | 7 | 512 | no | 6 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (via trivial) | none | 0/3291 | 214 |
+| 1 | 7 | 1024 | no | 6 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | saddle -> gait (direct) | none | 4/3233 | 562 |
+
+- The number of trivial nodes depends only on `tau`: 64, 16, and 4 at
+  `tau = 0.25`, 0.5, and 1 without gap refinement, and 63, 15, and 2 with it.
+  They sit around the saddle and shrink with the cells, since the saddle is
+  linear to leading order; a finer grid does not remove them.
+- In two unrefined runs (`tau = 0.5`, level 6, 2048 cells; `tau = 1`, level
+  7, 256 cells) the gait is blocked by a single-piece carrier; gap refinement
+  labels it.
+- The other blocked nodes lie in the basin of the gait (`thetadot` from
+  0.32 to 0.84), mostly as handle pieces, and are blocked by the carrier of
+  a two-piece simplex. Gap refinement does not remove them.
+- In 11 runs every path from the saddle to the gait passes a blocked node.
+
+#### Neuron (30 runs)
+
+The row with piece limit 150,000 repeats the run above it
+(`sweep-spiking-neuron/index-max-pieces-150000/`).
+
+| `tau` | level | base cells | gap | nodes | nontrivial | blocked | nontrivial labels | order | spurious nontrivial | missed probes | wall (s) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 7 | 256 | yes | 473 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 1,466 |
+| 1 | 7 | 512 | yes | 561 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 430 |
+| 1 | 7 | 1024 | yes | 332 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 539 |
+| 1 | 8 | 256 | yes | 473 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 685 |
+| 1 | 8 | 512 | yes | 561 | 0 | 1 | none (cycle blocked, IndexSizeLimitError) | - | none | 0/3890 | 112 |
+| 1 | 8 | 1024 | yes | 332 | 0 | 1 | none (cycle blocked, IndexSizeLimitError) | - | none | 0/3890 | 281 |
+| 1 | 8 | 1024 | yes | 332 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` (piece limit 150,000) | all other nodes reach it | none | 0/3890 | 740 |
+| 2 | 7 | 256 | yes | 143 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 917 |
+| 2 | 7 | 512 | yes | 84 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 291 |
+| 2 | 7 | 1024 | yes | 15 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 1,671 |
+| 2 | 8 | 256 | yes | 143 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 589 |
+| 2 | 8 | 512 | yes | 84 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 628 |
+| 2 | 8 | 1024 | yes | 15 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 1,089 |
+| 5 | 7 | 256 | yes | 10 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 279 |
+| 5 | 7 | 512 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 493 |
+| 5 | 7 | 1024 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 1,232 |
+| 5 | 8 | 256 | yes | 10 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | all other nodes reach it | none | 0/3890 | 693 |
+| 5 | 8 | 512 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 943 |
+| 5 | 8 | 1024 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 1,611 |
+| 10 | 7 | 256 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 507 |
+| 10 | 7 | 512 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 1,003 |
+| 10 | 7 | 1024 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 2,504 |
+| 10 | 8 | 256 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 735 |
+| 10 | 8 | 512 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 1,459 |
+| 10 | 8 | 1024 | yes | 1 | 1 | 0 | cycle `(x-1, x-1, 0, 0, 0, 0)` | - | none | 0/3890 | 3,377 |
+| 1 | 7 | 1024 | no | 332 | 0 | 1 | none (cycle blocked, ValueError) | - | none | 144/3890 | 196 |
+| 2 | 7 | 1024 | no | 15 | 0 | 1 | none (cycle blocked, ValueError) | - | none | 242/3890 | 181 |
+| 5 | 7 | 1024 | no | 1 | 0 | 1 | none (cycle blocked, ValueError) | - | none | 129/3890 | 449 |
+| 10 | 7 | 256 | no | 1 | 0 | 1 | none (cycle blocked, ValueError) | - | none | 97/3890 | 102 |
+| 10 | 7 | 1024 | no | 1 | 0 | 1 | none (cycle blocked, ValueError) | - | none | 81/3890 | 811 |
+
+- Trivial nodes per base grid of 256, 512, and 1024 cells, the same at
+  levels 7 and 8: 472, 560, 331 at `tau = 1`; 142, 83, 14 at `tau = 2`; 9, 0,
+  0 at `tau = 5`; none at `tau = 10`.
+- The phase level changes only the number of handle pieces: at level 8 the
+  cycle node has about twice as many, and at `tau = 1` with 512 and 1024
+  cells it exceeds the 100,000 limit (102,468 and 128,291 pieces). It never
+  changes the node count, the base readouts, or the labels.
+- Without gap refinement the cycle node is blocked in every run, 81 to 242
+  probes are missed, the node splits into 22 to 99 components of `Sigma X`,
+  and 730 to 2,101 of the sampled cycle points lie in no Morse set.
+
+#### Impacting oscillator (26 runs)
+
+The rows at `tau = 1` and 2 with 256 cells at level 6 come from an earlier
+attempt at the same commit, with piece limit 100,000.
+
+| `tau` | level | base cells | gap | nodes | nontrivial | blocked | nontrivial labels | order | spurious nontrivial | missed probes | wall (s) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 0.25 | 6 | 256 | yes | 1 | 0 | 1 | none; blocked: C+F+Z+S+U_Z | - | none | 0/3446 | 116 |
+| 0.25 | 6 | 512 | yes | 1 | 0 | 1 | none; blocked: C+F+Z+S+U_Z | - | none | 0/3625 | 71 |
+| 0.25 | 6 | 1024 | yes | 43 | 1 | 22 | F `(x-1, 0, 0, 0)`; blocked: C, Z+U_Z, S (piece limit 110,000) | Z+U_Z -> S, S -> C, S -> F | none | 0/3515 | 485 |
+| 0.25 | 7 | 256 | yes | 1 | 0 | 1 | none; blocked: C+F+Z+S+U_Z | - | none | 1/3446 | 175 |
+| 0.25 | 7 | 512 | yes | 1 | 0 | 1 | none; blocked: C+F+Z+S+U_Z | - | none | 0/3625 | 98 |
+| 0.5 | 6 | 256 | yes | 1 | 0 | 1 | none; blocked: C+F+Z+S+U_Z | - | none | 0/3444 | 167 |
+| 0.5 | 6 | 512 | yes | 23 | 2 | 17 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; blocked: Z+U_Z, S | Z+U_Z -> S, S -> C, S -> F | none | 0/3534 | 806 |
+| 0.5 | 6 | 1024 | yes | 24 | 3 | 15 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3540 | 1,419 |
+| 0.5 | 7 | 256 | yes | 1 | 0 | 1 | none; blocked: C+F+Z+S+U_Z | - | none | 1/3444 | 237 |
+| 0.5 | 7 | 512 | yes | 23 | 2 | 17 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; blocked: Z+U_Z, S | Z+U_Z -> S, S -> C, S -> F | none | 0/3534 | 841 |
+| 0.5 | 7 | 1024 | yes | 23 | 3 | 14 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3540 | 1,815 |
+| 1 | 6 | 256 | yes | 11 | 2 | 8 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; blocked: Z+U_Z, S (piece limit 100,000) | Z+U_Z -> S, S -> C, S -> F | none | 0/3570 | 1,196 |
+| 1 | 6 | 512 | yes | 14 | 3 | 8 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3590 | 675 |
+| 1 | 6 | 1024 | yes | 9 | 3 | 3 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3489 | 1,396 |
+| 1 | 7 | 256 | yes | 11 | 2 | 8 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; blocked: Z+U_Z, S | Z+U_Z -> S, S -> C, S -> F | none | 1/3570 | 386 |
+| 1 | 7 | 512 | yes | 15 | 3 | 9 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3590 | 1,222 |
+| 1 | 7 | 1024 | yes | 9 | 3 | 3 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3489 | 1,612 |
+| 2 | 6 | 256 | yes | 17 | 3 | 5 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z (piece limit 100,000) | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3640 | 2,321 |
+| 2 | 6 | 512 | yes | 7 | 3 | 3 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3640 | 927 |
+| 2 | 6 | 1024 | yes | 12 | 3 | 9 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3615 | 2,422 |
+| 2 | 7 | 256 | yes | 17 | 3 | 5 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3640 | 2,225 |
+| 2 | 7 | 512 | yes | 7 | 3 | 3 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3640 | 1,529 |
+| 2 | 7 | 1024 | yes | 10 | 3 | 7 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; Z `(x-1, x-1, 0, 0)`; blocked: S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3615 | 2,822 |
+| 1 | 6 | 1024 | no | 8 | 2 | 4 | C `(x-1, x-1, 0, 0)`; F `(x-1, 0, 0, 0)`; blocked: Z, S, U_Z | U_Z -> Z, U_Z -> S, S -> C, S -> F | none | 0/3489 | 890 |
+| 2 | 6 | 512 | no | 7 | 1 | 6 | F `(x-1, 0, 0, 0)`; blocked: C, Z, U_Z | U_Z -> Z, U_Z -> C, U_Z -> F | none | 126/3640 | 314 |
+| 2 | 6 | 1024 | no | 12 | 1 | 11 | F `(x-1, 0, 0, 0)`; blocked: C, Z, U_Z | U_Z -> Z, U_Z -> C, U_Z -> F | none | 55/3615 | 1,120 |
+
+- At 256 cells for `tau = 0.25` and 0.5, and at 512 cells for `tau = 0.25`,
+  all five sets lie in one blocked node. Z and U_Z share a node at 256 cells
+  for `tau = 1`, at 512 cells for `tau = 0.5`, and at 1024 cells for
+  `tau = 0.25`.
+- Refining the base grid mainly removes the blocked rings around F, which
+  come from the slow rotation of the focus. At `tau = 2` with 1024 cells the
+  Morse set of S shrinks to 38 atoms in 10 components, and small blocked
+  nodes appear on the connection U_Z -> S.
+- Gap refinement is required: without it, Z is blocked at `tau = 1` and C
+  and Z at `tau = 2`, and at `tau = 2` the point S lies in no Morse set.
+- At `tau = 0.25` with 1024 cells, the pairs of S (`X` of 113,788 pieces)
+  and of Z with U_Z (123,921 pieces) exceeded the lower limit of that run
+  and would fit under 150,000; the pair of C (207,714 pieces) would not.
+
+### Runs at the manuscript's `tau` (`figures/paper_grid/large_tau/`)
+
+These corner runs at commit `0706668`, before the seam fix `788063c`, use
+the manuscript's `tau` (ball 1.5, wheel 2, neuron 20) and `tau` from 3 to 6.5
+for the oscillator, with the base grid of the level (`2^n` cells per axis).
+They come from a step that was interrupted. Their summaries (schema
+`paper-suspension-grid-run-v2`) store no Morse-set atoms, so they have one
+figure each and cannot be redrawn. In the blocked column, `carrier` is a
+carrier that is not acyclic and `seam` is the error `AtlasGoodCoverError:
+guard seam is not on the boundary of the base Atlas window`. Time is the sum
+of the recorded stages.
+
+| example | `tau` | level | base cells | gap | nodes | nontrivial | blocked (cause) | nontrivial labels | missed probes | disconnected padded images / atoms | time (s) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ball | 1.5 | 5 | 32 | no | 1 | 0 | 1 (1 carrier) | none | 170/2774 | 1,597/3,043 | 8 |
+| ball | 1.5 | 5 | 32 | yes | 1 | 1 | 0 | `Z~` `(x-1, x-1, 0, 0)` | 0/2774 | 0/3,043 | 78 |
+| wheel | 2 | 6 | 64 | no | 2 | 0 | 2 (2 carrier) | none | 519/3209 | 4,359/15,095 | 14 |
+| wheel | 2 | 6 | 64 | yes | 2 | 2 | 0 | gait `(x-1, x-1, 0, 0)`; saddle `(0, x-1, 0, 0)` | 2/3209 | 0/15,095 | 141 |
+| neuron | 20 | 7 | 128 | no | 1 | 0 | 1 (1 seam) | none | 121/3890 | 2,324/26,326 | 99 |
+| neuron | 20 | 8 | 256 | no | 1 | 0 | 1 (1 seam) | none | 91/3890 | 8,672/105,396 | 136 |
+| impact | 3 | 7 | 128 | no | 25 | 1 | 14 (12 carrier, 2 seam) | F `(x-1, 0, 0, 0)`; blocked: C, Z, S, U_Z | 440/3740 | 17,938/46,622 | 44 |
+| impact | 4 | 7 | 128 | no | 8 | 1 | 7 (5 carrier, 2 seam) | F `(x-1, 0, 0, 0)`; blocked: C, Z, S, U_Z | 636/3866 | 17,160/46,622 | 49 |
+| impact | 5 | 6 | 64 | no | 19 | 1 | 4 (4 carrier) | F `(x-1, 0, 0, 0)`; blocked: C, Z+U_Z; S in no Morse set | 575/3890 | 5,759/11,780 | 33 |
+| impact | 6 | 6 | 64 | no | 7 | 1 | 6 (6 carrier) | F `(x-1, 0, 0, 0)`; blocked: C, Z, U_Z; S in no Morse set | 799/3890 | 7,939/11,780 | 36 |
+| impact | 6.5 | 6 | 64 | no | 7 | 1 | 6 (6 carrier) | F `(x-1, 0, 0, 0)`; blocked: C, Z, U_Z; S in no Morse set | 1019/3890 | 7,272/11,780 | 38 |
+
+- Without gap refinement the sampling leaves large gaps: 2% to 26% of the
+  probes are missed, and 8% to 67% of the atoms have a disconnected padded
+  image. Only F of the oscillator gets a label; every other label is
+  blocked.
+- With gap refinement, the ball and wheel get their labels on these coarse
+  grids: `Z~` `(x-1, x-1, 0, 0)`, and saddle `(0, x-1, 0, 0)` -> gait
+  `(x-1, x-1, 0, 0)`.
+- For the neuron at `tau = 20` the Morse graph is one node that meets only 4
+  of the 512 (1,024) phase intervals, in 4 (7) components of `Sigma X`, and
+  its label is blocked by the seam error that `788063c` removed. After the
+  fix, runs at `tau = 20`, levels 6 and 7, are blocked by carriers that are
+  not acyclic, also with gap refinement at level 6 (those outputs were not
+  kept).
+- For the oscillator only F is labeled, `(x-1, 0, 0, 0)`. C, Z, and U_Z are
+  blocked in every run, and S is blocked at `tau = 3` and 4 and lies in no
+  Morse set from `tau = 5` on.
+
+### Small-`tau` runs before the seam fix (`figures/paper_grid/pre_fix/`)
+
+Corner runs at `0706668`, without gap refinement, on the base grid of the
+level. Same schema and columns as the previous folder.
+
+| example | `tau` | level | base cells | gap | nodes | nontrivial | blocked (cause) | nontrivial labels | missed probes | disconnected padded images / atoms | time (s) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ball | 0.25 | 5 | 32 | no | 1 | 0 | 1 (1 carrier) | none | 5/2755 | 70/3,043 | 7 |
+| ball | 0.25 | 6 | 64 | no | 1 | 0 | 1 (1 carrier) | none | 4/2890 | 311/12,230 | 18 |
+| ball | 0.5 | 5 | 32 | no | 1 | 0 | 1 (1 carrier) | none | 14/2409 | 270/3,043 | 7 |
+| ball | 0.5 | 6 | 64 | no | 1 | 0 | 1 (1 carrier) | none | 14/2631 | 1,114/12,230 | 19 |
+| ball | 1 | 5 | 32 | no | 1 | 0 | 1 (1 carrier) | none | 175/1770 | 1,101/3,043 | 8 |
+| ball | 1 | 6 | 64 | no | 1 | 0 | 1 (1 carrier) | none | 107/1694 | 4,278/12,230 | 12 |
+| wheel | 0.25 | 6 | 64 | no | 33 | 0 | 1 (1 carrier) | none | 69/3689 | 228/15,095 | 22 |
+| wheel | 0.5 | 6 | 64 | no | 11 | 0 | 1 (1 carrier) | none | 140/3461 | 454/15,095 | 17 |
+| wheel | 1 | 6 | 64 | no | 7 | 1 | 2 (1 carrier, 1 seam) | saddle `(0, x-1, 0, 0)` | 431/3095 | 1,290/15,095 | 13 |
+| neuron | 1 | 7 | 128 | no | 235 | 0 | 1 (1 carrier) | none | 425/3890 | 615/26,326 | 23 |
+| neuron | 2 | 7 | 128 | no | 115 | 0 | 37 (1 carrier, 36 seam) | none | 244/3890 | 374/26,326 | 23 |
+| impact | 0.25 | 7 | 128 | no | 1 | 0 | 1 (1 carrier) | none; blocked: C+F+Z+S+U_Z | 70/3534 | 792/46,622 | 80 |
+
+- No label of a set that meets the guard was computed. The ball's `Z~` and
+  the neuron's cycle are blocked at every `tau`, the oscillator's single
+  node is blocked, and the wheel's gait is never labeled. The only label is
+  the wheel's saddle at `tau = 1`.
+- At `tau = 2`, 36 of the neuron's nodes were blocked by the seam error.
+  After `788063c` the same configuration gives 114 trivial nodes and one
+  node blocked by a carrier that is not acyclic, so those 36 nodes have
+  trivial index (from the report of that fix; the outputs were not kept).
+
+## Recorded runs with the tensor rule
 
 All runs below used code commit `350c93e` (clean tree), the `3 x 3` tensor
 rule that was then the default (now `--eval-mode tensor --samples-per-axis 3`),
@@ -310,8 +839,9 @@ rule that was then the default (now `--eval-mode tensor --samples-per-axis 3`),
 and the tolerances of the example classes (`rtol=1e-10`, `atol=1e-12`,
 `max_step=0.02`). Level `n` has `2^n` base cells per axis of the ambient
 rectangle and phase width `a_n = 2^{-n-2}`. The JSON file next to each figure
-in `figures/paper_grid/` holds every count quoted here; these files predate the
-corner default and carry no sampling suffix in their names.
+in `figures/paper_grid/superseded-tensor3-350c93e/` holds every count quoted
+here; these files predate the corner default and carry no sampling suffix in
+their names.
 
 ### Tensor rule (`3 x 3` samples, one-atom padding)
 
