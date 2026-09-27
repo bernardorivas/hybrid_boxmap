@@ -22,6 +22,7 @@ two-dimensional base with a one-dimensional guard.
 | Morse sets, order, base readout (`MG(F_n)`, `d_n^{-1}(M)`) | `compute_suspension_morse_graph`, `SuspensionMorseGraph.base_readouts`, `SuspensionGridRelation.forward_closure` | `test_ball_relation_is_one_morse_node_at_level_three` |
 | Finite-relation index labels (Section "Examples") | `compute_suspension_grid_conley_index` (pair `(S cup F(S), F(S) minus S)`, nerve of elementary pieces, `atlas_conley`, CMGDB shift class over `GF(5)`) | `test_translation_cylinder_relation_morse_graph_probes_and_index`, `test_seam_embeddings_of_the_examples` |
 | Examples: ball, wheel, neuron | `examples/paper_grid_examples.py`, `demo/run_paper_grid_examples.py` | `test_example_reset_specifications_match_the_systems` |
+| Parameter variants (the oscillator at `beta = 0.76`) | `PAPER_GRID_VARIANTS`, `paper_grid_problem` | `test_beta076_variant` (`test_impact_vdp_duffing.py`), `test_a_variant_has_its_own_output_names_and_replots` (`test_suspension_grid_plot.py`) |
 
 ## Construction
 
@@ -230,7 +231,10 @@ options in force, the offsets, and the command line are recorded under
 names (`-center`, `-random10d4s0`, `-tensor3`, `-gap-refined`), and a base
 offset adds `-base<cells per axis>` after the level (see the next section).
 The commands above use the manuscript's `tau`; the configurations for the
-paper figures are in "Paper figures at small `tau`". Recorded runs are sorted
+paper figures are in "Paper figures at small `tau`". A parameter variant
+(`PAPER_GRID_VARIANTS`, at present `impact-vdp-duffing-beta076`) is run only
+when named and has its name in the output names; see "The oscillator at
+`beta = 0.76`". Recorded runs are sorted
 into subfolders of `figures/paper_grid/`, listed in
 `figures/paper_grid/README.md`.
 
@@ -547,6 +551,167 @@ Caveats:
   node are in zoom B of the `all` figure. In the Morse graph of the `all`
   variant the labels of `M(2)` and `M(7)`, and of `M(1)` and `M(0)`,
   overlap.
+
+### The oscillator at `beta = 0.76` (`impact-vdp-duffing-beta076`)
+
+At `beta = 0.8` the left branches of the saddle's manifolds come within
+0.0143 of each other (first turning points on `v = 0`, `x < -1`), and the
+homoclinic loop around F occurs at `beta = 0.8138`. In the recommended run
+above, the Morse set of S is then a loop of 8,160 cells around F. The
+variant `impact-vdp-duffing-beta076` sets `beta = 0.76` and keeps every other
+parameter, the window `R`, the guard, and the reset. The five sets and their
+order persist for `beta` in `(0.7147, 0.8138)`. At 0.76 the turning points
+are 0.0566 apart, which is 21 base cells of the 1024 grid and 42 of the 2048
+grid. The last time an orbit from `Sigma(R)` is outside its interior is
+3.75, against 4.58 at `beta = 0.8`, so `R` is unchanged.
+
+The invariant sets at `beta = 0.76` (pre-impact speed `u`, suspension
+period with the unit handle):
+
+- F = `(-1, 0)`, a stable focus, eigenvalues `-0.12 +- 1.4091 i`.
+- S = `(0, 0)`, a saddle, eigenvalues 1.4498 and -0.6898.
+- Z = `(0.8, 0)`, the Zeno point; its basin is `u < 0.6570`.
+- C, attracting: `u = 1.5098383`, multiplier 0.28870, period 5.9557, `x` in
+  `[-1.6859, 0.8]`, `v` in `[-1.8769, 1.5098]`.
+- U_Z, repelling: `u = 0.6569620`, multiplier 2.22912, period 4.1675, `x` in
+  `[0.3761, 0.8]`, `v` in `[-0.4599, 0.6570]`.
+
+The expected order is again U_Z -> Z, U_Z -> S, S -> C, S -> F. The labels
+predicted are those of an attracting periodic orbit for C and Z,
+`(x-1, 0, ...)` for F, `(0, x-1, 0, ...)` for S, and `(0, x-1, x-1, ...)`
+for U_Z.
+
+The variant. `PAPER_GRID_VARIANTS` in `examples/paper_grid_examples.py` maps
+a variant name to its example and the factory arguments it replaces
+(`impact-vdp-duffing-beta076`: `impact-vdp-duffing` with `beta = 0.76`), and
+`paper_grid_problem(name, ...)` builds an example or a variant. The runner
+takes a variant as a positional name and in `--level`, `--tau`, and
+`--level-offset`, but runs it only when named: the default list is still the
+four examples. The variant's name replaces the example's in the output
+names, so its files never overwrite the runs at `beta = 0.8`. The JSON
+summary records `variant_of`, `variant_overrides`, and `parameters.beta`.
+`demo/replot_paper_grid.py` rebuilds variants, and the figures use the axes
+of the example. The reference sets bracket the cycles by `u` in
+`[1.4, 1.9]` (C) and `[0.55, 0.70]` (U_Z); the second bracket ends below
+`(0.7109, 0.7434)`, where orbits after an impact go to F and the impact map
+is undefined. Tests: `test_beta076_variant` in `test_impact_vdp_duffing.py`
+and `test_a_variant_has_its_own_output_names_and_replots` in
+`test_suspension_grid_plot.py`.
+
+Runs. Code `a7ac462` on a clean tree, corner sampling, gap refinement of
+depth 14, `--index-max-pieces 150000`, `--workers 12`, one run at a time on
+14 cores. Peak memory is the largest resident set of one process
+(`/usr/bin/time -l`). In both runs no endpoint probe is missed (0 of 3,515),
+no padded image is disconnected, and the path exit policy gives the same
+Morse sets and edges.
+
+| `tau` | level (phase cells) | base cells | wall (s) | peak (GB) | base samples | gap samples | Morse nodes | labels | blocked | trivial |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | 6 (256) | 1024 | 643 | 8.1 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | 7: U_Z and 6 spurious | 4 |
+| 0.5 | 7 (512) | 2048 | 780 | 11.9 | 4,198,401 | 1,037,721 | 22 | F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | 3: C (240,383 pieces, over the limit), U_Z, 1 spurious | 17 |
+
+Stems in `figures/paper_grid/` (JSON, and `<stem>.pdf/.png`,
+`<stem>-nontrivial.pdf/.png`):
+
+- `paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined`
+- `paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined`
+
+The Morse nodes were identified from the recorded Morse sets on the rebuilt
+grid: the runner locates points of the five sets in the pieces of each node
+(`reference_set_identification`), and a separate check located the four
+branches of the saddle's manifolds, computed the extents of the base cells
+and handle pieces of each node, and tested whether its base cells enclose F.
+Named nodes of the `tau = 1` run (the `tau = 0.5` run in parentheses):
+
+| set | node | atoms | base cells and extent | handle pieces, `v_G` | label |
+|---|---|---|---|---|---|
+| C | `M(0)` (`M(0)`) | 57,007 (220,442) | 49,769 in `[-1.706, 0.8] x [-1.934, 1.564]` | 12,338 in `[1.438, 1.575]`, all phases | `(x-1, x-1, 0, 0)` (over the piece limit) |
+| F | `M(1)` (`M(1)`) | 894 (3,868) | 894 in `[-1.048, -0.951] x [-0.070, 0.065]` | none | `(x-1, 0, 0, 0)` (same) |
+| Z | `M(2)` (`M(2)`) | 3,491 (15,031) | 32 in `[0.7946, 0.8] x [-0.032, 0.035]` | 5,775 in `[0, 0.073]`, all phases | `(x-1, x-1, 0, 0)`, dimensions `(1, 2, 0, 0)` (same) |
+| S | `M(10)` (`M(11)`) | 19 (58) | 19 in `[-0.0137, 0.0104] x [-0.0110, 0.0100]` (58 in `[-0.0110, 0.0104] x [-0.0089, 0.0100]`) | none | `(0, x-1, 0, 0)` (same) |
+| U_Z | `M(14)` (`M(21)`) | 14,682 (60,770) | 9,901 in `[0.319, 0.8] x [-0.477, 0.690]` | 8,091 in `[0.602, 0.699]`, all phases | blocked (same) |
+
+- S. The Morse set of S is now a small connected set of base cells at the
+  origin, no farther than 0.013 (0.011 at 2048 cells) from it, with no
+  handle piece. It does not enclose F, and the four branches of the
+  saddle's manifolds start in it. Its label is computed in both runs and is
+  the predicted `(0, x-1, 0, 0)`: `X` has 135 pieces (185) and is acyclic,
+  and `A` has two acyclic components. At `beta = 0.8` the same
+  configuration gave 8,160 cells in `[-1.440, 0.010] x [-0.981, 0.568]`,
+  enclosing F, and a blocked label.
+- U_Z. Blocked in both runs by a non-acyclic carrier, as in every run at
+  `beta = 0.8`. `A` has two components, each an annulus
+  (`H_*(A) = (2, 2)`), and the exit-component carrier sends an exit vertex
+  to its whole component. `H_*(X, A; GF(5))`, computed separately on the
+  same quotient nerve, is `(0, 1, 1, 0)` in both runs (`X` of 25,148 and
+  89,084 pieces), consistent with the predicted `(0, x-1, x-1, 0)`.
+- Z. The shift class is `x-1` in degrees 0 and 1 although `dim H_1 = 2`
+  (it was 1 at `beta = 0.8`); the ball's label has the same form.
+- C at 2048 cells. `X` has 240,383 pieces and was not attempted. If time
+  and memory grow linearly in the pieces (62,107 pieces took 323 s in the
+  `tau = 1` run; 6 to 7 GB for `6 x 10^4` pieces, see Feasibility), the
+  label would take about 20 minutes and 25 GB on top of the run; it was not
+  run.
+- Order. Both Morse graphs give U_Z -> Z, U_Z -> S, S -> C, S -> F among the
+  five sets, and every path from U_Z to C or F passes through S. At 1024
+  cells U_Z reaches Z through the spurious nodes `M(8)`, `M(5)`, `M(6)`; at
+  2048 cells directly.
+
+Spurious nodes. None has a nontrivial label.
+
+- `tau = 1`: four computed trivial nodes, single cells within 0.013 of S:
+  `M(4)` on the right unstable branch (toward C), `M(9)` on the left one
+  (toward F), `M(11)` on the right stable branch, and `M(12)` next to
+  `M(11)`. Six blocked nodes: `M(3)` and `M(7)` (28 and 14 cells in 9
+  components each, around F, the combinatorial rotation ring of the focus
+  seen at `beta = 0.8`), `M(5)`, `M(6)`, `M(8)` (one or two base cells
+  within two cells of the wall at `|v|` from 0.032 to 0.048, with 22 to 41
+  handle pieces over `v_G` in `[0.039, 0.077]`, on the rim of Z's node), and
+  `M(13)` (41 atoms on the rim of U_Z's node: 32 base cells in 12
+  components and 22 handle pieces over `v_G` in `[0.682, 0.703]`). For each of the six, `X` and `A` have the same number
+  of components (`M(3)` 9, `M(5)` 4, `M(6)` 4, `M(7)` 9, `M(8)` 4, `M(13)`
+  9), all acyclic, and `H_*(X, A; GF(5)) = 0`.
+  Their index is therefore trivial although the code reports it blocked: the
+  carrier gate fails before the index map is formed, and any map on a zero
+  space is trivial.
+- `tau = 0.5`: seventeen computed trivial nodes, each of one to three base
+  cells within 0.014 of S, on the connections U_Z -> S, S -> C, and S -> F.
+  One blocked node, `M(3)`: 38 cells around F, the rotation ring, with `X`
+  and `A` of 9 acyclic components each and `H_*(X, A; GF(5)) = 0`, so its
+  index is trivial as well.
+
+The relative homology was computed by recomputing the relation of each run
+(the Morse sets were reproduced exactly), forming `X` and `A` and the
+quotient nerve as `compute_suspension_grid_conley_index` does, and taking
+the ranks of the relative boundary matrices over `GF(5)`. The nerve passed
+its good-cover audit, so these are the ranks of `H_*(|X|, |A|)`.
+
+Figures. The `nontrivial` figure of the `tau = 1` run shows 11 nodes: the
+five sets, the ring nodes `M(3)` and `M(7)` (zoom A), S alone in zoom B,
+and Z with `M(5)`, `M(6)`, `M(8)`, `M(13)` in zoom C, whose handle pieces
+are marked by squares in the handle chart. The `nontrivial` figure of the
+`tau = 0.5` run shows 6 nodes: C (blocked, over the limit), F, Z (zoom C),
+S (zoom B), U_Z (blocked), and the ring `M(3)` (zoom A); its Morse graph
+reads U_Z -> Z, U_Z -> S, S -> C, S -> `M(3)` -> F. In the `all` variants
+the labels of the Morse graph overlap.
+
+Which run to use: the `tau = 1` run labels all of C, F, Z, S and leaves
+six small blocked nodes whose index is trivial by the computation above;
+the `tau = 0.5` run has the smaller `tau` and a cleaner figure but leaves C
+unlabeled at this piece limit.
+
+To reproduce, from `code/`:
+
+```bash
+.venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing-beta076 \
+    --level impact-vdp-duffing-beta076=6 --level-offset impact-vdp-duffing-beta076=4 \
+    --tau impact-vdp-duffing-beta076=1 --gap-refinement-depth 14 --workers 12 \
+    --index-max-pieces 150000
+.venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing-beta076 \
+    --level impact-vdp-duffing-beta076=7 --level-offset impact-vdp-duffing-beta076=4 \
+    --tau impact-vdp-duffing-beta076=0.5 --gap-refinement-depth 14 --workers 12 \
+    --index-max-pieces 150000
+```
 
 ### Sweep
 

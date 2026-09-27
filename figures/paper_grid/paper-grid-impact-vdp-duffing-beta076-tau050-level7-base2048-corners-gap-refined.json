@@ -1,0 +1,2213 @@
+{
+  "a_n": 0.001953125,
+  "base_cells_per_axis": 2048,
+  "code": {
+    "commit": "a7ac462de1b50fa263acb3567579a6c13adb4ab3",
+    "dirty": false
+  },
+  "conley": [
+    {
+      "blocker": "IndexSizeLimitError: X = S cup F(S) has 240383 elementary pieces, more than max_pieces=150000; the index was not attempted",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 0,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 0,
+        "S": 220442,
+        "X": 220442
+      },
+      "pair_pieces": {
+        "A": 0,
+        "X": 240383
+      },
+      "result_scope": "",
+      "seconds": 0.12081175006460398,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        1,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 1,
+      "nerve_cell_counts": [
+        3868,
+        15116,
+        14975,
+        3726
+      ],
+      "pair_atoms": {
+        "A": 0,
+        "S": 3868,
+        "X": 3868
+      },
+      "pair_pieces": {
+        "A": 0,
+        "X": 3868
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 16.990074959001504,
+      "shift_class": [
+        "x-1",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        1,
+        2,
+        0,
+        0
+      ],
+      "morse_node": 2,
+      "nerve_cell_counts": [
+        25502,
+        100210,
+        99568,
+        24861
+      ],
+      "pair_atoms": {
+        "A": 0,
+        "S": 15031,
+        "X": 15031
+      },
+      "pair_pieces": {
+        "A": 0,
+        "X": 25502
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 286.04705774993636,
+      "shift_class": [
+        "x-1",
+        "x-1",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(1375332, 1375333)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 3,
+      "nerve_cell_counts": [
+        317,
+        954,
+        848,
+        202
+      ],
+      "pair_atoms": {
+        "A": 279,
+        "S": 38,
+        "X": 317
+      },
+      "pair_pieces": {
+        "A": 279,
+        "X": 317
+      },
+      "result_scope": "",
+      "seconds": 0.057311833021230996,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 4,
+      "nerve_cell_counts": [
+        24,
+        68,
+        59,
+        14
+      ],
+      "pair_atoms": {
+        "A": 23,
+        "S": 1,
+        "X": 24
+      },
+      "pair_pieces": {
+        "A": 23,
+        "X": 24
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.009344959049485624,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 5,
+      "nerve_cell_counts": [
+        23,
+        65,
+        56,
+        13
+      ],
+      "pair_atoms": {
+        "A": 22,
+        "S": 1,
+        "X": 23
+      },
+      "pair_pieces": {
+        "A": 22,
+        "X": 23
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008800667012110353,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 6,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.007719416986219585,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 7,
+      "nerve_cell_counts": [
+        22,
+        62,
+        54,
+        13
+      ],
+      "pair_atoms": {
+        "A": 21,
+        "S": 1,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 21,
+        "X": 22
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008517208974808455,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 8,
+      "nerve_cell_counts": [
+        22,
+        62,
+        54,
+        13
+      ],
+      "pair_atoms": {
+        "A": 21,
+        "S": 1,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 21,
+        "X": 22
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008480792050249875,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 9,
+      "nerve_cell_counts": [
+        21,
+        59,
+        51,
+        12
+      ],
+      "pair_atoms": {
+        "A": 20,
+        "S": 1,
+        "X": 21
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 21
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008060457999818027,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 10,
+      "nerve_cell_counts": [
+        21,
+        59,
+        51,
+        12
+      ],
+      "pair_atoms": {
+        "A": 20,
+        "S": 1,
+        "X": 21
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 21
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008152249967679381,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "morse_node": 11,
+      "nerve_cell_counts": [
+        185,
+        655,
+        622,
+        151
+      ],
+      "pair_atoms": {
+        "A": 127,
+        "S": 58,
+        "X": 185
+      },
+      "pair_pieces": {
+        "A": 127,
+        "X": 185
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.46493162505794317,
+      "shift_class": [
+        "0",
+        "x-1",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 12,
+      "nerve_cell_counts": [
+        31,
+        92,
+        81,
+        19
+      ],
+      "pair_atoms": {
+        "A": 29,
+        "S": 2,
+        "X": 31
+      },
+      "pair_pieces": {
+        "A": 29,
+        "X": 31
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.012182416045106947,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 13,
+      "nerve_cell_counts": [
+        35,
+        106,
+        94,
+        22
+      ],
+      "pair_atoms": {
+        "A": 32,
+        "S": 3,
+        "X": 35
+      },
+      "pair_pieces": {
+        "A": 32,
+        "X": 35
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.017582375090569258,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 14,
+      "nerve_cell_counts": [
+        21,
+        59,
+        51,
+        12
+      ],
+      "pair_atoms": {
+        "A": 20,
+        "S": 1,
+        "X": 21
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 21
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008216166053898633,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 15,
+      "nerve_cell_counts": [
+        21,
+        59,
+        51,
+        12
+      ],
+      "pair_atoms": {
+        "A": 20,
+        "S": 1,
+        "X": 21
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 21
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008111458038911223,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 16,
+      "nerve_cell_counts": [
+        21,
+        59,
+        51,
+        12
+      ],
+      "pair_atoms": {
+        "A": 20,
+        "S": 1,
+        "X": 21
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 21
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008137333090417087,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 17,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.00771508296020329,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 18,
+      "nerve_cell_counts": [
+        25,
+        72,
+        63,
+        15
+      ],
+      "pair_atoms": {
+        "A": 24,
+        "S": 1,
+        "X": 25
+      },
+      "pair_pieces": {
+        "A": 24,
+        "X": 25
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.009492416982538998,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 19,
+      "nerve_cell_counts": [
+        24,
+        68,
+        59,
+        14
+      ],
+      "pair_atoms": {
+        "A": 23,
+        "S": 1,
+        "X": 24
+      },
+      "pair_pieces": {
+        "A": 23,
+        "X": 24
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008885125047527254,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 20,
+      "nerve_cell_counts": [
+        22,
+        62,
+        54,
+        13
+      ],
+      "pair_atoms": {
+        "A": 21,
+        "S": 1,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 21,
+        "X": 22
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.008482457953505218,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(3454045,)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 21,
+      "nerve_cell_counts": [
+        89084,
+        351870,
+        350078,
+        87292
+      ],
+      "pair_atoms": {
+        "A": 11610,
+        "S": 60770,
+        "X": 72380
+      },
+      "pair_pieces": {
+        "A": 14610,
+        "X": 89084
+      },
+      "result_scope": "",
+      "seconds": 23.392422083066776,
+      "shift_class": []
+    }
+  ],
+  "conley_labels_in_figure": {
+    "1": [
+      "x-1",
+      "0",
+      "0",
+      "0"
+    ],
+    "10": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "11": [
+      "0",
+      "x-1",
+      "0",
+      "0"
+    ],
+    "12": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "13": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "14": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "15": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "16": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "17": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "18": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "19": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "2": [
+      "x-1",
+      "x-1",
+      "0",
+      "0"
+    ],
+    "20": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "4": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "5": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "6": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "7": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "8": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "9": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ]
+  },
+  "conley_options": {
+    "max_pieces": 150000
+  },
+  "construction": "Xi_n generated by K_j(mu) and Q_j(mu,k) for j <= n (def:suspension-grid, Xi_n = Xi_{n-1} ^ Xi_n(X_n)); elementary pieces with generator signatures",
+  "continuous_system_conley_index_certified": false,
+  "discarded_exits": {
+    "endpoints": 442538,
+    "source_atoms": 442926
+  },
+  "endpoint_probe": {
+    "base_cells_probed": 150,
+    "base_probe_lattice": "5x5 per cell",
+    "evaluation_failures": 0,
+    "guard_intervals_probed": 20,
+    "missed": 0,
+    "phase_probes_per_interval": 7,
+    "witnesses_in_window": 3515
+  },
+  "example": "impact-vdp-duffing-beta076",
+  "figure_variants": {
+    "all": {
+      "blocked_nodes_shown": [
+        0,
+        3,
+        21
+      ],
+      "files": [
+        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.pdf",
+        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.png"
+      ],
+      "hidden_nodes": [],
+      "marked_in_panel": [],
+      "order_shown": [
+        [
+          3,
+          1
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          9,
+          6
+        ],
+        [
+          10,
+          7
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          11,
+          10
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          13,
+          11
+        ],
+        [
+          14,
+          12
+        ],
+        [
+          15,
+          13
+        ],
+        [
+          16,
+          13
+        ],
+        [
+          17,
+          14
+        ],
+        [
+          18,
+          16
+        ],
+        [
+          19,
+          15
+        ],
+        [
+          19,
+          18
+        ],
+        [
+          20,
+          19
+        ],
+        [
+          21,
+          2
+        ],
+        [
+          21,
+          17
+        ],
+        [
+          21,
+          20
+        ]
+      ],
+      "rule": "every Morse node",
+      "shown_nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21
+      ],
+      "variant": "all",
+      "zooms": [
+        {
+          "chart": "base",
+          "label": "A",
+          "morse_nodes": [
+            3
+          ],
+          "projection": [
+            0,
+            1
+          ],
+          "x_limits": [
+            -1.0788085937499998,
+            -0.9198242187499999
+          ],
+          "y_limits": [
+            -0.11475585937499977,
+            0.11368164062499941
+          ]
+        },
+        {
+          "chart": "base",
+          "label": "B",
+          "morse_nodes": [
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ],
+          "projection": [
+            0,
+            1
+          ],
+          "x_limits": [
+            -0.01828613281249991,
+            0.0203857421875
+          ],
+          "y_limits": [
+            -0.015234374999999467,
+            0.0162597656249992
+          ]
+        },
+        {
+          "chart": "base",
+          "label": "C",
+          "morse_nodes": [
+            2
+          ],
+          "projection": [
+            0,
+            1
+          ],
+          "x_limits": [
+            0.781917317708333,
+            0.8127115885416667
+          ],
+          "y_limits": [
+            -0.06751464843750021,
+            0.07693847656249986
+          ]
+        }
+      ]
+    },
+    "nontrivial": {
+      "blocked_nodes_shown": [
+        0,
+        3,
+        21
+      ],
+      "files": [
+        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
+        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.png"
+      ],
+      "hidden_nodes": [
+        {
+          "morse_node": 4,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 5,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 6,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 7,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 8,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 9,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 10,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 12,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 13,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 14,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 15,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 16,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 17,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 18,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 19,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 20,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        }
+      ],
+      "marked_in_panel": [],
+      "order_shown": [
+        [
+          3,
+          1
+        ],
+        [
+          11,
+          0
+        ],
+        [
+          11,
+          3
+        ],
+        [
+          21,
+          2
+        ],
+        [
+          21,
+          11
+        ]
+      ],
+      "rule": "Morse nodes whose finite-relation index is trivial are hidden; nodes with a blocked index are kept and marked 'blocked'; the order shown is reachability in the full Morse graph, transitively reduced",
+      "shown_nodes": [
+        0,
+        1,
+        2,
+        3,
+        11,
+        21
+      ],
+      "variant": "nontrivial",
+      "zooms": [
+        {
+          "chart": "base",
+          "label": "A",
+          "morse_nodes": [
+            3
+          ],
+          "projection": [
+            0,
+            1
+          ],
+          "x_limits": [
+            -1.0788085937499998,
+            -0.9198242187499999
+          ],
+          "y_limits": [
+            -0.11475585937499977,
+            0.11368164062499941
+          ]
+        },
+        {
+          "chart": "base",
+          "label": "B",
+          "morse_nodes": [
+            11
+          ],
+          "projection": [
+            0,
+            1
+          ],
+          "x_limits": [
+            -0.017480468749999867,
+            0.016894531249999734
+          ],
+          "y_limits": [
+            -0.0152343750000008,
+            0.016259765625000533
+          ]
+        },
+        {
+          "chart": "base",
+          "label": "C",
+          "morse_nodes": [
+            2
+          ],
+          "projection": [
+            0,
+            1
+          ],
+          "x_limits": [
+            0.781917317708333,
+            0.8127115885416667
+          ],
+          "y_limits": [
+            -0.06751464843750021,
+            0.07693847656249986
+          ]
+        }
+      ]
+    }
+  },
+  "figures": [
+    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.pdf",
+    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.png",
+    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
+    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.png"
+  ],
+  "grid": {
+    "a_n": 0.001953125,
+    "atoms": 4670347,
+    "atoms_in_d_image": 4194304,
+    "atoms_without_base_cell": 476043,
+    "base_cell_widths": [
+      0.0013427734375,
+      0.002099609375
+    ],
+    "base_cells_per_axis": 2048,
+    "base_pieces": 4194304,
+    "generators": 6223128,
+    "guard_curve_straight": true,
+    "guard_intervals": 1579,
+    "handle_pieces": 808448,
+    "level": 7,
+    "max_pieces_per_atom": 4,
+    "phase_intervals": 512,
+    "pieces": 5002752,
+    "reset_curve_straight": true
+  },
+  "grid_check": {
+    "atoms_nonempty": true,
+    "d_base_preimage_exact": true,
+    "d_contains_interior": true,
+    "d_injective": true,
+    "passed": true,
+    "pieces_cover_window": true,
+    "pieces_disjoint_interiors": true
+  },
+  "image_connectivity": {
+    "atoms": 4670347,
+    "disconnected_padded_images": 0,
+    "disconnected_sampled_images": 0
+  },
+  "image_rule": {
+    "command_line": [
+      "impact-vdp-duffing-beta076",
+      "--level",
+      "impact-vdp-duffing-beta076=7",
+      "--level-offset",
+      "impact-vdp-duffing-beta076=4",
+      "--tau",
+      "impact-vdp-duffing-beta076=0.5",
+      "--gap-refinement-depth",
+      "14",
+      "--workers",
+      "12",
+      "--index-max-pieces",
+      "150000"
+    ],
+    "default_rule": false,
+    "description": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding; gap refinement depth 14",
+    "eval_mode": "corners",
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "gap_refinement_depth": 14,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "sample_depth": null,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null
+  },
+  "level": 7,
+  "level_offset": 4,
+  "morse_graph": {
+    "edges": [
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        10,
+        7
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        11,
+        9
+      ],
+      [
+        11,
+        10
+      ],
+      [
+        12,
+        11
+      ],
+      [
+        13,
+        11
+      ],
+      [
+        14,
+        12
+      ],
+      [
+        15,
+        13
+      ],
+      [
+        16,
+        13
+      ],
+      [
+        17,
+        14
+      ],
+      [
+        18,
+        16
+      ],
+      [
+        19,
+        15
+      ],
+      [
+        19,
+        18
+      ],
+      [
+        20,
+        19
+      ],
+      [
+        21,
+        2
+      ],
+      [
+        21,
+        17
+      ],
+      [
+        21,
+        20
+      ]
+    ],
+    "morse_set_atoms": [
+      "377920-377922 377927-377966 377969-377972 379950-379955 379958-380054 381980-381983 381985-382115 382118-382120 384015-384178 386052-386235 388090-388289 390126-390348 392164-392400 394204-394456 396241-396514 398282-398567 398569-398571 400320-400620 402362-402673 404406-404728 406447-406779 408487-408834 410531-410886 412572-412937 414615-414989 416658-417040 418698-419092 420739-421145 422781-423194 424823-425248 426866-427299 428913-429349 430952-431183 431186-431189 431192-431401 432996-433203 433205-433208 433265-433267 433274-433454 435041-435232 435350-435503 437084-437263 437412-437555 439128-439302 439466-439606 441171-441334 441526-441658 443215-443375 443585-443708 445259-445413 445638-445757 447302-447454 447694-447809 449344-449498 449749-449857 451388-451536 451802-451909 453432-453574 453853-453959 455477-455615 455908-456011 457521-457657 457961-458061 459565-459698 460013-460111 461609-461740 462067-462161 463653-463781 464119-464212 465695-465823 466172-466262 467741-467867 468223-468312 469785-469911 470276-470362 471830-471952 472328-472414 473873-473994 474379-474462 475917-476037 476429-476512 477963-478079 478482-478563 480007-480121 480532-480613 482051-482164 482586-482661 484095-484208 484636-484712 486139-486252 486687-486763 488183-488296 488738-488813 490228-490339 490788-490863 492273-492383 492840-492913 494319-494425 494891-494963 496363-496471 496942-497012 498408-498515 498991-499062 500453-500557 501043-501112 502497-502601 503093-503161 504541-504643 505143-505211 506586-506688 507194-507260 508631-508732 509243-509310 510675-510776 511295-511360 512719-512820 513344-513409 514766-514864 515396-515458 516810-516909 517446-517508 518854-518954 519495-519558 520900-520997 521545-521608 522944-523041 523597-523657 524990-525086 525646-525706 527035-527131 527696-527755 529081-529175 529746-529805 531125-531221 531795-531854 533171-533266 533846-533903 535216-535310 535896-535953 537261-537354 537945-538002 539306-539398 539995-540052 541352-541443 542045-542101 543397-543489 544095-544150 545442-545534 546144-546200 547486-547580 548194-548249 549532-549624 550244-550298 551578-551669 552294-552347 553623-553713 554344-554396 555667-555757 556393-556445 557714-557802 558443-558494 559759-559846 560492-560544 561804-561893 562541-562593 563849-563937 564591-564641 565893-565981 566641-566692 567940-568026 568690-568741 569985-570070 570738-570790 572031-572117 572789-572838 574075-574162 574839-574887 576122-576207 576888-576936 578166-578252 578936-578985 580213-580297 580986-581034 582258-582342 583035-583084 584304-584387 585085-585134 586350-586432 587134-587183 588395-588477 589184-589231 590442-590523 591233-591280 592486-592568 593282-593328 594531-594614 595332-595377 596577-596661 597381-597426 598622-598705 599430-599475 600669-600750 601480-601524 602713-602796 603530-603574 604760-604841 605578-605622 606804-606886 607627-607672 608851-608931 609677-609721 610896-610977 611726-611769 612943-613023 613775-613817 614988-615068 615823-615868 617034-617113 617873-617916 619079-619158 619923-619965 621126-621204 621971-622014 623172-623250 624020-624062 625218-625295 626069-626111 627263-627340 628117-628159 629309-629385 630167-630209 631355-631431 632216-632257 633400-633477 634265-634305 635446-635522 636314-636354 637492-637568 638363-638403 639538-639614 640412-640452 641583-641661 642461-642501 643629-643707 644510-644549 645675-645753 646559-646598 647721-647797 648608-648647 649768-649842 650656-650696 651815-651889 652706-652745 653860-653934 654755-654793 655906-655981 656803-656841 657952-658026 658852-658890 659999-660072 660901-660940 662044-662117 662950-662989 664091-664164 664998-665037 666135-666209 667047-667085 668180-668256 669095-669133 670228-670301 671145-671183 672274-672347 673194-673231 674319-674392 675243-675280 676364-676439 677291-677328 678411-678484 679340-679377 680456-680531 681389-681425 682503-682576 683438-683474 684550-684623 685486-685522 686597-686668 687535-687572 688642-688715 689584-689620 690687-690759 691633-691668 692734-692807 693681-693716 694779-694852 695730-695766 696826-696898 697779-697814 698873-698944 699828-699862 700920-700990 701876-701910 702965-703036 703924-703960 705010-705083 705973-706008 707058-707128 708022-708056 709105-709174 710070-710105 711151-711220 712119-712154 713197-713267 714168-714202 715243-715312 716217-716250 717289-717359 718265-718299 719336-719404 720314-720348 721382-721450 722363-722396 723428-723498 724411-724444 725474-725543 726459-726494 727519-727590 728509-728542 729565-729636 730557-730590 731613-731682 732606-732639 733658-733728 734655-734687 735705-735773 736703-736735 737751-737820 738751-738783 739798-739865 740799-740833 741845-741913 742848-742881 743891-743960 744897-744929 745936-746006 746945-746978 747983-748052 748994-749026 750031-750098 751043-751074 752076-752143 753091-753124 754123-754190 755140-755172 756168-756236 757188-757220 758215-758284 759236-759269 760262-760329 761285-761317 762308-762376 763334-763365 764353-764422 765382-765414 766400-766468 767431-767462 768447-768515 769479-769510 770493-770560 771527-771559 772539-772607 773576-773607 774586-774654 775624-775655 776634-776700 777672-777704 778679-778746 779721-779752 780726-780792 781769-781800 782772-782839 783818-783849 784818-784886 785867-785897 786866-786932 787915-787946 788912-788978 789963-789994 790958-791025 792012-792042 793004-793070 794060-794091 795052-795118 796109-796139 797098-797165 798157-798187 799143-799211 800205-800235 801190-801258 802254-802283 803238-803303 804302-804332 805284-805350 806350-806380 807329-807398 808399-808428 809376-809444 810447-810477 811423-811489 812495-812525 813470-813536 814544-814574 815517-815583 816592-816622 817564-817630 818641-818670 819610-819677 820689-820719 821657-821722 822738-822767 823704-823769 824786-824816 825750-825816 826834-826864 827797-827863 828882-828912 829844-829908 830930-830960 831891-831955 832979-833008 833937-834002 835027-835057 835983-836049 837075-837105 838028-838096 839124-839154 840076-840142 841172-841202 842123-842188 843220-843250 844169-844235 845269-845298 846217-846281 847317-847346 848264-848328 849366-849395 850310-850376 851414-851443 852357-852421 853463-853491 854403-854467 855511-855539 856450-856515 857559-857587 858496-858561 859607-859636 860544-860608 861655-861684 862591-862653 863704-863732 864637-864701 865752-865780 866685-866748 867801-867828 868732-868794 869849-869876 870778-870841 871897-871925 872824-872888 873945-873973 874871-874935 875994-876022 876918-876981 878042-878070 878965-879029 880090-880118 881012-881074 882138-882166 883059-883121 884186-884214 885106-885169 886235-886262 887153-887215 888283-888310 889200-889262 890331-890359 891245-891310 892379-892407 893292-893356 894428-894455 895340-895402 896476-896503 897386-897448 898525-898552 899432-899495 900573-900600 901480-901542 902621-902648 903527-903589 904669-904696 905574-905635 906717-906745 907621-907683 908765-908793 909669-909730 910813-910841 911715-911776 912862-912889 913762-913823 914910-914937 915809-915870 916958-916985 917855-917917 919006-919033 919901-919964 921055-921081 921949-922011 923103-923130 923996-924059 925151-925178 926042-926105 927199-927226 928089-928151 929247-929274 930137-930199 931295-931322 932183-932246 933343-933370 934230-934292 935391-935419 936277-936340 937440-937467 938323-938387 939488-939515 940371-940433 941536-941563 942418-942479 943584-943611 944465-944527 945632-945659 946511-946575 947681-947707 948559-948620 949729-949755 950606-950667 951777-951803 952653-952715 953825-953851 954700-954763 955873-955899 956747-956808 957921-957947 958794-958854 959970-959995 960841-960902 962018-962044 962888-962948 964066-964092 964934-964996 966114-966140 966982-967042 968162-968188 969029-969090 970210-970236 971076-971136 972258-972284 973123-973184 974306-974332 975170-975232 976355-976380 977216-977278 978403-978428 979263-979326 980451-980476 981311-981372 982499-982524 983359-983420 984547-984573 985406-985466 986595-986621 987453-987513 988643-988669 989500-989560 990691-990717 991547-991608 992739-992765 993594-993654 994787-994813 995641-995702 996835-996861 997687-997749 998883-998909 999735-999795 1000932-1000957 1001782-1001843 1002980-1003005 1003829-1003890 1005028-1005053 1005876-1005937 1007076-1007102 1007923-1007983 1009124-1009150 1009971-1010030 1011172-1011198 1012019-1012078 1013220-1013246 1014065-1014126 1015268-1015293 1016112-1016172 1017316-1017342 1018159-1018220 1019364-1019390 1020207-1020267 1021412-1021438 1022253-1022314 1023461-1023486 1024301-1024361 1025509-1025534 1026348-1026409 1027557-1027582 1028395-1028456 1029605-1029630 1030443-1030503 1031653-1031678 1032490-1032550 1033701-1033726 1034537-1034597 1035749-1035774 1036584-1036643 1037797-1037822 1038631-1038691 1039845-1039870 1040678-1040738 1041893-1041918 1042725-1042785 1043941-1043966 1044773-1044832 1045989-1046014 1046820-1046880 1048037-1048062 1048868-1048928 1050085-1050110 1050914-1050974 1052133-1052158 1052962-1053022 1054181-1054206 1055009-1055068 1056229-1056254 1057057-1057115 1058277-1058302 1059102-1059162 1060325-1060351 1061150-1061210 1062373-1062399 1063198-1063257 1064422-1064447 1065245-1065305 1066470-1066494 1067292-1067352 1068518-1068542 1069339-1069399 1070566-1070590 1071386-1071446 1072614-1072638 1073433-1073493 1074662-1074686 1075481-1075540 1076710-1076734 1077528-1077587 1078758-1078782 1079575-1079635 1080806-1080830 1081623-1081682 1082854-1082878 1083670-1083729 1084902-1084926 1085718-1085776 1086950-1086974 1087765-1087823 1088998-1089022 1089811-1089870 1091046-1091070 1091858-1091917 1093094-1093118 1093905-1093965 1095142-1095166 1095952-1096011 1097190-1097214 1098000-1098058 1099238-1099262 1100048-1100106 1101286-1101310 1102095-1102154 1103334-1103358 1104143-1104201 1105382-1105406 1106190-1106248 1107430-1107454 1108237-1108295 1109478-1109502 1110284-1110342 1111526-1111550 1112331-1112390 1113574-1113598 1114379-1114438 1115622-1115646 1116426-1116484 1117670-1117694 1118474-1118531 1119718-1119742 1120520-1120579 1121766-1121790 1122568-1122627 1123814-1123838 1124615-1124674 1125862-1125886 1126661-1126721 1127910-1127934 1128709-1128769 1129958-1129982 1130757-1130816 1132006-1132030 1132804-1132864 1134054-1134078 1134852-1134911 1136102-1136126 1136900-1136958 1138150-1138174 1138947-1139006 1140198-1140222 1140995-1141053 1142246-1142270 1143042-1143100 1144294-1144318 1145089-1145148 1146341-1146366 1147136-1147195 1148389-1148414 1149184-1149243 1150437-1150461 1151232-1151290 1152486-1152509 1153279-1153338 1154534-1154557 1155327-1155385 1156581-1156605 1157374-1157432 1158629-1158653 1159422-1159479 1160677-1160701 1161469-1161527 1162725-1162749 1163517-1163573 1164773-1164797 1165565-1165621 1166821-1166845 1167612-1167669 1168869-1168893 1169659-1169716 1170917-1170941 1171706-1171763 1172965-1172989 1173753-1173811 1175013-1175037 1175800-1175857 1177061-1177085 1177848-1177905 1179109-1179133 1179896-1179953 1181157-1181181 1181943-1182001 1183205-1183228 1183991-1184048 1185253-1185276 1186038-1186095 1187301-1187324 1188085-1188142 1189349-1189372 1190133-1190190 1191397-1191420 1192181-1192238 1193445-1193468 1194228-1194286 1195493-1195516 1196276-1196333 1197540-1197564 1198324-1198380 1199588-1199612 1200371-1200427 1201636-1201660 1202419-1202474 1203685-1203708 1204466-1204522 1205732-1205756 1206512-1206570 1207780-1207804 1208560-1208618 1209828-1209851 1210608-1210665 1211876-1211899 1212655-1212712 1213924-1213948 1214703-1214760 1215972-1215996 1216751-1216807 1218020-1218044 1218798-1218854 1220068-1220092 1220846-1220902 1222115-1222140 1222893-1222950 1224163-1224188 1224940-1224998 1226211-1226235 1226988-1227045 1228259-1228283 1229035-1229092 1230307-1230331 1231083-1231140 1232355-1232379 1233131-1233187 1234403-1234426 1235178-1235235 1236451-1236474 1237226-1237283 1238499-1238522 1239274-1239330 1240547-1240571 1241320-1241377 1242595-1242619 1243368-1243425 1244643-1244667 1245416-1245472 1246691-1246715 1247464-1247520 1248739-1248763 1249511-1249568 1250786-1250810 1251559-1251615 1252834-1252858 1253607-1253663 1254882-1254906 1255654-1255710 1256931-1256954 1257702-1257758 1258978-1259002 1259749-1259805 1261026-1261050 1261796-1261852 1263074-1263098 1263844-1263900 1265122-1265146 1265892-1265947 1267169-1267193 1267940-1267994 1269217-1269241 1269988-1270042 1271265-1271289 1272035-1272090 1273313-1273337 1274083-1274138 1275361-1275385 1276130-1276186 1277409-1277433 1278178-1278233 1279457-1279480 1280225-1280281 1281505-1281528 1282273-1282329 1283553-1283576 1284320-1284377 1285601-1285624 1286368-1286424 1287649-1287672 1288416-1288472 1289697-1289720 1290463-1290519 1291744-1291768 1292511-1292567 1293792-1293816 1294559-1294615 1295840-1295864 1296606-1296663 1297888-1297912 1298654-1298710 1299936-1299960 1300701-1300757 1301984-1302007 1302749-1302805 1304032-1304055 1304797-1304853 1306080-1306103 1306845-1306901 1308128-1308151 1308892-1308949 1310175-1310199 1310940-1310997 1312223-1312247 1312988-1313044 1314271-1314295 1315035-1315092 1316319-1316343 1317083-1317139 1318367-1318391 1319131-1319186 1320415-1320439 1321178-1321234 1322463-1322486 1323226-1323282 1324511-1324534 1325273-1325330 1326559-1326582 1327320-1327378 1328606-1328630 1329368-1329425 1330654-1330678 1331416-1331472 1332702-1332725 1333463-1333520 1334750-1334774 1335511-1335568 1336797-1336822 1337559-1337615 1338845-1338870 1339606-1339662 1340893-1340917 1341654-1341710 1342942-1342965 1343702-1343758 1344990-1345013 1345750-1345806 1347038-1347061 1347798-1347854 1349085-1349109 1349846-1349902 1351133-1351156 1351892-1351949 1353180-1353204 1353940-1353997 1355228-1355252 1355988-1356044 1357276-1357300 1358035-1358092 1359324-1359348 1360083-1360140 1361372-1361396 1362131-1362188 1363420-1363444 1364178-1364236 1365468-1365492 1366226-1366284 1367516-1367539 1368274-1368331 1369564-1369587 1370323-1370378 1371612-1371635 1372370-1372426 1373659-1373683 1374418-1374474 1375707-1375731 1376466-1376522 1377755-1377779 1378514-1378570 1379803-1379827 1380563-1380618 1381851-1381875 1382610-1382665 1383899-1383922 1384658-1384713 1385946-1385970 1386705-1386761 1387994-1388018 1388753-1388808 1390042-1390066 1390801-1390856 1392090-1392114 1392848-1392904 1394138-1394162 1394896-1394951 1396186-1396210 1396944-1396999 1398234-1398257 1398991-1399047 1400282-1400305 1401039-1401094 1402330-1402353 1403087-1403142 1404377-1404401 1405135-1405190 1406425-1406449 1407183-1407238 1408473-1408497 1409231-1409286 1410521-1410545 1411279-1411334 1412569-1412593 1413326-1413382 1414616-1414641 1415374-1415430 1416664-1416688 1417422-1417478 1418712-1418736 1419470-1419526 1420760-1420784 1421518-1421573 1422808-1422832 1423565-1423621 1424856-1424880 1425613-1425669 1426903-1426928 1427661-1427717 1428951-1428975 1429709-1429765 1430999-1431023 1431757-1431812 1433047-1433071 1433805-1433860 1435095-1435119 1435853-1435908 1437143-1437167 1437900-1437955 1439191-1439215 1439948-1440003 1441239-1441262 1441996-1442051 1443286-1443310 1444043-1444099 1445334-1445358 1446091-1446147 1447382-1447406 1448139-1448195 1449430-1449454 1450187-1450243 1451477-1451502 1452235-1452290 1453525-1453549 1454282-1454338 1455573-1455597 1456330-1456386 1457621-1457645 1458378-1458434 1459669-1459693 1460426-1460481 1461717-1461741 1462473-1462529 1463764-1463788 1464521-1464577 1465812-1465836 1466569-1466625 1467860-1467884 1468617-1468673 1469908-1469932 1470665-1470720 1471956-1471980 1472713-1472768 1474004-1474028 1474760-1474816 1476052-1476076 1476808-1476864 1478099-1478124 1478856-1478912 1480147-1480172 1480904-1480960 1482195-1482220 1482952-1483008 1484243-1484268 1485001-1485056 1486291-1486315 1487049-1487104 1488339-1488363 1489097-1489152 1490387-1490411 1491144-1491200 1492435-1492459 1493192-1493248 1494483-1494507 1495240-1495295 1496530-1496555 1497288-1497343 1498578-1498603 1499335-1499391 1500626-1500650 1501383-1501439 1502674-1502698 1503431-1503487 1504722-1504746 1505480-1505535 1506769-1506794 1507528-1507583 1508817-1508841 1509576-1509631 1510865-1510889 1511624-1511679 1512913-1512937 1513672-1513726 1514961-1514985 1515720-1515774 1517009-1517033 1517767-1517822 1519057-1519081 1519815-1519870 1521104-1521128 1521863-1521919 1523152-1523176 1523911-1523967 1525199-1525224 1525959-1526015 1527247-1527272 1528007-1528062 1529295-1529320 1530055-1530110 1531343-1531368 1532103-1532158 1533391-1533416 1534152-1534206 1535439-1535464 1536199-1536254 1537487-1537511 1538247-1538302 1539535-1539559 1540295-1540350 1541582-1541607 1542343-1542398 1543630-1543655 1544391-1544446 1545678-1545703 1546439-1546493 1547726-1547751 1548487-1548541 1549773-1549798 1550535-1550589 1551821-1551846 1552583-1552637 1553869-1553894 1554631-1554685 1555917-1555942 1556679-1556733 1557965-1557990 1558727-1558781 1560013-1560038 1560774-1560829 1562061-1562086 1562822-1562877 1564109-1564134 1564870-1564925 1566156-1566182 1566918-1566973 1568204-1568229 1568966-1569021 1570252-1570277 1571014-1571069 1572300-1572325 1573063-1573117 1574348-1574373 1575111-1575165 1576396-1576421 1577159-1577213 1578443-1578468 1579207-1579261 1580491-1580516 1581255-1581309 1582539-1582564 1583303-1583357 1584587-1584612 1585351-1585405 1586634-1586660 1587399-1587454 1588682-1588708 1589447-1589502 1590730-1590756 1591495-1591550 1592778-1592803 1593543-1593597 1594826-1594851 1595591-1595645 1596873-1596899 1597639-1597693 1598921-1598947 1599687-1599741 1600969-1600994 1601735-1601789 1603017-1603042 1603783-1603837 1605064-1605090 1605830-1605885 1607112-1607138 1607878-1607933 1609160-1609186 1609926-1609982 1611208-1611234 1611975-1612030 1613256-1613282 1614023-1614078 1615304-1615329 1616071-1616126 1617352-1617377 1618119-1618174 1619400-1619425 1620167-1620222 1621447-1621473 1622216-1622270 1623495-1623520 1624264-1624319 1625543-1625568 1626312-1626367 1627590-1627616 1628360-1628415 1629638-1629664 1630408-1630463 1631686-1631712 1632455-1632511 1633734-1633760 1634503-1634559 1635782-1635808 1636551-1636607 1637830-1637856 1638600-1638655 1639878-1639903 1640648-1640703 1641926-1641951 1642696-1642751 1643973-1643999 1644744-1644799 1646021-1646047 1646792-1646847 1648069-1648094 1648840-1648895 1650117-1650142 1650888-1650943 1652164-1652191 1652936-1652991 1654212-1654239 1654984-1655040 1656260-1656287 1657032-1657088 1658308-1658334 1659080-1659137 1660356-1660382 1661129-1661185 1662403-1662430 1663176-1663233 1664451-1664478 1665224-1665281 1666499-1666525 1667272-1667329 1668547-1668573 1669320-1669377 1670595-1670621 1671368-1671425 1672643-1672669 1673416-1673473 1674691-1674717 1675465-1675521 1676739-1676764 1677513-1677569 1678786-1678812 1679561-1679616 1680834-1680860 1681609-1681665 1682882-1682908 1683658-1683713 1684930-1684956 1685706-1685761 1686978-1687004 1687754-1687809 1689026-1689051 1689802-1689857 1691073-1691099 1691850-1691905 1693121-1693147 1693899-1693953 1695169-1695195 1695947-1696001 1697217-1697243 1697995-1698050 1699265-1699290 1700043-1700098 1701312-1701339 1702091-1702146 1703360-1703387 1704139-1704194 1705408-1705435 1706187-1706242 1707456-1707483 1708235-1708290 1709504-1709530 1710283-1710338 1711551-1711577 1712331-1712386 1713599-1713625 1714380-1714434 1715647-1715673 1716428-1716482 1717695-1717721 1718476-1718530 1719743-1719769 1720524-1720578 1721791-1721817 1722572-1722627 1723838-1723864 1724620-1724675 1725886-1725912 1726668-1726724 1727934-1727960 1728716-1728772 1729982-1730008 1730764-1730820 1732030-1732056 1732813-1732868 1734078-1734104 1734861-1734916 1736125-1736151 1736909-1736964 1738173-1738199 1738957-1739012 1740220-1740247 1741005-1741060 1742268-1742295 1743053-1743108 1744316-1744343 1745102-1745157 1746364-1746391 1747150-1747205 1748412-1748439 1749198-1749253 1750459-1750487 1751246-1751301 1752507-1752534 1753294-1753349 1754555-1754582 1755342-1755397 1756603-1756630 1757391-1757445 1758651-1758678 1759439-1759494 1760699-1760726 1761487-1761542 1762747-1762774 1763536-1763590 1764794-1764822 1765584-1765638 1766842-1766870 1767632-1767686 1768890-1768917 1769680-1769735 1770938-1770965 1771728-1771784 1772986-1773013 1773777-1773832 1775034-1775061 1775825-1775880 1777082-1777109 1777873-1777928 1779130-1779157 1779921-1779976 1781178-1781205 1781969-1782024 1783225-1783253 1784018-1784073 1785273-1785301 1786066-1786121 1787320-1787348 1788114-1788169 1789368-1789396 1790163-1790217 1791416-1791443 1792211-1792265 1793464-1793491 1794259-1794313 1795512-1795539 1796307-1796361 1797560-1797587 1798355-1798410 1799608-1799635 1800403-1800458 1801655-1801683 1802451-1802506 1803703-1803731 1804500-1804555 1805751-1805779 1806548-1806603 1807798-1807827 1808596-1808651 1809846-1809875 1810645-1810699 1811894-1811923 1812693-1812747 1813942-1813970 1814741-1814795 1815990-1816018 1816789-1816843 1818038-1818065 1818837-1818892 1820086-1820113 1820885-1820940 1822134-1822161 1822934-1822988 1824182-1824209 1824982-1825037 1826229-1826257 1827030-1827085 1828277-1828305 1829079-1829133 1830325-1830353 1831127-1831180 1832373-1832401 1833175-1833229 1834420-1834449 1835223-1835277 1836468-1836497 1837271-1837325 1838516-1838545 1839319-1839374 1840564-1840593 1841367-1841422 1842612-1842641 1843416-1843470 1844660-1844689 1845464-1845519 1846707-1846737 1847512-1847567 1848755-1848784 1849561-1849615 1850803-1850832 1851609-1851663 1852851-1852880 1853657-1853712 1854899-1854928 1855705-1855761 1856946-1856975 1857754-1857809 1858994-1859023 1859802-1859858 1861042-1861071 1861850-1861906 1863090-1863119 1863899-1863954 1865138-1865167 1865947-1866002 1867186-1867215 1867995-1868050 1869233-1869263 1870044-1870098 1871281-1871311 1872092-1872146 1873329-1873359 1874140-1874195 1875377-1875407 1876189-1876243 1877425-1877455 1878237-1878291 1879473-1879502 1880285-1880340 1881521-1881550 1882334-1882388 1883569-1883598 1884382-1884436 1885616-1885646 1886430-1886485 1887664-1887694 1888478-1888533 1889712-1889742 1890526-1890581 1891760-1891790 1892574-1892629 1893808-1893837 1894622-1894678 1895856-1895885 1896671-1896726 1897904-1897933 1898719-1898774 1899952-1899981 1900767-1900823 1901999-1902029 1902816-1902871 1904047-1904076 1904864-1904919 1906095-1906124 1906912-1906968 1908142-1908172 1908961-1909016 1910190-1910220 1911009-1911064 1912238-1912268 1913057-1913112 1914286-1914316 1915105-1915161 1916334-1916364 1917154-1917209 1918382-1918412 1919202-1919257 1920430-1920460 1921251-1921306 1922477-1922508 1923299-1923354 1924525-1924555 1925347-1925402 1926573-1926603 1927396-1927451 1928621-1928651 1929444-1929499 1930669-1930699 1931492-1931547 1932717-1932747 1933540-1933595 1934765-1934795 1935588-1935644 1936813-1936843 1937638-1937692 1938861-1938891 1939686-1939740 1940908-1940939 1941734-1941789 1942956-1942986 1943783-1943837 1945004-1945034 1945831-1945885 1947052-1947082 1947879-1947934 1949100-1949130 1949928-1949982 1951147-1951178 1951976-1952030 1953195-1953226 1954024-1954078 1955243-1955274 1956072-1956127 1957291-1957322 1958121-1958175 1959339-1959369 1960169-1960224 1961387-1961417 1962217-1962272 1963435-1963465 1964266-1964320 1965483-1965513 1966314-1966368 1967530-1967561 1968362-1968417 1969578-1969609 1970410-1970465 1971626-1971657 1972459-1972513 1973674-1973705 1974507-1974562 1975722-1975753 1976555-1976610 1977769-1977801 1978604-1978658 1979817-1979849 1980652-1980707 1981865-1981896 1982701-1982755 1983913-1983944 1984750-1984803 1985961-1985992 1986798-1986851 1988008-1988040 1988846-1988901 1990056-1990088 1990895-1990949 1992104-1992136 1992943-1992997 1994152-1994184 1994991-1995046 1996200-1996231 1997040-1997094 1998248-1998279 1999088-1999142 2000296-2000327 2001136-2001191 2002344-2002375 2003185-2003239 2004392-2004424 2005233-2005287 2006440-2006472 2007281-2007335 2008487-2008520 2009329-2009383 2010535-2010567 2011377-2011432 2012583-2012615 2013427-2013480 2014631-2014663 2015475-2015529 2016679-2016711 2017523-2017578 2018726-2018759 2019571-2019626 2020774-2020807 2021619-2021674 2022822-2022855 2023667-2023723 2024870-2024903 2025716-2025771 2026918-2026950 2027764-2027819 2028966-2028999 2029812-2029867 2031014-2031047 2031861-2031916 2033061-2033095 2033909-2033964 2035109-2035143 2035958-2036012 2037157-2037190 2038007-2038062 2039205-2039238 2040055-2040110 2041254-2041286 2042103-2042158 2043302-2043334 2044151-2044207 2045350-2045382 2046200-2046255 2047398-2047429 2048248-2048303 2049445-2049477 2050296-2050351 2051493-2051525 2052344-2052400 2053541-2053574 2054394-2054448 2055589-2055622 2056442-2056496 2057636-2057670 2058491-2058546 2059684-2059717 2060539-2060594 2061732-2061765 2062587-2062642 2063780-2063813 2064635-2064690 2065829-2065861 2066685-2066739 2067877-2067908 2068733-2068787 2069925-2069956 2070781-2070835 2071972-2072005 2072830-2072884 2074019-2074053 2074878-2074933 2076067-2076101 2076926-2076981 2078115-2078149 2078975-2079029 2080163-2080197 2081024-2081078 2082211-2082245 2083072-2083126 2084259-2084293 2085120-2085174 2086307-2086341 2087169-2087224 2088355-2088389 2089217-2089272 2090403-2090437 2091265-2091320 2092451-2092485 2093313-2093368 2094498-2094533 2095361-2095417 2096546-2096581 2097409-2097465 2098594-2098629 2099457-2099513 2100642-2100677 2101507-2101563 2102690-2102724 2103555-2103611 2104738-2104772 2105603-2105659 2106786-2106820 2107652-2107707 2108835-2108868 2109700-2109755 2110882-2110916 2111749-2111804 2112930-2112964 2113798-2113852 2114978-2115012 2115846-2115901 2117026-2117060 2117894-2117950 2119074-2119108 2119942-2119998 2121122-2121156 2121991-2122046 2123170-2123204 2124040-2124095 2125218-2125252 2126088-2126143 2127266-2127300 2128136-2128192 2129313-2129348 2130185-2130240 2131361-2131396 2132233-2132289 2133409-2133444 2134281-2134337 2135457-2135492 2136331-2136385 2137504-2137540 2138379-2138435 2139552-2139588 2140427-2140483 2141600-2141636 2142475-2142531 2143648-2143684 2144523-2144579 2145696-2145732 2146571-2146628 2147744-2147779 2148620-2148676 2149792-2149828 2150669-2150724 2151840-2151876 2152717-2152773 2153888-2153924 2154765-2154822 2155937-2155972 2156813-2156870 2157985-2158020 2158863-2158918 2160032-2160068 2160911-2160966 2162080-2162116 2162959-2163015 2164127-2164164 2165008-2165063 2166175-2166212 2167056-2167112 2168223-2168260 2169105-2169160 2170271-2170308 2171154-2171208 2172320-2172355 2173202-2173257 2174368-2174404 2175250-2175306 2176416-2176452 2177298-2177354 2178464-2178500 2179347-2179402 2180511-2180548 2181396-2181451 2182559-2182596 2183444-2183500 2184607-2184644 2185492-2185548 2186655-2186692 2187540-2187596 2188703-2188740 2189589-2189645 2190751-2190788 2191638-2191693 2192799-2192835 2193686-2193742 2194847-2194883 2195734-2195791 2196895-2196931 2197782-2197839 2198943-2198980 2199831-2199887 2200991-2201028 2201880-2201937 2203039-2203076 2203928-2203985 2205087-2205124 2205977-2206033 2207135-2207171 2208026-2208081 2209183-2209219 2210074-2210129 2211231-2211267 2212122-2212177 2213279-2213315 2214171-2214226 2215327-2215363 2216220-2216275 2217375-2217411 2218268-2218323 2219423-2219459 2220316-2220371 2221471-2221508 2222365-2222420 2223519-2223556 2224414-2224469 2225567-2225604 2226462-2226517 2227615-2227652 2228510-2228565 2229663-2229700 2230558-2230614 2231711-2231748 2232606-2232663 2233759-2233796 2234654-2234711 2235807-2235844 2236704-2236760 2237855-2237892 2238752-2238809 2239902-2239940 2240800-2240857 2241950-2241989 2242850-2242905 2243998-2244037 2244898-2244953 2246047-2246085 2246946-2247003 2248095-2248132 2248994-2249051 2250143-2250180 2251043-2251099 2252190-2252228 2253092-2253149 2254238-2254276 2255140-2255197 2256286-2256324 2257188-2257245 2258335-2258372 2259238-2259293 2260383-2260420 2261286-2261342 2262430-2262468 2263334-2263391 2264478-2264516 2265384-2265439 2266526-2266564 2267432-2267487 2268574-2268612 2269480-2269535 2270622-2270660 2271528-2271585 2272670-2272708 2273577-2273633 2274718-2274756 2275626-2275681 2276766-2276804 2277674-2277729 2278814-2278852 2279722-2279778 2280862-2280901 2281771-2281826 2282910-2282949 2283820-2283875 2284958-2284997 2285868-2285923 2287006-2287045 2287917-2287972 2289054-2289094 2289965-2290020 2291102-2291142 2292013-2292069 2293150-2293190 2294062-2294118 2295198-2295236 2296111-2296166 2297246-2297284 2298159-2298215 2299295-2299333 2300207-2300263 2301343-2301381 2302255-2302312 2303391-2303429 2304304-2304360 2305439-2305477 2306353-2306408 2307487-2307525 2308401-2308457 2309534-2309573 2310451-2310506 2311582-2311621 2312499-2312554 2313630-2313669 2314547-2314603 2315678-2315717 2316596-2316652 2317727-2317765 2318644-2318700 2319775-2319813 2320692-2320749 2321823-2321861 2322740-2322798 2323871-2323910 2324790-2324846 2325919-2325958 2326838-2326894 2327966-2328006 2328886-2328942 2330014-2330054 2330934-2330991 2332062-2332102 2332984-2333040 2334110-2334150 2335032-2335088 2336158-2336198 2337080-2337137 2338207-2338246 2339129-2339186 2340255-2340294 2341177-2341234 2342303-2342343 2343225-2343283 2344351-2344391 2345275-2345332 2346399-2346439 2347323-2347380 2348447-2348487 2349371-2349429 2350495-2350535 2351419-2351477 2352543-2352583 2353469-2353525 2354591-2354631 2355517-2355573 2356639-2356679 2357566-2357622 2358687-2358728 2359614-2359671 2360735-2360776 2361663-2361719 2362783-2362824 2363711-2363768 2364831-2364872 2365760-2365817 2366879-2366920 2367808-2367865 2368927-2368968 2369856-2369914 2370975-2371016 2371905-2371962 2373024-2373063 2373954-2374010 2375071-2375112 2376002-2376059 2377119-2377160 2378051-2378108 2379167-2379208 2380099-2380156 2381216-2381257 2382147-2382205 2383264-2383305 2384195-2384254 2385312-2385353 2386245-2386302 2387360-2387401 2388293-2388350 2389408-2389450 2390342-2390399 2391456-2391498 2392390-2392447 2393504-2393546 2394439-2394495 2395552-2395593 2396488-2396544 2397601-2397641 2398536-2398593 2399649-2399689 2400584-2400641 2401697-2401737 2402632-2402689 2403745-2403785 2404681-2404738 2405793-2405834 2406730-2406786 2407841-2407882 2408779-2408834 2409889-2409930 2410827-2410883 2411938-2411979 2412876-2412931 2413986-2414027 2414925-2414979 2416034-2416075 2416973-2417028 2418082-2418124 2419021-2419077 2420130-2420172 2421069-2421125 2422177-2422220 2423119-2423174 2424225-2424268 2425167-2425222 2426273-2426316 2427216-2427271 2428322-2428364 2429264-2429320 2430370-2430412 2431313-2431368 2432418-2432460 2433362-2433416 2434466-2434508 2435410-2435465 2436514-2436556 2437458-2437514 2438562-2438604 2439507-2439562 2440610-2440653 2441555-2441611 2442659-2442701 2443604-2443660 2444707-2444749 2445653-2445709 2446755-2446798 2447701-2447757 2448803-2448846 2449750-2449805 2450851-2450894 2451798-2451854 2452900-2452942 2453847-2453903 2454948-2454991 2455896-2455951 2456996-2457039 2457944-2458000 2459044-2459087 2459992-2460049 2461092-2461135 2462041-2462097 2463140-2463183 2464089-2464146 2465188-2465231 2466138-2466194 2467236-2467280 2468187-2468242 2469284-2469328 2470235-2470290 2471332-2471376 2472283-2472339 2473381-2473423 2474332-2474387 2475429-2475472 2476380-2476436 2477477-2477520 2478428-2478485 2479526-2479568 2480478-2480533 2481573-2481616 2482526-2482582 2483621-2483664 2484575-2484630 2485669-2485712 2486623-2486678 2487718-2487760 2488671-2488727 2489766-2489809 2490719-2490776 2491814-2491857 2492768-2492824 2493862-2493906 2494816-2494873 2495910-2495954 2496866-2496921 2497958-2498002 2498914-2498970 2500006-2500050 2500963-2501019 2502054-2502098 2503011-2503067 2504102-2504146 2505059-2505115 2506150-2506194 2507107-2507164 2508198-2508243 2509156-2509212 2510247-2510291 2511205-2511261 2512295-2512339 2513254-2513310 2514343-2514388 2515302-2515359 2516392-2516436 2517350-2517407 2518440-2518484 2519399-2519455 2520488-2520532 2521447-2521503 2522536-2522580 2523495-2523552 2524584-2524628 2525545-2525601 2526632-2526677 2527593-2527650 2528680-2528725 2529643-2529698 2530728-2530773 2531691-2531746 2532776-2532821 2533740-2533795 2534824-2534870 2535788-2535844 2536873-2536918 2537836-2537893 2538921-2538966 2539884-2539941 2540969-2541014 2541934-2541989 2543017-2543062 2543982-2544038 2545066-2545110 2546031-2546086 2547114-2547159 2548079-2548136 2549162-2549207 2550128-2550184 2551210-2551255 2552177-2552232 2553258-2553304 2554226-2554281 2555306-2555352 2556274-2556329 2557355-2557401 2558322-2558377 2559403-2559449 2560370-2560426 2561452-2561497 2562419-2562474 2563501-2563544 2564467-2564522 2565549-2565593 2566516-2566571 2567597-2567641 2568565-2568620 2569645-2569689 2570614-2570669 2571693-2571738 2572662-2572717 2573741-2573786 2574710-2574766 2575789-2575834 2576759-2576815 2577837-2577882 2578807-2578863 2579885-2579930 2580856-2580912 2581934-2581979 2582905-2582960 2583982-2584028 2584954-2585010 2586031-2586076 2587002-2587058 2588078-2588125 2589050-2589106 2590126-2590173 2591098-2591154 2592174-2592221 2593147-2593203 2594223-2594268 2595196-2595252 2596271-2596317 2597245-2597301 2598319-2598365 2599293-2599349 2600368-2600414 2601342-2601398 2602416-2602462 2603390-2603446 2604464-2604510 2605438-2605494 2606513-2606559 2607487-2607543 2608561-2608607 2609535-2609592 2610609-2610655 2611584-2611641 2612657-2612704 2613633-2613689 2614705-2614752 2615682-2615737 2616753-2616800 2617730-2617786 2618801-2618848 2619778-2619834 2620850-2620896 2621826-2621882 2622898-2622944 2623876-2623931 2624947-2624993 2625924-2625980 2626995-2627041 2627973-2628029 2629043-2629089 2630021-2630077 2631092-2631137 2632070-2632126 2633140-2633186 2634118-2634174 2635188-2635235 2636166-2636222 2637237-2637283 2638215-2638271 2639285-2639331 2640264-2640320 2641333-2641380 2642313-2642369 2643382-2643428 2644361-2644417 2645430-2645476 2646410-2646465 2647478-2647524 2648458-2648514 2649526-2649572 2650506-2650562 2651574-2651620 2652555-2652612 2653622-2653669 2654603-2654660 2655670-2655717 2656652-2656708 2657718-2657765 2658701-2658757 2659766-2659814 2660750-2660805 2661814-2661862 2662798-2662854 2663863-2663911 2664846-2664902 2665911-2665959 2666895-2666950 2667960-2668007 2668943-2668999 2670008-2670056 2670993-2671047 2672057-2672104 2673041-2673096 2674105-2674152 2675090-2675144 2676153-2676201 2677138-2677194 2678201-2678249 2679186-2679242 2680250-2680298 2681235-2681291 2682298-2682346 2683283-2683340 2684346-2684394 2685332-2685388 2686394-2686443 2687380-2687437 2688442-2688491 2689428-2689485 2690491-2690539 2691477-2691534 2692539-2692587 2693525-2693582 2694587-2694635 2695573-2695630 2696636-2696683 2697622-2697679 2698685-2698732 2699670-2699727 2700733-2700780 2701719-2701776 2702781-2702829 2703768-2703825 2704829-2704877 2705817-2705873 2706878-2706925 2707865-2707922 2708926-2708974 2709913-2709970 2710974-2711022 2711962-2712019 2713023-2713070 2714010-2714067 2715071-2715119 2716059-2716115 2717119-2717167 2718107-2718164 2719168-2719216 2720155-2720212 2721216-2721264 2722205-2722261 2723264-2723312 2724253-2724309 2725313-2725361 2726302-2726357 2727361-2727409 2728352-2728406 2729410-2729457 2730400-2730455 2731458-2731506 2732449-2732504 2733506-2733554 2734497-2734552 2735555-2735603 2736545-2736601 2737603-2737651 2738594-2738649 2739651-2739700 2740642-2740698 2741700-2741748 2742691-2742746 2743748-2743796 2744739-2744795 2745797-2745845 2746788-2746844 2747845-2747893 2748837-2748892 2749893-2749941 2750885-2750941 2751942-2751990 2752934-2752989 2753990-2754038 2754982-2755038 2756038-2756087 2757031-2757086 2758087-2758135 2759079-2759134 2760135-2760183 2761128-2761183 2762184-2762232 2763176-2763232 2764232-2764280 2765224-2765281 2766281-2766329 2767273-2767329 2768328-2768377 2769322-2769378 2770376-2770425 2771371-2771426 2772424-2772474 2773419-2773474 2774473-2774522 2775468-2775523 2776521-2776570 2777516-2777571 2778570-2778619 2779564-2779620 2780619-2780667 2781613-2781668 2782667-2782716 2783661-2783717 2784715-2784764 2785710-2785765 2786763-2786813 2787758-2787813 2788811-2788861 2789807-2789862 2790860-2790909 2791855-2791910 2792908-2792957 2793903-2793959 2794957-2795005 2795952-2796007 2797005-2797054 2798000-2798057 2799053-2799103 2800049-2800105 2801102-2801151 2802097-2802153 2803150-2803200 2804145-2804202 2805198-2805248 2806194-2806250 2807247-2807296 2808244-2808299 2809295-2809344 2810292-2810347 2811344-2811392 2812341-2812397 2813392-2813441 2814389-2814445 2815440-2815489 2816437-2816493 2817489-2817537 2818486-2818542 2819537-2819586 2820534-2820590 2821586-2821635 2822583-2822639 2823634-2823684 2824632-2824687 2825683-2825732 2826681-2826736 2827731-2827780 2828729-2828785 2829779-2829829 2830778-2830834 2831827-2831877 2832826-2832882 2833876-2833925 2834874-2834930 2835924-2835974 2836923-2836979 2837973-2838022 2838971-2839028 2840021-2840071 2841020-2841077 2842070-2842119 2843069-2843125 2844119-2844168 2845118-2845174 2846167-2846216 2847166-2847222 2848215-2848266 2849214-2849270 2850263-2850314 2851263-2851319 2852311-2852362 2853312-2853367 2854360-2854411 2855360-2855416 2856408-2856459 2857409-2857464 2858457-2858507 2859457-2859514 2860505-2860555 2861505-2861562 2862553-2862603 2863554-2863611 2864603-2864651 2865602-2865659 2866651-2866700 2867651-2867708 2868700-2868748 2869699-2869756 2870748-2870797 2871748-2871805 2872796-2872845 2873797-2873853 2874844-2874894 2875845-2875901 2876892-2876942 2877894-2877949 2878940-2878990 2879942-2879998 2880989-2881039 2881991-2882047 2883037-2883087 2884039-2884095 2885086-2885136 2886088-2886143 2887135-2887184 2888136-2888192 2889184-2889232 2890185-2890240 2891232-2891281 2892233-2892289 2893280-2893330 2894282-2894337 2895329-2895379 2896330-2896386 2897377-2897427 2898378-2898434 2899426-2899476 2900427-2900482 2901474-2901524 2902475-2902531 2903522-2903573 2904524-2904579 2905571-2905622 2906573-2906628 2907619-2907671 2908622-2908677 2909668-2909719 2910670-2910726 2911716-2911767 2912719-2912774 2913764-2913816 2914767-2914823 2915813-2915864 2916815-2916871 2917861-2917912 2918864-2918919 2919910-2919960 2920912-2920968 2921958-2922008 2922961-2923016 2924006-2924056 2925009-2925065 2926055-2926105 2927058-2927113 2928103-2928153 2929106-2929161 2930152-2930202 2931155-2931210 2932200-2932250 2933203-2933258 2934248-2934299 2935252-2935307 2936297-2936347 2937300-2937355 2938345-2938395 2939348-2939404 2940395-2940444 2941397-2941454 2942443-2942492 2943445-2943502 2944492-2944541 2945494-2945550 2946540-2946590 2947542-2947599 2948588-2948639 2949591-2949647 2950637-2950687 2951640-2951696 2952685-2952735 2953689-2953744 2954733-2954784 2955737-2955792 2956782-2956832 2957786-2957841 2958830-2958880 2959834-2959889 2960879-2960929 2961883-2961938 2962928-2962977 2963931-2963986 2964977-2965026 2965979-2966035 2967025-2967074 2968028-2968083 2969073-2969123 2970076-2970132 2971122-2971172 2972125-2972180 2973170-2973220 2974173-2974228 2975219-2975269 2976222-2976277 2977267-2977317 2978270-2978325 2979316-2979366 2980318-2980374 2981365-2981414 2982367-2982422 2983413-2983463 2984415-2984470 2985461-2985511 2986464-2986519 2987509-2987559 2988513-2988567 2989557-2989608 2990561-2990616 2991606-2991657 2992609-2992664 2993654-2993706 2994658-2994713 2995702-2995754 2996706-2996761 2997751-2997803 2998755-2998809 2999800-2999851 3000803-3000859 3001849-3001899 3002852-3002908 3003897-3003948 3004900-3004956 3005946-3005996 3006949-3007005 3007994-3008045 3008998-3009053 3010043-3010093 3011046-3011101 3012091-3012141 3013095-3013150 3014139-3014190 3015144-3015198 3016188-3016238 3017192-3017247 3018237-3018287 3019240-3019295 3020286-3020336 3021289-3021344 3022334-3022385 3023337-3023392 3024383-3024433 3025386-3025440 3026431-3026482 3027434-3027489 3028479-3028530 3029483-3029537 3030528-3030579 3031531-3031586 3032577-3032628 3033579-3033634 3034625-3034676 3035628-3035683 3036674-3036725 3037676-3037731 3038722-3038773 3039725-3039779 3040771-3040821 3041773-3041828 3042819-3042869 3043822-3043876 3044868-3044917 3045870-3045925 3046916-3046965 3047919-3047973 3048964-3049014 3049967-3050022 3051013-3051063 3052016-3052070 3053061-3053112 3054064-3054118 3055110-3055160 3056112-3056167 3057159-3057209 3058161-3058215 3059208-3059258 3060209-3060264 3061256-3061307 3062258-3062312 3063304-3063355 3064306-3064361 3065353-3065403 3066355-3066409 3067401-3067452 3068403-3068457 3069449-3069501 3070451-3070506 3071498-3071550 3072500-3072555 3073546-3073598 3074548-3074603 3075595-3075647 3076597-3076651 3077644-3077695 3078645-3078700 3079693-3079743 3080694-3080748 3081741-3081792 3082742-3082797 3083789-3083840 3084791-3084845 3085838-3085889 3086839-3086894 3087886-3087937 3088888-3088942 3089935-3089985 3090936-3090990 3091983-3092034 3092985-3093039 3094031-3094082 3095033-3095087 3096080-3096131 3097081-3097136 3098128-3098180 3099130-3099184 3100176-3100228 3101178-3101233 3102225-3102277 3103227-3103281 3104274-3104325 3105275-3105329 3106323-3106375 3107324-3107378 3108371-3108423 3109372-3109426 3110420-3110472 3111420-3111475 3112468-3112520 3113469-3113523 3114517-3114568 3115518-3115572 3116566-3116617 3117566-3117620 3118614-3118666 3119615-3119668 3120663-3120715 3121663-3121717 3122711-3122763 3123711-3123765 3124760-3124812 3125760-3125814 3126808-3126860 3127808-3127862 3128856-3128908 3129857-3129911 3130905-3130957 3131905-3131959 3132953-3133006 3133954-3134007 3135001-3135055 3136002-3136056 3137050-3137103 3138050-3138104 3139099-3139152 3140099-3140153 3141148-3141200 3142147-3142201 3143196-3143248 3144196-3144250 3145244-3145297 3146244-3146298 3147293-3147345 3148292-3148346 3149341-3149393 3150341-3150395 3151391-3151442 3152389-3152443 3153439-3153490 3154438-3154492 3155488-3155539 3156487-3156540 3157536-3157587 3158535-3158589 3159584-3159635 3160583-3160637 3161633-3161684 3162632-3162685 3163681-3163733 3164680-3164734 3165729-3165782 3166729-3166782 3167779-3167830 3168777-3168831 3169827-3169880 3170826-3170879 3171876-3171928 3172874-3172927 3173925-3173977 3174922-3174976 3175974-3176025 3176971-3177024 3178023-3178073 3179019-3179073 3180072-3180122 3181067-3181121 3182120-3182170 3183115-3183170 3184168-3184218 3185163-3185218 3186217-3186267 3187212-3187266 3188265-3188317 3189260-3189315 3190314-3190365 3191309-3191363 3192362-3192413 3193357-3193412 3194411-3194461 3195406-3195460 3196459-3196510 3197454-3197509 3198507-3198559 3199502-3199557 3200555-3200608 3201551-3201605 3202605-3202656 3203599-3203654 3204653-3204705 3205648-3205702 3206702-3206753 3207697-3207750 3208750-3208801 3209745-3209798 3210799-3210850 3211793-3211846 3212847-3212899 3213842-3213895 3214895-3214948 3215890-3215943 3216944-3216996 3217939-3217992 3218993-3219045 3219987-3220040 3221042-3221093 3222036-3222089 3223090-3223141 3224084-3224137 3225138-3225191 3226132-3226185 3227187-3227239 3228181-3228234 3229236-3229287 3230229-3230282 3231285-3231336 3232277-3232331 3233333-3233384 3234325-3234379 3235381-3235433 3236373-3236428 3237431-3237481 3238422-3238476 3239479-3239530 3240470-3240524 3241528-3241579 3242519-3242572 3243576-3243627 3244567-3244620 3245625-3245676 3246616-3246669 3247673-3247724 3248664-3248717 3249721-3249773 3250712-3250765 3251769-3251822 3252761-3252814 3253818-3253870 3254809-3254862 3255867-3255919 3256858-3256911 3257916-3257968 3258906-3258959 3259964-3260017 3260955-3261008 3262013-3262065 3263003-3263056 3264062-3264113 3265051-3265104 3266111-3266162 3267099-3267153 3268159-3268210 3269147-3269201 3270207-3270259 3271196-3271250 3272257-3272307 3273244-3273298 3274305-3274355 3275292-3275347 3276353-3276405 3277341-3277395 3278402-3278453 3279389-3279443 3280451-3280502 3281438-3281491 3282500-3282550 3283486-3283540 3284548-3284598 3285535-3285588 3286597-3286647 3287583-3287636 3288646-3288695 3289631-3289684 3290694-3290745 3291680-3291733 3292743-3292793 3293728-3293781 3294791-3294843 3295776-3295829 3296839-3296891 3297824-3297878 3298888-3298939 3299873-3299926 3300936-3300988 3301921-3301975 3302985-3303037 3303969-3304023 3305033-3305085 3306018-3306071 3307081-3307134 3308066-3308120 3309129-3309182 3310115-3310168 3311178-3311231 3312163-3312217 3313226-3313279 3314212-3314265 3315276-3315327 3316260-3316314 3317324-3317376 3318308-3318362 3319372-3319425 3320357-3320410 3321421-3321473 3322405-3322458 3323470-3323522 3324453-3324507 3325519-3325570 3326501-3326555 3327567-3327620 3328549-3328604 3329616-3329668 3330598-3330652 3331665-3331717 3332646-3332701 3333713-3333765 3334695-3334749 3335762-3335814 3336743-3336797 3337810-3337863 3338791-3338845 3339859-3339911 3340840-3340893 3341908-3341959 3342888-3342942 3343956-3344008 3344937-3344990 3346004-3346056 3346985-3347039 3348053-3348104 3349034-3349087 3350101-3350153 3351082-3351135 3352149-3352202 3353130-3353183 3354199-3354251 3355178-3355232 3356247-3356299 3357227-3357280 3358296-3358347 3359275-3359329 3360344-3360396 3361324-3361377 3362393-3362444 3363372-3363425 3364442-3364493 3365420-3365473 3366490-3366542 3367468-3367521 3368540-3368591 3369517-3369570 3370588-3370640 3371565-3371618 3372636-3372688 3373613-3373666 3374685-3374736 3375661-3375714 3376733-3376785 3377710-3377762 3378782-3378834 3379759-3379810 3380831-3380882 3381807-3381858 3382879-3382931 3383855-3383906 3384927-3384979 3385903-3385955 3386976-3387028 3387951-3388003 3389025-3389076 3390000-3390051 3391074-3391124 3392048-3392100 3393122-3393173 3394096-3394148 3395170-3395222 3396145-3396196 3397220-3397270 3398193-3398245 3399268-3399319 3400241-3400293 3401317-3401368 3402289-3402342 3403365-3403417 3404338-3404390 3405414-3405465 3406386-3406438 3407463-3407513 3408434-3408487 3409511-3409563 3410483-3410535 3411559-3411611 3412531-3412584 3413609-3413659 3414579-3414632 3415657-3415707 3416628-3416680 3417705-3417756 3418676-3418728 3419754-3419805 3420724-3420776 3421803-3421854 3422772-3422824 3423852-3423902 3424821-3424872 3425900-3425950 3426869-3426921 3427948-3428000 3428917-3428969 3429997-3430048 3430965-3431017 3432046-3432097 3433014-3433065 3434094-3434146 3435062-3435114 3436143-3436194 3437110-3437162 3438192-3438243 3439159-3439210 3440240-3440291 3441207-3441258 3442289-3442340 3443255-3443307 3444337-3444389 3445303-3445355 3446386-3446437 3447352-3447403 3448435-3448485 3449400-3449451 3450483-3450534 3451449-3451500 3452531-3452582 3453497-3453548 3454580-3454630 3455545-3455596 3456629-3456678 3457594-3457644 3458677-3458727 3459642-3459693 3460726-3460776 3461690-3461741 3462775-3462825 3463739-3463789 3464824-3464874 3465787-3465837 3466872-3466923 3467835-3467886 3468920-3468971 3469883-3469934 3470969-3471019 3471932-3471982 3473017-3473068 3473980-3474030 3475065-3475117 3476028-3476079 3477113-3477165 3478076-3478127 3479163-3479213 3480125-3480175 3481211-3481262 3482173-3482223 3483259-3483311 3484221-3484271 3485309-3485360 3486269-3486319 3487357-3487408 3488318-3488367 3489407-3489456 3490366-3490415 3491455-3491506 3492414-3492464 3493503-3493554 3494462-3494512 3495552-3495602 3496510-3496561 3497600-3497651 3498559-3498609 3499648-3499700 3500607-3500657 3501696-3501748 3502655-3502706 3503746-3503796 3504703-3504754 3505794-3505845 3506751-3506802 3507842-3507894 3508799-3508850 3509892-3509943 3510848-3510899 3511940-3511991 3512896-3512947 3513988-3514039 3514944-3514995 3516037-3516089 3516992-3517043 3518086-3518137 3519040-3519091 3520134-3520185 3521089-3521140 3522183-3522235 3523137-3523188 3524231-3524283 3525185-3525236 3526279-3526331 3527233-3527284 3528329-3528379 3529281-3529332 3530377-3530428 3531330-3531380 3532425-3532477 3533379-3533429 3534475-3534525 3535427-3535477 3536523-3536574 3537475-3537525 3538571-3538622 3539523-3539573 3540619-3540672 3541572-3541622 3542668-3542720 3543620-3543670 3544717-3544768 3545668-3545718 3546766-3546818 3547716-3547766 3548815-3548866 3549765-3549814 3550863-3550914 3551813-3551863 3552911-3552962 3553861-3553911 3554960-3555011 3555909-3555959 3557009-3557060 3557957-3558007 3559057-3559108 3560006-3560055 3561106-3561157 3562054-3562103 3563154-3563206 3564102-3564151 3565202-3565254 3566150-3566199 3567251-3567303 3568198-3568247 3569300-3569351 3570247-3570296 3571348-3571400 3572295-3572344 3573397-3573449 3574343-3574393 3575446-3575497 3576391-3576441 3577494-3577545 3578439-3578489 3579542-3579594 3580488-3580537 3581592-3581643 3582536-3582585 3583640-3583691 3584584-3584633 3585689-3585740 3586632-3586682 3587738-3587789 3588680-3588730 3589786-3589837 3590728-3590778 3591834-3591885 3592777-3592826 3593882-3593935 3594825-3594874 3595931-3595983 3596873-3596922 3597980-3598031 3598921-3598970 3600028-3600079 3600970-3601018 3602076-3602127 3603018-3603066 3604125-3604175 3605066-3605114 3606174-3606224 3607114-3607162 3608222-3608273 3609162-3609211 3610270-3610322 3611210-3611259 3612319-3612371 3613259-3613307 3614368-3614419 3615307-3615355 3616418-3616467 3617355-3617403 3618466-3618517 3619403-3619451 3620514-3620565 3621451-3621500 3622563-3622613 3623499-3623548 3624612-3624662 3625548-3625596 3626660-3626710 3627596-3627644 3628708-3628758 3629644-3629692 3630756-3630806 3631692-3631740 3632804-3632855 3633740-3633788 3634853-3634904 3635789-3635837 3636901-3636952 3637837-3637885 3638950-3639001 3639886-3639933 3640998-3641050 3641933-3641981 3643047-3643098 3643981-3644029 3645096-3645147 3646029-3646077 3647144-3647195 3648077-3648125 3649194-3649245 3650125-3650173 3651242-3651293 3652173-3652221 3653291-3653341 3654221-3654269 3655340-3655389 3656269-3656317 3657388-3657439 3658317-3658365 3659436-3659487 3660366-3660413 3661485-3661535 3662414-3662462 3663534-3663583 3664462-3664510 3665582-3665632 3666510-3666558 3667631-3667681 3668558-3668606 3669679-3669729 3670606-3670654 3671728-3671778 3672654-3672703 3673776-3673827 3674703-3674751 3675824-3675875 3676751-3676799 3677873-3677923 3678800-3678847 3679921-3679973 3680848-3680895 3681970-3682021 3682896-3682943 3684019-3684069 3684944-3684992 3686067-3686118 3686992-3687040 3688115-3688168 3689040-3689088 3690164-3690216 3691088-3691137 3692213-3692264 3693137-3693185 3694261-3694312 3695185-3695233 3696309-3696361 3697233-3697281 3698358-3698410 3699281-3699329 3700407-3700458 3701329-3701377 3702455-3702506 3703377-3703425 3704503-3704554 3705425-3705473 3706551-3706602 3707473-3707522 3708601-3708651 3709522-3709570 3710649-3710699 3711570-3711618 3712697-3712748 3713618-3713666 3714746-3714796 3715666-3715714 3716794-3716845 3717714-3717762 3718843-3718894 3719762-3719809 3720891-3720942 3721810-3721857 3722940-3722990 3723858-3723906 3724988-3725040 3725906-3725954 3727036-3727088 3727954-3728002 3729085-3729136 3730002-3730050 3731135-3731184 3732050-3732098 3733183-3733233 3734098-3734146 3735232-3735282 3736146-3736194 3737281-3737330 3738194-3738242 3739329-3739378 3740243-3740290 3741377-3741427 3742291-3742338 3743425-3743475 3744339-3744386 3745474-3745523 3746387-3746435 3747523-3747572 3748435-3748483 3749571-3749621 3750483-3750531 3751619-3751669 3752532-3752579 3753667-3753719 3754580-3754627 3755717-3755767 3756628-3756675 3757765-3757816 3758676-3758723 3759813-3759864 3760724-3760771 3761862-3761912 3762772-3762819 3763910-3763962 3764820-3764867 3765960-3766010 3766869-3766915 3768008-3768058 3768917-3768963 3770057-3770107 3770965-3771011 3772105-3772155 3773013-3773060 3774153-3774204 3775061-3775108 3776201-3776253 3777109-3777156 3778250-3778301 3779157-3779204 3780299-3780350 3781205-3781252 3782347-3782398 3783253-3783300 3784396-3784446 3785301-3785348 3786444-3786495 3787349-3787396 3788493-3788544 3789398-3789444 3790542-3790592 3791446-3791492 3792590-3792640 3793494-3793540 3794639-3794688 3795542-3795588 3796687-3796736 3797590-3797636 3798736-3798784 3799638-3799684 3800784-3800832 3801686-3801732 3802832-3802882 3803734-3803780 3804880-3804930 3805782-3805828 3806928-3806978 3807830-3807876 3808977-3809027 3809878-3809924 3811025-3811075 3811926-3811972 3813073-3813123 3813974-3814020 3815121-3815173 3816023-3816068 3817171-3817221 3818071-3818116 3819219-3819269 3820119-3820164 3821268-3821317 3822167-3822213 3823316-3823365 3824215-3824261 3825366-3825414 3826263-3826309 3827414-3827463 3828311-3828357 3829462-3829511 3830359-3830405 3831511-3831560 3832407-3832453 3833559-3833608 3834455-3834501 3835607-3835657 3836503-3836549 3837656-3837706 3838551-3838597 3839704-3839755 3840599-3840645 3841753-3841803 3842647-3842693 3843801-3843851 3844695-3844741 3845850-3845899 3846743-3846789 3847898-3847948 3848791-3848837 3849947-3849996 3850839-3850885 3851995-3852044 3852888-3852933 3854044-3854092 3854936-3854981 3856093-3856142 3856984-3857029 3858141-3858190 3859032-3859077 3860190-3860238 3861080-3861125 3862238-3862287 3863128-3863173 3864286-3864335 3865176-3865221 3866334-3866383 3867224-3867269 3868383-3868432 3869272-3869317 3870431-3870480 3871320-3871365 3872480-3872530 3873368-3873413 3874529-3874578 3875416-3875461 3876577-3876626 3877464-3877509 3878626-3878675 3879512-3879557 3880674-3880723 3881560-3881605 3882722-3882771 3883608-3883653 3884771-3884820 3885656-3885701 3886819-3886868 3887704-3887749 3888867-3888916 3889752-3889797 3890916-3890966 3891800-3891845 3892965-3893014 3893848-3893893 3895013-3895062 3895897-3895941 3897061-3897110 3897945-3897989 3899109-3899158 3899993-3900037 3901158-3901207 3902041-3902085 3903206-3903255 3904089-3904133 3905254-3905304 3906137-3906181 3907303-3907353 3908185-3908229 3909351-3909402 3910233-3910277 3911400-3911450 3912281-3912325 3913448-3913498 3914329-3914373 3915498-3915547 3916377-3916421 3917546-3917595 3918425-3918469 3919594-3919643 3920473-3920517 3921642-3921691 3922521-3922565 3923691-3923740 3924569-3924613 3925739-3925788 3926617-3926661 3927787-3927836 3928665-3928709 3929835-3929885 3930713-3930757 3931884-3931933 3932761-3932805 3933932-3933981 3934809-3934853 3935980-3936029 3936857-3936901 3938029-3938078 3938905-3938949 3940077-3940126 3940953-3940997 3942126-3942175 3943001-3943045 3944174-3944224 3945049-3945093 3946224-3946272 3947097-3947141 3948272-3948321 3949145-3949189 3950320-3950369 3951193-3951237 3952368-3952418 3953241-3953285 3954417-3954466 3955289-3955333 3956465-3956514 3957337-3957381 3958513-3958563 3959385-3959429 3960562-3960611 3961433-3961477 3962610-3962659 3963481-3963525 3964658-3964708 3965529-3965573 3966706-3966757 3967577-3967621 3968755-3968806 3969625-3969669 3970803-3970854 3971673-3971717 3972851-3972902 3973721-3973765 3974899-3974951 3975769-3975813 3976948-3976999 3977817-3977861 3978996-3979047 3979865-3979909 3981045-3981095 3981913-3981957 3983093-3983143 3983961-3984005 3985142-3985190 3986009-3986053 3987190-3987238 3988057-3988101 3989238-3989287 3990105-3990149 3991287-3991336 3992153-3992197 3993335-3993385 3994201-3994244 3995383-3995433 3996249-3996292 3997432-3997482 3998297-3998340 3999480-3999530 4000345-4000388 4001529-4001578 4002393-4002436 4003577-4003627 4004441-4004484 4005626-4005675 4006489-4006532 4007674-4007724 4008537-4008580 4009722-4009772 4010585-4010628 4011771-4011821 4012633-4012676 4013819-4013869 4014681-4014724 4015867-4015917 4016729-4016772 4017915-4017965 4018777-4018820 4019964-4020014 4020825-4020868 4022012-4022062 4022873-4022916 4024060-4024111 4024921-4024963 4026108-4026159 4026969-4027011 4028157-4028208 4029017-4029059 4030205-4030256 4031065-4031107 4032254-4032304 4033113-4033155 4034302-4034353 4035161-4035203 4036351-4036401 4037209-4037251 4038399-4038449 4039257-4039299 4040447-4040498 4041305-4041347 4042495-4042546 4043353-4043395 4044544-4044594 4045401-4045443 4046592-4046643 4047448-4047491 4048640-4048691 4049496-4049539 4050689-4050739 4051544-4051587 4052738-4052786 4053592-4053635 4054786-4054835 4055640-4055683 4056834-4056883 4057688-4057731 4058883-4058931 4059736-4059779 4060930-4060980 4061784-4061827 4062978-4063028 4063832-4063874 4065026-4065077 4065880-4065922 4067075-4067125 4067928-4067970 4069123-4069173 4069976-4070018 4071171-4071222 4072024-4072066 4073219-4073270 4074072-4074114 4075268-4075318 4076120-4076162 4077317-4077367 4078168-4078210 4079365-4079416 4080216-4080258 4081413-4081464 4082264-4082306 4083462-4083512 4084312-4084354 4085511-4085561 4086360-4086402 4087559-4087609 4088408-4088450 4089608-4089657 4090455-4090498 4091656-4091704 4092503-4092546 4093705-4093753 4094551-4094594 4095753-4095801 4096599-4096642 4097802-4097850 4098647-4098690 4099849-4099898 4100695-4100738 4101897-4101947 4102743-4102786 4103945-4103995 4104791-4104834 4105994-4106043 4106839-4106882 4108042-4108092 4108887-4108929 4110090-4110140 4110935-4110977 4112139-4112188 4112983-4113025 4114187-4114236 4115031-4115073 4116235-4116284 4117079-4117121 4118283-4118333 4119127-4119169 4120331-4120381 4121175-4121217 4122379-4122430 4123222-4123265 4124427-4124478 4125270-4125313 4126475-4126526 4127318-4127361 4128525-4128575 4129366-4129409 4130573-4130623 4131414-4131457 4132621-4132671 4133462-4133505 4134669-4134719 4135511-4135552 4136717-4136767 4137559-4137600 4138765-4138815 4139606-4139648 4140814-4140863 4141654-4141696 4142862-4142911 4143702-4143743 4144910-4144960 4145750-4145791 4146958-4147008 4147798-4147839 4149006-4149056 4149845-4149886 4151054-4151104 4151893-4151934 4153103-4153152 4153941-4153982 4155151-4155200 4155989-4156030 4157200-4157248 4158037-4158078 4159248-4159296 4160085-4160126 4161296-4161345 4162133-4162174 4163344-4163393 4164181-4164222 4165392-4165442 4166229-4166270 4167441-4167490 4168277-4168318 4169489-4169538 4170325-4170366 4171538-4171587 4172373-4172414 4173585-4173636 4174421-4174462 4175633-4175684 4176468-4176510 4177681-4177732 4178516-4178558 4179730-4179780 4180564-4180606 4181779-4181828 4182612-4182654 4183827-4183876 4184660-4184702 4185875-4185924 4186708-4186749 4187923-4187972 4188756-4188797 4189971-4190020 4190804-4190845 4192019-4192068 4192852-4192893 4194067-4194118 4547313-4547319 4547353-4547359 4547365-4547371 4547374-4547383 4547389-4547406 4547680-4547686 4547692-4547698 4547730-4547736 4547738-4547744 4547769-4547785 4547792-4547819 4547821-4547835 4547844-4547916 4548079-4548081 4548119-4548121 4548131-4548133 4548140-4548145 4548155-4548157 4548160-4548163 4548166-4548178 4548188-4548429 4548449-4548451 4548461-4548463 4548499-4548501 4548507-4548509 4548538-4548540 4548544-4548550 4548561-4548572 4548574-4548584 4548590-4548600 4548613-4548619 4548621-4548626 4548628-4548660 4548663-4548943 4548957-4548997 4549002-4549004 4549009-4575039 4575048-4575050 4575058-4575061 4575064-4575066 4575068-4575089 4575091-4575098 4575100-4575116 4575118-4575547 4575642-4575645 4575648-4575652 4575654-4575665 4575667-4575670 4575676-4575680 4575682-4575691 4575695-4575697 4575702-4575713 4575722-4575724 4575730-4575736 4575738-4575742 4575747-4575756 4575758-4575793 4575795-4576058 4576197-4576199 4576221-4576223 4576263-4576266 4576287-4576291 4576293-4576295 4576297-4576300 4576308-4576310 4576312-4576318 4576323-4576329 4576333-4576568 4576917-4576949 4576951-4576992 4576997-4577003 4577005-4577078 4577471-4577477 4577495-4577501 4577537-4577544 4577561-4577578 4577582-4577588",
+      "1375325-1375327 1377368-1377389 1379411-1379437 1381458-1381488 1383506-1383536 1385552-1385586 1387600-1387635 1389647-1389685 1391692-1391733 1393739-1393781 1395786-1395830 1397834-1397879 1399879-1399928 1401927-1401977 1403974-1404026 1406021-1406075 1408068-1408124 1410116-1410173 1412163-1412221 1414210-1414269 1416257-1416317 1418304-1418366 1420352-1420414 1422400-1422462 1424448-1424510 1426496-1426558 1428544-1428606 1430592-1430654 1432640-1432703 1434687-1434751 1436734-1436799 1438782-1438846 1440830-1440894 1442878-1442942 1444926-1444990 1446974-1447038 1449021-1449086 1451069-1451134 1453117-1453183 1455165-1455231 1457213-1457279 1459261-1459327 1461309-1461375 1463357-1463423 1465405-1465470 1467453-1467517 1469501-1469565 1471549-1471613 1473597-1473660 1475646-1475708 1477694-1477755 1479744-1479802 1481792-1481850 1483841-1483898 1485889-1485945 1487937-1487993 1489985-1490039 1492034-1492087 1494082-1494134 1496132-1496181 1498180-1498229 1500228-1500277 1502277-1502324 1504326-1504372 1506375-1506419 1508423-1508466 1510472-1510511 1512521-1512559 1514570-1514605 1516619-1516650 1518673-1518698 1520721-1520744 1522770-1522787 1524823-1524834 1526876-1526881",
+      "4187224-4187244 4189264-4189297 4191308-4191350 4193356-4193398 4194304-4206153 4206158-4206575 4206589-4206648 4206664-4207086 4207101-4207113 4207121-4207131 4207137-4207149 4207172-4207596 4207680-4207848 4207864-4207927 4207934-4208106 4208190-4208227 4208233-4208355 4208375-4208391 4208395-4208409 4208411-4208427 4208444-4208619 4208703-4208708 4208716-4208729 4208746-4208864 4208957-4209127 4209226-4209228 4209256-4209258 4209309-4209334 4209338-4209352 4209357-4209370 4209467-4209508 4209510-4209636 4209827-4209840 4209851-4209858 4209868-4209877 4209977-4209986 4209990-4210007 4210020-4210142 4210344-4210348 4210364-4210366 4210380-4210384 4210501-4210507 4210531-4210537 4210584-4210649 4211102-4211119 4211126-4211137 4211143-4211156 4211618-4211626 4211638-4211644 4211654-4211662",
+      "1375333-1375337 1383504 1385551 1389644 1399929-1399930 1401978 1404027 1424447 1426495 1428543 1436733 1447040 1449087-1449088 1451135-1451136 1479742 1481791 1483839 1489984 1496184 1498230-1498231 1500278 1518669-1518670 1520719 1522768-1522769 1524835-1524838",
+      "2978913",
+      "2983008",
+      "2968669",
+      "2976865",
+      "2980960",
+      "2970717",
+      "2974817",
+      "2958432 2960480 2962527-2962528 2964574-2964578 2966622-2966627 2968670-2968674 2970718-2970722 2972765-2972769 2974813-2974816 2976860-2976864 2978907-2978912 2980955-2980959 2983004-2983007 2985054-2985055 2987102 2989150",
+      "2962529-2962530",
+      "2985052-2985053 2987101",
+      "2960481",
+      "2987100",
+      "2989149",
+      "2958433",
+      "2991197",
+      "2991196",
+      "2993244",
+      "3462240-3462243 3462245 3464274 3464281-3464282 3464284-3464293 3466314-3466322 3466327-3466344 3468361-3468403 3470402 3470408-3470456 3472447-3472451 3472453-3472507 3474493-3474558 3476539-3476609 3478585-3478659 3478661 3480631-3480711 3482677-3482760 3484723-3484809 3486770-3486857 3488817-3488906 3488908 3490864-3490958 3492911-3493011 3494957-3495059 3497004-3497111 3499048-3499159 3501095-3501209 3503142-3503259 3505188-3505310 3507235-3507358 3509283-3509407 3511330-3511455 3513377-3513506 3515424-3515556 3517471-3517606 3519517-3519657 3521565-3521705 3523612-3523755 3525659-3525806 3527705-3527854 3529752-3529905 3531799-3531955 3533846-3534006 3535893-3536054 3537940-3538104 3539987-3540154 3542034-3542202 3544081-3544251 3546128-3546299 3548176-3548350 3550223-3550399 3552271-3552448 3554318-3554497 3556364-3556546 3558410-3558596 3560458-3560645 3562505-3562695 3564552-3564744 3566599-3566794 3568647-3568842 3570694-3570893 3572741-3572942 3574788-3574990 3576836-3577040 3578883-3579090 3580930-3581138 3582978-3583188 3585025-3585238 3587072-3587286 3589119-3589336 3591166-3591385 3593214-3593434 3595261-3595482 3597308-3597532 3599356-3599583 3601403-3601631 3603451-3603680 3605498-3605730 3607545-3607778 3609593-3609828 3611640-3611877 3613688-3613925 3615735-3615975 3617782-3618024 3619830-3620074 3621877-3622122 3623924-3624172 3625971-3626221 3628018-3628270 3630066-3630318 3632113-3632368 3634160-3634416 3636208-3636323 3636330-3636464 3638255-3638355 3638357-3638360 3638363-3638365 3638380-3638513 3640302-3640400 3640406-3640407 3640431-3640432 3640434-3640562 3642350-3642444 3642446-3642447 3642482-3642483 3642485-3642611 3644397-3644488 3644539-3644540 3644542-3644543 3644545-3644661 3646445-3646534 3646597-3646710 3648492-3648578 3648580-3648581 3648649-3648759 3650540-3650623 3650698 3650700-3650807 3652587-3652670 3652749-3652856 3654635-3654717 3654799-3654906 3656682-3656755 3656757 3656762-3656763 3656849-3656955 3658730-3658802 3658897-3659005 3660777-3660848 3660945-3661054 3662825-3662895 3662996-3662997 3663000-3663102 3664871-3664942 3665051-3665151 3666919-3666988 3667101-3667200 3668967-3669035 3669151-3669153 3669155-3669249 3671014-3671082 3671199-3671200 3671203-3671299 3673062-3673128 3673251-3673348 3675109-3675175 3675303-3675396 3677157-3677222 3677352-3677445 3679203-3679268 3679404-3679494 3681251-3681315 3681452-3681543 3683298-3683361 3683500-3683593 3685346-3685407 3685553-3685642 3687393-3687451 3687453-3687454 3687601-3687691 3689441-3689498 3689652-3689740 3691488-3691545 3691701-3691789 3693536-3693593 3693750-3693838 3695583-3695640 3695799-3695887 3697630-3697687 3697850-3697935 3699678-3699733 3699900-3699984 3701725-3701780 3701949-3702032 3703773-3703828 3703997-3704081 3705820-3705875 3706047-3706130 3707868-3707922 3708098-3708179 3709915-3709969 3710148-3710227 3711962-3712016 3712196-3712277 3714010-3714063 3714247-3714326 3716058-3716110 3716297-3716375 3718105-3718157 3718347-3718423 3720153-3720204 3720396-3720472 3722201-3722250 3722446-3722522 3724248-3724297 3724495-3724571 3726296-3726345 3726544-3726620 3728342-3728392 3728593-3728668 3730390-3730439 3730642-3730718 3732437-3732486 3732691-3732767 3734484-3734533 3734740-3734815 3736532-3736580 3736790-3736864 3738580-3738627 3738839-3738913 3740627-3740674 3740888-3740962 3742675-3742721 3742937-3743011 3744722-3744769 3744987-3745059 3746769-3746816 3747036-3747109 3748817-3748864 3749084-3749157 3750865-3750911 3751133-3751206 3752912-3752958 3753183-3753256 3754960-3755005 3755232-3755306 3757007-3757051 3757282-3757354 3759055-3759099 3759330-3759403 3761102-3761146 3761379-3761452 3763150-3763194 3763431-3763501 3765197-3765241 3765479-3765550 3767245-3767289 3767528-3767599 3769292-3769336 3769577-3769648 3771340-3771383 3771627-3771696 3773388-3773431 3773676-3773745 3775435-3775477 3775725-3775794 3777483-3777524 3777776-3777843 3779530-3779570 3779825-3779892 3781577-3781618 3781873-3781941 3783625-3783665 3783922-3783990 3785672-3785712 3785973-3786038 3787720-3787759 3788022-3788086 3789768-3789806 3790070-3790135 3791815-3791854 3792119-3792184 3793863-3793901 3794168-3794232 3795910-3795949 3796218-3796281 3797958-3797996 3798267-3798330 3800005-3800044 3800315-3800379 3802052-3802091 3802364-3802428 3804100-3804138 3804414-3804477 3806148-3806185 3806463-3806525 3808195-3808233 3808511-3808574 3810243-3810280 3810560-3810623 3812290-3812328 3812610-3812672 3814338-3814375 3814659-3814721 3816385-3816422 3816707-3816769 3818433-3818470 3818757-3818818 3820481-3820517 3820805-3820867 3822528-3822565 3822853-3822916 3824576-3824612 3824902-3824965 3826623-3826659 3826950-3827013 3828671-3828707 3828999-3829062 3830719-3830754 3831048-3831111 3832766-3832802 3833097-3833160 3834813-3834849 3835146-3835209 3836861-3836896 3837196-3837257 3838908-3838944 3839245-3839306 3840956-3840990 3841294-3841355 3843003-3843038 3843343-3843404 3845051-3845085 3845394-3845452 3847099-3847133 3847442-3847501 3849146-3849180 3849491-3849550 3851193-3851227 3851540-3851599 3853241-3853274 3853589-3853648 3855289-3855321 3855637-3855696 3857336-3857369 3857686-3857745 3859384-3859417 3859735-3859794 3861431-3861464 3861784-3861843 3863479-3863512 3863832-3863891 3865526-3865559 3865883-3865940 3867574-3867607 3867932-3867989 3869621-3869654 3869980-3870038 3871669-3871701 3872029-3872086 3873716-3873748 3874078-3874135 3875764-3875796 3876127-3876184 3877812-3877844 3878176-3878232 3879859-3879891 3880225-3880281 3881907-3881939 3882274-3882330 3883955-3883986 3884323-3884379 3886002-3886034 3886371-3886427 3888050-3888081 3888420-3888476 3890097-3890129 3890469-3890525 3892145-3892176 3892518-3892574 3894193-3894224 3894567-3894622 3896240-3896271 3896616-3896671 3898287-3898319 3898664-3898720 3900335-3900366 3900713-3900768 3902383-3902414 3902762-3902817 3904431-3904461 3904811-3904866 3906478-3906509 3906860-3906914 3908526-3908556 3908910-3908963 3910573-3910603 3910958-3911011 3912621-3912650 3913006-3913061 3914669-3914698 3915055-3915109 3916716-3916746 3917104-3917158 3918763-3918793 3919153-3919207 3920811-3920841 3921201-3921255 3922859-3922888 3923250-3923304 3924906-3924936 3925299-3925353 3926954-3926983 3927348-3927401 3929001-3929031 3929397-3929450 3931049-3931078 3931445-3931499 3933096-3933125 3933494-3933547 3935144-3935173 3935543-3935596 3937191-3937220 3937592-3937645 3939239-3939268 3939640-3939693 3941287-3941315 3941689-3941742 3943334-3943363 3943738-3943791 3945381-3945410 3945787-3945839 3947429-3947458 3947835-3947888 3949477-3949506 3949884-3949936 3951524-3951553 3951933-3951985 3953572-3953601 3953982-3954034 3955620-3955648 3956030-3956082 3957667-3957696 3958079-3958131 3959715-3959743 3960128-3960180 3961763-3961791 3962177-3962228 3963810-3963839 3964225-3964277 3965857-3965886 3966274-3966326 3967905-3967933 3968323-3968374 3969953-3969981 3970371-3970423 3972001-3972029 3972421-3972471 3974048-3974076 3974470-3974520 3976096-3976124 3976519-3976569 3978144-3978171 3978567-3978617 3980192-3980219 3980616-3980665 3982239-3982267 3982665-3982713 3984287-3984314 3984713-3984762 3986335-3986362 3986762-3986811 3988381-3988409 3988811-3988859 3990429-3990457 3990860-3990908 3992477-3992505 3992908-3992956 3994524-3994552 3994957-3995005 3996572-3996599 3997006-3997054 3998619-3998646 3999054-3999102 4000667-4000694 4001103-4001151 4002715-4002741 4003152-4003199 4004762-4004788 4005200-4005248 4006810-4006836 4007250-4007296 4008857-4008884 4009298-4009344 4010905-4010931 4011346-4011393 4012952-4012979 4013395-4013441 4015000-4015026 4015443-4015491 4017048-4017074 4017492-4017539 4019095-4019121 4019541-4019588 4021143-4021169 4021589-4021636 4023191-4023216 4023638-4023685 4025238-4025264 4025687-4025734 4027286-4027312 4027735-4027782 4029334-4029359 4029784-4029831 4031381-4031407 4031833-4031879 4033429-4033454 4033881-4033928 4035476-4035502 4035930-4035976 4037524-4037550 4037978-4038025 4039572-4039597 4040027-4040073 4041619-4041645 4042076-4042122 4043667-4043692 4044124-4044170 4045715-4045740 4046172-4046219 4047762-4047788 4048220-4048268 4049810-4049835 4050269-4050316 4051858-4051883 4052317-4052365 4053906-4053931 4054366-4054413 4055953-4055978 4056415-4056462 4058001-4058026 4058463-4058510 4060048-4060073 4060512-4060559 4062096-4062121 4062560-4062607 4064143-4064169 4064609-4064656 4066191-4066216 4066658-4066704 4068239-4068264 4068706-4068753 4070286-4070312 4070755-4070801 4072334-4072359 4072803-4072850 4074382-4074406 4074853-4074898 4076430-4076454 4076901-4076947 4078477-4078502 4078950-4078995 4080525-4080549 4080999-4081044 4082572-4082597 4083047-4083092 4084620-4084645 4085096-4085141 4086668-4086692 4087144-4087189 4088715-4088740 4089193-4089238 4090763-4090787 4091241-4091286 4092810-4092835 4093290-4093335 4094858-4094883 4095338-4095383 4096906-4096929 4097387-4097431 4098954-4098977 4099435-4099479 4101001-4101025 4101484-4101527 4103049-4103072 4103532-4103576 4105097-4105120 4105581-4105624 4107144-4107168 4107630-4107673 4109192-4109215 4109679-4109721 4111239-4111263 4111727-4111770 4113287-4113311 4113776-4113818 4115335-4115358 4115824-4115867 4117383-4117406 4117873-4117915 4119430-4119453 4119921-4119963 4121478-4121501 4121970-4122012 4123526-4123549 4124018-4124060 4125573-4125596 4126067-4126109 4127621-4127644 4128115-4128157 4129668-4129692 4130164-4130206 4131716-4131739 4132212-4132254 4133764-4133787 4134261-4134302 4135811-4135835 4136309-4136351 4137859-4137882 4138358-4138399 4139907-4139930 4140406-4140448 4141954-4141977 4142455-4142496 4144002-4144025 4144503-4144545 4146050-4146072 4146552-4146593 4148097-4148120 4148600-4148641 4150145-4150168 4150648-4150690 4152193-4152216 4152697-4152738 4154240-4154263 4154745-4154787 4156288-4156311 4156794-4156835 4158336-4158358 4158842-4158883 4160383-4160406 4160891-4160932 4162431-4162454 4162939-4162980 4164479-4164501 4164987-4165028 4166526-4166549 4167036-4167077 4168574-4168597 4169084-4169125 4170622-4170644 4171133-4171174 4172669-4172692 4173181-4173222 4174717-4174740 4175230-4175270 4176765-4176787 4177278-4177319 4178812-4178835 4179326-4179367 4180860-4180883 4181375-4181415 4182908-4182931 4183423-4183464 4184955-4184979 4185472-4185512 4187003-4187026 4187520-4187560 4189051-4189074 4189567-4189609 4191098-4191122 4191615-4191657 4193146-4193169 4193663-4193707 4341837-4341843 4342347-4342361 4342374-4342379 4342857-4342927 4342932-4342973 4343025-4343031 4343035-4343040 4343110-4343113 4343116-4343117 4343370-4343510 4343514-4343527 4343529-4343572 4343623-4343633 4343637-4343638 4343655-4343656 4343880-4344130 4344132-4344155 4344157-4344160 4344162-4344169 4344172-4344173 4344175-4344182 4344184-4344186 4344189-4344191 4344194-4344195 4344197-4344199 4344203-4344204 4344213-4344216 4344218-4344225 4344227-4344229 4344232-4344238 4344240-4344242 4344245-4344246 4344249-4344250 4344306-4344308 4344316-4344317 4344390-4344721 4344723-4344776 4344779-4344780 4344782-4344784 4344792-4344793 4344796-4344797 4344800-4344801 4344807-4344809 4344811-4344838 4344841-4344846 4344901-4345372 4345374-4345377 4345379-4345381 4345383-4345385 4345387-4345401 4345403-4345405 4345411-4362368 4362371-4362373 4362375-4362377 4362380-4362386 4362389-4362392 4362394-4362396 4362398-4362401 4362403 4362405-4362763 4362765-4362812 4362814-4362817 4362827-4362829 4362832-4362837 4362840-4362843 4362845-4362855 4362858-4362860 4362863-4362864 4362915-4363195 4363197-4363204 4363206-4363213 4363215-4363221 4363224-4363225 4363228-4363231 4363233-4363234 4363237-4363239 4363242-4363248 4363251-4363252 4363255-4363256 4363260-4363262 4363264-4363266 4363269-4363270 4363278-4363279 4363282-4363284 4363287-4363289 4363291-4363292 4363296-4363297 4363300-4363302 4363305-4363307 4363309-4363310 4363425-4363583 4363589-4363630 4363682-4363684 4363687-4363688 4363691-4363692 4363696-4363697 4363942-4364043 4364047-4364083 4364452-4364470"
+    ],
+    "morse_set_atoms_encoding": "space-separated nonnegative integers in increasing order; 'a-b' is the closed range a..b",
+    "nodes": [
+      {
+        "atoms": 220442,
+        "base_readout_bounds": {
+          "lower": [
+            -1.7029296875,
+            -1.93427734375
+          ],
+          "upper": [
+            0.8,
+            1.5615722656249997
+          ]
+        },
+        "base_readout_cells": 192152,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 512,
+        "handle_pieces": 48231,
+        "index": 0,
+        "pieces": 240383
+      },
+      {
+        "atoms": 3868,
+        "base_readout_bounds": {
+          "lower": [
+            -1.0489990234375,
+            -0.07192382812500009
+          ],
+          "upper": [
+            -0.948291015625,
+            0.06875
+          ]
+        },
+        "base_readout_cells": 3868,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 1,
+        "pieces": 3868
+      },
+      {
+        "atoms": 15031,
+        "base_readout_bounds": {
+          "lower": [
+            0.79462890625,
+            -0.04042968750000009
+          ],
+          "upper": [
+            0.8,
+            0.04985351562499964
+          ]
+        },
+        "base_readout_cells": 141,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 512,
+        "handle_pieces": 25361,
+        "index": 2,
+        "pieces": 25502
+      },
+      {
+        "atoms": 38,
+        "base_readout_bounds": {
+          "lower": [
+            -1.0489990234375,
+            -0.07192382812500009
+          ],
+          "upper": [
+            -0.9496337890625,
+            0.07084960937499965
+          ]
+        },
+        "base_readout_cells": 38,
+        "components_in_suspension": 12,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 3,
+        "pieces": 38
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.0023925781250000444,
+            0.003662109375
+          ],
+          "upper": [
+            0.0037353515625000444,
+            0.00576171875
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 4,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.005078125000000044,
+            0.0015624999999999112
+          ],
+          "upper": [
+            0.006420898437500044,
+            0.003662109374999911
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 5,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.004321289062499956,
+            -0.004736328125000355
+          ],
+          "upper": [
+            -0.0029785156249999556,
+            -0.0026367187500003554
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 6,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.0010498046875000444,
+            0.003662109375
+          ],
+          "upper": [
+            0.0023925781250000444,
+            0.00576171875
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 7,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.0037353515625000444,
+            0.0015624999999999112
+          ],
+          "upper": [
+            0.005078125000000044,
+            0.003662109374999911
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 8,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.0029785156249999556,
+            -0.004736328125000355
+          ],
+          "upper": [
+            -0.0016357421874999556,
+            -0.0026367187500003554
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 9,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.0002929687499999556,
+            0.003662109375
+          ],
+          "upper": [
+            0.0010498046875000444,
+            0.00576171875
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 10,
+        "pieces": 1
+      },
+      {
+        "atoms": 58,
+        "base_readout_bounds": {
+          "lower": [
+            -0.011035156249999956,
+            -0.008935546875000089
+          ],
+          "upper": [
+            0.010449218750000044,
+            0.009960937499999734
+          ]
+        },
+        "base_readout_cells": 58,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 11,
+        "pieces": 58
+      },
+      {
+        "atoms": 2,
+        "base_readout_bounds": {
+          "lower": [
+            -0.008349609374999956,
+            0.003662109375
+          ],
+          "upper": [
+            -0.007006835937499956,
+            0.007861328124999645
+          ]
+        },
+        "base_readout_cells": 2,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 12,
+        "pieces": 2
+      },
+      {
+        "atoms": 3,
+        "base_readout_bounds": {
+          "lower": [
+            0.006420898437500044,
+            -0.0068359375
+          ],
+          "upper": [
+            0.009106445312500044,
+            -0.0026367187500003554
+          ]
+        },
+        "base_readout_cells": 3,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 13,
+        "pieces": 3
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.009692382812499956,
+            0.003662109375
+          ],
+          "upper": [
+            -0.008349609374999956,
+            0.00576171875
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 14,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.007763671875000044,
+            -0.0068359375
+          ],
+          "upper": [
+            0.009106445312500044,
+            -0.004736328125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 15,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.009106445312500044,
+            -0.004736328125000355
+          ],
+          "upper": [
+            0.010449218750000044,
+            -0.0026367187500003554
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 16,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.011035156249999956,
+            0.003662109375
+          ],
+          "upper": [
+            -0.009692382812499956,
+            0.00576171875
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 17,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.010449218750000044,
+            -0.004736328125000355
+          ],
+          "upper": [
+            0.011791992187500044,
+            -0.0026367187500003554
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 18,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.010449218750000044,
+            -0.0068359375
+          ],
+          "upper": [
+            0.011791992187500044,
+            -0.004736328125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 19,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.011791992187500044,
+            -0.0068359375
+          ],
+          "upper": [
+            0.013134765625000044,
+            -0.004736328125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 20,
+        "pieces": 1
+      },
+      {
+        "atoms": 60770,
+        "base_readout_bounds": {
+          "lower": [
+            0.31928710937500004,
+            -0.4813476562500001
+          ],
+          "upper": [
+            0.8,
+            0.6986328125
+          ]
+        },
+        "base_readout_cells": 40973,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 512,
+        "handle_pieces": 33501,
+        "index": 21,
+        "pieces": 74474
+      }
+    ],
+    "scc_count": 4370143
+  },
+  "morse_graph_path_exit_policy": {
+    "edges": 73432514,
+    "morse_edges": [
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        10,
+        7
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        11,
+        9
+      ],
+      [
+        11,
+        10
+      ],
+      [
+        12,
+        11
+      ],
+      [
+        13,
+        11
+      ],
+      [
+        14,
+        12
+      ],
+      [
+        15,
+        13
+      ],
+      [
+        16,
+        13
+      ],
+      [
+        17,
+        14
+      ],
+      [
+        18,
+        16
+      ],
+      [
+        19,
+        15
+      ],
+      [
+        19,
+        18
+      ],
+      [
+        20,
+        19
+      ],
+      [
+        21,
+        2
+      ],
+      [
+        21,
+        17
+      ],
+      [
+        21,
+        20
+      ]
+    ],
+    "morse_set_atoms": [
+      220442,
+      3868,
+      15031,
+      38,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      58,
+      2,
+      3,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      60770
+    ],
+    "morse_set_base_cells": [
+      192152,
+      3868,
+      141,
+      38,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      58,
+      2,
+      3,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      40973
+    ],
+    "seconds": 11.936281124944799
+  },
+  "parameters": {
+    "R": [
+      [
+        -1.95,
+        0.8
+      ],
+      [
+        -2.35,
+        1.95
+      ]
+    ],
+    "atol": 1e-12,
+    "beta": 0.76,
+    "c": 0.7,
+    "eps": 1.0,
+    "max_step": 0.02,
+    "rtol": 1e-10,
+    "tau": 0.5,
+    "w": 0.8
+  },
+  "phase_cells": 512,
+  "python": "3.14.7",
+  "reference_set_identification": {
+    "C": {
+      "base_points": 400,
+      "handle_points": 400,
+      "points": 800,
+      "points_in_no_morse_set": 0,
+      "points_per_node": {
+        "0": 800
+      }
+    },
+    "F": {
+      "base_points": 1,
+      "handle_points": 0,
+      "points": 1,
+      "points_in_no_morse_set": 0,
+      "points_per_node": {
+        "1": 1
+      }
+    },
+    "S": {
+      "base_points": 1,
+      "handle_points": 0,
+      "points": 1,
+      "points_in_no_morse_set": 0,
+      "points_per_node": {
+        "11": 1
+      }
+    },
+    "U_Z": {
+      "base_points": 400,
+      "handle_points": 400,
+      "points": 800,
+      "points_in_no_morse_set": 0,
+      "points_per_node": {
+        "21": 800
+      }
+    },
+    "Z": {
+      "base_points": 1,
+      "handle_points": 400,
+      "points": 401,
+      "points_in_no_morse_set": 0,
+      "points_per_node": {
+        "2": 401
+      }
+    }
+  },
+  "relation": {
+    "atoms_with_empty_image": 439679,
+    "default_rule": false,
+    "discarded_exit_endpoints": 442538,
+    "edges": 75853808,
+    "eval_mode": "corners",
+    "evaluated_endpoints": 6046662,
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "failed_endpoints": 0,
+    "failure_messages": [],
+    "gap_refinement_depth": 14,
+    "gap_refinement_samples": 1037721,
+    "handle_paths": 1580,
+    "image_rule": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding; gap refinement depth 14",
+    "left_and_returned_endpoints": 181932,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "padding_requested": true,
+    "sample_depth": null,
+    "sampled_edges": 17600610,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null,
+    "source_atoms_with_exit": 442926,
+    "source_atoms_with_failed_samples": 0,
+    "source_atoms_with_left_and_returned": 164628,
+    "unique_base_samples": 4198401,
+    "unique_handle_samples": 810540,
+    "unresolved_gap_segments": 0
+  },
+  "runtime_seconds": {
+    "conley": 328.1217149589211,
+    "endpoint_probe": 4.136114874971099,
+    "figure": 24.103577041998506,
+    "grid": 4.677483125007711,
+    "image_connectivity": 16.76665583299473,
+    "morse_graph": 2.657465458032675,
+    "relation": 385.95328045799397,
+    "relation_detail": {
+      "seconds_base_endpoints": 310.5656093340367,
+      "seconds_gap_refinement": 68.87237749993801,
+      "seconds_handle_endpoints": 1.566518250037916,
+      "seconds_locate": 2.3975152500206605,
+      "seconds_total": 385.9357875830028
+    }
+  },
+  "schema": "paper-suspension-grid-run-v3",
+  "tau": 0.5,
+  "variant_of": "impact-vdp-duffing",
+  "variant_overrides": {
+    "beta": 0.76
+  }
+}

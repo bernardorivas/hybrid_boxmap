@@ -9,6 +9,10 @@ Each run has a JSON summary and its figures under the same stem.
   redrawn at `ff7ca77` with base chart, zoom panels, handle chart, and Morse
   graph; and the neuron run at `tau = 1` that the sweep first picked, with
   figures in the earlier layout (base chart and Morse graph).
+- `./`, variant `impact-vdp-duffing-beta076` (the oscillator at
+  `beta = 0.76`, same window): the run at `tau = 1`, level 6, 1024 base
+  cells and the run at `tau = 0.5`, level 7, 2048 base cells, both
+  gap-refined, at `a7ac462`, each with both figure variants.
 - `sweep-bouncing-ball/`, `sweep-rimless-wheel/`, `sweep-spiking-neuron/`,
   `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs),
   figures in the earlier layout.
