@@ -804,10 +804,20 @@ def _kth_per_group_unsorted(rows: IntArray, k: int) -> IntArray:
 
 
 def _unique_located(rows: IntArray, pieces: IntArray) -> LocatedPoints:
+    """Distinct ``(row, piece)`` pairs in lexicographic order.
+
+    The pairs are nonnegative, so they are sorted as the integers
+    ``row * span + piece`` (``span > max piece``), which is the order of
+    ``np.unique`` along rows.
+    """
+
     if rows.size == 0:
         return LocatedPoints(rows.astype(np.int64), pieces.astype(np.int64))
-    pairs = np.unique(np.stack((rows, pieces), axis=1), axis=0)
-    return LocatedPoints(pairs[:, 0].astype(np.int64), pairs[:, 1].astype(np.int64))
+    rows = rows.astype(np.int64, copy=False)
+    pieces = pieces.astype(np.int64, copy=False)
+    span = int(pieces.max()) + 1
+    codes = np.unique(rows * span + pieces)
+    return LocatedPoints(codes // span, codes % span)
 
 
 # ---------------------------------------------------------------------------

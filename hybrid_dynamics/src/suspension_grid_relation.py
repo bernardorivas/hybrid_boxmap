@@ -1318,19 +1318,18 @@ def compute_suspension_morse_graph(relation: SuspensionGridRelation) -> Suspensi
     recurrent = np.flatnonzero((sizes > 1) | self_loop)
     raw_sets = [np.flatnonzero(labels == component) for component in recurrent]
 
-    # Reachability among Morse sets through the condensation of the relation.
-    coo = matrix.tocoo()
-    condensation = sparse.csr_matrix(
-        (np.ones(coo.nnz), (labels[coo.row], labels[coo.col])),
-        shape=(n_components, n_components),
-    )
+    # Reachability among Morse sets.  The atoms of a strongly connected
+    # component reach each other, so the components reachable from a Morse
+    # set are those of the atoms reachable from any one of its atoms (the
+    # breadth-first search runs on the relation itself instead of on its
+    # condensation, which would repeat every edge between components).
     recurrent_set = set(recurrent.tolist())
     reach: list[set[int]] = []
-    for component in recurrent:
+    for raw_set in raw_sets:
         order = csgraph.breadth_first_order(
-            condensation, int(component), directed=True, return_predecessors=False
+            matrix, int(raw_set[0]), directed=True, return_predecessors=False
         )
-        reach.append(set(order.tolist()).intersection(recurrent_set))
+        reach.append(set(np.unique(labels[order]).tolist()).intersection(recurrent_set))
     component_to_raw = {int(component): index for index, component in enumerate(recurrent)}
     successors = [
         {component_to_raw[component] for component in hit} - {index}
