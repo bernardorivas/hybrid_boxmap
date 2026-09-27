@@ -96,7 +96,9 @@ def _translation_problem(tau: float = 0.5) -> SuspensionGridProblem:
     )
 
 
-def _unit_square_problem(field, *, tau: float, name: str) -> SuspensionGridProblem:
+def _unit_square_problem(
+    field, *, tau: float, name: str, level_offset: int = 0
+) -> SuspensionGridProblem:
     """``(x, y)' = field(x, y)`` on ``[0,1]^2``, guard ``x = 1``, reset ``(1, y) -> (0, y)``."""
 
     def ode(_t, state):
@@ -121,7 +123,7 @@ def _unit_square_problem(field, *, tau: float, name: str) -> SuspensionGridProbl
     )
     return SuspensionGridProblem(
         system=system,
-        window=DyadicBaseWindow(((0.0, 1.0), (0.0, 1.0))),
+        window=DyadicBaseWindow(((0.0, 1.0), (0.0, 1.0)), level_offset=level_offset),
         guard=guard,
         tau=tau,
         name=name,
@@ -153,6 +155,23 @@ def _repelling_orbit_problem() -> SuspensionGridProblem:
         lambda state: (1.0, 12.0 * (state[1] - 0.5) * state[1] * (1.0 - state[1])),
         tau=0.5,
         name="repelling-orbit",
+    )
+
+
+def _repelling_cylinder_problem(rate: float = 16.0, tau: float = 2.0) -> SuspensionGridProblem:
+    """``x' = 1``, ``y' = rate (y - 1/2) y (1 - y)`` with the reset of the translation cylinder.
+
+    On the annulus the circles ``y = 0`` and ``y = 1`` are attracting
+    periodic orbits and ``y = 1/2`` is a repelling one, whose Conley index
+    is that of a two-dimensional unstable periodic orbit.  The window is
+    forward invariant, so no sample leaves it.
+    """
+
+    return _unit_square_problem(
+        lambda state: (1.0, rate * (state[1] - 0.5) * state[1] * (1.0 - state[1])),
+        tau=tau,
+        name="repelling-cylinder",
+        level_offset=1,
     )
 
 
@@ -722,6 +741,15 @@ def test_parallel_indices_equal_the_serial_ones():
         for node, morse_set in enumerate(morse.morse_sets)
     ]
     assert [record(result) for result in one_by_one] == [record(result) for result in serial]
+    # The forward-closure pair reads the rows of U, which the workers receive.
+    options = {"index_pair": "forward-closure", "excise": True}
+    closure_serial = compute_suspension_grid_conley_indices(relation, morse.morse_sets, **options)
+    closure_parallel = compute_suspension_grid_conley_indices(
+        relation, morse.morse_sets, workers=3, problem_factory=factory, **options
+    )
+    assert [record(result) for result in closure_parallel] == [
+        record(result) for result in closure_serial
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -835,3 +863,128 @@ def test_excision_reports_an_exit_atom_with_an_empty_image():
     assert result.index_map_blocker == result.blocker
     with pytest.raises(ValueError, match="index_map"):
         compute_suspension_grid_conley_index(relation, morse.morse_sets[1], index_map="other")
+    with pytest.raises(ValueError, match="index_map applies to the image pair"):
+        compute_suspension_grid_conley_index(
+            relation, morse.morse_sets[1], index_pair="forward-closure", index_map="excision"
+        )
+
+
+# ---------------------------------------------------------------------------
+# The forward-closure pair of prop:grid-conley-index
+# ---------------------------------------------------------------------------
+
+
+def _labels_of_every_pair(relation, morse_set, node):
+    """Records of the image pair, the forward-closure pair, and its excised form."""
+
+    return tuple(
+        compute_suspension_grid_conley_index(relation, morse_set, morse_node=node, **options)
+        for options in (
+            {},
+            {"index_pair": "forward-closure"},
+            {"index_pair": "forward-closure", "excise": True},
+        )
+    )
+
+
+def test_forward_closure_pair_is_forward_invariant():
+    from hybrid_dynamics.src.suspension_grid_conley import index_pair_atoms
+
+    problem = PAPER_GRID_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2)
+    grid = _grid(problem, 4)
+    relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
+    morse = compute_suspension_morse_graph(relation)
+    for morse_set in morse.morse_sets:
+        s, u, v = index_pair_atoms(relation, morse_set, "forward-closure")
+        assert np.array_equal(u, relation.forward_closure(morse_set))
+        assert np.array_equal(v, np.setdiff1d(u, s))
+        assert np.all(np.isin(relation.image_of(u), u))
+        assert np.all(np.isin(relation.image_of(v), v))
+        _, x, a = index_pair_atoms(relation, morse_set)
+        assert np.all(np.isin(x, u)) and np.all(np.isin(a, v))
+    # {1} is not a strongly connected component of 0 <-> 1: V = {0} maps into S.
+    with pytest.raises(ValueError, match="not a strongly connected component"):
+        index_pair_atoms(_relation_on(grid, [0, 1], [0, 1]), [1], "forward-closure")
+    with pytest.raises(ValueError, match="index_pair"):
+        index_pair_atoms(relation, morse.morse_sets[0], "closure")
+
+
+@pytest.mark.parametrize(
+    ("factory", "level", "depth", "labeled_with_larger_u"),
+    [
+        (_translation_problem, 2, 0, 0),
+        (lambda: PAPER_GRID_PROBLEMS["bouncing-ball"](tau=1.5, level_offset=2), 4, 0, 1),
+        (lambda: PAPER_GRID_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2), 4, 2, 4),
+    ],
+    ids=["translation-cylinder", "ball-level4-offset2", "oscillator-level4-offset2"],
+)
+def test_forward_closure_labels_equal_the_image_labels(factory, level, depth, labeled_with_larger_u):
+    problem = factory()
+    grid = _grid(problem, level)
+    relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=depth)
+    morse = compute_suspension_morse_graph(relation)
+    labeled = larger = 0
+    for node, morse_set in enumerate(morse.morse_sets):
+        image, closure, excised = _labels_of_every_pair(relation, morse_set, node)
+        # The excised computation is that of the whole forward closure.
+        assert excised.homology_dimensions == closure.homology_dimensions
+        assert excised.computed == closure.computed
+        assert excised.shift_class == closure.shift_class
+        assert excised.pair_pieces["U"] == closure.pair_pieces["U"]
+        assert excised.pair_pieces["W"] <= excised.pair_pieces["Y"] <= closure.pair_pieces["U"]
+        if image.computed:
+            assert closure.computed, closure.blocker
+            assert closure.shift_class == image.shift_class
+            labeled += 1
+            larger += closure.pair_pieces["U"] > image.pair_pieces["X"]
+    assert labeled >= 1
+    assert larger == labeled_with_larger_u
+
+
+def test_forward_closure_labels_the_repelling_periodic_orbit():
+    problem = _repelling_cylinder_problem()
+    grid = _grid(problem, 2)
+    relation = compute_suspension_grid_relation(grid, problem)
+    assert relation.statistics["discarded_exit_endpoints"] == 0
+    morse = compute_suspension_morse_graph(relation)
+    assert [values.size for values in morse.morse_sets] == [44, 44, 44]
+    assert set(morse.edges) == {(2, 0), (2, 1)}
+    for node in (0, 1):  # the attracting orbits y = 0 and y = 1
+        image, closure, excised = _labels_of_every_pair(relation, morse.morse_sets[node], node)
+        assert image.pair_pieces["A"] == closure.pair_pieces["V"] == 0
+        for result in (image, closure, excised):
+            assert result.shift_class == ("x-1", "x-1", "0", "0"), result.blocker
+    image, closure, excised = _labels_of_every_pair(relation, morse.morse_sets[2], 2)
+    # F(S) minus S is two annuli, so the carrier of an exit piece of the
+    # image pair is not acyclic; the forward-closure pair has no exits.
+    assert not image.computed
+    assert "is not acyclic" in image.index_map_blocker
+    assert image.homology_dimensions == (0, 1, 1, 0)
+    for result in (closure, excised):
+        assert result.computed and result.label_source == "index map", result.blocker
+        assert result.homology_dimensions == (0, 1, 1, 0)
+        assert result.shift_class == ("0", "x-1", "x-1", "0")
+    assert excised.pair_pieces["W"] < closure.pair_pieces["U"]
+    assert "index_pair" not in image.to_dict()
+    assert closure.to_dict()["index_pair"] == "forward-closure"
+    limited = compute_suspension_grid_conley_index(
+        relation, morse.morse_sets[2], index_pair="forward-closure", max_pieces=100
+    )
+    assert limited.blocker.startswith("IndexSizeLimitError: U = the forward closure of S")
+    with pytest.raises(ValueError, match="excise"):
+        compute_suspension_grid_conley_index(relation, morse.morse_sets[2], excise=True)
+
+
+def test_forward_closure_reports_atoms_whose_image_left_the_window():
+    problem = PAPER_GRID_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
+    grid = _grid(problem, 3)
+    relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
+    morse = compute_suspension_morse_graph(relation)
+    node = int(np.argmax([values.size for values in morse.morse_sets]))
+    for excise in (False, True):
+        result = compute_suspension_grid_conley_index(
+            relation, morse.morse_sets[node], index_pair="forward-closure", excise=excise
+        )
+        assert result.homology_computed and any(result.homology_dimensions)
+        assert not result.computed
+        assert "have an empty image" in result.blocker
