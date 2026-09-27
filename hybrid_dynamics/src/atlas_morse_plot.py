@@ -938,20 +938,26 @@ def _draw_cells(
         )
 
 
-# A Morse set is enlarged in a zoom panel when its cells cover less than
-# DETAIL_ZOOM_MIN_AREA bins of the DETAIL_ZOOM_BINS x DETAIL_ZOOM_BINS bins of
-# its chart panel (area counted at most once per bin) and its bounding box
-# spans at most DETAIL_ZOOM_MAX_EXTENT of the panel in each direction.  At the
-# paper-figure size a bin is about one point, so such a set is a speck, a
-# hairline a few points long, or cells scattered below the resolution of the
-# panel; a longer curve is left to the panel, where a zoom would not help.
+# A Morse set is too small to see in its chart panel when its cells cover less
+# than DETAIL_ZOOM_MIN_AREA bins of the DETAIL_ZOOM_BINS x DETAIL_ZOOM_BINS
+# bins of the panel (area counted at most once per bin).  At the paper-figure
+# size a bin is about one point, so such a set is a speck, a hairline a few
+# points long, or cells scattered below the resolution of the panel.
 DETAIL_ZOOM_BINS = 200
 DETAIL_ZOOM_MIN_AREA = 16.0
-DETAIL_ZOOM_MAX_EXTENT = 0.3
+# A zoom window spans at most this fraction of its chart panel in each
+# direction.  In the paper figures a zoom panel is a quarter to 0.4 of the
+# chart panel across, so it magnifies both axes at least about twice (with
+# three zooms in a column, 2.3 times in x and 2.1 in y).  A small set whose
+# own window would be larger (cells spread along a curve, say) gets no zoom
+# and is left to the panel, where its cells are outlined; groups of small
+# sets are not merged into a larger window.
+DETAIL_ZOOM_MAX_WINDOW = 0.125
 # Small sets closer than this (fraction of the panel) share a zoom panel.
 DETAIL_ZOOM_GROUP_GAP = 0.06
 # A zoom magnifies its two axes by factors that differ at most by this ratio.
 DETAIL_ZOOM_MAX_ASPECT = 3.0
+# At most this many zooms per chart panel, with windows that do not overlap.
 DETAIL_ZOOM_MAX_PER_PANEL = 3
 
 
@@ -1029,6 +1035,21 @@ def _small_set_nodes(
     return tuple(nodes)
 
 
+def _zoom_window_size(size: np.ndarray, cell: np.ndarray) -> np.ndarray:
+    """Size of the zoom window of cells with bounding box ``size`` and cell ``cell``.
+
+    Sizes are panel fractions, ``(..., 2)`` arrays.  The box is padded by 30%
+    of its size or three cells on each side, whichever is more, and the
+    window is widened so that the two axes are magnified by factors whose
+    ratio is at most :data:`DETAIL_ZOOM_MAX_ASPECT`.
+    """
+
+    padded = size + 2.0 * np.maximum(0.3 * size, 3.0 * cell)
+    x = np.maximum(padded[..., 0], padded[..., 1] / DETAIL_ZOOM_MAX_ASPECT)
+    y = np.maximum(padded[..., 1], padded[..., 0] / DETAIL_ZOOM_MAX_ASPECT)
+    return np.minimum(np.stack((x, y), axis=-1), 1.0)
+
+
 def _detail_zooms(
     components: Sequence[AtlasHybridMorseComponent],
     *,
@@ -1039,8 +1060,16 @@ def _detail_zooms(
 ) -> list[tuple[tuple[int, ...], tuple[float, float], tuple[float, float]]]:
     """Zoom windows ``(nodes, x_limits, y_limits)`` for the sets too small to see.
 
-    A small set whose bounding box is too large for a zoom gets none; its
-    cells are outlined in the panel.
+    Each window spans at most :data:`DETAIL_ZOOM_MAX_WINDOW` of the panel in
+    each direction.  A small set whose own window would be larger gets no
+    zoom; its cells are outlined in the panel.  Groups of small sets are
+    merged, closest first, while they are closer than
+    :data:`DETAIL_ZOOM_GROUP_GAP` or there are more than
+    :data:`DETAIL_ZOOM_MAX_PER_PANEL` of them, but only into a window within
+    the limit.  Zoom windows do not overlap, and there are at most
+    :data:`DETAIL_ZOOM_MAX_PER_PANEL` of them; the groups with the most
+    sets are chosen first.  A set of a group left out is drawn in a zoom
+    whose window contains it, and otherwise only outlined in the panel.
     """
 
     if projection[0] == projection[1]:
@@ -1048,7 +1077,10 @@ def _detail_zooms(
     x_span = float(x_limits[1] - x_limits[0])
     y_span = float(y_limits[1] - y_limits[0])
     # Each small set: node, bounding box and median cell size in panel fractions.
-    small: list[tuple[int, np.ndarray, np.ndarray]] = []
+    small_boxes: dict[int, np.ndarray] = {}
+    nodes: list[list[int]] = []
+    boxes: list[np.ndarray] = []
+    cells: list[list[np.ndarray]] = []
     for component in components:
         bounds = _projected_bounds(_chart_boxes(component, chart_kind), projection)
         if not len(bounds) or not _too_small_to_see(bounds, x_limits, y_limits):
@@ -1069,73 +1101,92 @@ def _detail_zooms(
                 fractions[:, 3].max(),
             )
         )
-        if max(box[2] - box[0], box[3] - box[1]) > DETAIL_ZOOM_MAX_EXTENT:
-            # A hairline long enough to see, or specks spread over the panel.
-            continue
         cell = np.median(fractions[:, 2:] - fractions[:, :2], axis=0)
-        small.append((component.index, box, cell))
-    if not small:
+        if np.max(_zoom_window_size(box[2:] - box[:2], cell)) > DETAIL_ZOOM_MAX_WINDOW:
+            # Cells along a curve, or specks spread over the panel.
+            continue
+        small_boxes[int(component.index)] = box
+        nodes.append([int(component.index)])
+        boxes.append(box)
+        cells.append([cell])
+    if not nodes:
         return []
 
-    def gap(first: np.ndarray, second: np.ndarray) -> float:
-        return float(
-            max(
-                0.0,
-                first[0] - second[2],
-                second[0] - first[2],
-                first[1] - second[3],
-                second[1] - first[3],
-            )
-        )
+    def window_cell(group_cells: list[np.ndarray]) -> np.ndarray:
+        return np.median(np.array(group_cells), axis=0)
 
-    groups = [([node], box.copy(), [cell]) for node, box, cell in small]
-    while True:
-        pairs = [
-            (gap(groups[a][1], groups[b][1]), a, b)
-            for a in range(len(groups))
-            for b in range(a + 1, len(groups))
-        ]
-        if not pairs:
-            break
-        distance, a, b = min(pairs)
-        if distance >= DETAIL_ZOOM_GROUP_GAP and len(groups) <= DETAIL_ZOOM_MAX_PER_PANEL:
-            break
-        nodes = groups[a][0] + groups[b][0]
-        box = np.array(
+    while len(nodes) > 1:
+        box_array = np.array(boxes)
+        # Merging is checked with the larger cell of the two groups, so the
+        # window drawn, padded by the median cell, is no larger.
+        cell_array = np.array([np.max(np.array(group), axis=0) for group in cells])
+        lower = np.minimum(box_array[:, None, :2], box_array[None, :, :2])
+        upper = np.maximum(box_array[:, None, 2:], box_array[None, :, 2:])
+        merged = _zoom_window_size(
+            upper - lower, np.maximum(cell_array[:, None, :], cell_array[None, :, :])
+        )
+        gaps = np.maximum.reduce(
             (
-                min(groups[a][1][0], groups[b][1][0]),
-                min(groups[a][1][1], groups[b][1][1]),
-                max(groups[a][1][2], groups[b][1][2]),
-                max(groups[a][1][3], groups[b][1][3]),
+                np.zeros((len(nodes), len(nodes))),
+                box_array[:, None, 0] - box_array[None, :, 2],
+                box_array[None, :, 0] - box_array[:, None, 2],
+                box_array[:, None, 1] - box_array[None, :, 3],
+                box_array[None, :, 1] - box_array[:, None, 3],
             )
         )
-        groups[a] = (nodes, box, groups[a][2] + groups[b][2])
-        del groups[b]
+        allowed = np.triu(merged.max(axis=-1) <= DETAIL_ZOOM_MAX_WINDOW, k=1)
+        if len(nodes) <= DETAIL_ZOOM_MAX_PER_PANEL:
+            allowed &= gaps < DETAIL_ZOOM_GROUP_GAP
+        if not allowed.any():
+            break
+        # Closest pair first; ties go to the first pair in order.
+        a, b = np.unravel_index(np.argmin(np.where(allowed, gaps, np.inf)), gaps.shape)
+        a, b = int(a), int(b)
+        nodes[a] = nodes[a] + nodes[b]
+        boxes[a] = np.concatenate((lower[a, b], upper[a, b]))
+        cells[a] = cells[a] + cells[b]
+        del nodes[b], boxes[b], cells[b]
 
-    windows = []
-    for nodes, box, cells in groups:
-        cell = np.median(np.array(cells), axis=0)
-        size = box[2:] - box[:2]
-        padded = size + 2.0 * np.maximum(0.3 * size, 3.0 * cell)
-        padded[0] = max(padded[0], padded[1] / DETAIL_ZOOM_MAX_ASPECT)
-        padded[1] = max(padded[1], padded[0] / DETAIL_ZOOM_MAX_ASPECT)
-        padded = np.minimum(padded, 1.0)
+    # Each group: nodes and window (lower and upper corners, panel fractions).
+    groups = []
+    for group_nodes, box, group_cells in zip(nodes, boxes, cells):
+        padded = _zoom_window_size(box[2:] - box[:2], window_cell(group_cells))
         center = np.clip(0.5 * (box[:2] + box[2:]), padded / 2.0, 1.0 - padded / 2.0)
-        lower = center - padded / 2.0
-        upper = center + padded / 2.0
-        windows.append(
+        groups.append((sorted(group_nodes), center - padded / 2.0, center + padded / 2.0))
+    # The groups with the most sets first, then the smaller windows; a window
+    # that overlaps one already kept is dropped.
+    groups.sort(key=lambda group: (-len(group[0]), float(np.prod(group[2] - group[1]))))
+    kept: list[tuple[list[int], np.ndarray, np.ndarray]] = []
+    dropped: list[int] = []
+    for group in groups:
+        if len(kept) < DETAIL_ZOOM_MAX_PER_PANEL and not any(
+            np.all(group[1] < other[2]) and np.all(other[1] < group[2]) for other in kept
+        ):
+            kept.append(group)
+        else:
+            dropped.extend(group[0])
+    # A set of a dropped group that lies in a kept window is drawn in that
+    # zoom with the sets it is for.
+    for node in dropped:
+        box = small_boxes[node]
+        for group_nodes, lower, upper in kept:
+            if np.all(lower <= box[:2]) and np.all(box[2:] <= upper):
+                group_nodes.append(node)
+                break
+    windows = [
+        (
+            tuple(sorted(group_nodes)),
             (
-                tuple(sorted(int(node) for node in nodes)),
-                (
-                    float(x_limits[0] + lower[0] * x_span),
-                    float(x_limits[0] + upper[0] * x_span),
-                ),
-                (
-                    float(y_limits[0] + lower[1] * y_span),
-                    float(y_limits[0] + upper[1] * y_span),
-                ),
-            )
+                float(x_limits[0] + lower[0] * x_span),
+                float(x_limits[0] + upper[0] * x_span),
+            ),
+            (
+                float(y_limits[0] + lower[1] * y_span),
+                float(y_limits[0] + upper[1] * y_span),
+            ),
         )
+        for group_nodes, lower, upper in kept
+    ]
     # Left to right, then top to bottom.
     windows.sort(key=lambda window: (sum(window[1]), -sum(window[2])))
     return windows
@@ -1301,7 +1352,10 @@ def plot_atlas_hybrid_morse_sets(
     ``detail_zooms``, the Morse sets that are too small to see in a chart
     panel (see :data:`DETAIL_ZOOM_MIN_AREA`) get zoom panels, labeled ``A``,
     ``B``, ... in a column next to the panel, whose windows are outlined and
-    labeled in the panel.  Every cell is drawn at its true extent; the cells
+    labeled in the panel.  A window spans at most
+    :data:`DETAIL_ZOOM_MAX_WINDOW` of the panel in each direction, so every
+    zoom magnifies; a small set too spread for such a window gets no zoom.
+    Every cell is drawn at its true extent; the cells
     of a set too small to see in its chart panel are also outlined in the
     color of the set (:data:`CELL_OUTLINE_WIDTH`), in the panel and in its
     zooms, so a cell smaller than a point is still seen.
@@ -1610,6 +1664,7 @@ __all__ = [
     "AtlasHybridMorsePlot",
     "AtlasDetailZoom",
     "CELL_OUTLINE_WIDTH",
+    "DETAIL_ZOOM_MAX_WINDOW",
     "DETAIL_ZOOM_MIN_AREA",
     "extract_atlas_morse_plot_data",
     "atlas_morse_plot_data_payload",

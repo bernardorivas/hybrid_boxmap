@@ -12,7 +12,8 @@ Each figure has the base chart (the base readout ``d_n^{-1}(M)`` of each Morse
 set), the handle chart (its handle pieces, guard coordinate against the phase
 ``s`` in ``[0, 1]``), and the Morse graph, in the same colors.  A Morse set too
 small to see in a chart panel gets a zoom panel (``A``, ``B``, ...) next to
-it; its window is outlined and labeled in the panel, and the zoom shows the
+it, unless it is too spread for a zoom that magnifies at least about twice;
+the window is outlined and labeled in the panel, and the zoom shows the
 other Morse sets in the window faded.  Every cell is drawn at its true extent,
 with no symbol; the cells of a set too small to see in a chart panel are also
 outlined by a thin line in the color of the set, in the panel and in its

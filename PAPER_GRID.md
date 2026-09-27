@@ -185,14 +185,19 @@ readout `d_n^{-1}(M)` of each Morse set), the handle chart (its handle pieces
 the whole guard interval), and the Morse graph. A chart shown whole is
 widened by 2% of its span on each side, so cells on the boundary of the
 window lie inside the axis lines. A Morse set too small to see in a chart
-panel (its cells cover less than 16 of 200 x 200 panel bins, and its
-bounding box spans at most 0.3 of the panel) is drawn in a zoom panel,
-labeled `A`, `B`, ... in a column next to the chart panel; the window of the
-zoom is outlined and labeled in the chart panel. Small sets closer than 6%
-of the panel share a zoom, with at most three zooms per panel. A zoom draws
-the sets it is for opaque and the other sets in its window faded. It
-magnifies the two axes of the panel by factors whose ratio is at most 3, and
-its tick labels give the window. Every cell is drawn at its true extent,
+panel (its cells cover less than 16 of 200 x 200 panel bins) is drawn in a
+zoom panel, labeled `A`, `B`, ... in a column next to the chart panel, when
+its zoom window spans at most 1/8 of the panel in each direction; the window
+of the zoom is outlined and labeled in the chart panel. A zoom panel is a
+quarter to 0.4 of the chart panel wide, so every zoom magnifies both axes
+at least about twice. Small sets closer than 6% of the panel share a zoom
+when their shared window is within the same limit. There are at most three
+zooms per panel, with windows that do not overlap; the groups with the most
+sets are chosen first, and a small set left out is drawn in a zoom whose
+window contains it, if there is one. A zoom draws the sets it is for opaque
+and the other sets in its window faded. It magnifies the two axes of the
+panel by factors whose ratio is at most 3, and its tick labels give the
+window. Every cell is drawn at its true extent,
 with no symbol. The cells of a set too small to see in a chart panel (the
 area test above) are also outlined in the color of the set by a line 0.5 pt
 wide, in the panel and in its zooms, so that cells a fraction of a point
@@ -692,8 +697,16 @@ its good-cover audit, so these are the ranks of `H_*(|X|, |A|)`.
 
 Figures. The `nontrivial` figure of the `tau = 1` run shows 11 nodes: the
 five sets, the ring nodes `M(3)` and `M(7)` (zoom A), S alone in zoom B,
-and Z with `M(5)`, `M(6)`, `M(8)`, `M(13)` in zoom C, whose handle pieces
-are outlined in the handle chart. The `nontrivial` figure of the
+and Z with `M(5)`, `M(6)`, `M(8)` at the stop in zoom C (window
+`[0.782, 0.812] x [-0.067, 0.074]`: `M(6)` and one cell of `M(8)` just
+above Z, `M(5)` and the other cell of `M(8)` just below). The 32 base cells
+of `M(13)` lie along U_Z, too spread for a zoom that magnifies, and are
+outlined in the base chart. In the handle chart, the pieces of `M(5)`,
+`M(6)`, `M(8)` lie along the right edge of the band of Z (`v_G` in
+`[0.039, 0.077]`) and those of `M(13)` along the right edge of the band of
+U_Z (`v_G` in `[0.682, 0.703]`); they are outlined there, and no zoom can
+enlarge them, since each spans most of the phase interval. The `nontrivial`
+figure of the
 `tau = 0.5` run shows 6 nodes: C (blocked, over the limit), F, Z (zoom C),
 S (zoom B), U_Z (blocked), and the ring `M(3)` (zoom A); its Morse graph
 reads U_Z -> Z, U_Z -> S, S -> C, S -> `M(3)` -> F. In the `all` variants
