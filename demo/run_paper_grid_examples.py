@@ -71,6 +71,7 @@ Run from the ``code`` directory, for example::
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import platform
 import subprocess
@@ -136,7 +137,15 @@ DEFAULT_LEVELS = {
 }
 
 
+@functools.lru_cache(maxsize=1)
 def _git_commit() -> dict[str, object]:
+    """The commit and whether tracked files differ from it, read once per process.
+
+    :func:`main` reads it before any output is written, so a run that
+    overwrites tracked figures of an earlier run does not record its own
+    outputs as uncommitted changes.
+    """
+
     def run(*arguments: str) -> str:
         return subprocess.run(
             ["git", *arguments], cwd=CODE_ROOT, capture_output=True, text=True, check=False
@@ -666,7 +675,7 @@ def _run(
         }},
         "figures": figures["figures"],
         "figure_variants": figures["figure_variants"],
-        "code": _git_commit(),
+        "code": dict(_git_commit()),
         "python": platform.python_version(),
     }
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
@@ -676,6 +685,7 @@ def _run(
 
 def main() -> int:
     arguments = _arguments()
+    _git_commit()
     levels = dict(DEFAULT_LEVELS)
     for entry in arguments.level:
         key, value = entry.split("=", 1)
