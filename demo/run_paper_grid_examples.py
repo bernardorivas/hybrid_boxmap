@@ -139,11 +139,11 @@ DEFAULT_LEVELS = {
 
 @functools.lru_cache(maxsize=1)
 def _git_commit() -> dict[str, object]:
-    """The commit and whether tracked files differ from it, read once per process.
+    """The commit and whether tracked code differs from it, read once per process.
 
-    :func:`main` reads it before any output is written, so a run that
-    overwrites tracked figures of an earlier run does not record its own
-    outputs as uncommitted changes.
+    :func:`main` reads it before any output is written.  Changes under
+    ``figures/`` are outputs and are not counted, as in
+    ``demo/replot_paper_grid.py``.
     """
 
     def run(*arguments: str) -> str:
@@ -151,10 +151,13 @@ def _git_commit() -> dict[str, object]:
             ["git", *arguments], cwd=CODE_ROOT, capture_output=True, text=True, check=False
         ).stdout.strip()
 
-    # Untracked files (such as this run's own outputs) do not make the tree dirty.
+    # Untracked files, and the tracked outputs under figures/ (this run's or an
+    # earlier run's), do not make the code differ from the commit.
     return {
         "commit": run("rev-parse", "HEAD"),
-        "dirty": bool(run("status", "--porcelain", "--untracked-files=no")),
+        "dirty": bool(
+            run("status", "--porcelain", "--untracked-files=no", "--", ".", ":(exclude)figures")
+        ),
     }
 
 
