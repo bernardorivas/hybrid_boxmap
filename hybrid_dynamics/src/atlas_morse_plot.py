@@ -1242,7 +1242,7 @@ def plot_atlas_hybrid_morse_sets(
     *,
     atlas_charts: SuspensionAtlasCharts | None = None,
     finite_relation_annotations: AtlasFiniteRelationIndexAnnotations | None = None,
-    blocked_index_nodes: Iterable[int] = (),
+    blocked_index_nodes: Iterable[int] | Mapping[int, str] = (),
     morse_nodes: Iterable[int] | None = None,
     proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
     handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
@@ -1271,7 +1271,8 @@ def plot_atlas_hybrid_morse_sets(
     ``morse_nodes`` selects the drawn nodes; they keep their numbers and
     colors, and the drawn order is reachability through the hidden nodes,
     transitively reduced.  Nodes in ``blocked_index_nodes`` are marked as
-    blocked in the Morse graph.
+    blocked in the Morse graph; with a mapping, the text given for a node
+    replaces the word ``blocked``.
 
     ``base_view`` and ``handle_view`` (default: ``base_view``) are
     ``"support"`` or ``"domain"``.  ``frame_margin`` widens the ``"domain"``
@@ -1370,8 +1371,12 @@ def plot_atlas_hybrid_morse_sets(
                 "finite-relation annotations refer to unknown Morse nodes: "
                 f"{sorted(unknown_annotations)!r}"
             )
-    blocked_nodes = frozenset(int(node) for node in blocked_index_nodes)
-    unknown_blocked = blocked_nodes.difference(data.vertex_ids)
+    blocked_nodes = (
+        {int(node): str(text) for node, text in blocked_index_nodes.items()}
+        if isinstance(blocked_index_nodes, Mapping)
+        else frozenset(int(node) for node in blocked_index_nodes)
+    )
+    unknown_blocked = set(blocked_nodes).difference(data.vertex_ids)
     if unknown_blocked:
         raise ValueError(
             f"blocked index nodes are not Morse nodes: {sorted(unknown_blocked)!r}"

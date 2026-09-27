@@ -60,17 +60,20 @@ DIGEST_CASES = {
 
 #: Computed with commit 24ecdda (the window of a positive offset set with
 #: ``dataclasses.replace(problem.window, level_offset=...)``), each exit
-#: policy in its own call without a cache.
+#: policy in its own call without a cache.  The ``endpoint`` digests were
+#: recomputed when the index records gained the relative homology of every
+#: pair; the relations, the Morse graphs, and every label computed before are
+#: unchanged, and the Morse sets whose index map fails keep no label.
 RECORDED_DIGESTS = {
-    "ball-l3-base16-tau0.5-gap2/endpoint": "f45cb877c1f0ad9cc4bb28ac791b3bfbf4bfcba47bd15ce25da13541cd20bab8",
+    "ball-l3-base16-tau0.5-gap2/endpoint": "80e84c7d94cd47e6d020b3703149f0bb4168c6896d9b962b0957b5d776d7210e",
     "ball-l3-base16-tau0.5-gap2/path": "abef6506c80a7bf34bfe96887c5c68b0991d656d88fa64c7ec1683ffb8412c09",
-    "ball-l4-tau0.5/endpoint": "6ffcbe20e4fd8ca1958f3c6565071c8db7bf53deac60af7f6a379aa2776e1d71",
+    "ball-l4-tau0.5/endpoint": "00020a29a6c20f030999c531e87ab0ed3889d40f0d2257f64c253d4fa4570959",
     "ball-l4-tau0.5/path": "062805eba3b1b48f4211b66cd5541a1bb68bd6604ea76cde210b7b78ea2fff85",
-    "impact-l3-base16-tau0.5-gap2/endpoint": "8ba325bc3201f0f4f0382d88e814d700308405c7125085222680a004d3546cf5",
+    "impact-l3-base16-tau0.5-gap2/endpoint": "1bae3c7838392bd9a2ee6c02ffdc00b8715b0251598144db83dc1cadeb26043e",
     "impact-l3-base16-tau0.5-gap2/path": "b840c6dfe067dbe7391b8088fa80ebf6c82a472b8cecae2567661b84f11b8253",
-    "neuron-l6-tau1/endpoint": "75367da12d4dd432ac3b726478ecd0e0336d55fee84c23caa890eaab92b7ddee",
+    "neuron-l6-tau1/endpoint": "cc56c7d242adcf5aec7423ee9f66d2adc06b5e5c5a1b1fd75b0c4dffd723bc01",
     "neuron-l6-tau1/path": "7cbbb328942863a1d9663c6e589c8cbf95f711efde862375d4d4a22307fbd4a9",
-    "wheel-l3-base16-tau1-gap2/endpoint": "c8ab68dcf4a296ead72e40c98ddb9fdf03125d1f83177b620d6fd5cbec266523",
+    "wheel-l3-base16-tau1-gap2/endpoint": "5b5618234c110d80c055ce6aa50699392431e48f18d27d92a8a72f5cf65b1bb4",
     "wheel-l3-base16-tau1-gap2/path": "5a007f83217fdf5de7ed91e43d2b4078191936b2c5151efb336b130e65ec9fee",
 }
 

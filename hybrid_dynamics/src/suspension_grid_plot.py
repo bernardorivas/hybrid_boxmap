@@ -163,9 +163,10 @@ class MorseFigureSelection:
                 if self.variant == "all"
                 else (
                     "Morse nodes whose finite-relation index is trivial are hidden; "
-                    "nodes with a blocked index are kept and marked 'blocked'; the "
-                    "order shown is reachability in the full Morse graph, transitively "
-                    "reduced"
+                    "nodes without a label are kept, with a dashed outline and the "
+                    "dimensions of the relative homology of their pair (or 'blocked' "
+                    "when it is not known); the order shown is reachability in the "
+                    "full Morse graph, transitively reduced"
                 )
             ),
             "shown_nodes": list(self.shown),

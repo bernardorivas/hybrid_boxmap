@@ -566,3 +566,68 @@ def test_import_cmgdb_does_not_import_hybrid_dynamics():
         "assert not [m for m in sys.modules if m.startswith('hybrid_dynamics')]"
     )
     subprocess.run([sys.executable, "-c", code], check=True)
+
+
+def _relation_on(grid, sources, targets):
+    matrix = np.zeros((grid.n_atoms, grid.n_atoms), dtype=bool)
+    matrix[np.ix_(sources, targets)] = True
+    return SuspensionGridRelation(
+        grid=grid,
+        tau=1.0,
+        matrix=sparse.csr_matrix(matrix),
+        sampled=sparse.csr_matrix(matrix),
+        statistics={},
+    )
+
+
+def test_zero_relative_homology_gives_the_trivial_label_without_the_index_map(
+    monkeypatch,
+):
+    # S is one base cell and F(S) is S and the cell next to it, so X is two
+    # cells sharing an edge and A is one of them: H_*(X, A) = 0.
+    from hybrid_dynamics.src import suspension_grid_conley
+
+    grid = _grid(bouncing_ball_problem(), 3)
+    pieces = grid.locate_base_cells([[1.1, 0.6], [1.35, 0.6]]).piece
+    source, neighbor = (int(grid.atom_of_piece[piece]) for piece in pieces)
+    assert source != neighbor
+    relation = _relation_on(grid, [source], [source, neighbor])
+
+    def not_formed(*args, **kwargs):
+        raise AssertionError("the index map is formed although H_*(X, A) = 0")
+
+    monkeypatch.setattr(suspension_grid_conley, "prepare_atlas_relation_conley_2d", not_formed)
+    result = compute_suspension_grid_conley_index(relation, [source])
+
+    assert result.computed and result.homology_computed, result.blocker
+    assert result.label_source == "zero relative homology"
+    assert not any(result.homology_dimensions)
+    assert set(result.shift_class) == {"0"}
+    assert len(result.shift_class) == len(result.homology_dimensions)
+
+
+def test_homology_is_reported_when_the_index_map_fails(monkeypatch):
+    from hybrid_dynamics.src import suspension_grid_conley
+
+    problem = _translation_problem()
+    grid = build_suspension_grid(problem.window, problem.guard, 2)
+    relation = compute_suspension_grid_relation(grid, problem)
+    morse = compute_suspension_morse_graph(relation)
+    computed = compute_suspension_grid_conley_index(relation, morse.morse_sets[0])
+    assert computed.computed and computed.label_source == "index map"
+
+    def fails(*args, **kwargs):
+        raise ValueError("carrier image is not acyclic over GF(5)")
+
+    monkeypatch.setattr(suspension_grid_conley, "prepare_atlas_relation_conley_2d", fails)
+    blocked = compute_suspension_grid_conley_index(relation, morse.morse_sets[0])
+
+    assert not blocked.computed and blocked.shift_class == ()
+    assert blocked.homology_computed
+    # The annulus: the same dimensions the index map reports when it succeeds.
+    assert blocked.homology_dimensions == computed.homology_dimensions
+    assert blocked.homology_dimensions[:2] == (1, 1)
+    assert blocked.blocker.startswith("ValueError: carrier image")
+    assert blocked.index_map_blocker == blocked.blocker
+    record = blocked.to_dict()
+    assert record["homology_computed"] and record["label_source"] == ""

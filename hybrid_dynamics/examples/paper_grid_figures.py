@@ -3,7 +3,8 @@
 :func:`write_paper_grid_figures` draws the Morse sets and the Morse graph of a
 run on ``Xi_n`` in the figure variants of :mod:`suspension_grid_plot`:
 ``all`` (every Morse node) and ``nontrivial`` (Morse nodes with a computed
-trivial finite-relation index hidden, blocked nodes kept and marked).  The
+trivial finite-relation index hidden, nodes without a label kept and marked
+with the dimensions of the relative homology of their pair).  The
 ``all`` figure is written to ``<stem>.pdf``/``.png`` and the ``nontrivial``
 figure to ``<stem>-nontrivial.pdf``/``.png``.
 
@@ -73,12 +74,26 @@ def figure_variant_stem(stem: str | Path, variant: str) -> Path:
     return stem if variant == "all" else stem.with_name(f"{stem.name}-{variant}")
 
 
+def blocked_index_line(entry: Mapping[str, Any]) -> str:
+    """Second line of the Morse-graph node of a Morse set without a label.
+
+    When the relative homology of its pair is known, the line lists its
+    dimensions from degree ``0`` up, as ``dim H (0, 1, 1, 0)``; otherwise it
+    is ``blocked``.
+    """
+
+    if entry.get("homology_computed"):
+        dimensions = ", ".join(str(int(value)) for value in entry["homology_dimensions"])
+        return f"dim H ({dimensions})"
+    return "blocked"
+
+
 def draw_paper_grid_figure(
     plot_data: AtlasMorsePlotData,
     *,
     example: str,
     shown: Sequence[int],
-    blocked: Sequence[int] = (),
+    blocked: Sequence[int] | Mapping[int, str] = (),
     annotations: AtlasFiniteRelationIndexAnnotations | None = None,
 ) -> AtlasHybridMorsePlot:
     """Draw the figure of the Morse nodes ``shown``: base chart, handle chart, graph.
@@ -149,6 +164,11 @@ def write_paper_grid_figures(
         for entry in conley
         if entry["computed"]
     }
+    blocked_lines = {
+        int(entry["morse_node"]): blocked_index_line(entry)
+        for entry in conley
+        if not entry["computed"]
+    }
     figures: list[str] = []
     records: dict[str, Any] = {}
     for variant in dict.fromkeys(variants):
@@ -174,7 +194,7 @@ def write_paper_grid_figures(
             plot_data,
             example=example,
             shown=selection.shown,
-            blocked=selection.blocked,
+            blocked={node: blocked_lines[node] for node in selection.blocked},
             annotations=annotations,
         )
         try:

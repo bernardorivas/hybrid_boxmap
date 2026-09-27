@@ -1027,16 +1027,23 @@ def _draw_morse_graph(
     show_component_sizes: bool,
     show_title: bool,
     graph_title: str = "Conley--Morse graph",
-    blocked_index_nodes: Collection[int] = (),
+    blocked_index_nodes: Collection[int] | Mapping[int, str] = (),
 ) -> None:
     """Draw a compact CMGDB-style Conley--Morse Hasse diagram.
 
     Nodes in ``blocked_index_nodes`` (an index computation was attempted and
-    returned a blocker) carry the line ``blocked`` and a dashed outline.
+    returned a blocker) have a dashed outline.  Their second line is
+    ``blocked``, or the text given for the node when ``blocked_index_nodes``
+    is a mapping.
     """
 
     by_index = {component.index: component for component in components}
-    blocked = frozenset(int(node) for node in blocked_index_nodes)
+    blocked_lines = (
+        {int(node): str(text) for node, text in blocked_index_nodes.items()}
+        if isinstance(blocked_index_nodes, Mapping)
+        else {int(node): BLOCKED_INDEX_LABEL for node in blocked_index_nodes}
+    )
+    blocked = frozenset(blocked_lines)
     if conley_indices is not None:
         labeled_and_blocked = sorted(blocked.intersection(conley_indices))
         if labeled_and_blocked:
@@ -1058,7 +1065,7 @@ def _draw_morse_graph(
         if conley_indices is not None and component.index in conley_indices:
             lines.append(_format_index_label(conley_indices[component.index]))
         elif component.index in blocked:
-            lines.append(BLOCKED_INDEX_LABEL)
+            lines.append(blocked_lines[component.index])
         elif show_component_sizes:
             lines.append(f"{len(component.nodes)} cells")
         labels[int(node)] = "\n".join(lines)
@@ -1215,7 +1222,7 @@ def PlotHybridMorseSets(
     show_panel_titles: bool = False,
     conley_indices: Mapping[int, object] | None = None,
     finite_relation_annotations: "AtlasFiniteRelationIndexAnnotations | None" = None,
-    blocked_index_nodes: Collection[int] = (),
+    blocked_index_nodes: Collection[int] | Mapping[int, str] = (),
     show_component_sizes: bool = False,
     base_view: str = "support",
     title: str | None = None,

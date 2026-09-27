@@ -386,3 +386,26 @@ def test_replot_rebuilds_the_base_offset_of_the_run(tmp_path):
     other_path.write_text(json.dumps(without_offset), encoding="utf-8")
     with pytest.raises(replot.ReplotError, match="rebuilt grid"):
         replot.replot(other_path)
+
+
+def test_a_node_without_a_label_shows_its_homology_dimensions():
+    from hybrid_dynamics.examples.paper_grid_figures import blocked_index_line
+
+    with_homology = {"homology_computed": True, "homology_dimensions": [0, 1, 1]}
+    assert blocked_index_line(with_homology) == "dim H (0, 1, 1)"
+    assert blocked_index_line({"homology_computed": False, "homology_dimensions": []}) == "blocked"
+    assert blocked_index_line(_record(2, "blocked")) == "blocked"
+
+    _problem, grid, morse_sets = _ball_run()
+    data = suspension_grid_morse_sets_plot_data(grid, morse_sets, EDGES)
+    plot = PlotHybridMorseSets(data, blocked_index_nodes={2: "dim H (0, 1, 1)"})
+    try:
+        assert "M(2)\ndim H (0, 1, 1)" in morse_graph_node_labels(plot.morse_graph_axis)
+        dashed = [
+            patch
+            for patch in plot.morse_graph_axis.patches
+            if isinstance(patch, patches.Ellipse) and patch.get_linestyle() != "solid"
+        ]
+        assert len(dashed) == 1
+    finally:
+        plt.close(plot.figure)
