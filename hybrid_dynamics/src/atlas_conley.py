@@ -1651,7 +1651,9 @@ class _InducedCarrierGenerators(Mapping[AtlasNerveSimplex, frozenset[AtlasNerveS
     smallest vertex, so the induced subcomplex is assembled from the
     simplices whose smallest vertex lies in ``T``.  Recently used values are
     kept for simplices with the same ``T`` (for example the pieces of one
-    atom).
+    atom).  The keys are the cells of ``source_complex`` (by default
+    ``complex_``), whose vertices must have images; the values are
+    subcomplexes of ``complex_``.
     """
 
     def __init__(
@@ -1660,8 +1662,10 @@ class _InducedCarrierGenerators(Mapping[AtlasNerveSimplex, frozenset[AtlasNerveS
         vertex_images: Mapping[int, frozenset[int]],
         *,
         cache_size: int = 4096,
+        source_complex: FiniteCellComplex | None = None,
     ) -> None:
         self._complex = complex_
+        self._source = complex_ if source_complex is None else source_complex
         self._vertex_images = vertex_images
         by_first_vertex: dict[int, list[AtlasNerveSimplex]] = {}
         for cell in complex_.cells:
@@ -1671,7 +1675,7 @@ class _InducedCarrierGenerators(Mapping[AtlasNerveSimplex, frozenset[AtlasNerveS
         self._cache_size = int(cache_size)
 
     def __getitem__(self, source: AtlasNerveSimplex) -> frozenset[AtlasNerveSimplex]:
-        if source not in self._complex.cell_set:
+        if source not in self._source.cell_set:
             raise KeyError(source)
         target_vertices: set[int] = set()
         for vertex in source.vertices:
@@ -1696,10 +1700,10 @@ class _InducedCarrierGenerators(Mapping[AtlasNerveSimplex, frozenset[AtlasNerveS
         return value
 
     def __iter__(self):
-        return iter(self._complex.cells)
+        return iter(self._source.cells)
 
     def __len__(self) -> int:
-        return len(self._complex.cells)
+        return len(self._source.cells)
 
 
 def prepare_atlas_relation_conley_2d(

@@ -26,6 +26,7 @@ validated-enclosure obligations of the caller.
 
 from __future__ import annotations
 
+import heapq
 import itertools
 import json
 from collections.abc import Mapping as ABCMapping
@@ -115,6 +116,20 @@ def _add_scaled_chain(
 def _rank_mod_prime(columns: Iterable[Iterable[Tuple[int, int]]], modulus: int) -> int:
     """Return the rank of sparse column vectors over ``GF(modulus)``."""
 
+    return len(_column_echelon_mod_prime(columns, modulus))
+
+
+def _column_echelon_mod_prime(
+    columns: Iterable[Iterable[Tuple[int, int]]], modulus: int
+) -> Dict[int, Dict[int, int]]:
+    """Echelon basis of the span of sparse column vectors over ``GF(modulus)``.
+
+    Each column is reduced by the stored vectors at its largest nonzero row
+    (its pivot) until the pivot is new; the result maps every pivot to its
+    vector, scaled so that the entry at the pivot is one.  The vectors span
+    the column space and have distinct pivots.
+    """
+
     modulus = _require_prime(modulus)
     pivots: Dict[int, Dict[int, int]] = {}
     for entries in columns:
@@ -149,7 +164,98 @@ def _rank_mod_prime(columns: Iterable[Iterable[Tuple[int, int]]], modulus: int) 
                 else:
                     pop(row, None)
 
-    return len(pivots)
+    return pivots
+
+
+def _column_kernel_mod_prime(
+    columns: Sequence[Iterable[Tuple[int, int]]],
+    modulus: int,
+    *,
+    skip: Collection[int] = (),
+    combinations: bool = True,
+) -> Tuple[int, Dict[int, Dict[int, int]]]:
+    """Columns that are combinations of earlier columns, with the combinations.
+
+    The columns are reduced in order as in :func:`_column_echelon_mod_prime`,
+    keeping for every stored vector the combination of original columns it
+    equals.  A column that reduces to zero is a combination of earlier
+    columns; the combination returned for it (with coefficient one on the
+    column itself) is a vector of the kernel.  Columns in ``skip`` are
+    passed over; they must be known to reduce to zero, so that the stored
+    vectors, and hence the result for the other columns, do not change.
+    With ``combinations=False`` only the columns are found (the values are
+    empty).  Returns the rank of the columns reduced and the kernel vectors
+    by column.
+    """
+
+    modulus = _require_prime(modulus)
+    skipped = frozenset(skip)
+    pivots: Dict[int, Tuple[Dict[int, int], Dict[int, int]]] = {}
+    kernel: Dict[int, Dict[int, int]] = {}
+    for number, entries in enumerate(columns):
+        if number in skipped:
+            continue
+        vector: Dict[int, int] = {}
+        for row, coefficient in entries:
+            value = (vector.get(row, 0) + coefficient) % modulus
+            if value:
+                vector[row] = value
+            else:
+                vector.pop(row, None)
+        combination: Dict[int, int] = {number: 1} if combinations else {}
+        while vector:
+            pivot = max(vector)
+            stored = pivots.get(pivot)
+            if stored is None:
+                inverse = pow(vector[pivot], -1, modulus)
+                pivots[pivot] = (
+                    {row: value * inverse % modulus for row, value in vector.items()},
+                    {
+                        column: value * inverse % modulus
+                        for column, value in combination.items()
+                    },
+                )
+                break
+            scale = -vector[pivot]
+            _add_scaled_mod(vector, stored[0], scale, modulus)
+            if combinations:
+                _add_scaled_mod(combination, stored[1], scale, modulus)
+        else:
+            kernel[number] = combination
+    return len(pivots), kernel
+
+
+def _fully_reduce_mod_prime(
+    vector: Mapping[int, int],
+    pivots: Mapping[int, Mapping[int, int]],
+    modulus: int,
+) -> Dict[int, int]:
+    """Reduce ``vector`` modulo an echelon basis until no pivot row is nonzero.
+
+    ``pivots`` is the result of :func:`_column_echelon_mod_prime`.  The rows
+    are cleared from the largest down; clearing a row changes only smaller
+    rows, so every pivot row is cleared at most once.  The result is the
+    unique vector congruent to ``vector`` modulo the span that vanishes on
+    every pivot row.
+    """
+
+    residual = {row: value % modulus for row, value in vector.items() if value % modulus}
+    pending = [-row for row in residual if row in pivots]
+    heapq.heapify(pending)
+    while pending:
+        row = -heapq.heappop(pending)
+        scale = residual.get(row, 0)
+        if not scale:
+            continue
+        for target, coefficient in pivots[row].items():
+            value = (residual.get(target, 0) - scale * coefficient) % modulus
+            if value:
+                if target not in residual and target in pivots:
+                    heapq.heappush(pending, -target)
+                residual[target] = value
+            else:
+                residual.pop(target, None)
+    return residual
 
 
 def _solve_linear_system_mod_prime(
@@ -1037,22 +1143,36 @@ class CrossComplexAcyclicCarrier:
                 f"extra={sorted(extra, key=repr)!r}"
             )
         images: Dict[Cell, FrozenSet[Cell]] = {}
-        acyclicity_cache: Dict[FrozenSet[Cell], bool] = {}
+        # As in FixedTimeCarrier: a value that is a ClosedCellSet of the
+        # target is its own closure, each distinct value is checked once, and
+        # equal values are stored as one object.
+        acyclicity_cache: Dict[FrozenSet[Cell], Tuple[bool, FrozenSet[Cell]]] = {}
         for source in source_complex.cells:
-            generators = tuple(image_generators[source])
-            if not generators:
-                raise ValueError(f"carrier image of {source!r} must be nonempty")
-            image = target_complex.closure(generators)
-            if validate_acyclic:
-                acyclic = acyclicity_cache.get(image)
-                if acyclic is None:
-                    acyclic = target_complex.is_acyclic(image, modulus=modulus)
-                    acyclicity_cache[image] = acyclic
-                if not acyclic:
-                    raise ValueError(
-                        f"carrier image of {source!r} is not acyclic over "
-                        f"GF({modulus})"
-                    )
+            value = image_generators[source]
+            if isinstance(value, ClosedCellSet) and value.complex is target_complex:
+                if not value:
+                    raise ValueError(f"carrier image of {source!r} must be nonempty")
+                image = value
+            else:
+                generators = tuple(value)
+                if not generators:
+                    raise ValueError(f"carrier image of {source!r} must be nonempty")
+                image = target_complex.closure(generators)
+            cached = acyclicity_cache.get(image)
+            if cached is None:
+                acyclic = (
+                    target_complex.is_acyclic(image, modulus=modulus)
+                    if validate_acyclic
+                    else True
+                )
+                acyclicity_cache[image] = (acyclic, image)
+            else:
+                acyclic, image = cached
+            if validate_acyclic and not acyclic:
+                raise ValueError(
+                    f"carrier image of {source!r} is not acyclic over "
+                    f"GF({modulus})"
+                )
             images[source] = image
 
         for source in source_complex.cells:
@@ -1093,15 +1213,25 @@ class CrossComplexAcyclicCarrier:
             )
 
         images: Dict[Cell, Dict[Cell, int]] = {}
+        position = self.target_complex._position
+        cell_dimension = self.target_complex._dimensions
+        eliminated: Dict[Tuple[int, int], Tuple[Dict[Cell, int], object, Tuple[Cell, ...]]] = {}
+
+        def cells_in_order(carrier_value: FrozenSet[Cell], dimension: int) -> Tuple[Cell, ...]:
+            # The cells of the carrier value of one dimension in the order of
+            # the target complex, which is the order of cells_of_dimension.
+            return tuple(
+                sorted(
+                    (cell for cell in carrier_value if cell_dimension[cell] == dimension),
+                    key=position.__getitem__,
+                )
+            )
+
         for dimension in range(self.source_complex.max_dimension + 1):
             for source in self.source_complex.cells_of_dimension(dimension):
                 carrier_value = self._images[source]
                 if dimension == 0:
-                    vertices = tuple(
-                        cell
-                        for cell in self.target_complex.cells_of_dimension(0)
-                        if cell in carrier_value
-                    )
+                    vertices = cells_in_order(carrier_value, 0)
                     if not vertices:
                         raise ValueError(
                             f"carrier value of {source!r} contains no target vertex"
@@ -1121,26 +1251,35 @@ class CrossComplexAcyclicCarrier:
                         else:
                             right_hand_side.pop(target, None)
 
-                target_rows = tuple(
-                    cell
-                    for cell in self.target_complex.cells_of_dimension(dimension - 1)
-                    if cell in carrier_value
-                )
-                target_columns = tuple(
-                    cell
-                    for cell in self.target_complex.cells_of_dimension(dimension)
-                    if cell in carrier_value
-                )
                 try:
-                    images[source] = _solve_linear_system_mod_prime(
-                        target_rows,
-                        target_columns,
-                        {
-                            cell: self.target_complex.boundary(cell)
-                            for cell in target_columns
-                        },
-                        right_hand_side,
-                        self.modulus,
+                    # Equal carrier values are one object (see __init__), so
+                    # the echelon form of a value and degree is reused by
+                    # identity, as in FixedTimeCarrier.construct_chain_map.
+                    key = (id(carrier_value), dimension)
+                    system = eliminated.get(key)
+                    if system is None:
+                        target_rows = cells_in_order(carrier_value, dimension - 1)
+                        target_columns = cells_in_order(carrier_value, dimension)
+                        row_index = {cell: index for index, cell in enumerate(target_rows)}
+                        _check_right_hand_side(row_index, right_hand_side)
+                        pivots = _eliminate_columns_mod_prime(
+                            row_index,
+                            target_columns,
+                            {
+                                cell: self.target_complex.boundary(cell)
+                                for cell in target_columns
+                            },
+                            self.modulus,
+                        )
+                        system = (row_index, pivots, target_columns)
+                        if len(eliminated) >= 256:
+                            eliminated.pop(next(iter(eliminated)))
+                        eliminated[key] = system
+                    else:
+                        _check_right_hand_side(system[0], right_hand_side)
+                    row_index, pivots, target_columns = system
+                    images[source] = _solve_with_pivots(
+                        row_index, pivots, target_columns, right_hand_side, self.modulus
                     )
                 except ValueError as error:
                     raise ValueError(
@@ -1841,6 +1980,161 @@ class RelativeCellPair:
         return tuple(result)
 
 
+class RelativeHomologyBasis:
+    """A basis of ``H_k(P1, P0; GF(p))`` and the coordinates of relative cycles.
+
+    Positions in degree ``k`` are those of ``pair.basis_by_dimension[k]``.
+    The boundaries ``B_k`` (columns of the relative boundary of degree
+    ``k + 1``) are put in echelon form with the largest nonzero position as
+    pivot; the pivots ``L_k`` are positions of cycles.  The relative
+    boundary columns of degree ``k`` are then reduced in order, passing over
+    ``L_k``; a column ``c`` that reduces to zero gives a cycle ``z_c`` whose
+    largest position is ``c``.  These positions ``E_k`` are the essential
+    positions, ``|E_k| = dim H_k``, and the classes of the cycles ``z_c``
+    form a basis of ``H_k``.
+
+    The coordinates of a relative ``k``-cycle ``z`` are the entries at
+    ``E_k`` of the unique chain congruent to ``z`` modulo ``B_k`` that
+    vanishes on ``L_k``.  They depend only on the class of ``z`` and give an
+    isomorphism ``H_k -> GF(p)^{E_k}``: a nonzero cycle has its largest
+    position in ``L_k`` or ``E_k``, so a reduced cycle with no entry on
+    ``E_k`` is zero.  They are not the coordinates in the basis of the
+    ``z_c``; they are a fixed isomorphism, which is what a matrix of an
+    induced map needs.
+
+    ``cycle_degrees`` lists the degrees whose cycles ``z_c`` are kept (the
+    reduction then records combinations of columns); other degrees keep only
+    the essential positions.
+    """
+
+    def __init__(
+        self,
+        pair: RelativeCellPair,
+        *,
+        modulus: int = 5,
+        cycle_degrees: Collection[int] = (),
+    ) -> None:
+        modulus = _require_prime(modulus)
+        basis = pair.basis_by_dimension
+        self.pair = pair
+        self.modulus = modulus
+        self._position = [
+            {cell: position for position, cell in enumerate(cells)} for cells in basis
+        ]
+        wanted = frozenset(int(degree) for degree in cycle_degrees)
+        boundary_pivots: List[Dict[int, Dict[int, int]]] = []
+        for dimension in range(len(basis)):
+            boundary_pivots.append(
+                _column_echelon_mod_prime(self._columns(dimension + 1), modulus)
+                if dimension + 1 < len(basis)
+                else {}
+            )
+        essential: List[Tuple[int, ...]] = []
+        cycles: Dict[int, Tuple[Dict[Cell, int], ...]] = {}
+        for dimension in range(len(basis)):
+            _rank, kernel = _column_kernel_mod_prime(
+                self._columns(dimension),
+                modulus,
+                skip=boundary_pivots[dimension],
+                combinations=dimension in wanted,
+            )
+            positions = tuple(sorted(kernel))
+            essential.append(positions)
+            if dimension in wanted:
+                cycles[dimension] = tuple(
+                    {
+                        basis[dimension][column]: coefficient
+                        for column, coefficient in sorted(kernel[position].items())
+                    }
+                    for position in positions
+                )
+        self._boundary_pivots = tuple(boundary_pivots)
+        self._essential = tuple(essential)
+        self._cycles = cycles
+        self.dimensions = tuple(len(positions) for positions in essential)
+
+    def _columns(self, dimension: int) -> List[List[Tuple[int, int]]]:
+        """Relative boundary columns of degree ``dimension`` (faces in ``P0`` dropped)."""
+
+        if dimension <= 0 or dimension >= len(self._position):
+            cells = (
+                self.pair.basis_by_dimension[dimension]
+                if 0 <= dimension < len(self._position)
+                else ()
+            )
+            return [[] for _ in cells]
+        row_of = self._position[dimension - 1]
+        boundary = self.pair.complex.boundary
+        return [
+            [
+                (row_of[face], coefficient)
+                for face, coefficient in boundary(cell).items()
+                if face in row_of
+            ]
+            for cell in self.pair.basis_by_dimension[dimension]
+        ]
+
+    def essential_cells(self, dimension: int) -> Tuple[Cell, ...]:
+        cells = self.pair.basis_by_dimension[dimension]
+        return tuple(cells[position] for position in self._essential[dimension])
+
+    def cycles(self, dimension: int) -> Tuple[Mapping[Cell, int], ...]:
+        """The cycles ``z_c`` of degree ``dimension``, one per essential position."""
+
+        try:
+            return self._cycles[dimension]
+        except KeyError as error:
+            raise KeyError(
+                f"the cycles of degree {dimension} were not kept (cycle_degrees)"
+            ) from error
+
+    def coordinates(self, dimension: int, chain: Mapping[Cell, int]) -> Tuple[int, ...]:
+        """Coordinates of the class of a relative cycle; cells of ``P0`` are dropped.
+
+        Raises ``ValueError`` if ``chain`` has a cell outside ``P1`` or is
+        not a relative cycle.
+        """
+
+        modulus = self.modulus
+        if not 0 <= dimension < len(self._position):
+            if any(coefficient % modulus for coefficient in chain.values()):
+                raise ValueError(f"the pair has no cells of degree {dimension}")
+            return ()
+        position = self._position[dimension]
+        vector: Dict[int, int] = {}
+        for cell, coefficient in chain.items():
+            if not coefficient % modulus:
+                continue
+            row = position.get(cell)
+            if row is None:
+                if cell in self.pair.p0_cells:
+                    continue  # zero in C(P1) / C(P0)
+                raise ValueError(f"the chain has a cell outside P1 in degree {dimension}: {cell!r}")
+            value = (vector.get(row, 0) + coefficient) % modulus
+            if value:
+                vector[row] = value
+            else:
+                vector.pop(row, None)
+        if dimension > 0:
+            faces = self._position[dimension - 1]
+            cells = self.pair.basis_by_dimension[dimension]
+            boundary: Dict[int, int] = {}
+            for row, coefficient in vector.items():
+                for face, incidence in self.pair.complex.boundary(cells[row]).items():
+                    face_row = faces.get(face)
+                    if face_row is None:
+                        continue
+                    value = (boundary.get(face_row, 0) + coefficient * incidence) % modulus
+                    if value:
+                        boundary[face_row] = value
+                    else:
+                        boundary.pop(face_row, None)
+            if boundary:
+                raise ValueError(f"the chain is not a relative cycle of degree {dimension}")
+        residual = _fully_reduce_mod_prime(vector, self._boundary_pivots[dimension], modulus)
+        return tuple(residual.get(row, 0) for row in self._essential[dimension])
+
+
 class FixedTimeCellRelation:
     """A finite multivalued fixed-time relation on selected suspension cells."""
 
@@ -2523,6 +2817,7 @@ __all__ = [
     "PhaseCellRegistry",
     "PhaseSliceCell",
     "RelativeCellPair",
+    "RelativeHomologyBasis",
     "ResetHandle",
     "SampledSuspensionCellAdapter",
     "SparseCubicalGridComplex",

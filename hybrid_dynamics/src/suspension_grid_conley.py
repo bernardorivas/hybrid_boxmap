@@ -22,6 +22,35 @@ trivial and the index map is not formed.  Otherwise the index map is formed
 and its shift class is the label; if a carrier, pair, or chain-map check
 fails, the homology is still reported and only the label is missing.
 
+The index map is built in one of two ways (``index_map``).
+
+``"exit-components"`` (the default) is the construction above, in which the
+image of every atom of ``A`` (which may map partly outside ``X``) is
+replaced by its connected component of ``A``, zero in ``C(X)/C(A)``.  The
+carrier of an atom of ``A`` is then its whole component, and the map is
+refused when a component is not acyclic (an annulus, for example).
+
+``"excision"`` keeps the true images.  With ``Xbar = X cup F(X)`` and
+``Abar = Xbar minus S`` (atoms), the pieces of ``F(xi)`` lie in ``Xbar`` for
+every atom ``xi`` of ``X``, and ``F(A)`` misses ``S`` when ``S`` is a
+strongly connected component (an atom of ``A`` with an image in ``S`` would
+lie on a cycle through ``S``).  The chain map ``F_#: C(X, A) -> C(Xbar,
+Abar)`` is chosen from the acyclic carrier that sends a nerve simplex of
+``X`` to the subcomplex of the nerve of ``Xbar`` spanned by the images of
+its vertices.  Every carrier must be acyclic and the carrier of a simplex
+of ``A`` must lie in ``Abar``; an atom of ``X`` with an empty image (its
+samples left the window) has an empty carrier, and the map is refused.  The
+inclusion ``i: (X, A) -> (Xbar, Abar)`` is an excision (``Xbar = X cup
+Abar`` and ``X cap Abar = A`` as atoms), and that it induces an isomorphism
+on ``H_*( ; GF(5))`` is checked: equal dimensions in every degree and an
+invertible matrix.  The index map is ``i_*^{-1} F_*`` on ``H_*(X, A;
+GF(5))``, computed exactly over ``GF(5)``
+(:class:`suspension_complex.RelativeHomologyBasis`); its shift class, degree
+by degree, is read by ``CMGDB.ComputeRelativeHomologyShiftClass`` from the
+matrices of the map on homology.  When ``F(X)`` lies in ``X`` (so that
+``F(A)`` lies in ``A``), ``Xbar = X``, ``Abar = A``, and ``i`` is the
+identity.
+
 The result is a finite-relation shift class over ``GF(5)``.  It is not a
 certified Conley index of the continuous fixed-time map, because the
 relation is sampled.
@@ -46,9 +75,14 @@ from .atlas_conley import (
     AtlasRectangleCell2D,
     AtlasRelativeIndexPair2D,
     AtlasResetGluing2D,
+    _InducedCarrierGenerators,
     prepare_atlas_relation_conley_2d,
 )
-from .suspension_complex import _rank_mod_prime
+from .suspension_complex import (
+    CrossComplexAcyclicCarrier,
+    RelativeHomologyBasis,
+    _rank_mod_prime,
+)
 from .suspension_grid import SuspensionGrid, UnsupportedSuspensionGridError, build_suspension_grid
 from .suspension_grid_relation import SuspensionGridProblem, SuspensionGridRelation
 
@@ -56,9 +90,16 @@ from .suspension_grid_relation import SuspensionGridProblem, SuspensionGridRelat
 BASE_CHART = 0
 HANDLE_CHART = 1
 
+#: Constructions of the index map; the first is the default.
+INDEX_MAPS = ("exit-components", "excision")
+
 
 class IndexSizeLimitError(RuntimeError):
     """The pair of a Morse set has more elementary pieces than the caller allows."""
+
+
+class ExcisionError(RuntimeError):
+    """The inclusion ``(X, A) -> (Xbar, Abar)`` is not an isomorphism on homology."""
 
 
 def _affine_seam(
@@ -151,6 +192,13 @@ class SuspensionGridConleyResult:
     ``label_source`` how: from the index map, or from zero relative homology.
     ``blocker`` is the reason the label is missing, and
     ``index_map_blocker`` the reason the index map could not be formed.
+    ``index_map`` names the construction of the index map (see
+    ``INDEX_MAPS``).  For ``"excision"``, ``excision`` records the pair
+    ``(Xbar, Abar)`` (atoms, pieces, nerve cell counts, and homology
+    dimensions, as far as they were computed) and the matrices of the index
+    map on ``H_k(X, A; GF(5))``, one list of rows per degree.  ``to_dict``
+    writes ``index_map`` and ``excision`` only for ``"excision"``, so the
+    record of the default construction is unchanged.
     """
 
     morse_node: int
@@ -165,9 +213,11 @@ class SuspensionGridConleyResult:
     blocker: str = ""
     index_map_blocker: str = ""
     seconds: float = 0.0
+    index_map: str = INDEX_MAPS[0]
+    excision: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        return {
+        record = {
             "morse_node": self.morse_node,
             "computed": self.computed,
             "shift_class": list(self.shift_class),
@@ -184,6 +234,11 @@ class SuspensionGridConleyResult:
             "index_map_blocker": self.index_map_blocker,
             "seconds": self.seconds,
         }
+        # The record of the default construction keeps its earlier keys.
+        if self.index_map != INDEX_MAPS[0]:
+            record["index_map"] = self.index_map
+            record["excision"] = self.excision
+        return record
 
 
 def relative_homology_dimensions(
@@ -207,6 +262,211 @@ def relative_homology_dimensions(
     )
 
 
+def _solve_mod_prime(
+    matrix: Sequence[Sequence[int]],
+    right: Sequence[Sequence[int]],
+    modulus: int,
+) -> list[list[int]] | None:
+    """``matrix^{-1} right`` over ``GF(modulus)``; ``None`` if ``matrix`` is singular."""
+
+    size = len(matrix)
+    width = len(right[0]) if right else 0
+    rows = [
+        [int(value) % modulus for value in matrix[row]]
+        + [int(value) % modulus for value in right[row]]
+        for row in range(size)
+    ]
+    for column in range(size):
+        pivot = next((row for row in range(column, size) if rows[row][column]), None)
+        if pivot is None:
+            return None
+        rows[column], rows[pivot] = rows[pivot], rows[column]
+        inverse = pow(rows[column][column], -1, modulus)
+        rows[column] = [value * inverse % modulus for value in rows[column]]
+        for row in range(size):
+            scale = rows[row][column]
+            if row != column and scale:
+                rows[row] = [
+                    (value - scale * lead) % modulus
+                    for value, lead in zip(rows[row], rows[column])
+                ]
+    return [row[size : size + width] for row in rows]
+
+
+def _shift_class_of_matrices(matrices: Sequence[Sequence[Sequence[int]]]) -> tuple[str, ...]:
+    """Shift class, degree by degree, of the maps given by square matrices over ``GF(5)``.
+
+    The matrices are handed to ``CMGDB.ComputeRelativeHomologyShiftClass``
+    as a chain complex with zero boundary, so its homology is the space
+    itself and the induced map is the matrix; the strings are those of the
+    labels of the default construction.
+    """
+
+    import CMGDB
+
+    counts = [len(matrix) for matrix in matrices]
+    entries = [
+        [
+            (row, column, int(value) % 5)
+            for row, values in enumerate(matrix)
+            for column, value in enumerate(values)
+            if int(value) % 5
+        ]
+        for matrix in matrices
+    ]
+    payload = CMGDB.ComputeRelativeHomologyShiftClass(counts, [[] for _ in counts], entries)
+    if [int(value) for value in payload["homology_dimensions"]] != counts:
+        raise AssertionError("CMGDB changed the dimensions of a complex with zero boundary")
+    return tuple(str(entry) for entry in payload["shift_class"])
+
+
+def _excision_index_map(
+    relation: SuspensionGridRelation,
+    gluing: AtlasResetGluing2D,
+    s_atoms: npt.NDArray[np.int64],
+    x_atoms: npt.NDArray[np.int64],
+    x_pieces: npt.NDArray[np.int64],
+    a_pieces: npt.NDArray[np.int64],
+    pair: AtlasRelativeIndexPair2D,
+    dimensions: tuple[int, ...],
+    record: dict[str, Any],
+    *,
+    maximum_simplex_size: int,
+    max_pieces: int | None,
+) -> tuple[str, ...]:
+    """Shift class of ``i_*^{-1} F_*`` on ``H_*(X, A; GF(5))``; see the module notes.
+
+    ``pair`` is the pair ``(X, A)`` on the nerve of ``X`` and ``dimensions``
+    its relative homology.  ``record`` receives the data of ``(Xbar, Abar)``
+    and the matrices of the index map as they are computed.
+    """
+
+    grid = relation.grid
+    xbar_atoms = np.union1d(x_atoms, relation.image_of(x_atoms))
+    abar_atoms = np.setdiff1d(xbar_atoms, s_atoms)
+    xbar_pieces = np.concatenate([grid.atom(atom) for atom in xbar_atoms])
+    abar_pieces = (
+        np.concatenate([grid.atom(atom) for atom in abar_atoms])
+        if abar_atoms.size
+        else np.zeros(0, dtype=np.int64)
+    )
+    record["pair_atoms"] = {"Xbar": int(xbar_atoms.size), "Abar": int(abar_atoms.size)}
+    record["pair_pieces"] = {"Xbar": int(xbar_pieces.size), "Abar": int(abar_pieces.size)}
+    if max_pieces is not None and xbar_pieces.size > int(max_pieces):
+        raise IndexSizeLimitError(
+            f"Xbar = X cup F(X) has {xbar_pieces.size} elementary pieces, more than "
+            f"max_pieces={int(max_pieces)}; the index map was not attempted"
+        )
+
+    cycle_degrees = [degree for degree, value in enumerate(dimensions) if value]
+    if np.array_equal(xbar_atoms, x_atoms):
+        # F(X) lies in X: then Xbar = X, Abar = X minus S = A, and i is the
+        # identity of (X, A), whose nerve and homology are reused.
+        nerve = pair.nerve
+        source = target = pair
+        source_homology = target_homology = RelativeHomologyBasis(
+            pair.relative_pair, cycle_degrees=cycle_degrees
+        )
+    else:
+        cells = piece_rectangles(grid, xbar_pieces)
+        nerve = AtlasQuotientNerveComplex2D(
+            cells,
+            gluing,
+            maximum_simplex_size=maximum_simplex_size,
+            interior_seam_subcomplexes=_interior_seams(gluing, cells),
+        )
+        source = AtlasRelativeIndexPair2D(nerve, x_pieces.tolist(), a_pieces.tolist())
+        if source.complex.cell_set != pair.complex.cell_set:
+            raise AssertionError(
+                "the nerve of Xbar restricted to the pieces of X is not the nerve of X"
+            )
+        target = AtlasRelativeIndexPair2D(nerve, xbar_pieces.tolist(), abar_pieces.tolist())
+        source_homology = None
+        target_homology = RelativeHomologyBasis(target.relative_pair)
+    counts: dict[int, int] = {}
+    for cell in nerve.cells:
+        counts[nerve.dimension(cell)] = counts.get(nerve.dimension(cell), 0) + 1
+    record["nerve_cell_counts"] = [counts.get(d, 0) for d in range(max(counts) + 1)]
+    record["homology_dimensions"] = list(target_homology.dimensions)
+    degrees = max(len(dimensions), len(target_homology.dimensions))
+    padded = tuple(dimensions) + (0,) * (degrees - len(dimensions))
+    padded_target = target_homology.dimensions + (0,) * (
+        degrees - len(target_homology.dimensions)
+    )
+    if padded != padded_target:
+        raise ExcisionError(
+            f"H_*(Xbar, Abar) has dimensions {padded_target!r} and H_*(X, A) has "
+            f"{padded!r}; the inclusion is not an isomorphism"
+        )
+
+    # True images: a piece of the atom xi goes to every piece of F(xi).
+    xbar_set = set(xbar_pieces.tolist())
+    vertex_images: dict[int, frozenset[int]] = {}
+    for atom in x_atoms.tolist():
+        targets = frozenset(
+            int(piece) for target_atom in relation.image(atom) for piece in grid.atom(target_atom)
+        )
+        if not targets:
+            raise ValueError(f"the atom {atom} of X has an empty image; its carrier is empty")
+        if not targets <= xbar_set:
+            raise AssertionError(f"the image of the atom {atom} leaves Xbar")
+        for piece in grid.atom(atom).tolist():
+            vertex_images[int(piece)] = targets
+    carrier = CrossComplexAcyclicCarrier(
+        source.complex,
+        target.complex,
+        _InducedCarrierGenerators(target.complex, vertex_images, source_complex=source.complex),
+        modulus=5,
+        validate_acyclic=True,
+    )
+    abar_cells = target.relative_pair.p0_cells
+    for cell in source.relative_pair.p0_cells:
+        if not carrier.image(cell) <= abar_cells:
+            raise ValueError(f"the carrier of {cell!r} in A does not lie in Abar")
+    chain_map = carrier.construct_chain_map()
+
+    if source_homology is None:
+        source_homology = RelativeHomologyBasis(source.relative_pair, cycle_degrees=cycle_degrees)
+    if source_homology.dimensions != tuple(dimensions):
+        raise AssertionError(
+            f"the homology basis of (X, A) has dimensions {source_homology.dimensions!r}, "
+            f"the relative boundary matrices give {tuple(dimensions)!r}"
+        )
+    matrices: list[list[list[int]]] = []
+    for degree, size in enumerate(dimensions):
+        if not size:
+            matrices.append([])
+            continue
+        cycles = source_homology.cycles(degree)
+        own = [source_homology.coordinates(degree, cycle) for cycle in cycles]
+        if _solve_mod_prime([list(row) for row in zip(*own)], [[0]] * size, 5) is None:
+            raise AssertionError(
+                f"the cycles of degree {degree} are not a basis of H_{degree}(X, A)"
+            )
+        included = [target_homology.coordinates(degree, cycle) for cycle in cycles]
+        mapped = []
+        for cycle in cycles:
+            image: dict[Any, int] = {}
+            for cell, coefficient in cycle.items():
+                for target_cell, value in chain_map.image(cell).items():
+                    total = (image.get(target_cell, 0) + coefficient * value) % 5
+                    if total:
+                        image[target_cell] = total
+                    else:
+                        image.pop(target_cell, None)
+            mapped.append(target_homology.coordinates(degree, image))
+        # Columns are the coordinates of the images of the basis cycles.
+        inclusion = [list(row) for row in zip(*included)]
+        matrix = _solve_mod_prime(inclusion, [list(row) for row in zip(*mapped)], 5)
+        if matrix is None:
+            raise ExcisionError(
+                f"the inclusion (X, A) -> (Xbar, Abar) is not an isomorphism on H_{degree}"
+            )
+        matrices.append(matrix)
+    record["index_matrices"] = matrices
+    return _shift_class_of_matrices(matrices)
+
+
 def compute_suspension_grid_conley_index(
     relation: SuspensionGridRelation,
     morse_set: npt.ArrayLike,
@@ -215,6 +475,7 @@ def compute_suspension_grid_conley_index(
     maximum_simplex_size: int = 16,
     max_pieces: int | None = None,
     gluing: AtlasResetGluing2D | None = None,
+    index_map: str = INDEX_MAPS[0],
 ) -> SuspensionGridConleyResult:
     """Shift class of the index map on ``(S cup F(S), F(S) minus S)``.
 
@@ -229,8 +490,16 @@ def compute_suspension_grid_conley_index(
     piece and is held in memory, so this bounds the time and memory of the
     computation on fine grids.  ``gluing`` is ``suspension_grid_gluing`` of
     the grid, built here when it is not given.
+
+    ``index_map`` chooses the construction of the index map (see the module
+    notes): ``"exit-components"`` (the default) or ``"excision"``.  With
+    ``"excision"`` and ``max_pieces``, the index map is also not attempted
+    when ``Xbar = X cup F(X)`` has more pieces; the homology of ``(X, A)``
+    is still reported.
     """
 
+    if index_map not in INDEX_MAPS:
+        raise ValueError(f"index_map must be one of {INDEX_MAPS!r}; got {index_map!r}")
     started = time.perf_counter()
     grid = relation.grid
     s_atoms = np.unique(np.asarray(morse_set, dtype=np.int64))
@@ -248,6 +517,7 @@ def compute_suspension_grid_conley_index(
         computed=False,
         pair_atoms={"S": int(s_atoms.size), "X": int(x_atoms.size), "A": int(a_atoms.size)},
         pair_pieces={"X": int(x_pieces.size), "A": int(a_pieces.size)},
+        index_map=index_map,
     )
     try:
         if max_pieces is not None and x_pieces.size > int(max_pieces):
@@ -275,6 +545,28 @@ def compute_suspension_grid_conley_index(
             result.computed = True
             result.shift_class = ("0",) * len(result.homology_dimensions)
             result.label_source = "zero relative homology"
+            result.seconds = time.perf_counter() - started
+            return result
+        if index_map == "excision":
+            try:
+                result.shift_class = _excision_index_map(
+                    relation,
+                    gluing,
+                    s_atoms,
+                    x_atoms,
+                    x_pieces,
+                    a_pieces,
+                    pair,
+                    result.homology_dimensions,
+                    result.excision,
+                    maximum_simplex_size=maximum_simplex_size,
+                    max_pieces=max_pieces,
+                )
+            except Exception as error:  # the homology stays; only the label is missing
+                result.index_map_blocker = f"{type(error).__name__}: {error}"
+                raise
+            result.computed = True
+            result.label_source = "index map"
             result.seconds = time.perf_counter() - started
             return result
         x_set = set(x_pieces.tolist())
@@ -337,6 +629,7 @@ def _index_task(
     rows: sparse.csr_matrix,
     maximum_simplex_size: int,
     max_pieces: int | None,
+    index_map: str,
 ) -> SuspensionGridConleyResult:
     relation = SuspensionGridRelation(
         grid=_INDEX_WORKER["grid"],
@@ -352,11 +645,16 @@ def _index_task(
         maximum_simplex_size=maximum_simplex_size,
         max_pieces=max_pieces,
         gluing=_INDEX_WORKER["gluing"],
+        index_map=index_map,
     )
 
 
 def _rows_for_index(relation: SuspensionGridRelation, morse_set: npt.ArrayLike) -> sparse.csr_matrix:
-    """The relation restricted to the rows of ``S cup F(S)``, the rows the index reads."""
+    """The relation restricted to the rows of ``S cup F(S)``, the rows the index reads.
+
+    Both constructions of the index map read only these rows: the excision
+    pair ``Xbar = X cup F(X)`` needs the images of the atoms of ``X``.
+    """
 
     s_atoms = np.unique(np.asarray(morse_set, dtype=np.int64))
     x_atoms = np.union1d(s_atoms, relation.image_of(s_atoms))
@@ -373,6 +671,7 @@ def compute_suspension_grid_conley_indices(
     problem_factory: Callable[[], SuspensionGridProblem] | None = None,
     maximum_simplex_size: int = 16,
     max_pieces: int | None = None,
+    index_map: str = INDEX_MAPS[0],
 ) -> list[SuspensionGridConleyResult]:
     """:func:`compute_suspension_grid_conley_index` of every Morse set, in node order.
 
@@ -399,6 +698,7 @@ def compute_suspension_grid_conley_indices(
                 maximum_simplex_size=maximum_simplex_size,
                 max_pieces=max_pieces,
                 gluing=gluing,
+                index_map=index_map,
             )
             for node, morse_set in enumerate(sets)
         ]
@@ -420,6 +720,7 @@ def compute_suspension_grid_conley_indices(
                 _rows_for_index(relation, sets[node]),
                 maximum_simplex_size,
                 max_pieces,
+                index_map,
             )
             for node in order
         }
@@ -429,6 +730,8 @@ def compute_suspension_grid_conley_indices(
 
 
 __all__ = [
+    "ExcisionError",
+    "INDEX_MAPS",
     "IndexSizeLimitError",
     "SuspensionGridConleyResult",
     "compute_suspension_grid_conley_index",
