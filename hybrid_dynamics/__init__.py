@@ -222,6 +222,7 @@ from .src.suspension_grid_relation import (
     audit_suspension_grid_endpoints,
     compute_suspension_grid_relation,
     compute_suspension_morse_graph,
+    piece_evaluation_offsets,
     relation_image_connectivity,
 )
 from .src.suspension_grid_conley import (
@@ -256,6 +257,7 @@ __all__ = [
     "audit_suspension_grid_endpoints",
     "compute_suspension_grid_relation",
     "compute_suspension_morse_graph",
+    "piece_evaluation_offsets",
     "relation_image_connectivity",
     "SuspensionGridConleyResult",
     "compute_suspension_grid_conley_index",

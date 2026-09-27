@@ -28,6 +28,7 @@ from hybrid_dynamics import (
     compute_suspension_grid_conley_index,
     compute_suspension_grid_relation,
     compute_suspension_morse_graph,
+    piece_evaluation_offsets,
     piece_rectangles,
     suspension_grid_gluing,
 )
@@ -399,12 +400,90 @@ def test_ball_relation_is_one_morse_node_at_level_three():
 def test_gap_refinement_is_opt_in_and_only_adds_edges():
     problem = bouncing_ball_problem()
     grid = _grid(problem, 3)
-    paper = compute_suspension_grid_relation(grid, problem)
-    refined = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=6)
-    assert paper.statistics["image_rule"].startswith("paper")
-    assert not refined.statistics["image_rule"].startswith("paper")
-    assert (paper.matrix.multiply(refined.matrix) != paper.matrix).nnz == 0
-    assert refined.statistics["unresolved_gap_segments"] <= paper.n_edges
+    for mode in ("corners", "tensor"):
+        plain = compute_suspension_grid_relation(grid, problem, eval_mode=mode)
+        refined = compute_suspension_grid_relation(
+            grid, problem, eval_mode=mode, gap_refinement_depth=6
+        )
+        assert plain.statistics["default_rule"] == (mode == "corners")
+        assert not refined.statistics["default_rule"]
+        assert refined.statistics["gap_refinement_samples"] > 0
+        assert (plain.matrix.multiply(refined.matrix) != plain.matrix).nnz == 0
+        assert refined.statistics["unresolved_gap_segments"] <= plain.n_edges
+
+
+def test_evaluation_offsets_mirror_cmgdb():
+    corners, denominator = piece_evaluation_offsets("corners")
+    assert denominator == 1 and corners.tolist() == [[0, 0], [0, 1], [1, 0], [1, 1]]
+    center, denominator = piece_evaluation_offsets("center")
+    assert denominator == 2 and center.tolist() == [[1, 1]]
+    first, denominator = piece_evaluation_offsets("random", num_pts=7, sample_depth=3, seed=5)
+    again, _ = piece_evaluation_offsets("random", num_pts=7, sample_depth=3, seed=5)
+    other, _ = piece_evaluation_offsets("random", num_pts=7, sample_depth=3, seed=6)
+    assert denominator == 8 and first.shape == (7, 2)
+    assert np.array_equal(first, again) and not np.array_equal(first, other)
+    assert first.min() >= 0 and first.max() <= 8
+    tensor, denominator = piece_evaluation_offsets("tensor", samples_per_axis=2)
+    assert denominator == 1 and np.array_equal(tensor, corners)
+    with pytest.raises(ValueError):
+        piece_evaluation_offsets("vertices")
+    with pytest.raises(ValueError):
+        piece_evaluation_offsets("random", num_pts=0)
+    cmgdb = pytest.importorskip("CMGDB.PrecomputedBoxMap")
+    for mode, options in (
+        ("corners", {}),
+        ("center", {}),
+        ("random", {}),
+        ("random", {"num_pts": 7, "sample_depth": 3, "seed": 5}),
+    ):
+        ours, denominator = piece_evaluation_offsets(mode, **options)
+        theirs, depth = cmgdb.evaluation_offsets(mode, 2, **options)
+        assert np.array_equal(ours, theirs) and denominator == 2**depth
+
+
+def test_default_sampling_is_the_corners_of_every_piece():
+    problem = bouncing_ball_problem()
+    grid = _grid(problem, 3)
+    relation = compute_suspension_grid_relation(grid, problem)
+    stats = relation.statistics
+    assert stats["eval_mode"] == "corners" and stats["default_rule"]
+    assert stats["samples_per_piece"] == 4 and stats["padding_forced"] is False
+    # Each distinct vertex is evaluated once: the vertices of the base cells,
+    # and the (n_guard + 1) x (n_phase + 1) vertices of the handle pieces.
+    vertices = np.unique(
+        (grid.base_addresses[:, None, :] + np.array([[0, 0], [0, 1], [1, 0], [1, 1]])).reshape(
+            -1, 2
+        ),
+        axis=0,
+    )
+    assert stats["unique_base_samples"] == vertices.shape[0]
+    assert stats["unique_handle_samples"] == (grid.n_guard + 1) * (grid.n_phase + 1)
+    assert stats["handle_paths"] == grid.n_guard + 1
+    same = compute_suspension_grid_relation(
+        grid, problem, eval_mode="tensor", samples_per_axis=2
+    )
+    assert (relation.matrix != same.matrix).nnz == 0
+    with pytest.raises(ValueError, match="samples_per_axis"):
+        compute_suspension_grid_relation(grid, problem, samples_per_axis=3)
+
+
+def test_center_forces_padding_and_random_is_deterministic():
+    problem = bouncing_ball_problem()
+    grid = _grid(problem, 2)
+    center = compute_suspension_grid_relation(grid, problem, eval_mode="center", padding=False)
+    padded = compute_suspension_grid_relation(grid, problem, eval_mode="center")
+    assert center.statistics["padding_forced"] and not padded.statistics["padding_forced"]
+    assert center.statistics["unique_base_samples"] == grid.n_base
+    assert (center.matrix != padded.matrix).nnz == 0
+    first = compute_suspension_grid_relation(grid, problem, eval_mode="random", num_pts=4, seed=3)
+    again = compute_suspension_grid_relation(grid, problem, eval_mode="random", num_pts=4, seed=3)
+    assert (first.matrix != again.matrix).nnz == 0
+    assert first.statistics["seed"] == 3 and first.statistics["samples_per_piece"] == 4
+    for mode in ("center", "random"):
+        with pytest.raises(ValueError, match="no lattice edges"):
+            compute_suspension_grid_relation(
+                grid, problem, eval_mode=mode, gap_refinement_depth=2
+            )
 
 
 # ---------------------------------------------------------------------------

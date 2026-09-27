@@ -3,14 +3,20 @@
 
 For each example this runner builds ``Xi_n`` (``def:suspension-grid`` with the
 cofiltration ``Xi_n = Xi_{n-1} ^ Xi_n(X_n)``), samples the multivalued map of
-the Examples section (``3 x 3`` samples per piece, the closed atoms containing
-the endpoints, one-atom padding, targets outside the window discarded),
-computes the Morse graph, attempts the finite-relation Conley labels, and
-writes a figure (PDF and PNG) and a JSON summary to ``figures/paper_grid``.
+the Examples section, computes the Morse graph, attempts the finite-relation
+Conley labels, and writes a figure (PDF and PNG) and a JSON summary to
+``figures/paper_grid``.
 
-``--gap-refinement-depth`` selects the opt-in gap refinement of
-:func:`compute_suspension_grid_relation`, which is not part of the
-manuscript's description; its outputs carry the suffix ``-gap-refined``.
+The default image rule samples the four vertices of every elementary piece
+of every atom (``--eval-mode corners``, the CMGDB default), takes the closed
+atoms containing the endpoints, pads by one atom, and discards targets
+outside the window.  ``--eval-mode center`` (padding forced) and
+``--eval-mode random`` (``--num-pts``, ``--sample-depth``, ``--seed``) mirror
+the other CMGDB evaluation modes; ``--eval-mode tensor`` with
+``--samples-per-axis`` is the earlier tensor rule.  ``--gap-refinement-depth``
+selects the opt-in gap refinement of :func:`compute_suspension_grid_relation`
+(corners and tensor only).  Output names carry a suffix for every
+non-default choice, for example ``-tensor3`` or ``-gap-refined``.
 
 Run from the ``code`` directory, for example::
 
@@ -60,6 +66,11 @@ from hybrid_dynamics.src.suspension_grid_plot import (  # noqa: E402
     suspension_grid_morse_plot_data,
 )
 from hybrid_dynamics.src.suspension_grid_relation import (  # noqa: E402
+    DEFAULT_EVAL_MODE,
+    DEFAULT_NUM_PTS,
+    DEFAULT_SAMPLE_DEPTH,
+    DEFAULT_SEED,
+    EVAL_MODES,
     atom_set_components,
     audit_suspension_grid_endpoints,
     compute_suspension_grid_relation,
@@ -111,6 +122,36 @@ def _arguments() -> argparse.Namespace:
         help="grid level per example (defaults: ball 5, wheel 6, neuron 8)",
     )
     parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument(
+        "--eval-mode",
+        choices=EVAL_MODES,
+        default=DEFAULT_EVAL_MODE,
+        help="where each elementary piece is sampled (default: corners)",
+    )
+    parser.add_argument(
+        "--num-pts",
+        type=int,
+        default=None,
+        help=f"random mode: offsets per piece (default {DEFAULT_NUM_PTS})",
+    )
+    parser.add_argument(
+        "--sample-depth",
+        type=int,
+        default=None,
+        help=f"random mode: dyadic depth of the offsets (default {DEFAULT_SAMPLE_DEPTH})",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help=f"random mode: seed of the offsets (default {DEFAULT_SEED})",
+    )
+    parser.add_argument(
+        "--samples-per-axis",
+        type=int,
+        default=None,
+        help="tensor mode: samples per axis of each piece (default 3)",
+    )
     parser.add_argument("--gap-refinement-depth", type=int, default=0)
     parser.add_argument("--no-conley", action="store_true")
     parser.add_argument("--probe-cells", type=int, default=150)
@@ -118,7 +159,53 @@ def _arguments() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir", type=Path, default=CODE_ROOT / "figures" / "paper_grid"
     )
-    return parser.parse_args()
+    arguments = parser.parse_args()
+    random_options = {
+        "--num-pts": arguments.num_pts,
+        "--sample-depth": arguments.sample_depth,
+        "--seed": arguments.seed,
+    }
+    if arguments.eval_mode != "random":
+        given = [name for name, value in random_options.items() if value is not None]
+        if given:
+            parser.error(f"{', '.join(given)} requires --eval-mode random")
+    if arguments.samples_per_axis is not None and arguments.eval_mode != "tensor":
+        parser.error("--samples-per-axis requires --eval-mode tensor")
+    if arguments.gap_refinement_depth > 0 and arguments.eval_mode in {"center", "random"}:
+        parser.error("--gap-refinement-depth requires --eval-mode corners or tensor")
+    return arguments
+
+
+def _sampling_options(arguments: argparse.Namespace) -> dict[str, object]:
+    """Keyword arguments of :func:`compute_suspension_grid_relation`."""
+
+    options: dict[str, object] = {"eval_mode": arguments.eval_mode}
+    if arguments.eval_mode == "random":
+        options.update(
+            num_pts=DEFAULT_NUM_PTS if arguments.num_pts is None else arguments.num_pts,
+            sample_depth=(
+                DEFAULT_SAMPLE_DEPTH
+                if arguments.sample_depth is None
+                else arguments.sample_depth
+            ),
+            seed=DEFAULT_SEED if arguments.seed is None else arguments.seed,
+        )
+    if arguments.eval_mode == "tensor":
+        options["samples_per_axis"] = (
+            3 if arguments.samples_per_axis is None else arguments.samples_per_axis
+        )
+    return options
+
+
+def _sampling_suffix(options: dict[str, object]) -> str:
+    mode = options["eval_mode"]
+    if mode == "random":
+        return f"-random{options['num_pts']}d{options['sample_depth']}s{options['seed']}"
+    if mode == "tensor":
+        return f"-tensor{options['samples_per_axis']}"
+    if mode == "center":
+        return "-center"
+    return ""
 
 
 def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, object]:
@@ -126,9 +213,14 @@ def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, obje
     problem = PAPER_GRID_PROBLEMS[name]()
     factory = paper_grid_problem_factory(name)
     depth = int(arguments.gap_refinement_depth)
-    suffix = "-gap-refined" if depth > 0 else ""
+    sampling = _sampling_options(arguments)
+    suffix = _sampling_suffix(sampling) + ("-gap-refined" if depth > 0 else "")
     stem = f"paper-grid-{name}-tau{int(round(problem.tau * 100)):03d}-level{level}{suffix}"
-    print(f"== {name}: level {level}, tau {problem.tau}, gap refinement {depth}", flush=True)
+    print(
+        f"== {name}: level {level}, tau {problem.tau}, sampling {sampling}, "
+        f"gap refinement {depth}",
+        flush=True,
+    )
 
     started = time.perf_counter()
     grid = build_suspension_grid(problem.window, problem.guard, level)
@@ -140,6 +232,7 @@ def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, obje
     relation = compute_suspension_grid_relation(
         grid,
         problem,
+        **sampling,
         gap_refinement_depth=depth,
         workers=arguments.workers,
         problem_factory=factory,
@@ -163,6 +256,7 @@ def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, obje
         path_relation = compute_suspension_grid_relation(
             grid,
             problem,
+            **sampling,
             exit_policy="path",
             gap_refinement_depth=depth,
             workers=arguments.workers,
@@ -293,7 +387,7 @@ def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, obje
     timings["figure"] = time.perf_counter() - started
 
     summary = {
-        "schema": "paper-suspension-grid-run-v1",
+        "schema": "paper-suspension-grid-run-v2",
         "example": name,
         "parameters": problem.parameters,
         "tau": problem.tau,
@@ -305,12 +399,21 @@ def _run(name: str, level: int, arguments: argparse.Namespace) -> dict[str, obje
             "Xi_n = Xi_{n-1} ^ Xi_n(X_n)); elementary pieces with generator signatures"
         ),
         "image_rule": {
+            "description": relation.statistics["image_rule"],
+            "default_rule": relation.statistics["default_rule"],
+            "eval_mode": relation.statistics["eval_mode"],
+            "evaluation_offsets": relation.statistics["evaluation_offsets"],
+            "offset_denominator": relation.statistics["offset_denominator"],
+            "samples_per_piece": relation.statistics["samples_per_piece"],
+            "num_pts": relation.statistics["num_pts"],
+            "sample_depth": relation.statistics["sample_depth"],
+            "seed": relation.statistics["seed"],
             "samples_per_axis": relation.statistics["samples_per_axis"],
-            "tensor_rule": "corners, edge midpoints, and center of every elementary piece",
             "padding": relation.statistics["padding"],
+            "padding_forced": relation.statistics["padding_forced"],
             "gap_refinement_depth": depth,
-            "in_manuscript": depth == 0,
             "exit_policy": relation.statistics["exit_policy"],
+            "command_line": sys.argv[1:],
         },
         "grid": grid.summary(),
         "grid_check": {

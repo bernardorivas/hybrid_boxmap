@@ -3,9 +3,10 @@
 This module implements the computation of the manuscript's Examples section
 on the grid ``Xi_n`` of :mod:`suspension_grid`:
 
-* every element (atom) of ``Xi_n`` is sampled by a ``3 x 3`` tensor array on
-  each of its elementary pieces (corners, edge midpoints, and center of each
-  base cell, and likewise in the ``(u, s)`` coordinates of each handle piece);
+* every element (atom) of ``Xi_n`` is sampled on each of its elementary
+  pieces; by default at the four vertices of the piece (``eval_mode=
+  "corners"``, the CMGDB default), in the base chart for a base cell and in
+  the ``(u, s)`` chart for a handle piece ``pi(J x I_{n,k})``;
 * each sample is followed for ``tau`` units of suspension time with the
   unit-handle clock ``T = flow time + completed handles``;
 * each endpoint is located in the closed pieces containing it, including both
@@ -18,6 +19,13 @@ The last rule is the implemented ``epsilon_n`` of
 ``def:suspension-multivalued-map``: ``F_n(xi)`` consists of the atoms meeting
 the union of the closed atoms that contain sampled endpoints of ``xi``.
 
+The evaluation modes ``"corners"``, ``"center"``, and ``"random"`` mirror
+``eval_mode`` of ``CMGDB.PrecomputedBoxMap`` in name and semantics (see
+:func:`piece_evaluation_offsets`); ``"tensor"`` is the earlier
+``samples_per_axis x samples_per_axis`` rule.  CMGDB encloses the samples of
+a box in their rectangular hull; here the image is the set of atoms
+containing the endpoints, with no hull.
+
 The Morse graph is computed from the strongly connected components of this
 explicit relation with :mod:`scipy.sparse.csgraph`; a component is a Morse set
 if it carries an edge.  Morse sets are ordered by reachability.
@@ -27,6 +35,7 @@ The relation is sampled, not a certified outer approximation.
 
 from __future__ import annotations
 
+import itertools
 import os
 import time
 from collections.abc import Callable, Mapping, Sequence
@@ -54,6 +63,16 @@ IntArray = npt.NDArray[np.int64]
 ENDPOINT_FAILED = -1
 ENDPOINT_BASE = 0
 ENDPOINT_HANDLE = 1
+
+#: Where each elementary piece is sampled.  ``corners``, ``center``, and
+#: ``random`` mirror ``CMGDB.PrecomputedBoxMap.EvalMode``; ``tensor`` is the
+#: earlier ``samples_per_axis x samples_per_axis`` rule.
+EVAL_MODES = ("corners", "center", "random", "tensor")
+DEFAULT_EVAL_MODE = "corners"
+#: Defaults of ``CMGDB.PrecomputedBoxMap`` for ``eval_mode="random"``.
+DEFAULT_NUM_PTS = 10
+DEFAULT_SAMPLE_DEPTH = 4
+DEFAULT_SEED = 0
 
 
 # ---------------------------------------------------------------------------
@@ -606,6 +625,102 @@ class _BaseEvaluator:
             self.executor = None
 
 
+def piece_evaluation_offsets(
+    eval_mode: str = DEFAULT_EVAL_MODE,
+    *,
+    num_pts: int = DEFAULT_NUM_PTS,
+    sample_depth: int = DEFAULT_SAMPLE_DEPTH,
+    seed: int | None = DEFAULT_SEED,
+    samples_per_axis: int | None = None,
+) -> tuple[IntArray, int]:
+    """Where each elementary piece is sampled, as ``(numerators, denominator)``.
+
+    Sample ``j`` of a piece lies at the relative position
+    ``numerators[j] / denominator`` in its chart: ``(x, y)`` for a base cell
+    and ``(u, s)`` for a handle piece ``pi(J x I_{n,k})``, where ``u`` is the
+    guard coordinate on ``J`` and ``s`` the phase on ``I_{n,k}``.  The same
+    offsets are used for every piece; a point sampled by several pieces (a
+    shared vertex in ``corners`` mode) is evaluated once.
+
+    ``corners``, ``center``, and ``random`` return exactly
+    ``CMGDB.PrecomputedBoxMap.evaluation_offsets(eval_mode, 2, num_pts=...,
+    sample_depth=..., seed=...)`` (denominator ``2**depth``):
+
+    * ``"corners"``: the four vertices ``{0, 1}^2``, in the order
+      ``(0,0), (0,1), (1,0), (1,1)``;
+    * ``"center"``: the midpoint ``(1, 1) / 2``;
+    * ``"random"``: ``num_pts`` offsets ``k / 2**sample_depth`` with
+      ``k`` drawn once from ``{0, ..., 2**sample_depth}^2`` by
+      ``numpy.random.default_rng(seed).integers``; they are reused for every
+      piece, so the relation is deterministic for an integer seed.
+
+    ``"tensor"`` is the earlier rule: the ``samples_per_axis x
+    samples_per_axis`` array ``{0, ..., q}^2 / q`` with
+    ``q = samples_per_axis - 1`` (default ``samples_per_axis = 3``);
+    ``samples_per_axis = 2`` gives the corners.  The random-mode arguments
+    are ignored by the other modes, as in CMGDB.
+    """
+
+    if eval_mode == "corners":
+        return np.array(list(itertools.product((0, 1), repeat=2)), dtype=np.int64), 1
+    if eval_mode == "center":
+        return np.ones((1, 2), dtype=np.int64), 2
+    if eval_mode == "random":
+        num_pts = int(num_pts)
+        sample_depth = int(sample_depth)
+        if num_pts < 1:
+            raise ValueError(f"num_pts must be positive; got {num_pts}")
+        if sample_depth < 1:
+            raise ValueError(f"sample_depth must be positive; got {sample_depth}")
+        rng = np.random.default_rng(seed)
+        numerators = rng.integers(0, 2**sample_depth + 1, size=(num_pts, 2), dtype=np.int64)
+        return numerators, 2**sample_depth
+    if eval_mode == "tensor":
+        count = 3 if samples_per_axis is None else int(samples_per_axis)
+        if count < 2:
+            raise ValueError("samples_per_axis must be at least two (a tensor rule with corners)")
+        q = count - 1
+        offsets = np.arange(q + 1)
+        ax, ay = np.meshgrid(offsets, offsets, indexing="ij")
+        return np.stack((ax.ravel(), ay.ravel()), axis=1).astype(np.int64), q
+    raise ValueError(f"eval_mode must be one of {EVAL_MODES}; got {eval_mode!r}")
+
+
+def _evaluate_handle_pairs(
+    flow: SuspensionFlow,
+    guard: GuardResetSpec,
+    u_values: FloatArray,
+    phases: FloatArray,
+    tau: float,
+    *,
+    path_cache: dict[float, SuspensionPath] | None = None,
+) -> EndpointBatch:
+    """Endpoints of ``pi(gamma(u_i), s_i)`` with one path per distinct ``u``."""
+
+    batch = EndpointBatch.empty(u_values.shape[0])
+    if u_values.size == 0:
+        return batch
+    distinct, inverse = np.unique(u_values, return_inverse=True)
+    order = np.argsort(inverse, kind="stable")
+    bounds = np.searchsorted(inverse[order], np.arange(distinct.size + 1))
+    for index, u_value in enumerate(distinct):
+        members = order[bounds[index] : bounds[index + 1]]
+        evaluated = evaluate_handle_endpoints(
+            flow,
+            guard,
+            np.array([u_value]),
+            phases[members],
+            tau,
+            path_cache=path_cache,
+        )
+        batch.kind[members] = evaluated.kind
+        batch.state[members] = evaluated.state
+        batch.phase[members] = evaluated.phase
+        batch.left_window[members] = evaluated.left_window
+        batch.failures.extend(evaluated.failures)
+    return batch
+
+
 def _lattice_edges(sample_of_piece: IntArray, q: int) -> tuple[IntArray, IntArray]:
     """Edges of each piece's ``(q+1) x (q+1)`` sample lattice with owners."""
 
@@ -627,7 +742,11 @@ def compute_suspension_grid_relation(
     grid: SuspensionGrid,
     problem: SuspensionGridProblem,
     *,
-    samples_per_axis: int = 3,
+    eval_mode: str = DEFAULT_EVAL_MODE,
+    num_pts: int = DEFAULT_NUM_PTS,
+    sample_depth: int = DEFAULT_SAMPLE_DEPTH,
+    seed: int | None = DEFAULT_SEED,
+    samples_per_axis: int | None = None,
     padding: bool = True,
     exit_policy: str = "endpoint",
     gap_refinement_depth: int = 0,
@@ -638,37 +757,81 @@ def compute_suspension_grid_relation(
 ) -> SuspensionGridRelation:
     """Sample ``F_n`` on ``Xi_n`` as described in the Examples section.
 
-    The default (``samples_per_axis=3``, ``padding=True``,
-    ``gap_refinement_depth=0``) is the rule of the manuscript: a ``3 x 3``
-    tensor array on every elementary piece, the closed atoms containing the
-    endpoints, and one-atom padding.
+    Sampling (``eval_mode``, see :func:`piece_evaluation_offsets`).  The
+    default ``"corners"`` samples the four vertices of every elementary
+    piece of every atom: the corners of each finest base cell in ``R`` and,
+    for a handle piece ``pi(J x I_{n,k})`` with ``J = [u_0, u_1]`` and
+    ``I_{n,k} = [k a_n, (k+1) a_n]``, the points ``pi(gamma(u_i), s)`` with
+    ``u_i`` an end of ``J`` and ``s`` an end of ``I_{n,k}``.  A vertex
+    shared by several pieces is evaluated once.  The phase-zero and
+    phase-one vertices are the base points ``gamma(u_i)`` and
+    ``r(gamma(u_i))``; a base vertex on ``G cap R`` starts on its handle.
+    ``"center"`` samples the midpoint of every piece and forces
+    ``padding=True`` (one sample gives a single target, as in CMGDB);
+    ``"random"`` samples ``num_pts`` fixed dyadic offsets of depth
+    ``sample_depth`` drawn with ``seed``, reused for every piece;
+    ``"tensor"`` is the earlier ``samples_per_axis x samples_per_axis`` rule
+    (default 3), accepted only when requested explicitly.
+
+    Image.  ``F_n(xi)`` is the set of atoms whose closure meets the closure
+    of an atom containing a sampled endpoint of ``xi`` (one-atom padding;
+    ``padding=False`` keeps only the containing atoms).  The default
+    (``eval_mode="corners"``, ``padding=True``, ``exit_policy="endpoint"``,
+    ``gap_refinement_depth=0``) is reported as ``default_rule`` in
+    ``statistics``.
 
     ``exit_policy='endpoint'`` discards only endpoints outside ``D`` (targets
     outside the window); ``'path'`` additionally discards endpoints whose
     trajectory left ``D`` before time ``tau`` and returned.  Both counts are
     reported in ``statistics``.
 
-    ``gap_refinement_depth > 0`` enables an additional rule that is *not*
-    part of the manuscript's description: an edge of a piece's sample lattice
-    whose two endpoints lie in ``D`` but in atoms whose closures do not meet
-    is bisected, up to the given depth, and the endpoints of the inserted
-    samples are added to the image of every piece containing that edge.  The
-    image of a connected piece under ``f_tau`` is connected, so this closes
-    sampling gaps (it is the sampled analogue of following the image of each
-    lattice edge).  Unresolved gaps at the final depth are counted.
+    ``gap_refinement_depth > 0`` enables an additional rule: an edge of a
+    piece's sample lattice whose two endpoints lie in ``D`` but in atoms
+    whose closures do not meet is bisected, up to the given depth, and the
+    endpoints of the inserted samples are added to the image of every piece
+    containing that edge.  The image of a connected set under ``f_tau`` is
+    connected, so this closes sampling gaps along the lattice.  With
+    ``"corners"`` the lattice edges are the four edges of each piece (an edge
+    shared by two pieces serves both), so the refinement follows the image of
+    the boundary of each piece; with ``"tensor"`` they are the edges of the
+    ``samples_per_axis`` array.  ``"center"`` and ``"random"`` have no sample
+    lattice, and combining them with gap refinement raises ``ValueError``.
+    Unresolved gaps at the final depth are counted.
 
     With ``workers > 1`` the base samples are evaluated in worker processes,
     each rebuilding the problem from the picklable ``problem_factory``.
     """
 
-    if samples_per_axis < 2:
-        raise ValueError("samples_per_axis must be at least two (a tensor rule with corners)")
+    if eval_mode not in EVAL_MODES:
+        raise ValueError(f"eval_mode must be one of {EVAL_MODES}; got {eval_mode!r}")
+    if samples_per_axis is not None and eval_mode != "tensor":
+        raise ValueError(
+            "samples_per_axis applies only to eval_mode='tensor' "
+            f"(got eval_mode={eval_mode!r})"
+        )
     if exit_policy not in {"endpoint", "path"}:
         raise ValueError("exit_policy must be 'endpoint' or 'path'")
     if gap_refinement_depth < 0:
         raise ValueError("gap_refinement_depth must be nonnegative")
+    if gap_refinement_depth > 0 and eval_mode in {"center", "random"}:
+        raise ValueError(
+            "gap refinement bisects the edges of a piece's sample lattice; "
+            f"eval_mode={eval_mode!r} has no lattice edges (use 'corners' or 'tensor')"
+        )
+    numerators, denominator = piece_evaluation_offsets(
+        eval_mode,
+        num_pts=num_pts,
+        sample_depth=sample_depth,
+        seed=seed,
+        samples_per_axis=samples_per_axis,
+    )
+    if eval_mode == "tensor" and samples_per_axis is None:
+        samples_per_axis = 3
+    padding_requested = bool(padding)
+    padding = padding_requested or eval_mode == "center"
+    # Side of the square sample lattice used by the gap refinement.
+    lattice_q = {"corners": 1, "tensor": denominator}.get(eval_mode)
     started = time.perf_counter()
-    q = int(samples_per_axis) - 1
     tau = float(problem.tau)
     flow = _make_flow(problem, grid.level)
 
@@ -685,15 +848,14 @@ def compute_suspension_grid_relation(
         chunk_size=chunk_size,
     )
     try:
-        # Base samples on the lattice of step width / q.
-        offsets = np.arange(q + 1)
-        ax, ay = np.meshgrid(offsets, offsets, indexing="ij")
-        tensor = np.stack((ax.ravel(), ay.ravel()), axis=1)
-        base_lattice = (q * grid.base_addresses[:, None, :] + tensor[None, :, :]).reshape(-1, 2)
+        # Base samples: integer keys on the lattice of step width / denominator.
+        base_lattice = (
+            denominator * grid.base_addresses[:, None, :] + numerators[None, :, :]
+        ).reshape(-1, 2)
         base_keys, base_inverse = _unique_rows(base_lattice)
         lower = np.array([grid.window.ambient_bounds[0][0], grid.window.ambient_bounds[1][0]])
-        base_points = lower + base_keys * (grid.cell_widths / q)
-        base_sample_of_piece = base_inverse.reshape(grid.n_base, (q + 1) ** 2)
+        base_points = lower + base_keys * (grid.cell_widths / denominator)
+        base_sample_of_piece = base_inverse.reshape(grid.n_base, numerators.shape[0])
         report(f"base samples: {base_points.shape[0]} unique points")
 
         t0 = time.perf_counter()
@@ -701,29 +863,36 @@ def compute_suspension_grid_relation(
         base_seconds = time.perf_counter() - t0
         report(f"base endpoints evaluated in {base_seconds:.1f} s")
 
-        # Handle samples on the (u, s) lattice.
-        u_lattice = np.empty(q * grid.n_guard + 1)
-        for step in range(q):
-            u_lattice[step:-1:q] = grid.u_edges[:-1] + step / q * np.diff(grid.u_edges)
-        u_lattice[-1] = grid.u_edges[-1]
-        s_lattice = np.arange(q * grid.n_phase + 1) / (q * grid.n_phase)
+        # Handle samples: integer keys (u, s) on the refined guard and phase grids.
+        guard_index, phase_index = grid.handle_indices(np.arange(grid.n_base, grid.n_pieces))
+        handle_lattice = np.stack(
+            (
+                denominator * guard_index[:, None] + numerators[None, :, 0],
+                denominator * phase_index[:, None] + numerators[None, :, 1],
+            ),
+            axis=-1,
+        ).reshape(-1, 2)
+        handle_keys, handle_inverse = _unique_rows(handle_lattice)
+        interval = handle_keys[:, 0] // denominator
+        step = handle_keys[:, 0] % denominator
+        widths = np.diff(grid.u_edges)
+        handle_u = grid.u_edges[interval] + step / denominator * widths[
+            np.minimum(interval, grid.n_guard - 1)
+        ]
+        handle_s = handle_keys[:, 1] / (denominator * grid.n_phase)
+        handle_sample_of_piece = handle_inverse.reshape(grid.n_handle, numerators.shape[0])
         t0 = time.perf_counter()
         path_cache: dict[float, SuspensionPath] = {}
-        handle_batch = evaluate_handle_endpoints(
+        handle_batch = _evaluate_handle_pairs(
             flow,
             grid.guard,
-            u_lattice,
-            s_lattice,
+            handle_u,
+            handle_s,
             tau,
             path_cache=path_cache if gap_refinement_depth > 0 else None,
         )
         handle_seconds = time.perf_counter() - t0
         report(f"handle endpoints evaluated in {handle_seconds:.1f} s")
-        guard_index, phase_index = grid.handle_indices(np.arange(grid.n_base, grid.n_pieces))
-        handle_sample_of_piece = (
-            (q * guard_index[:, None, None] + offsets[None, :, None]) * s_lattice.size
-            + (q * phase_index[:, None, None] + offsets[None, None, :])
-        ).reshape(grid.n_handle, (q + 1) ** 2)
 
         # All endpoints in one index space: base samples first.
         endpoints = EndpointBatch.concatenate((base_batch, handle_batch))
@@ -731,9 +900,8 @@ def compute_suspension_grid_relation(
         sample_of_piece = np.concatenate(
             (base_sample_of_piece, handle_sample_of_piece + n_base_samples)
         )
-        handle_u, handle_s = np.meshgrid(u_lattice, s_lattice, indexing="ij")
         source_coordinates = np.concatenate(
-            (base_points, np.stack((handle_u.ravel(), handle_s.ravel()), axis=1))
+            (base_points, np.stack((handle_u, handle_s), axis=1))
         )
         source_is_handle = np.r_[
             np.zeros(n_base_samples, dtype=bool), np.ones(handle_u.size, dtype=bool)
@@ -748,14 +916,14 @@ def compute_suspension_grid_relation(
         if gap_refinement_depth > 0:
             t0 = time.perf_counter()
             closure = grid.atom_adjacency + sparse.identity(grid.n_atoms, format="csr")
-            edge_pairs, edge_owner_pieces = _lattice_edges(sample_of_piece, q)
+            edge_pairs, edge_owner_pieces = _lattice_edges(sample_of_piece, lattice_q)
             unique_edges, edge_inverse = _unique_rows(edge_pairs)
             # Owners of each unique edge (one or two pieces).
             owner_matrix = sparse.csr_matrix(
                 (np.ones(edge_inverse.size), (edge_inverse, edge_owner_pieces)),
                 shape=(unique_edges.shape[0], grid.n_pieces),
             )
-            lattice_keys = set(float(value) for value in u_lattice)
+            lattice_keys = set(float(value) for value in np.unique(handle_u))
             left = unique_edges[:, 0].copy()
             right = unique_edges[:, 1].copy()
             segment_edge = np.arange(unique_edges.shape[0])
@@ -798,22 +966,19 @@ def compute_suspension_grid_relation(
                     new_batch.failures.extend(evaluated.failures)
                 handle_rows = np.flatnonzero(middle_handle)
                 if handle_rows.size:
-                    u_values = middle[handle_rows, 0]
-                    for u_value in np.unique(u_values):
-                        members = handle_rows[u_values == u_value]
-                        evaluated = evaluate_handle_endpoints(
-                            flow,
-                            grid.guard,
-                            np.array([u_value]),
-                            middle[members, 1],
-                            tau,
-                            path_cache=path_cache,
-                        )
-                        new_batch.kind[members] = evaluated.kind
-                        new_batch.state[members] = evaluated.state
-                        new_batch.phase[members] = evaluated.phase
-                        new_batch.left_window[members] = evaluated.left_window
-                        new_batch.failures.extend(evaluated.failures)
+                    evaluated = _evaluate_handle_pairs(
+                        flow,
+                        grid.guard,
+                        middle[handle_rows, 0],
+                        middle[handle_rows, 1],
+                        tau,
+                        path_cache=path_cache,
+                    )
+                    new_batch.kind[handle_rows] = evaluated.kind
+                    new_batch.state[handle_rows] = evaluated.state
+                    new_batch.phase[handle_rows] = evaluated.phase
+                    new_batch.left_window[handle_rows] = evaluated.left_window
+                    new_batch.failures.extend(evaluated.failures)
                     # Paths at new guard coordinates serve one round only.
                     for key in list(path_cache):
                         if key not in lattice_keys:
@@ -890,18 +1055,46 @@ def compute_suspension_grid_relation(
     returned_samples = sources @ returned.astype(np.float64)
     failed_samples = sources @ failed.astype(np.float64)
     image_sizes = np.diff(matrix.indptr)
+    sample_rule = {
+        "corners": "the 4 vertices of every elementary piece",
+        "center": "the midpoint of every elementary piece",
+        "random": (
+            f"{int(num_pts)} fixed dyadic offsets (depth {int(sample_depth)}, "
+            f"seed {seed}) in every elementary piece"
+        ),
+        "tensor": (
+            f"a {samples_per_axis} x {samples_per_axis} tensor array on every "
+            "elementary piece"
+        ),
+    }[eval_mode]
+    image_rule = (
+        f"samples: {sample_rule}; image: closed atoms containing the endpoints; "
+        + ("one-atom padding" if padding else "no padding")
+        + (f"; gap refinement depth {int(gap_refinement_depth)}" if gap_refinement_depth else "")
+    )
     statistics = {
-        "samples_per_axis": int(samples_per_axis),
+        "eval_mode": eval_mode,
+        "evaluation_offsets": numerators.tolist(),
+        "offset_denominator": int(denominator),
+        "samples_per_piece": int(numerators.shape[0]),
+        "num_pts": int(num_pts) if eval_mode == "random" else None,
+        "sample_depth": int(sample_depth) if eval_mode == "random" else None,
+        "seed": (None if seed is None else int(seed)) if eval_mode == "random" else None,
+        "samples_per_axis": int(samples_per_axis) if eval_mode == "tensor" else None,
         "exit_policy": exit_policy,
         "padding": "one atom (closures meet in Sigma X)" if padding else "none",
-        "image_rule": (
-            "paper: 3x3 samples per piece, containing atoms, one-atom padding"
-            if gap_refinement_depth == 0 and samples_per_axis == 3 and padding
-            else "modified (see gap_refinement_depth, samples_per_axis, padding)"
+        "padding_requested": padding_requested,
+        "padding_forced": padding and not padding_requested,
+        "image_rule": image_rule,
+        "default_rule": bool(
+            eval_mode == DEFAULT_EVAL_MODE
+            and padding
+            and exit_policy == "endpoint"
+            and gap_refinement_depth == 0
         ),
         "unique_base_samples": int(n_base_samples),
         "unique_handle_samples": int(handle_batch.kind.size),
-        "handle_paths": int(u_lattice.size),
+        "handle_paths": int(np.unique(handle_u).size),
         "evaluated_endpoints": int(n_endpoints),
         "failed_endpoints": int(np.count_nonzero(failed)),
         "failure_messages": endpoints.failures[:20],
@@ -1076,9 +1269,10 @@ def audit_suspension_grid_endpoints(
 ):
     """Probe endpoints of dense source points against the recorded relation.
 
-    Base cells are probed on a ``(subdivision + 1)^2`` tensor array (a
-    different lattice from the ``3 x 3`` sampling rule) and handle pieces on
-    random interior ``(u, s)`` points.  Each probe is located with
+    Base cells are probed on a ``(subdivision + 1)^2`` tensor array (for
+    ``subdivision = 4`` it contains the corners of the default sampling rule
+    and 21 further points per cell) and handle pieces on random interior
+    ``(u, s)`` points.  Each probe is located with
     :meth:`SuspensionGrid.locate_base_points` or
     :meth:`SuspensionGrid.locate_handle_points` and recorded as an
     :class:`EndpointCoverageWitness` of :mod:`fixed_time_relation_audit`.  A
@@ -1212,9 +1406,11 @@ def audit_suspension_grid_endpoints(
 
 
 __all__ = [
+    "DEFAULT_EVAL_MODE",
     "ENDPOINT_BASE",
     "ENDPOINT_FAILED",
     "ENDPOINT_HANDLE",
+    "EVAL_MODES",
     "EndpointBatch",
     "SuspensionFlow",
     "SuspensionGridProblem",
@@ -1227,5 +1423,6 @@ __all__ = [
     "compute_suspension_morse_graph",
     "evaluate_base_endpoints",
     "evaluate_handle_endpoints",
+    "piece_evaluation_offsets",
     "relation_image_connectivity",
 ]

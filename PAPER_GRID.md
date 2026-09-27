@@ -17,7 +17,7 @@ two-dimensional base with a one-dimensional guard.
 | `prop:finite-grid-preimage` (`rho_n(abs(U)) = abs(d_n^{-1}(U))`, Boolean homomorphism) | `SuspensionGrid.base_readout` | `test_base_readout_is_a_boolean_homomorphism` |
 | `q_mn o d_m = d_n o p_mn` | `SuspensionGrid.refinement_map`, `SuspensionGrid.piece_parent` | `test_refinement_and_d_commute`, `test_curved_guard_refinement` |
 | Suspension semiflow `Phi` (unit handle) | `SuspensionFlow`, `SuspensionPath` | `test_flow_agrees_with_sampled_suspension`, `test_zeno_point_circulates_through_the_handle`, `test_flow_does_not_reset_off_guard_event_points` |
-| `def:suspension-multivalued-map` with the sampling rule of Section "Examples" | `compute_suspension_grid_relation` | `test_translation_cylinder_relation_morse_graph_probes_and_index`, `test_ball_relation_is_one_morse_node_at_level_three` |
+| `def:suspension-multivalued-map` with the sampling rule of Section "Examples" | `compute_suspension_grid_relation` (`eval_mode`, default `corners`), `piece_evaluation_offsets` | `test_translation_cylinder_relation_morse_graph_probes_and_index`, `test_ball_relation_is_one_morse_node_at_level_three`, `test_default_sampling_is_the_corners_of_every_piece`, `test_evaluation_offsets_mirror_cmgdb`, `test_center_forces_padding_and_random_is_deterministic` |
 | Window `D = Sigma(R)`, exits discarded | `SuspensionGrid.locate_base_points`, `SuspensionGrid.locate_handle_points` | `test_identifications_contribute_both_sides` |
 | Morse sets, order, base readout (`MG(F_n)`, `d_n^{-1}(M)`) | `compute_suspension_morse_graph`, `SuspensionMorseGraph.base_readouts`, `SuspensionGridRelation.forward_closure` | `test_ball_relation_is_one_morse_node_at_level_three` |
 | Finite-relation index labels (Section "Examples") | `compute_suspension_grid_conley_index` (pair `(S cup F(S), F(S) minus S)`, nerve of elementary pieces, `atlas_conley`, CMGDB shift class over `GF(5)`) | `test_translation_cylinder_relation_morse_graph_probes_and_index`, `test_seam_embeddings_of_the_examples` |
@@ -59,14 +59,44 @@ cells meeting `gamma(J)`, a phase-one piece meets the base cells meeting
 
 ## The sampled map
 
-`compute_suspension_grid_relation` implements the sentence of Section
-"Examples": each element of `Xi_n` is sampled by a `3 x 3` tensor array
-(corners, edge midpoints, center) on each of its elementary pieces; each
-sample is followed for `tau` units of suspension time; the endpoint is
-located in every closed piece that contains it, including both sides of an
-identification; targets outside `D` are discarded. The implemented
-`epsilon_n` is one-cell padding: `F_n(xi)` consists of the atoms whose closure
-meets the closure of an atom containing a sampled endpoint of `xi`.
+`compute_suspension_grid_relation` samples each element of `Xi_n` on each
+of its elementary pieces, follows each sample for `tau` units of suspension
+time, locates the endpoint in every closed piece that contains it (including
+both sides of an identification), and discards targets outside `D`. The
+implemented `epsilon_n` is one-cell padding: `F_n(xi)` consists of the atoms
+whose closure meets the closure of an atom containing a sampled endpoint of
+`xi`.
+
+The sample points are set by `eval_mode`, whose values `corners`, `center`,
+and `random` have the names and meaning of `eval_mode` in
+`CMGDB.PrecomputedBoxMap` (`piece_evaluation_offsets` returns the offsets of
+`CMGDB.PrecomputedBoxMap.evaluation_offsets` for dimension two). A sample is
+a relative position `k / m` in the chart of a piece: `(x, y)` for a base cell
+and `(u, s)` for a handle piece `pi(J x I_{n,k})`, with `u` the guard
+coordinate on `J` and `s` the phase on `I_{n,k}`.
+
+- `corners` (the default): the four vertices of every elementary piece. For
+  a base piece these are the corners of a finest base cell in `R`; for a
+  handle piece with `J = [u_0, u_1]` and `I_{n,k} = [k a_n, (k+1) a_n]` they
+  are `pi(gamma(u_i), s)` with `u_i` in `{u_0, u_1}` and `s` in
+  `{k a_n, (k+1) a_n}`. Vertices shared by several pieces are evaluated once:
+  the vertices of the base cells and the `(#guard intervals + 1) x (2^{n+2} +
+  1)` vertices of the handle. The phase-zero and phase-one vertices are the
+  base points `gamma(u_i)` and `r(gamma(u_i))`, and a base vertex on
+  `G cap R` starts on its handle.
+- `center`: the midpoint of every piece. One sample gives one target, so
+  padding is forced on, as in CMGDB.
+- `random`: `num_pts` offsets `k / 2^sample_depth`, with `k` drawn once from
+  `{0, ..., 2^sample_depth}^2` by `numpy.random.default_rng(seed)`, the same
+  for every piece (CMGDB defaults `num_pts=10`, `sample_depth=4`, `seed=0`).
+- `tensor` (explicit legacy option): the `samples_per_axis x
+  samples_per_axis` tensor array (corners, edge midpoints, and center for the
+  default 3) that the runs recorded below used. `tensor` with
+  `samples_per_axis=2` equals `corners`.
+
+The image rule differs from CMGDB's box map, which pads the rectangular hull
+of the sampled images: here the image is the union of the atoms containing
+the sampled endpoints, with no hull, padded by one atom.
 
 Handle samples are evaluated with one path per guard coordinate `u`: the
 path starting at `pi(gamma(u), 0)` is followed for `tau + 1` units, and
@@ -87,9 +117,14 @@ and returned; the runner reports the Morse graph under both.
 
 `gap_refinement_depth > 0` is an opt-in rule that is not in the manuscript:
 a sample-lattice edge whose endpoints lie in atoms with disjoint closures is
-bisected, and the new endpoints are added to the image. It is used only to
-report what the labels would be if the sampling rule were refined; its
-outputs carry the suffix `-gap-refined`.
+bisected, and the new endpoints are added to the image of every piece
+containing that edge. With `corners` the lattice edges are the four edges of
+each piece (an edge shared by two pieces serves both), so the refinement
+follows the image of the boundary of each piece; with `tensor` they are the
+edges of the tensor array. `center` and `random` have no lattice edges, and
+the combination raises `ValueError`. The rule is used only to report what the
+labels would be if the sampling were refined; its outputs carry the suffix
+`-gap-refined`.
 
 ## Index labels
 
@@ -110,19 +145,28 @@ From `code/`:
 ```bash
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12 --gap-refinement-depth 12
+.venv/bin/python demo/run_paper_grid_examples.py --workers 12 --eval-mode tensor --samples-per-axis 3
 ```
 
-Outputs (PDF, PNG, JSON) are written to `figures/paper_grid/`.
+The runner options `--eval-mode`, `--num-pts`, `--sample-depth`, `--seed`,
+`--samples-per-axis`, and `--gap-refinement-depth` select the sampling; the
+options in force, the offsets, and the command line are recorded under
+`image_rule` in the JSON summary. Outputs (PDF, PNG, JSON) are written to
+`figures/paper_grid/`; every non-default choice adds a suffix to the file
+names (`-center`, `-random10d4s0`, `-tensor3`, `-gap-refined`).
 
 ## Recorded runs
 
-All runs below used code commit `350c93e` (clean tree), 12 worker processes,
+All runs below used code commit `350c93e` (clean tree), the `3 x 3` tensor
+rule that was then the default (now `--eval-mode tensor --samples-per-axis 3`),
+12 worker processes,
 and the tolerances of the example classes (`rtol=1e-10`, `atol=1e-12`,
 `max_step=0.02`). Level `n` has `2^n` base cells per axis of the ambient
 rectangle and phase width `a_n = 2^{-n-2}`. The JSON file next to each figure
-in `figures/paper_grid/` holds every count quoted here.
+in `figures/paper_grid/` holds every count quoted here; these files predate the
+corner default and carry no sampling suffix in their names.
 
-### Rule of the manuscript (`3 x 3` samples, one-atom padding)
+### Tensor rule (`3 x 3` samples, one-atom padding)
 
 | | Ball | Wheel | Neuron |
 |---|---|---|---|
@@ -151,7 +195,7 @@ A same-rule run of the neuron at level 7 also gives one Morse node (250
 atoms, 5 components); its label is blocked because `X` contains no base cell
 at the guard, which the quotient-nerve adapter rejects.
 
-### Opt-in gap refinement (not the rule of the manuscript)
+### Tensor rule with opt-in gap refinement
 
 | | Ball, `n = 5` | Wheel, `n = 6` | Neuron, `n = 6` | Neuron, `n = 7` |
 |---|---|---|---|---|
