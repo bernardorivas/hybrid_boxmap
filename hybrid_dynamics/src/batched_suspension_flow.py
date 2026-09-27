@@ -15,7 +15,8 @@ of :class:`SuspensionFlow` up to rounding.  Per point it reproduces
 * the terminal event with a crossing direction, detected as in
   ``find_active_events`` from the values of the event function at the ends
   of each accepted step, and located on the fourth-order dense output of the
-  step (bisection instead of ``brentq``);
+  step (bisection instead of ``brentq``, with ``brentq``'s rule that a zero
+  at the left end of the step is the root);
 * the unit-time handles of the suspension: at an event the path spends one
   unit of time on the handle of the guard point and continues from the
   reset;
@@ -334,6 +335,11 @@ def batched_suspension_endpoints(
                     hit = np.sign(value) != start_sign
                 upper = np.where(hit, middle, upper)
                 lower = np.where(hit, lower, middle)
+            # brentq returns the left end of the step when the event function
+            # vanishes there: a path that starts on the event surface outside
+            # the guard and crosses it within its first step has its event at
+            # time zero, as in solve_ivp.
+            upper = np.where(g_old[crossed] == 0, 0.0, upper)
             y_event = _dense_value(y0[ic], h[ic], q, upper)
             t_event = t0[ic] + upper * h[ic]
             late = clock[event_rows] + t_event < tau - path_atol

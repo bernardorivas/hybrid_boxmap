@@ -161,3 +161,30 @@ def test_batched_relation_equals_the_path_relation(name):
     statistics = {k: v for k, v in batched.statistics.items() if not k.startswith("seconds")}
     expected = {k: v for k, v in reference.statistics.items() if not k.startswith("seconds")}
     assert statistics == expected
+
+
+def test_a_start_on_the_event_surface_outside_the_guard():
+    # Wheel states on theta = alpha + gamma with omega < 0 are not on the guard
+    # and flow.  The event function is zero at the start; for small |omega|
+    # the path crosses theta = 0.6 again within its first step, and solve_ivp
+    # (brentq) then places the event at time zero.  The batched flow must too.
+    problem = paper_grid_problem("rimless-wheel", tau=0.5, level_offset=4)
+    grid = build_suspension_grid(problem.window, problem.guard, 7)
+    # The right edge of the lattice, computed as the relation computes its
+    # samples: -0.2 + 2048 * (0.8 / 2048) = alpha + gamma = 0.6000000000000001.
+    theta = grid.window.ambient_bounds[0][0] + grid.cells_per_axis * grid.cell_widths[0]
+    assert problem.batch_dynamics.event(np.array([[theta, -1.0]]))[0] == 0.0
+    omega = -np.array([0.00048828125, 0.001, 0.0022, 0.004, 0.006, 0.05])
+    points = np.stack((np.full(omega.size, theta), omega), axis=1)
+    flow = _make_flow(problem, grid.level)
+    guard_u = grid.guard_membership(points)
+    assert not np.isfinite(guard_u).any()
+    batched = evaluate_base_endpoints(flow, points, guard_u, problem.tau)
+    reference = _evaluate_base_endpoints_by_path(flow, points, guard_u, problem.tau)
+    assert np.array_equal(batched.kind, reference.kind)
+    assert np.array_equal(batched.left_window, reference.left_window)
+    assert np.allclose(batched.state, reference.state, rtol=0.0, atol=1e-12, equal_nan=True)
+    assert np.allclose(batched.phase, reference.phase, rtol=0.0, atol=1e-12, equal_nan=True)
+    # The smallest |omega| starts its handle at time zero, at the initial point.
+    assert reference.kind[0] == 1 and reference.phase[0] == problem.tau
+    assert np.array_equal(reference.state[0], points[0])
