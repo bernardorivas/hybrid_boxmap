@@ -608,7 +608,7 @@ Morse sets and edges.
 | `tau` | level (phase cells) | base cells | wall (s) | peak (GB) | base samples | gap samples | Morse nodes | labels | blocked | trivial |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | 6 (256) | 1024 | 643 | 8.1 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | 7: U_Z and 6 spurious | 4 |
-| 0.5 | 7 (512) | 2048 | 780 | 11.9 | 4,198,401 | 1,037,721 | 22 | F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | 3: C (240,383 pieces, over the limit), U_Z, 1 spurious | 17 |
+| 0.5 | 7 (512) | 2048 | 780 | 11.9 | 4,198,401 | 1,037,721 | 22 | F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | 3: C (240,383 pieces, over the limit), U_Z, 1 spurious | 16 |
 
 Stems in `figures/paper_grid/` (JSON, and `<stem>.pdf/.png`,
 `<stem>-nontrivial.pdf/.png`):
@@ -674,8 +674,8 @@ Spurious nodes. None has a nontrivial label.
   Their index is therefore trivial although the code reports it blocked: the
   carrier gate fails before the index map is formed, and any map on a zero
   space is trivial.
-- `tau = 0.5`: seventeen computed trivial nodes, each of one to three base
-  cells within 0.014 of S, on the connections U_Z -> S, S -> C, and S -> F.
+- `tau = 0.5`: sixteen computed trivial nodes, each of one to three base
+  cells within 0.015 of S, on the connections U_Z -> S, S -> C, and S -> F.
   One blocked node, `M(3)`: 38 cells around F, the rotation ring, with `X`
   and `A` of 9 acyclic components each and `H_*(X, A; GF(5)) = 0`, so its
   index is trivial as well.
