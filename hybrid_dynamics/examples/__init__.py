@@ -60,6 +60,7 @@ from .garcia_passive_walker_strict_restriction import (
     audit_garcia_strict_source_restriction,
     garcia_strict_source_exclusion_reasons,
 )
+from .impact_vdp_duffing import ImpactVanDerPolDuffing
 from .rimless_wheel import RimlessWheel
 from .rimless_wheel_atlas import (
     RimlessWheelAtlasAcceptance,
@@ -111,6 +112,7 @@ __all__ = [
     "compute_bouncing_ball_atlas_acceptance",
     "build_bouncing_ball_suspension_pipeline",
     "Thermostat",
+    "ImpactVanDerPolDuffing",
     "RimlessWheel",
     "RimlessWheelAtlasAcceptance",
     "RimlessWheelAtlasSetup",
