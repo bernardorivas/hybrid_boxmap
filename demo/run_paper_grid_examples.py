@@ -86,7 +86,11 @@ def _git_commit() -> dict[str, object]:
             ["git", *arguments], cwd=CODE_ROOT, capture_output=True, text=True, check=False
         ).stdout.strip()
 
-    return {"commit": run("rev-parse", "HEAD"), "dirty": bool(run("status", "--porcelain"))}
+    # Untracked files (such as this run's own outputs) do not make the tree dirty.
+    return {
+        "commit": run("rev-parse", "HEAD"),
+        "dirty": bool(run("status", "--porcelain", "--untracked-files=no")),
+    }
 
 
 def _display_path(path: Path) -> str:
