@@ -26,6 +26,7 @@ from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
     write_paper_grid_figures,
 )
 from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
+    CELL_OUTLINE_WIDTH,
     AtlasFiniteRelationIndexAnnotations,
 )
 from hybrid_dynamics.src.hybrid_morse_plot import (  # noqa: E402
@@ -180,18 +181,29 @@ def test_paper_figure_draws_the_handle_chart_and_enlarges_boundary_cells():
         assert handle_axis.get_ylim() == pytest.approx((-FRAME_MARGIN, 1.0 + FRAME_MARGIN))
         # The handle pieces of its atoms are drawn in the color of the set.
         pieces = np.concatenate([grid.atom(int(atom)) for atom in handle])
-        (cells,) = handle_axis.collections
+        cells = handle_axis.collections[0]
         assert len(cells.get_paths()) == np.count_nonzero(pieces >= grid.n_base) >= grid.n_phase
         assert tuple(cells.get_facecolor()[0][:3]) == pytest.approx(
             matplotlib.colors.to_rgb(plot.components[0].color)
         )
-        # The two base cells are specks too far apart for a zoom: marked.
+        # The two base cells are specks too far apart for a zoom: drawn at
+        # their true extent and outlined in the color of the set, no symbol.
         assert plot.zooms == ()
-        assert plot.marked_sets == (("base", 0),)
-        (marks,) = base_axis.lines
-        assert sorted(marks.get_ydata()) == pytest.approx(
-            sorted(0.5 * (base_cells[:, 1] + base_cells[:, 3]))
-        )
+        assert not base_axis.lines
+        fill, outline = base_axis.collections
+        for collection in (fill, outline):
+            drawn = sorted(
+                tuple(np.r_[path.vertices.min(axis=0), path.vertices.max(axis=0)])
+                for path in collection.get_paths()
+            )
+            assert drawn == pytest.approx(sorted(map(tuple, base_cells)))
+        assert not np.any(fill.get_linewidths())
+        assert outline.get_linewidths() == pytest.approx([CELL_OUTLINE_WIDTH])
+        blended = [
+            1.0 - 0.9 * (1.0 - value)
+            for value in matplotlib.colors.to_rgb(plot.components[0].color)
+        ]
+        assert outline.get_edgecolor()[0] == pytest.approx([*blended, 1.0])
     finally:
         plt.close(plot.figure)
 
@@ -204,8 +216,13 @@ def test_paper_figure_draws_the_handle_chart_and_enlarges_boundary_cells():
         (zoom,) = plot.zooms
         assert (zoom.label, zoom.chart, zoom.morse_nodes) == ("A", "base", (0,))
         assert zoom.x_limits[0] < 0.0 < zoom.x_limits[1]
-        assert plot.marked_sets == ()
         assert plot.zoom_axes[0].get_title(loc="left") == "A"
+        # The cell is outlined in the zoom as in the panel, with no symbol.
+        (zoom_axis,) = plot.zoom_axes
+        assert not zoom_axis.lines and not plot.projection_axes[0].lines
+        assert [
+            list(collection.get_linewidths()) for collection in zoom_axis.collections
+        ] == [[0.0], [CELL_OUTLINE_WIDTH]]
     finally:
         plt.close(plot.figure)
 
@@ -244,11 +261,13 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     nontrivial = figures["figure_variants"]["nontrivial"]
     assert nontrivial["shown_nodes"] == [0, 2, 4, 5]
     assert all(
-        isinstance(record["zooms"], list) for record in figures["figure_variants"].values()
+        isinstance(record["zooms"], list) and "marked_in_panel" not in record
+        for record in figures["figure_variants"].values()
     )
     assert [entry["morse_node"] for entry in nontrivial["hidden_nodes"]] == [1, 3]
 
-    # A JSON summary with the fields the runner writes.
+    # A JSON summary with the fields the runner writes; its figure records are
+    # in the older form that listed the sets marked by squares in a panel.
     summary = {
         "schema": "paper-suspension-grid-run-v3",
         "example": "bouncing-ball",
@@ -261,6 +280,11 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
             "morse_set_atoms": [encode_index_ranges(values) for values in morse_sets],
         },
         "conley": CONLEY,
+        "figures": figures["figures"],
+        "figure_variants": {
+            variant: {**record, "marked_in_panel": [{"chart": "base", "morse_node": 0}]}
+            for variant, record in figures["figure_variants"].items()
+        },
     }
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
     for path in figures["figures"]:
@@ -275,6 +299,9 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     assert all(Path(path).is_file() for path in result["figures"])
     updated = json.loads(summary_path.read_text(encoding="utf-8"))
     assert updated["figure_variants"]["nontrivial"]["hidden_nodes"] == nontrivial["hidden_nodes"]
+    assert all(
+        "marked_in_panel" not in record for record in updated["figure_variants"].values()
+    )
     assert updated["figures_replotted"]["script"] == "demo/replot_paper_grid.py"
 
     older = dict(

@@ -369,12 +369,12 @@ def _small_set_data():
     strip = tuple(
         AtlasMorseBox(0, (x, y, x + 0.002, y + 0.002))
         for x in (0.0, 0.002)
-        for y in np.linspace(-0.1, 0.098, 100)
+        for y in np.linspace(-0.05, 0.048, 50)
     )
     angles = np.linspace(0.0, 2.0 * np.pi, 8, endpoint=False)
     specks = tuple(
         AtlasMorseBox(0, (x, y, x + 0.002, y + 0.002))
-        for x, y in zip(1.8 + 0.1 * np.cos(angles), 0.7 + 0.1 * np.sin(angles))
+        for x, y in zip(1.8 + 0.05 * np.cos(angles), 0.7 + 0.05 * np.sin(angles))
     )
     return AtlasMorsePlotData(
         base_chart_id=0,
@@ -468,14 +468,230 @@ def test_detail_zooms_enlarge_the_sets_too_small_to_see():
         assert len(outlines) == 2
         assert sorted(text.get_text() for text in base_axis.texts) == ["A", "B"]
         assert [axis.get_title(loc="left") for axis in plot.zoom_axes] == ["A", "B"]
-        # The specks are still below the resolution of their zoom: marked.
-        assert not plot.zoom_axes[0].lines
-        (marks,) = plot.zoom_axes[1].lines
-        assert len(marks.get_xdata()) == 8
-        # The large set does not meet window A: zoom A draws the strip alone, opaque.
-        assert all(
-            collection.get_alpha() == pytest.approx(0.9)
-            for collection in plot.zoom_axes[0].collections
+        # No symbols: every cell is drawn at its true extent.
+        assert not any(axis.lines for axis in (base_axis, *plot.zoom_axes))
+        (speck_fill,) = _fill_collections(plot.zoom_axes[1])
+        assert _collection_bounds(speck_fill) == pytest.approx(
+            _box_bounds(data.nodes[2].boxes)
         )
+        # The large set does not meet window A: zoom A draws the strip alone, opaque.
+        (strip_fill,) = _fill_collections(plot.zoom_axes[0])
+        assert strip_fill.get_alpha() == pytest.approx(0.9)
+        assert len(strip_fill.get_paths()) == 100
+    finally:
+        plt.close(plot.figure)
+
+
+def _zoom_data(small_sets):
+    """A large set (node 0) and small sets of base cells (nodes 1, 2, ...)."""
+
+    from hybrid_dynamics.src.atlas_morse_plot import (
+        AtlasMorseBox,
+        AtlasMorseNode,
+        AtlasMorsePlotData,
+    )
+
+    large = (
+        AtlasMorseBox(0, (0.0, -1.0, 2.0, -0.6)),
+        AtlasMorseBox(1, (0.2, 0.0, 0.6, 1.0)),
+    )
+    nodes = [AtlasMorseNode(0, tuple(sorted(large)))]
+    for index, corners in enumerate(small_sets, start=1):
+        cells = tuple(
+            AtlasMorseBox(0, (float(x), float(y), float(x) + 0.004, float(y) + 0.004))
+            for x, y in corners
+        )
+        nodes.append(AtlasMorseNode(index, tuple(sorted(cells))))
+    return AtlasMorsePlotData(
+        base_chart_id=0,
+        handle_chart_id=1,
+        base_bounds=((0.0, 2.0), (-1.0, 1.0)),
+        handle_bounds=((0.0, 1.0), (0.0, 1.0)),
+        nodes=tuple(nodes),
+        edges=tuple((index, 0) for index in range(1, len(nodes))),
+        metadata={},
+    )
+
+
+def _zoom_plot(data):
+    from hybrid_dynamics.src.atlas_morse_plot import plot_atlas_hybrid_morse_sets
+
+    return plot_atlas_hybrid_morse_sets(
+        data,
+        clist=("#1f77b4", "#e6550d", "#31a354", "#756bb1", "#636363", "#8c564b", "#e377c2"),
+        show_handles=True,
+        show_morse_graph=False,
+        base_view="domain",
+        handle_view="domain",
+        frame_margin=0.02,
+        detail_zooms=True,
+    )
+
+
+def test_detail_zooms_magnify_and_leave_spread_sets_to_the_panel():
+    from hybrid_dynamics.src.atlas_morse_plot import DETAIL_ZOOM_MAX_WINDOW
+
+    # Node 1: cells along a half circle, too spread for a zoom that
+    # magnifies.  Node 2: a speck next to its end, which a shared window
+    # would not magnify.
+    angles = np.linspace(0.0, np.pi, 16)
+    curve = list(zip(1.0 + 0.25 * np.cos(angles), 0.3 + 0.25 * np.sin(angles)))
+    data = _zoom_data([curve, [(1.27, 0.3)]])
+    plot = _zoom_plot(data)
+    try:
+        assert [(zoom.label, zoom.chart, zoom.morse_nodes) for zoom in plot.zooms] == [
+            ("A", "base", (2,))
+        ]
+        plot.figure.canvas.draw()
+        base_axis = plot.projection_axes[0]
+        (zoom,) = plot.zooms
+        (zoom_axis,) = plot.zoom_axes
+        for axis in (0, 1):
+            panel_limits = (base_axis.get_xlim(), base_axis.get_ylim())[axis]
+            zoom_limits = (zoom_axis.get_xlim(), zoom_axis.get_ylim())[axis]
+            window = (zoom.x_limits, zoom.y_limits)[axis]
+            assert zoom_limits == pytest.approx(window)
+            panel_span = panel_limits[1] - panel_limits[0]
+            assert window[1] - window[0] <= DETAIL_ZOOM_MAX_WINDOW * panel_span + 1e-12
+            zoom_extent = zoom_axis.get_window_extent()
+            base_extent = base_axis.get_window_extent()
+            zoom_size = zoom_extent.width if axis == 0 else zoom_extent.height
+            base_size = base_extent.width if axis == 0 else base_extent.height
+            magnification = (zoom_size / (window[1] - window[0])) / (base_size / panel_span)
+            assert magnification >= 2.0
+        # The curve has no zoom; its cells are outlined in the panel.
+        outlines = _outline_collections(base_axis)
+        assert len(outlines) == 2
+        for collection, node in zip(outlines, (1, 2)):
+            assert _collection_bounds(collection) == pytest.approx(
+                _box_bounds(data.nodes[node].boxes)
+            )
+    finally:
+        plt.close(plot.figure)
+
+
+def test_detail_zooms_keep_at_most_three_windows_with_the_most_sets():
+    # Four groups far apart: two pairs of specks, a speck, and a row of
+    # three cells, whose window is larger than the speck's.
+    data = _zoom_data(
+        [
+            [(0.2, 0.7)],
+            [(0.206, 0.7)],
+            [(1.8, 0.7)],
+            [(1.806, 0.7)],
+            [(0.5, -0.3)],
+            [(1.8, -0.3), (1.81, -0.3), (1.82, -0.3)],
+        ]
+    )
+    plot = _zoom_plot(data)
+    try:
+        assert [(zoom.label, zoom.morse_nodes) for zoom in plot.zooms] == [
+            ("A", (1, 2)),
+            ("B", (5,)),
+            ("C", (3, 4)),
+        ]
+        # The row is left to the panel, where its cells are outlined.
+        outlines = _outline_collections(plot.projection_axes[0])
+        assert len(outlines) == 6
+        assert _collection_bounds(outlines[5]) == pytest.approx(
+            _box_bounds(data.nodes[6].boxes)
+        )
+    finally:
+        plt.close(plot.figure)
+
+
+def test_detail_zoom_windows_do_not_overlap():
+    # Node 1, a column of cells, and node 2, a speck beside it, share a
+    # window.  Node 3 lies just above them: a window for all three would not
+    # magnify, and its own window would overlap theirs, so it is drawn in
+    # their zoom.
+    column = [(1.8, float(y)) for y in np.linspace(0.5, 0.646, 37)]
+    data = _zoom_data([column, [(1.806, 0.55)], [(1.8, 0.68)]])
+    plot = _zoom_plot(data)
+    try:
+        (zoom,) = plot.zooms
+        assert zoom.morse_nodes == (1, 2, 3)
+        (x_lower, x_upper), (y_lower, y_upper) = zoom.x_limits, zoom.y_limits
+        for node in (1, 2, 3):
+            for box in data.nodes[node].boxes:
+                assert x_lower <= box.lower[0] and box.upper[0] <= x_upper
+                assert y_lower <= box.lower[1] and box.upper[1] <= y_upper
+        # Every set of the zoom is drawn opaque in it.
+        fills = _fill_collections(plot.zoom_axes[0])
+        assert [c.get_alpha() for c in fills] == pytest.approx([0.9, 0.9, 0.9])
+    finally:
+        plt.close(plot.figure)
+
+
+def _fill_collections(axis):
+    return [c for c in axis.collections if not np.any(c.get_linewidths())]
+
+
+def _outline_collections(axis):
+    return [c for c in axis.collections if np.any(c.get_linewidths())]
+
+
+def _collection_bounds(collection):
+    """Sorted ``(x0, y0, x1, y1)`` of the rectangles of a collection (data units)."""
+
+    return sorted(
+        tuple(np.r_[path.vertices.min(axis=0), path.vertices.max(axis=0)])
+        for path in collection.get_paths()
+    )
+
+
+def _box_bounds(boxes):
+    return sorted(
+        (box.lower[0], box.lower[1], box.upper[0], box.upper[1]) for box in boxes
+    )
+
+
+def test_cells_of_sets_too_small_to_see_are_outlined_at_their_true_extent():
+    from matplotlib.colors import to_rgb
+
+    from hybrid_dynamics.src.atlas_morse_plot import (
+        CELL_OUTLINE_WIDTH,
+        plot_atlas_hybrid_morse_sets,
+    )
+
+    data = _small_set_data()
+    colors = ("#1f77b4", "#e6550d", "#31a354")
+    plot = plot_atlas_hybrid_morse_sets(
+        data,
+        clist=colors,
+        show_handles=True,
+        base_view="domain",
+        handle_view="domain",
+        frame_margin=0.02,
+        detail_zooms=True,
+    )
+    try:
+        base_axis = plot.projection_axes[0]
+        fills = _fill_collections(base_axis)
+        outlines = _outline_collections(base_axis)
+        # One fill per set; outlines only for the strip and the specks, in the
+        # color of their set over white, with a fixed line width and no black.
+        assert len(fills) == 3
+        assert len(outlines) == 2
+        for collection, node in zip(outlines, (1, 2)):
+            assert collection.get_linewidths() == pytest.approx([CELL_OUTLINE_WIDTH])
+            assert np.all(collection.get_facecolor()[:, 3] == 0.0)
+            expected = [1.0 - 0.9 * (1.0 - value) for value in to_rgb(colors[node])]
+            assert collection.get_edgecolor()[0] == pytest.approx([*expected, 1.0])
+            assert _collection_bounds(collection) == pytest.approx(
+                _box_bounds(data.nodes[node].boxes)
+            )
+        # Every cell of every set, at its true extent.
+        for collection, node in zip(fills, (0, 1, 2)):
+            assert _collection_bounds(collection) == pytest.approx(
+                _box_bounds(box for box in data.nodes[node].boxes if box.chart_id == 0)
+            )
+        # The large set is not outlined in the handle chart either.
+        assert _outline_collections(plot.handle_axis) == []
+        # In a zoom, the sets too small to see in the panel keep their outline.
+        for zoom_axis in plot.zoom_axes:
+            (outline,) = _outline_collections(zoom_axis)
+            assert outline.get_linewidths() == pytest.approx([CELL_OUTLINE_WIDTH])
+        assert not hasattr(plot, "marked_sets")
     finally:
         plt.close(plot.figure)

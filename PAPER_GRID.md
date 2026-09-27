@@ -207,29 +207,38 @@ readout `d_n^{-1}(M)` of each Morse set), the handle chart (its handle pieces
 the whole guard interval), and the Morse graph. A chart shown whole is
 widened by 2% of its span on each side, so cells on the boundary of the
 window lie inside the axis lines. A Morse set too small to see in a chart
-panel (its cells cover less than 16 of 200 x 200 panel bins, and its
-bounding box spans at most 0.3 of the panel) is drawn in a zoom panel,
-labeled `A`, `B`, ... in a column next to the chart panel; the window of the
-zoom is outlined and labeled in the chart panel. Small sets closer than 6%
-of the panel share a zoom, with at most three zooms per panel. A zoom draws
-the sets it is for opaque and the other sets in its window faded. It
-magnifies the two axes of the panel by factors whose ratio is at most 3, and
-its tick labels give the window. Squares larger than the cells mark the
-cells that are still specks in a zoom (a set with at most 64 cells in the
-window, one narrower than 2% of it), and, in the chart panel, the cells of
-a small set spread too far for one zoom (at most 64 cells). This is
+panel (its cells cover less than 16 of 200 x 200 panel bins) is drawn in a
+zoom panel, labeled `A`, `B`, ... in a column next to the chart panel, when
+its zoom window spans at most 1/8 of the panel in each direction; the window
+of the zoom is outlined and labeled in the chart panel. A zoom panel is a
+quarter to 0.4 of the chart panel wide, so every zoom magnifies both axes
+at least about twice. Small sets closer than 6% of the panel share a zoom
+when their shared window is within the same limit. There are at most three
+zooms per panel, with windows that do not overlap; the groups with the most
+sets are chosen first, and a small set left out is drawn in a zoom whose
+window contains it, if there is one. A zoom draws the sets it is for opaque
+and the other sets in its window faded. It magnifies the two axes of the
+panel by factors whose ratio is at most 3, and its tick labels give the
+window. Every cell is drawn at its true extent,
+with no symbol. The cells of a set too small to see in a chart panel (the
+area test above) are also outlined in the color of the set by a line 0.5 pt
+wide, in the panel and in its zooms, so that cells a fraction of a point
+wide are seen; this is how a small set spread too far for one zoom is seen
+in the panel. Larger sets are not outlined. This is
 `draw_paper_grid_figure` in `hybrid_dynamics/examples/paper_grid_figures.py`,
 with the options `frame_margin`, `handle_view`, and `detail_zooms` of
 `plot_atlas_hybrid_morse_sets`.
 
 The JSON summary records each variant under
 `figure_variants` (shown nodes, hidden nodes with the reason, blocked nodes,
-the order drawn, the zooms with their windows and nodes, the sets marked in
-a chart panel, files) and stores the atoms of every Morse set under
-`morse_graph.morse_set_atoms` (strings of atom ranges, `a-b` for the closed
-range). `demo/replot_paper_grid.py` redraws both variants from a summary: it
-rebuilds `Xi_n` from the example and level, checks it against the recorded
-`grid`, and updates `figures` and `figure_variants` in the JSON. Summaries
+the order drawn, the zooms with their windows and nodes, files) and stores
+the atoms of every Morse set under `morse_graph.morse_set_atoms` (strings of
+atom ranges, `a-b` for the closed range). Records written before cells were
+outlined also list, under `marked_in_panel`, the sets whose cells were
+marked by squares in a chart panel. `demo/replot_paper_grid.py` redraws both
+variants from a summary: it rebuilds `Xi_n` from the example and level,
+checks it against the recorded `grid`, and replaces `figures` and
+`figure_variants` in the JSON (dropping `marked_in_panel`). Summaries
 written before the atoms were stored (schema `paper-suspension-grid-run-v2`
 and earlier) cannot be redrawn and have to be rerun. Selection and replot are
 tested in `hybrid_dynamics/tests/test_suspension_grid_plot.py`.
@@ -599,9 +608,9 @@ Caveats:
 - Figures. The 42 base cells of Z (`x` in `[0.7946, 0.8]`, on the wall)
   are drawn in zoom C of the `all` figure and zoom B of the `nontrivial`
   one; its 6,308 handle pieces lie over `v_G` in `[0, 0.081]`. The 16 cells
-  of `M(3)` on the rim of F's node are drawn in zoom A, each marked by a
-  square. The trivial nodes `M(4)`, `M(6)`, and `M(7)` at the tip of S's
-  node are in zoom B of the `all` figure. In the Morse graph of the `all`
+  of `M(3)` on the rim of F's node are drawn in zoom A. The trivial nodes
+  `M(4)`, `M(6)`, and `M(7)` at the tip of S's node are in zoom B of the
+  `all` figure. In the Morse graph of the `all`
   variant the labels of `M(2)` and `M(7)`, and of `M(1)` and `M(0)`,
   overlap.
 
@@ -747,14 +756,23 @@ computation at `a7ac462`, which recomputed the relation of each run and
 formed the pairs in the same way, gave the same dimensions.
 
 Figures. In both runs the `nontrivial` figure shows exactly the five sets:
-C, F, Z (zoom B), S (zoom A), and U_Z, with a dashed outline and the line
+C, F, Z, S, and U_Z, whose node has a dashed outline and the line
 `dim H (0, 1, 1, 0)`; its Morse graph reads U_Z -> Z, U_Z -> S, S -> C,
-S -> F. The `all` figure of the `tau = 1` run has the zooms A (the ring
-nodes `M(3)`, `M(7)`), B (S and the trivial cells around it), and C (Z with
-`M(5)`, `M(6)`, `M(8)`, `M(13)`, whose handle pieces are marked by squares
-in the handle chart); that of the `tau = 0.5` run has A (the ring `M(3)`),
-B (S and sixteen trivial cells), and C (Z). Node labels stay inside their
-ellipses; on the 15- and 22-node graphs they are small.
+S -> F; its zooms are A (S) and B (Z). The `all` figure of the `tau = 1` run has the
+zooms A (the ring nodes `M(3)`, `M(7)`), B (S and the trivial cells around
+it), and C (Z with `M(5)`, `M(6)`, `M(8)` at the stop, window
+`[0.782, 0.812] x [-0.067, 0.074]`: `M(6)` and one cell of `M(8)` just
+above Z, `M(5)` and the other cell of `M(8)` just below). The 32 base cells
+of `M(13)` lie along U_Z, too spread for a zoom that magnifies, and are
+outlined in the base chart. In the handle chart, the pieces of `M(5)`,
+`M(6)`, `M(8)` lie along the right edge of the band of Z (`v_G` in
+`[0.039, 0.077]`) and those of `M(13)` along the right edge of the band of
+U_Z (`v_G` in `[0.682, 0.703]`); they are outlined there, and no zoom can
+enlarge them, since each spans most of the phase interval. The `all` figure of the
+`tau = 0.5` run has the zooms A (the ring `M(3)`), B (S and the sixteen
+trivial cells around it), and C (Z).
+Node labels stay inside their ellipses; on the 15- and 22-node graphs they
+are small.
 
 Which run to use: both label C, F, Z, and S, leave only U_Z without a label,
 and have only trivial extra nodes. The `tau = 0.5` run has the smaller
