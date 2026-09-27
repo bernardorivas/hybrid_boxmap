@@ -96,6 +96,66 @@ def _translation_problem(tau: float = 0.5) -> SuspensionGridProblem:
     )
 
 
+def _unit_square_problem(field, *, tau: float, name: str) -> SuspensionGridProblem:
+    """``(x, y)' = field(x, y)`` on ``[0,1]^2``, guard ``x = 1``, reset ``(1, y) -> (0, y)``."""
+
+    def ode(_t, state):
+        return np.asarray(field(state), dtype=float)
+
+    def event(_t, state):
+        return float(state[0] - 1.0)
+
+    event.terminal = True
+    event.direction = 1
+
+    def reset(state):
+        return np.array([0.0, float(state[1])])
+
+    system = HybridSystem(ode, event, reset, domain_bounds=None, event_direction=1)
+    guard = GuardResetSpec(
+        u_bounds=(0.0, 1.0),
+        guard_point=lambda u: np.stack((np.ones_like(u), u), axis=-1),
+        guard_coordinate=lambda x: x[:, 1],
+        reset_point=lambda u: np.stack((np.zeros_like(u), u), axis=-1),
+        name=name,
+    )
+    return SuspensionGridProblem(
+        system=system,
+        window=DyadicBaseWindow(((0.0, 1.0), (0.0, 1.0))),
+        guard=guard,
+        tau=tau,
+        name=name,
+    )
+
+
+def _saddle_problem() -> SuspensionGridProblem:
+    """A saddle at ``(0.5, 0.5)`` whose unstable branches end at sinks on ``x = 0`` and ``x = 0.9``.
+
+    The lines ``x = 0`` and ``x = 0.9`` are invariant and ``y`` contracts to
+    ``0.5``, so no orbit reaches the guard or leaves the window.
+    """
+
+    return _unit_square_problem(
+        lambda state: (4.0 * (state[0] - 0.5) * state[0] * (0.9 - state[0]), 0.5 - state[1]),
+        tau=1.0,
+        name="saddle",
+    )
+
+
+def _repelling_orbit_problem() -> SuspensionGridProblem:
+    """``x' = 1`` and ``y' = 12 (y - 1/2) y (1 - y)`` on the annulus of the translation problem.
+
+    The circle ``y = 1/2`` is a repelling periodic orbit between the
+    attracting orbits ``y = 0`` and ``y = 1``; no orbit leaves the window.
+    """
+
+    return _unit_square_problem(
+        lambda state: (1.0, 12.0 * (state[1] - 0.5) * state[1] * (1.0 - state[1])),
+        tau=0.5,
+        name="repelling-orbit",
+    )
+
+
 def _curved_interior_guard() -> tuple[DyadicBaseWindow, GuardResetSpec]:
     """A curved guard through cell interiors and a reset on a vertical line."""
 
@@ -662,3 +722,116 @@ def test_parallel_indices_equal_the_serial_ones():
         for node, morse_set in enumerate(morse.morse_sets)
     ]
     assert [record(result) for result in one_by_one] == [record(result) for result in serial]
+
+
+# ---------------------------------------------------------------------------
+# The excision construction of the index map
+# ---------------------------------------------------------------------------
+
+
+def _both_index_maps(relation, morse_sets):
+    """Per Morse set with nonzero relative homology: the default and the excision result."""
+
+    pairs = []
+    for node, morse_set in enumerate(morse_sets):
+        default = compute_suspension_grid_conley_index(relation, morse_set, morse_node=node)
+        excision = compute_suspension_grid_conley_index(
+            relation, morse_set, morse_node=node, index_map="excision"
+        )
+        assert excision.homology_dimensions == default.homology_dimensions
+        if any(default.homology_dimensions):
+            pairs.append((default, excision))
+        else:
+            assert excision.shift_class == default.shift_class
+            assert excision.label_source == "zero relative homology"
+    return pairs
+
+
+@pytest.mark.parametrize(
+    ("case", "level", "tau", "offset", "depth"),
+    [
+        ("translation", 2, 0.5, 0, 0),
+        ("bouncing-ball", 3, 2.0, 1, 2),
+        ("saddle", 4, 1.0, 0, 0),
+    ],
+)
+def test_excision_index_map_gives_the_labels_of_the_default_construction(
+    case, level, tau, offset, depth
+):
+    if case == "translation":
+        problem = _translation_problem(tau)
+    elif case == "saddle":
+        problem = _saddle_problem()
+    else:
+        problem = PAPER_GRID_PROBLEMS[case](tau=tau, level_offset=offset)
+    grid = _grid(problem, level)
+    relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=depth)
+    morse = compute_suspension_morse_graph(relation)
+    compared = [
+        (default, excision)
+        for default, excision in _both_index_maps(relation, morse.morse_sets)
+        if default.computed
+    ]
+    assert compared
+    for default, excision in compared:
+        assert excision.computed, excision.blocker
+        assert excision.shift_class == default.shift_class
+        assert excision.label_source == "index map" and excision.index_map == "excision"
+        record = excision.to_dict()["excision"]
+        dimensions = list(default.homology_dimensions)
+        assert record["homology_dimensions"][: len(dimensions)] == dimensions
+        assert [len(matrix) for matrix in record["index_matrices"]] == dimensions
+    if case == "saddle":
+        # A saddle with a one-dimensional unstable direction and nonempty exit set.
+        assert any(
+            default.pair_atoms["A"] and default.shift_class == ("0", "x-1", "0", "0")
+            for default, _ in compared
+        )
+
+
+def test_excision_index_map_of_a_repelling_orbit():
+    # X minus S is two annuli, so the carrier of an exit atom in the default
+    # construction (its whole component of A) is not acyclic.  The true
+    # images give the index of a hyperbolic periodic orbit with a
+    # two-dimensional unstable manifold and orientation kept.  The two
+    # attracting orbits get the labels of the default construction.
+    problem = _repelling_orbit_problem()
+    grid = _grid(problem, 4)
+    relation = compute_suspension_grid_relation(grid, problem)
+    morse = compute_suspension_morse_graph(relation)
+    assert len(morse.morse_sets) == 3
+    results = _both_index_maps(relation, morse.morse_sets)
+    attractors = [pair for pair in results if pair[0].homology_dimensions == (1, 1, 0, 0)]
+    assert len(attractors) == 2
+    for default, excision in attractors:
+        assert default.computed and excision.computed, excision.blocker
+        assert excision.shift_class == default.shift_class == ("x-1", "x-1", "0", "0")
+    repeller = [pair for pair in results if pair[0].homology_dimensions == (0, 1, 1, 0)]
+    assert len(repeller) == 1
+    default, excision = repeller[0]
+    assert default.pair_atoms["A"] > 0
+    assert not default.computed and "is not acyclic" in default.index_map_blocker
+    assert excision.computed, excision.blocker
+    assert excision.shift_class == ("0", "x-1", "x-1", "0")
+    record = excision.to_dict()["excision"]
+    assert record["homology_dimensions"] == [0, 1, 1, 0]
+    assert record["index_matrices"] == [[], [[1]], [[1]], []]
+    assert record["pair_atoms"]["Abar"] == record["pair_atoms"]["Xbar"] - default.pair_atoms["S"]
+
+
+def test_excision_reports_an_exit_atom_with_an_empty_image():
+    # On this coarse grid an atom of A leaves the window: its image is empty
+    # and so is the carrier of its piece.  The homology is still reported.
+    problem = PAPER_GRID_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
+    grid = _grid(problem, 3)
+    relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
+    morse = compute_suspension_morse_graph(relation)
+    result = compute_suspension_grid_conley_index(
+        relation, morse.morse_sets[1], morse_node=1, index_map="excision"
+    )
+    assert not result.computed and result.homology_computed
+    assert result.homology_dimensions == (0, 2, 0, 0)
+    assert "has an empty image" in result.blocker
+    assert result.index_map_blocker == result.blocker
+    with pytest.raises(ValueError, match="index_map"):
+        compute_suspension_grid_conley_index(relation, morse.morse_sets[1], index_map="other")

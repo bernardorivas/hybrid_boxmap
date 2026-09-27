@@ -6,6 +6,7 @@ from itertools import product
 import pytest
 
 from hybrid_dynamics.src.suspension_complex import (
+    ClosedCellSet,
     _solve_linear_system_mod_prime,
 )
 
@@ -27,6 +28,7 @@ from hybrid_dynamics import (
     PhaseSliceCell,
     PhaseCell,
     RelativeCellPair,
+    RelativeHomologyBasis,
     ResetHandle,
     SampledSuspensionCellAdapter,
     SparseCubicalGridComplex,
@@ -634,3 +636,76 @@ def test_sampled_token_adapter_unions_sources_collapsed_to_one_guard_prism():
             (phase_from_0, phase_from_1),
             {phase_from_0: {phase_from_1}},
         )
+
+
+def _square_annulus():
+    """The 3 x 3 cubical square without its middle square, and the grid."""
+
+    grid = CubicalGridComplex((3, 3))
+    ring = [grid.top_cell(index) for index in range(9) if index != 4]
+    return grid, grid.closure(ring)
+
+
+def test_relative_homology_basis_of_an_annulus_reads_classes():
+    grid, annulus = _square_annulus()
+    pair = RelativeCellPair(grid, annulus)
+    homology = RelativeHomologyBasis(pair, cycle_degrees=(0, 1))
+
+    assert homology.dimensions == (1, 1, 0) == grid.betti_numbers(annulus)
+    (cycle,) = homology.cycles(1)
+    (value,) = homology.coordinates(1, cycle)
+    assert value
+    # The class, not the chain: adding the boundary of a square changes nothing.
+    square = grid.top_cell(0)
+    moved = dict(cycle)
+    for edge, coefficient in grid.boundary(square).items():
+        moved[edge] = moved.get(edge, 0) + coefficient
+    assert homology.coordinates(1, moved) == (value,)
+    assert homology.coordinates(1, {edge: 2 * c for edge, c in cycle.items()}) == (2 * value % 5,)
+    # The boundary of the missing middle square is the inner circle.
+    inner = homology.coordinates(1, grid.boundary(grid.top_cell(4)))
+    assert inner in ((value,), (-value % 5,))
+    edge = next(iter(cycle))
+    with pytest.raises(ValueError, match="not a relative cycle"):
+        homology.coordinates(1, {edge: 1})
+    with pytest.raises(KeyError, match="were not kept"):
+        homology.cycles(2)
+
+
+def test_relative_homology_basis_of_a_square_relative_to_its_boundary():
+    grid = CubicalGridComplex((3, 3))
+    rim = [
+        cell
+        for cell in grid.cells_of_dimension(1)
+        if all(
+            (anchor in (0, 3)) if not spans else True
+            for anchor, spans in zip(cell.anchor, cell.spanning)
+        )
+        and any(
+            anchor in (0, 3) for anchor, spans in zip(cell.anchor, cell.spanning) if not spans
+        )
+    ]
+    pair = RelativeCellPair(grid, grid.cells, grid.closure(rim))
+    homology = RelativeHomologyBasis(pair, cycle_degrees=(2,))
+
+    assert homology.dimensions == (0, 0, 1)
+    (fundamental,) = homology.cycles(2)
+    assert len(fundamental) == 9
+    assert homology.coordinates(2, fundamental) != (0,)
+    # Cells of P0 are zero in C(P1) / C(P0); one square alone is no relative cycle.
+    assert homology.coordinates(1, {rim[0]: 1}) == ()
+    with pytest.raises(ValueError, match="not a relative cycle"):
+        homology.coordinates(2, {grid.top_cell(4): 1})
+
+
+def test_cross_carrier_takes_closed_values_as_their_own_closure():
+    source = CubicalGridComplex((2,))
+    target = CubicalGridComplex((3,))
+    # The inclusion of [0, 2] into [0, 3]: every cell is carried by its closure.
+    generators = {cell: [cell] for cell in source.cells}
+    closed = {
+        cell: ClosedCellSet.of(target, target.closure(values)) for cell, values in generators.items()
+    }
+    first = CrossComplexAcyclicCarrier(source, target, generators).construct_chain_map()
+    second = CrossComplexAcyclicCarrier(source, target, closed).construct_chain_map()
+    assert all(first.image(cell) == second.image(cell) for cell in source.cells)
