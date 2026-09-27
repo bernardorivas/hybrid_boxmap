@@ -6,9 +6,12 @@ Each run has a JSON summary and its figures under the same stem.
 - `./`: the recommended run of each example for the paper figures (ball,
   wheel, neuron at `tau = 5`, oscillator), with `<stem>.pdf/.png` (every
   Morse node) and `<stem>-nontrivial.pdf/.png` (trivial-index nodes hidden),
-  and the neuron run at `tau = 1` that the sweep first picked.
+  redrawn at `ff7ca77` with base chart, zoom panels, handle chart, and Morse
+  graph; and the neuron run at `tau = 1` that the sweep first picked, with
+  figures in the earlier layout (base chart and Morse graph).
 - `sweep-bouncing-ball/`, `sweep-rimless-wheel/`, `sweep-spiking-neuron/`,
-  `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs).
+  `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs),
+  figures in the earlier layout.
   `sweep-spiking-neuron/index-max-pieces-150000/` repeats one run with a
   larger piece limit under the same file name.
 - `large_tau/`: corner runs at the manuscript's `tau` (and `tau` 3 to 6.5 for

@@ -176,9 +176,33 @@ The runner writes two figure variants per run (`--figure-variants`, default
   through hidden nodes, transitively reduced.
 
 In both variants a node whose index is blocked is kept, drawn with a dashed
-outline, and labeled `blocked`. The JSON summary records each variant under
+outline, and labeled `blocked`.
+
+Each figure has three panels in the same colors: the base chart (the base
+readout `d_n^{-1}(M)` of each Morse set), the handle chart (its handle pieces
+`pi(J x I_{n,k})`, guard coordinate against the phase `s` in `[0, 1]`, over
+the whole guard interval), and the Morse graph. A chart shown whole is
+widened by 2% of its span on each side, so cells on the boundary of the
+window lie inside the axis lines. A Morse set too small to see in a chart
+panel (its cells cover less than 16 of 200 x 200 panel bins, and its
+bounding box spans at most 0.3 of the panel) is drawn in a zoom panel,
+labeled `A`, `B`, ... in a column next to the chart panel; the window of the
+zoom is outlined and labeled in the chart panel. Small sets closer than 6%
+of the panel share a zoom, with at most three zooms per panel. A zoom draws
+the sets it is for opaque and the other sets in its window faded. It
+magnifies the two axes of the panel by factors whose ratio is at most 3, and
+its tick labels give the window. Squares larger than the cells mark the
+cells that are still specks in a zoom (a set with at most 64 cells in the
+window, one narrower than 2% of it), and, in the chart panel, the cells of
+a small set spread too far for one zoom (at most 64 cells). This is
+`draw_paper_grid_figure` in `hybrid_dynamics/examples/paper_grid_figures.py`,
+with the options `frame_margin`, `handle_view`, and `detail_zooms` of
+`plot_atlas_hybrid_morse_sets`.
+
+The JSON summary records each variant under
 `figure_variants` (shown nodes, hidden nodes with the reason, blocked nodes,
-the order drawn, files) and stores the atoms of every Morse set under
+the order drawn, the zooms with their windows and nodes, the sets marked in
+a chart panel, files) and stores the atoms of every Morse set under
 `morse_graph.morse_set_atoms` (strings of atom ranges, `a-b` for the closed
 range). `demo/replot_paper_grid.py` redraws both variants from a summary: it
 rebuilds `Xi_n` from the example and level, checks it against the recorded
@@ -347,9 +371,11 @@ trivial ones; PDFs alongside), with `<stem>` in `figures/paper_grid/`:
 - neuron: `paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined`
 - impact: `paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined`
 
-The wheel and neuron files were copied from the sweep and redrawn with
-`demo/replot_paper_grid.py` (the figures are byte-identical to the sweep's).
-The folder also keeps
+The wheel and neuron files were copied from the sweep. The figures of all
+four were redrawn at `ff7ca77` with `demo/replot_paper_grid.py` in the layout
+of Figures (base chart, zoom panels, handle chart, Morse graph); the figures
+of the sweep, and of the neuron run at `tau = 1` below, have the earlier
+layout of a base chart and a Morse graph. The folder also keeps
 `paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined`, the
 sweep's first pick for the neuron, a rerun that equals the sweep run except
 for timings and paths.
@@ -396,11 +422,11 @@ Caveats:
   one to three blocked extra nodes.
 - The endpoint probe covers 150 random base cells and 20 guard intervals,
   none chosen near `Z~`.
-- The figure shows no geometry of the Morse set. Its base readout (105 cells,
-  `h` in `[0, 0.0039]`, `v` in `[-0.215, 0.303]`) is drawn under the left
-  axis line, and its 13,165 handle pieces (99.2% of the pieces) are not drawn
-  (`show_handles=False` in `hybrid_dynamics/examples/paper_grid_figures.py`).
-  The two variants are identical, since no node is trivial.
+- In the figure, the base readout (105 cells, `h` in `[0, 0.0039]`, `v` in
+  `[-0.215, 0.303]`, on the edge `h = 0`) is a hairline in the base panel
+  and is drawn in zoom A. The 13,165 handle pieces (99.2% of the pieces) lie
+  over `v_G` in `[-0.44, 0]` and meet all 256 phase intervals. The two
+  variants are identical, since no node is trivial.
 
 #### Wheel
 
@@ -436,10 +462,13 @@ failure: the blocked counts are not monotone in the base grid (at
 `tau = 0.5`: 1, 10 to 17, 0, and 0 or 1 for 256 to 2048 cells), and
 `tau = 0.25` at level 7 with 2048 cells was not run.
 
-Figure: the saddle set is about one pixel wide in the PNG, in a color close
-to that of the gait. The run at `tau = 0.5`, level 6, 1024 base cells,
-gap-refined, gives the same Morse graph and labels with a saddle set twice as
-wide (17 nodes, none blocked, 732 s; in `sweep-rimless-wheel/`).
+Figure: the saddle node and the 15 trivial single cells around it are specks
+in the base panel, where their window is outlined at the origin, and are
+drawn in zoom A (window `[-0.005, 0.005] x [-0.0056, 0.0054]`). The
+handle pieces of the gait node lie over `thetadot_G` in `[0.763, 0.788]`.
+The run at `tau = 0.5`, level 6, 1024 base cells, gap-refined, gives the
+same Morse graph and labels with a saddle set twice as wide (17 nodes, none
+blocked, 732 s; in `sweep-rimless-wheel/`).
 
 #### Neuron
 
@@ -510,10 +539,14 @@ Caveats:
 - "No spurious nontrivial node" holds for the computed indices only. The
   runs at `tau = 0.25` and `0.5` that separate C and F leave 12 to 19
   spurious blocked nodes whose index is unknown.
-- Z is not visible in either figure: its 42 base cells (`x` in
-  `[0.7946, 0.8]`) lie under the right axis line, and its 6,308 handle pieces
-  are not drawn. `M(3)` shows as about 17 pixels around F, and in the `all`
-  variant the labels of `M(2)` and `M(7)`, and of `M(1)` and `M(0)`, overlap.
+- Figures. The 42 base cells of Z (`x` in `[0.7946, 0.8]`, on the wall)
+  are drawn in zoom C of the `all` figure and zoom B of the `nontrivial`
+  one; its 6,308 handle pieces lie over `v_G` in `[0, 0.081]`. The 16 cells
+  of `M(3)` on the rim of F's node are drawn in zoom A, each marked by a
+  square. The trivial nodes `M(4)`, `M(6)`, and `M(7)` at the tip of S's
+  node are in zoom B of the `all` figure. In the Morse graph of the `all`
+  variant the labels of `M(2)` and `M(7)`, and of `M(1)` and `M(0)`,
+  overlap.
 
 ### Sweep
 
