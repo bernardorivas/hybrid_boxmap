@@ -200,11 +200,68 @@ from .src.atlas_conley import (
     prepare_atlas_relation_conley_2d,
 )
 
+from .src.suspension_grid import (
+    DyadicBaseWindow,
+    GeneratorKey,
+    GuardResetSpec,
+    LocatedPoints,
+    SuspensionGrid,
+    SuspensionGridCheck,
+    UnsupportedSuspensionGridError,
+    build_suspension_grid,
+    check_suspension_grid,
+)
+from .src.suspension_grid_relation import (
+    EndpointBatch,
+    SuspensionFlow,
+    SuspensionGridProblem,
+    SuspensionGridRelation,
+    SuspensionMorseGraph,
+    SuspensionPath,
+    atom_set_components,
+    audit_suspension_grid_endpoints,
+    compute_suspension_grid_relation,
+    compute_suspension_morse_graph,
+    relation_image_connectivity,
+)
+from .src.suspension_grid_conley import (
+    SuspensionGridConleyResult,
+    compute_suspension_grid_conley_index,
+    piece_rectangles,
+    suspension_grid_gluing,
+)
+from .src.suspension_grid_plot import suspension_grid_morse_plot_data
 
 __version__ = "0.2.0"
 __author__ = "Your Name/Team"
 
 __all__ = [
+    # Paper suspension grid Xi_n (def:suspension-grid) and its sampled map
+    "DyadicBaseWindow",
+    "GeneratorKey",
+    "GuardResetSpec",
+    "LocatedPoints",
+    "SuspensionGrid",
+    "SuspensionGridCheck",
+    "UnsupportedSuspensionGridError",
+    "build_suspension_grid",
+    "check_suspension_grid",
+    "EndpointBatch",
+    "SuspensionFlow",
+    "SuspensionGridProblem",
+    "SuspensionGridRelation",
+    "SuspensionMorseGraph",
+    "SuspensionPath",
+    "atom_set_components",
+    "audit_suspension_grid_endpoints",
+    "compute_suspension_grid_relation",
+    "compute_suspension_morse_graph",
+    "relation_image_connectivity",
+    "SuspensionGridConleyResult",
+    "compute_suspension_grid_conley_index",
+    "piece_rectangles",
+    "suspension_grid_gluing",
+    "suspension_grid_morse_plot_data",
     # Core
     "HybridTime",
     "HybridTimeInterval",
