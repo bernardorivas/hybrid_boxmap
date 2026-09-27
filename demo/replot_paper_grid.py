@@ -63,9 +63,13 @@ def _git_commit() -> dict[str, object]:
             ["git", *arguments], cwd=CODE_ROOT, capture_output=True, text=True, check=False
         ).stdout.strip()
 
+    # The redrawn figures and summaries are tracked outputs under figures/;
+    # only changes elsewhere make the code differ from the commit.
     return {
         "commit": run("rev-parse", "HEAD"),
-        "dirty": bool(run("status", "--porcelain", "--untracked-files=no")),
+        "dirty": bool(
+            run("status", "--porcelain", "--untracked-files=no", "--", ".", ":(exclude)figures")
+        ),
     }
 
 
