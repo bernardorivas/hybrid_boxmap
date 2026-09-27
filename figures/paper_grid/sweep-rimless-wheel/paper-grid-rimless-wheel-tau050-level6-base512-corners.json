@@ -1,0 +1,2364 @@
+{
+  "a_n": 0.00390625,
+  "base_cells_per_axis": 512,
+  "code": {
+    "commit": "8e99989ccac600caa19c7dd5ce0f67bd49601a5e",
+    "dirty": false
+  },
+  "conley": [
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "morse_node": 0,
+      "nerve_cell_counts": [
+        25309,
+        98747,
+        97816,
+        24378
+      ],
+      "pair_atoms": {
+        "A": 0,
+        "S": 20404,
+        "X": 20404
+      },
+      "pair_pieces": {
+        "A": 0,
+        "X": 25309
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 171.7184017499676,
+      "shift_class": [
+        "x-1",
+        "x-1",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 1,
+      "nerve_cell_counts": [
+        19,
+        52,
+        44,
+        10
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.006065624998882413,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(343, 854)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 2,
+      "nerve_cell_counts": [
+        163,
+        481,
+        425,
+        102
+      ],
+      "pair_atoms": {
+        "A": 117,
+        "S": 11,
+        "X": 128
+      },
+      "pair_pieces": {
+        "A": 146,
+        "X": 163
+      },
+      "result_scope": "",
+      "seconds": 0.03048308298457414,
+      "shift_class": []
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(8020, 8531)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 3,
+      "nerve_cell_counts": [
+        198,
+        615,
+        560,
+        138
+      ],
+      "pair_atoms": {
+        "A": 137,
+        "S": 16,
+        "X": 153
+      },
+      "pair_pieces": {
+        "A": 174,
+        "X": 198
+      },
+      "result_scope": "",
+      "seconds": 0.0372466659755446,
+      "shift_class": []
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(32589, 33100)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 4,
+      "nerve_cell_counts": [
+        301,
+        966,
+        888,
+        218
+      ],
+      "pair_atoms": {
+        "A": 205,
+        "S": 29,
+        "X": 234
+      },
+      "pair_pieces": {
+        "A": 258,
+        "X": 301
+      },
+      "result_scope": "",
+      "seconds": 0.059411583992186934,
+      "shift_class": []
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(45897, 46409)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 5,
+      "nerve_cell_counts": [
+        171,
+        518,
+        466,
+        114
+      ],
+      "pair_atoms": {
+        "A": 121,
+        "S": 11,
+        "X": 132
+      },
+      "pair_pieces": {
+        "A": 156,
+        "X": 171
+      },
+      "result_scope": "",
+      "seconds": 0.030994582979474217,
+      "shift_class": []
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(55113, 55624)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 6,
+      "nerve_cell_counts": [
+        1166,
+        3895,
+        3624,
+        888
+      ],
+      "pair_atoms": {
+        "A": 803,
+        "S": 120,
+        "X": 923
+      },
+      "pair_pieces": {
+        "A": 1016,
+        "X": 1166
+      },
+      "result_scope": "",
+      "seconds": 0.24950833298498765,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 7,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.005110457947012037,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(2902, 3413)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 8,
+      "nerve_cell_counts": [
+        128,
+        370,
+        326,
+        79
+      ],
+      "pair_atoms": {
+        "A": 93,
+        "S": 6,
+        "X": 99
+      },
+      "pair_pieces": {
+        "A": 120,
+        "X": 128
+      },
+      "result_scope": "",
+      "seconds": 0.021542208967730403,
+      "shift_class": []
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(13650, 14161)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 9,
+      "nerve_cell_counts": [
+        164,
+        492,
+        441,
+        108
+      ],
+      "pair_atoms": {
+        "A": 120,
+        "S": 12,
+        "X": 132
+      },
+      "pair_pieces": {
+        "A": 146,
+        "X": 164
+      },
+      "result_scope": "",
+      "seconds": 0.02896849997341633,
+      "shift_class": []
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(37196, 37707)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 10,
+      "nerve_cell_counts": [
+        333,
+        1074,
+        989,
+        243
+      ],
+      "pair_atoms": {
+        "A": 227,
+        "S": 35,
+        "X": 262
+      },
+      "pair_pieces": {
+        "A": 282,
+        "X": 333
+      },
+      "result_scope": "",
+      "seconds": 0.06682983302744105,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 11,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0048817499773576856,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(66887, 67399)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 12,
+      "nerve_cell_counts": [
+        173,
+        525,
+        473,
+        116
+      ],
+      "pair_atoms": {
+        "A": 122,
+        "S": 12,
+        "X": 134
+      },
+      "pair_pieces": {
+        "A": 153,
+        "X": 173
+      },
+      "result_scope": "",
+      "seconds": 0.03166916698683053,
+      "shift_class": []
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(16721, 17232)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 13,
+      "nerve_cell_counts": [
+        176,
+        537,
+        485,
+        119
+      ],
+      "pair_atoms": {
+        "A": 125,
+        "S": 12,
+        "X": 137
+      },
+      "pair_pieces": {
+        "A": 159,
+        "X": 176
+      },
+      "result_scope": "",
+      "seconds": 0.031910167017485946,
+      "shift_class": []
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(20816, 21327)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 14,
+      "nerve_cell_counts": [
+        574,
+        1880,
+        1738,
+        426
+      ],
+      "pair_atoms": {
+        "A": 402,
+        "S": 58,
+        "X": 460
+      },
+      "pair_pieces": {
+        "A": 488,
+        "X": 574
+      },
+      "result_scope": "",
+      "seconds": 0.11872599995695055,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 15,
+      "nerve_cell_counts": [
+        22,
+        62,
+        54,
+        13
+      ],
+      "pair_atoms": {
+        "A": 21,
+        "S": 1,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 21,
+        "X": 22
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.006727583007887006,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 16,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.005781541985925287,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 17,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.004809040983673185,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 18,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.005571042012888938,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 19,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.004781708004884422,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "morse_node": 20,
+      "nerve_cell_counts": [
+        159,
+        551,
+        518,
+        125
+      ],
+      "pair_atoms": {
+        "A": 91,
+        "S": 68,
+        "X": 159
+      },
+      "pair_pieces": {
+        "A": 91,
+        "X": 159
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.4137345839990303,
+      "shift_class": [
+        "0",
+        "x-1",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 21,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.00538704200880602,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 22,
+      "nerve_cell_counts": [
+        37,
+        110,
+        97,
+        23
+      ],
+      "pair_atoms": {
+        "A": 33,
+        "S": 4,
+        "X": 37
+      },
+      "pair_pieces": {
+        "A": 33,
+        "X": 37
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.018957874970510602,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 23,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.005039957992266864,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 24,
+      "nerve_cell_counts": [
+        22,
+        61,
+        52,
+        12
+      ],
+      "pair_atoms": {
+        "A": 21,
+        "S": 1,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 21,
+        "X": 22
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.006313707970548421,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 25,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.005628624989185482,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 26,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.004882332985289395,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 27,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.004782292002346367,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 28,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.005491749965585768,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  ],
+  "conley_labels_in_figure": {
+    "0": [
+      "x-1",
+      "x-1",
+      "0",
+      "0"
+    ],
+    "1": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "11": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "15": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "16": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "17": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "18": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "19": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "20": [
+      "0",
+      "x-1",
+      "0",
+      "0"
+    ],
+    "21": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "22": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "23": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "24": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "25": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "26": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "27": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "28": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "7": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ]
+  },
+  "conley_options": {
+    "max_pieces": 100000
+  },
+  "construction": "Xi_n generated by K_j(mu) and Q_j(mu,k) for j <= n (def:suspension-grid, Xi_n = Xi_{n-1} ^ Xi_n(X_n)); elementary pieces with generator signatures",
+  "continuous_system_conley_index_certified": false,
+  "discarded_exits": {
+    "endpoints": 36643,
+    "source_atoms": 35599
+  },
+  "endpoint_probe": {
+    "base_cells_probed": 150,
+    "base_probe_lattice": "5x5 per cell",
+    "evaluation_failures": 0,
+    "guard_intervals_probed": 20,
+    "missed": 0,
+    "phase_probes_per_interval": 7,
+    "witnesses_in_window": 3615
+  },
+  "example": "rimless-wheel",
+  "figure_variants": {
+    "all": {
+      "blocked_nodes_shown": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14
+      ],
+      "files": [
+        "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out/paper-grid-rimless-wheel-tau050-level6-base512-corners.pdf",
+        "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out/paper-grid-rimless-wheel-tau050-level6-base512-corners.png"
+      ],
+      "hidden_nodes": [],
+      "order_shown": [
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          7,
+          1
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          10,
+          4
+        ],
+        [
+          11,
+          7
+        ],
+        [
+          12,
+          6
+        ],
+        [
+          13,
+          9
+        ],
+        [
+          14,
+          13
+        ],
+        [
+          15,
+          5
+        ],
+        [
+          15,
+          8
+        ],
+        [
+          15,
+          10
+        ],
+        [
+          15,
+          12
+        ],
+        [
+          15,
+          14
+        ],
+        [
+          16,
+          5
+        ],
+        [
+          16,
+          8
+        ],
+        [
+          16,
+          10
+        ],
+        [
+          16,
+          12
+        ],
+        [
+          16,
+          14
+        ],
+        [
+          17,
+          15
+        ],
+        [
+          18,
+          16
+        ],
+        [
+          19,
+          17
+        ],
+        [
+          20,
+          11
+        ],
+        [
+          20,
+          18
+        ],
+        [
+          20,
+          19
+        ],
+        [
+          21,
+          20
+        ],
+        [
+          22,
+          20
+        ],
+        [
+          23,
+          21
+        ],
+        [
+          24,
+          22
+        ],
+        [
+          25,
+          23
+        ],
+        [
+          26,
+          24
+        ],
+        [
+          27,
+          26
+        ],
+        [
+          28,
+          27
+        ]
+      ],
+      "rule": "every Morse node",
+      "shown_nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28
+      ],
+      "variant": "all"
+    },
+    "nontrivial": {
+      "blocked_nodes_shown": [
+        2,
+        3,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14
+      ],
+      "files": [
+        "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out/paper-grid-rimless-wheel-tau050-level6-base512-corners-nontrivial.pdf",
+        "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out/paper-grid-rimless-wheel-tau050-level6-base512-corners-nontrivial.png"
+      ],
+      "hidden_nodes": [
+        {
+          "morse_node": 1,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 7,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 11,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 15,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 16,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 17,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 18,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 19,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 21,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 22,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 23,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 24,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 25,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 26,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 27,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 28,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        }
+      ],
+      "order_shown": [
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          0
+        ],
+        [
+          5,
+          0
+        ],
+        [
+          6,
+          0
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          9,
+          3
+        ],
+        [
+          10,
+          4
+        ],
+        [
+          12,
+          6
+        ],
+        [
+          13,
+          9
+        ],
+        [
+          14,
+          13
+        ],
+        [
+          20,
+          5
+        ],
+        [
+          20,
+          8
+        ],
+        [
+          20,
+          10
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          20,
+          14
+        ]
+      ],
+      "rule": "Morse nodes whose finite-relation index is trivial are hidden; nodes with a blocked index are kept and marked 'blocked'; the order shown is reachability in the full Morse graph, transitively reduced",
+      "shown_nodes": [
+        0,
+        2,
+        3,
+        4,
+        5,
+        6,
+        8,
+        9,
+        10,
+        12,
+        13,
+        14,
+        20
+      ],
+      "variant": "nontrivial"
+    }
+  },
+  "figures": [
+    "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out/paper-grid-rimless-wheel-tau050-level6-base512-corners.pdf",
+    "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out/paper-grid-rimless-wheel-tau050-level6-base512-corners.png",
+    "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out/paper-grid-rimless-wheel-tau050-level6-base512-corners-nontrivial.pdf",
+    "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out/paper-grid-rimless-wheel-tau050-level6-base512-corners-nontrivial.png"
+  ],
+  "grid": {
+    "a_n": 0.00390625,
+    "atoms": 349731,
+    "atoms_in_d_image": 262144,
+    "atoms_without_base_cell": 87587,
+    "base_cell_widths": [
+      0.0015625,
+      0.0029296875
+    ],
+    "base_cells_per_axis": 512,
+    "base_pieces": 262144,
+    "generators": 464926,
+    "guard_curve_straight": true,
+    "guard_intervals": 580,
+    "handle_pieces": 148480,
+    "level": 6,
+    "max_pieces_per_atom": 4,
+    "phase_intervals": 256,
+    "pieces": 410624,
+    "reset_curve_straight": true
+  },
+  "grid_check": {
+    "atoms_nonempty": true,
+    "d_base_preimage_exact": true,
+    "d_contains_interior": true,
+    "d_injective": true,
+    "passed": true,
+    "pieces_cover_window": true,
+    "pieces_disjoint_interiors": true
+  },
+  "image_connectivity": {
+    "atoms": 349731,
+    "disconnected_padded_images": 199,
+    "disconnected_sampled_images": 10439
+  },
+  "image_rule": {
+    "command_line": [
+      "rimless-wheel",
+      "--level",
+      "rimless-wheel=6",
+      "--level-offset",
+      "rimless-wheel=3",
+      "--tau",
+      "rimless-wheel=0.5",
+      "--workers",
+      "3",
+      "--index-max-pieces",
+      "100000",
+      "--output-dir",
+      "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/wsweep/out"
+    ],
+    "default_rule": true,
+    "description": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding",
+    "eval_mode": "corners",
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "gap_refinement_depth": 0,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "sample_depth": null,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null
+  },
+  "level": 6,
+  "level_offset": 3,
+  "morse_graph": {
+    "edges": [
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        11,
+        7
+      ],
+      [
+        12,
+        6
+      ],
+      [
+        13,
+        9
+      ],
+      [
+        14,
+        13
+      ],
+      [
+        15,
+        5
+      ],
+      [
+        15,
+        8
+      ],
+      [
+        15,
+        10
+      ],
+      [
+        15,
+        12
+      ],
+      [
+        15,
+        14
+      ],
+      [
+        16,
+        5
+      ],
+      [
+        16,
+        8
+      ],
+      [
+        16,
+        10
+      ],
+      [
+        16,
+        12
+      ],
+      [
+        16,
+        14
+      ],
+      [
+        17,
+        15
+      ],
+      [
+        18,
+        16
+      ],
+      [
+        19,
+        17
+      ],
+      [
+        20,
+        11
+      ],
+      [
+        20,
+        18
+      ],
+      [
+        20,
+        19
+      ],
+      [
+        21,
+        20
+      ],
+      [
+        22,
+        20
+      ],
+      [
+        23,
+        21
+      ],
+      [
+        24,
+        22
+      ],
+      [
+        25,
+        23
+      ],
+      [
+        26,
+        24
+      ],
+      [
+        27,
+        26
+      ],
+      [
+        28,
+        27
+      ]
+    ],
+    "morse_set_atoms": [
+      "343-366 855-878 1367-1389 1879-1901 2391-2412 2902-2924 3414-3436 3926-3948 4438-4460 4950-4972 5461-5483 5973-5995 6485-6507 6997-7019 7509-7531 8020-8043 8532-8554 9044-9066 9556-9578 10068-10090 10579-10602 11091-11113 11603-11625 12115-12137 12627-12649 13139-13161 13650-13673 14162-14185 14674-14696 15186-15208 15698-15720 16210-16232 16721-16744 17233-17256 17745-17768 18257-18280 18769-18792 19281-19304 19792-19816 20304-20327 20816-20839 21328-21351 21840-21863 22352-22375 22864-22887 23376-23399 23887-23911 24399-24423 24911-24934 25423-25446 25935-25958 26447-26470 26959-26982 27470-27494 27982-28006 28494-28518 29006-29029 29518-29541 30030-30053 30542-30565 31054-31077 31566-31589 32077-32101 32589-32613 33101-33125 33613-33637 34125-34149 34637-34661 35149-35173 35661-35685 36173-36197 36684-36709 37196-37221 37708-37733 38220-38244 38732-38756 39244-39268 39756-39780 40268-40291 40780-40803 41292-41315 41804-41827 42315-42339 42827-42851 43339-43363 43850-43875 44362-44387 44874-44899 45386-45411 45898-45923 46410-46435 46922-46947 47434-47458 47946-47970 48458-48482 48970-48994 49482-49506 49994-50018 50506-50531 51018-51043 51530-51555 52042-52067 52554-52579 53065-53091 53577-53603 54089-54115 54601-54627 55113-55139 55625-55651 56137-56162 56649-56674 57161-57186 57673-57698 58185-58210 58697-58722 59209-59234 59721-59746 60233-60258 60745-60770 61257-61282 61769-61794 62281-62306 62793-62818 63305-63330 63817-63842 64329-64354 64841-64866 65353-65378 65865-65890 66377-66402 66889-66914 67401-67426 67913-67938 68425-68450 68937-68962 69449-69474 69961-69986 70473-70498 70985-71010 71497-71522 72009-72034 72521-72546 73033-73058 73545-73570 74057-74082 74569-74594 75081-75106 75593-75619 76105-76131 76616-76643 77128-77155 77640-77667 78152-78179 78664-78691 79176-79203 79688-79715 80200-80227 80712-80739 81225-81251 81737-81763 82248-82275 82760-82787 83272-83300 83785-83812 84297-84324 84809-84836 85321-85348 85833-85860 86345-86372 86857-86884 87369-87396 87881-87908 88393-88421 88906-88933 89418-89445 89930-89957 90442-90470 90954-90982 91466-91494 91978-92005 92490-92517 93002-93029 93514-93541 94026-94054 94538-94566 95051-95078 95563-95589 96075-96102 96587-96614 97099-97126 97611-97638 98123-98150 98635-98662 99148-99174 99660-99686 100172-100198 100684-100710 101196-101222 101708-101735 102220-102247 102733-102759 103245-103271 103757-103783 104269-104295 104781-104807 105293-105319 105805-105832 106317-106344 106830-106856 107342-107368 107854-107881 108366-108393 108878-108905 109390-109417 109902-109929 110414-110441 110927-110953 111439-111465 111951-111978 112464-112490 112975-113002 113487-113514 113999-114026 114512-114538 115024-115050 115536-115562 116048-116075 116561-116587 117073-117099 117585-117612 118097-118124 118609-118636 119121-119147 119633-119659 120145-120172 120657-120684 121169-121196 121681-121709 122193-122221 122706-122733 123218-123245 123730-123757 124243-124270 124755-124782 125267-125294 125779-125807 126291-126319 126804-126831 127316-127343 127828-127855 128340-128367 128853-128879 129365-129391 129877-129903 130389-130415 130901-130927 131413-131439 131925-131952 132438-132464 132950-132976 133462-133488 133974-134001 134486-134513 134999-135025 135511-135537 136023-136050 136535-136562 137048-137074 137560-137586 138072-138098 138584-138610 139097-139122 139609-139634 140121-140147 140633-140660 141146-141172 141658-141684 142170-142197 142682-142709 143195-143221 143707-143733 144219-144245 144731-144758 145244-145270 145756-145782 146268-146295 146780-146807 147292-147319 147805-147831 148317-148342 148829-148855 149342-149367 149854-149879 150366-150392 150878-150904 151391-151416 151903-151928 152415-152440 152927-152953 153439-153465 153952-153977 154464-154490 154976-155002 155489-155514 156000-156026 156512-156539 157024-157051 157537-157563 158049-158075 158561-158587 159073-159100 159586-159612 160098-160124 160610-160637 161122-161149 161634-161661 162147-162173 162659-162685 163171-163198 163684-163710 164196-164222 164708-164734 165220-165247 165733-165759 166245-166271 166758-166783 167270-167296 167782-167808 168295-168320 168807-168833 169319-169345 169831-169858 170343-170370 170856-170882 171368-171394 171881-171907 172393-172419 172906-172931 173418-173443 173930-173956 174442-174468 174955-174980 175467-175492 175979-176004 176491-176517 177003-177029 177516-177541 178028-178054 178540-178567 179053-179079 179566-179591 180078-180103 180590-180616 181102-181128 181615-181640 182127-182152 182639-182665 183151-183177 183664-183689 184177-184202 184689-184715 185201-185227 185713-185739 186226-186251 186738-186763 187250-187276 187762-187789 188275-188301 188788-188813 189300-189325 189812-189837 190325-190349 190837-190862 191349-191374 191861-191887 192373-192399 192886-192911 193398-193423 193911-193936 194423-194448 194936-194960 195448-195472 195960-195984 196472-196497 196984-197009 197497-197521 198009-198034 198521-198546 199034-199058 199547-199570 200059-200083 200571-200596 201083-201108 201595-201620 202108-202132 202620-202645 203132-203157 203645-203669 204158-204181 204670-204694 205182-205207 205694-205719 206207-206231 206720-206743 207232-207256 207744-207768 208256-208281 208768-208793 209281-209305 209793-209818 210305-210330 210818-210842 211330-211355 211842-211867 212354-212379 212866-212891 213379-213404 213892-213916 214404-214429 214916-214941 215429-215453 215942-215965 216454-216478 216966-216990 217478-217502 217990-218014 218503-218527 219015-219040 219528-219552 220040-220064 220553-220577 221065-221090 221577-221602 222090-222114 222602-222626 223115-223138 223627-223651 224139-224163 224651-224675 225164-225187 225676-225701 226188-226213 226701-226725 227213-227237 227726-227750 228238-228262 228750-228774 229262-229287 229774-229799 230288-230311 230800-230824 231312-231337 231824-231849 232337-232361 232850-232874 233362-233386 233874-233898 234387-234410 234899-234922 235411-235435 235924-235947 236436-236459 236948-236971 237461-237484 237973-237996 238486-238509 238998-239021 239511-239533 240023-240046 240535-240558 241047-241070 241560-241583 242072-242095 242585-242608 243097-243120 243609-243632 244122-244145 244635-244658 245147-245170 245659-245682 246171-246194 246684-246706 247196-247219 247709-247731 248221-248243 248733-248755 249245-249269 249759-249781 250271-250294 250783-250806 251295-251318 251808-251830 252321-252343 252833-252856 253345-253368 253857-253880 254369-254393 254882-254905 255394-255417 255907-255930 256419-256442 256932-256955 257444-257467 257956-257980 258468-258492 258981-259004 259493-259517 260005-260029 260518-260541 261030-261053 261542-261566 262055-262078 326165-326170 326366-326424 326547-326678 326748-326761 326763-333077 333102-333109 333113-333331 333378-333380 333405-333410 333413-333432 333434-333436 333438-333588 333709-333714 333739-333842 334015-334021 334042-334096 334343-334351",
+      "62121",
+      "854 1366 78663 79175 159072 159584 262054 326299-326301 326679",
+      "8531 9043 9555 85832 86344 86856 167781 169318 326311-326313 326689-326693",
+      "33100 33612 34124 34636 35148 108877 109389 109901 110926 111438 111950 196471 196983 199033 200570 326350-326355 326728-326735",
+      "46409 46921 123729 214915 326110-326113 326497-326499",
+      "55624 56136 57672 58184 59208 59720 60232 60744 61256 61768 63304 63816 65352 65864 66888 67400 68424 68936 69448 70472 70984 71496 72008 72520 73032 73544 74056 133973 136022 138071 138583 139608 140120 142681 144730 146779 148316 148828 150365 151902 152414 152926 153951 154463 228749 231311 233873 234385 236435 240534 243096 245658 248220 248732 250782 253344 253856 255906 256418 326127-326156 326513-326524 326527-326545",
+      "62633",
+      "3413 80199 80711 161121 326303 326681",
+      "14161 14673 15185 90953 91465 174441 326320-326322 326698-326700",
+      "37707 38219 38731 39243 39755 40267 40779 114511 115023 116047 116559 117584 118096 203644 205181 205693 206205 207743 208255 326358-326364 326737-326745",
+      "63145",
+      "67399 67911 146778 245657 325891-325895 326279-326281",
+      "17232 17744 93001 93513 94537 176490 178027 326325-326326 326703-326705",
+      "21327 22863 23375 24398 24910 25422 26446 26958 28493 29005 29517 97098 98122 100171 100683 101707 102219 103756 104268 105292 105804 106316 181101 182638 185712 187249 187761 190323 191860 192372 326331-326341 326343-326345 326709-326711 326713-326718 326720-326724",
+      "68268",
+      "69291",
+      "67756",
+      "68779",
+      "67244",
+      "61610-61611 62122-62123 62634-62635 63146-63148 63657-63661 64168-64174 64679-64686 65191-65198 65702-65709 66215-66221 66727-66732 67240-67243 67754-67755 68266-68267 68778 69290",
+      "62636",
+      "67753 68265 68777 69289",
+      "62124",
+      "67752",
+      "61612",
+      "68264",
+      "68776",
+      "69288"
+    ],
+    "morse_set_atoms_encoding": "space-separated nonnegative integers in increasing order; 'a-b' is the closed range a..b",
+    "nodes": [
+      {
+        "atoms": 20404,
+        "base_readout_bounds": {
+          "lower": [
+            -0.2,
+            0.4609375
+          ],
+          "upper": [
+            0.6,
+            0.8095703125
+          ]
+        },
+        "base_readout_cells": 13287,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 256,
+        "handle_pieces": 12022,
+        "index": 0,
+        "pieces": 25309
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.010937499999999989,
+            -0.0048828125
+          ],
+          "upper": [
+            -0.00937499999999999,
+            -0.001953125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 1,
+        "pieces": 1
+      },
+      {
+        "atoms": 11,
+        "base_readout_bounds": {
+          "lower": [
+            -0.19843750000000002,
+            0.4580078125
+          ],
+          "upper": [
+            0.6,
+            0.7392578125
+          ]
+        },
+        "base_readout_cells": 7,
+        "components_in_suspension": 5,
+        "handle_phase_intervals_met": 5,
+        "handle_pieces": 10,
+        "index": 2,
+        "pieces": 17
+      },
+      {
+        "atoms": 16,
+        "base_readout_bounds": {
+          "lower": [
+            -0.17500000000000002,
+            0.4609375
+          ],
+          "upper": [
+            0.3171875,
+            0.5517578125
+          ]
+        },
+        "base_readout_cells": 8,
+        "components_in_suspension": 6,
+        "handle_phase_intervals_met": 8,
+        "handle_pieces": 16,
+        "index": 3,
+        "pieces": 24
+      },
+      {
+        "atoms": 29,
+        "base_readout_bounds": {
+          "lower": [
+            -0.1,
+            0.47265625
+          ],
+          "upper": [
+            0.41250000000000003,
+            0.6103515625
+          ]
+        },
+        "base_readout_cells": 15,
+        "components_in_suspension": 8,
+        "handle_phase_intervals_met": 14,
+        "handle_pieces": 28,
+        "index": 4,
+        "pieces": 43
+      },
+      {
+        "atoms": 11,
+        "base_readout_bounds": {
+          "lower": [
+            -0.05937500000000001,
+            0.4638671875
+          ],
+          "upper": [
+            0.4562500000000001,
+            0.63671875
+          ]
+        },
+        "base_readout_cells": 4,
+        "components_in_suspension": 5,
+        "handle_phase_intervals_met": 7,
+        "handle_pieces": 11,
+        "index": 5,
+        "pieces": 15
+      },
+      {
+        "atoms": 120,
+        "base_readout_bounds": {
+          "lower": [
+            -0.03125,
+            0.4609375
+          ],
+          "upper": [
+            0.5828125000000001,
+            0.7275390625
+          ]
+        },
+        "base_readout_cells": 59,
+        "components_in_suspension": 33,
+        "handle_phase_intervals_met": 61,
+        "handle_pieces": 91,
+        "index": 6,
+        "pieces": 150
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.009374999999999994,
+            -0.0048828125
+          ],
+          "upper": [
+            -0.007812499999999995,
+            -0.001953125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 7,
+        "pieces": 1
+      },
+      {
+        "atoms": 6,
+        "base_readout_bounds": {
+          "lower": [
+            -0.19062500000000002,
+            0.4580078125
+          ],
+          "upper": [
+            0.29218750000000004,
+            0.537109375
+          ]
+        },
+        "base_readout_cells": 4,
+        "components_in_suspension": 5,
+        "handle_phase_intervals_met": 2,
+        "handle_pieces": 4,
+        "index": 8,
+        "pieces": 8
+      },
+      {
+        "atoms": 12,
+        "base_readout_bounds": {
+          "lower": [
+            -0.15781250000000002,
+            0.4638671875
+          ],
+          "upper": [
+            0.3328125,
+            0.560546875
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 5,
+        "handle_phase_intervals_met": 6,
+        "handle_pieces": 12,
+        "index": 9,
+        "pieces": 18
+      },
+      {
+        "atoms": 35,
+        "base_readout_bounds": {
+          "lower": [
+            -0.0859375,
+            0.4697265625
+          ],
+          "upper": [
+            0.43593750000000003,
+            0.625
+          ]
+        },
+        "base_readout_cells": 19,
+        "components_in_suspension": 9,
+        "handle_phase_intervals_met": 16,
+        "handle_pieces": 32,
+        "index": 10,
+        "pieces": 51
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.0078125,
+            -0.0048828125
+          ],
+          "upper": [
+            -0.00625,
+            -0.001953125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 11,
+        "pieces": 1
+      },
+      {
+        "atoms": 12,
+        "base_readout_bounds": {
+          "lower": [
+            0.004687500000000011,
+            0.4580078125
+          ],
+          "upper": [
+            0.5500000000000002,
+            0.701171875
+          ]
+        },
+        "base_readout_cells": 4,
+        "components_in_suspension": 5,
+        "handle_phase_intervals_met": 8,
+        "handle_pieces": 16,
+        "index": 12,
+        "pieces": 20
+      },
+      {
+        "atoms": 12,
+        "base_readout_bounds": {
+          "lower": [
+            -0.1484375,
+            0.4638671875
+          ],
+          "upper": [
+            0.34375000000000006,
+            0.56640625
+          ]
+        },
+        "base_readout_cells": 7,
+        "components_in_suspension": 7,
+        "handle_phase_intervals_met": 5,
+        "handle_pieces": 10,
+        "index": 13,
+        "pieces": 17
+      },
+      {
+        "atoms": 58,
+        "base_readout_bounds": {
+          "lower": [
+            -0.1359375,
+            0.466796875
+          ],
+          "upper": [
+            0.3875,
+            0.5927734375
+          ]
+        },
+        "base_readout_cells": 30,
+        "components_in_suspension": 22,
+        "handle_phase_intervals_met": 28,
+        "handle_pieces": 56,
+        "index": 14,
+        "pieces": 86
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.0078125,
+            0.00390625
+          ],
+          "upper": [
+            0.009375,
+            0.0068359375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 15,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.010937499999999989,
+            0.0009765625
+          ],
+          "upper": [
+            0.012499999999999989,
+            0.00390625
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 16,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.0062500000000000056,
+            0.00390625
+          ],
+          "upper": [
+            0.007812500000000005,
+            0.0068359375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 17,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.009374999999999994,
+            0.0009765625
+          ],
+          "upper": [
+            0.010937499999999994,
+            0.00390625
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 18,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.004687500000000011,
+            0.00390625
+          ],
+          "upper": [
+            0.006250000000000011,
+            0.0068359375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 19,
+        "pieces": 1
+      },
+      {
+        "atoms": 68,
+        "base_readout_bounds": {
+          "lower": [
+            -0.012500000000000011,
+            -0.013671875
+          ],
+          "upper": [
+            0.012499999999999989,
+            0.0126953125
+          ]
+        },
+        "base_readout_cells": 68,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 20,
+        "pieces": 68
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.009374999999999994,
+            0.00390625
+          ],
+          "upper": [
+            -0.007812499999999995,
+            0.0068359375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 21,
+        "pieces": 1
+      },
+      {
+        "atoms": 4,
+        "base_readout_bounds": {
+          "lower": [
+            0.0062500000000000056,
+            -0.0048828125
+          ],
+          "upper": [
+            0.012499999999999989,
+            -0.001953125
+          ]
+        },
+        "base_readout_cells": 4,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 22,
+        "pieces": 4
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.010937499999999989,
+            0.00390625
+          ],
+          "upper": [
+            -0.00937499999999999,
+            0.0068359375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 23,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.0062500000000000056,
+            -0.0078125
+          ],
+          "upper": [
+            0.007812500000000005,
+            -0.0048828125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 24,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.012500000000000011,
+            0.00390625
+          ],
+          "upper": [
+            -0.010937500000000011,
+            0.0068359375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 25,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.0078125,
+            -0.0078125
+          ],
+          "upper": [
+            0.009375,
+            -0.0048828125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 26,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.009374999999999994,
+            -0.0078125
+          ],
+          "upper": [
+            0.010937499999999994,
+            -0.0048828125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 27,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.010937499999999989,
+            -0.0078125
+          ],
+          "upper": [
+            0.012499999999999989,
+            -0.0048828125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 28,
+        "pieces": 1
+      }
+    ],
+    "scc_count": 328947
+  },
+  "morse_graph_path_exit_policy": {
+    "identical_to_endpoint_policy": true
+  },
+  "parameters": {
+    "R": [
+      [
+        -0.2,
+        0.6
+      ],
+      [
+        -0.5,
+        1.0
+      ]
+    ],
+    "alpha": 0.4,
+    "atol": 1e-12,
+    "gamma": 0.2,
+    "max_step": 0.02,
+    "rtol": 1e-10,
+    "tau": 0.5
+  },
+  "phase_cells": 256,
+  "python": "3.14.7",
+  "reference_set_identification": null,
+  "relation": {
+    "atoms_with_empty_image": 34427,
+    "default_rule": true,
+    "discarded_exit_endpoints": 36643,
+    "edges": 5933219,
+    "eval_mode": "corners",
+    "evaluated_endpoints": 412486,
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "failed_endpoints": 0,
+    "failure_messages": [],
+    "gap_refinement_depth": 0,
+    "handle_paths": 581,
+    "image_rule": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding",
+    "left_and_returned_endpoints": 0,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "padding_requested": true,
+    "sample_depth": null,
+    "sampled_edges": 1380819,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null,
+    "source_atoms_with_exit": 35599,
+    "source_atoms_with_failed_samples": 0,
+    "source_atoms_with_left_and_returned": 0,
+    "unique_base_samples": 263169,
+    "unique_handle_samples": 149317
+  },
+  "runtime_seconds": {
+    "conley": 173.36934108298738,
+    "endpoint_probe": 4.02607874997193,
+    "figure": 1.9508502919925377,
+    "grid": 0.9746176250046119,
+    "image_connectivity": 1.4778590410132892,
+    "morse_graph": 0.07700516597833484,
+    "relation": 238.39478112501092,
+    "relation_detail": {
+      "seconds_base_endpoints": 237.15062654099893,
+      "seconds_handle_endpoints": 0.5660240419674665,
+      "seconds_locate": 0.16593641601502895,
+      "seconds_total": 238.39467874995898
+    }
+  },
+  "schema": "paper-suspension-grid-run-v3",
+  "tau": 0.5
+}

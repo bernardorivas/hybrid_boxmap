@@ -1,0 +1,1074 @@
+{
+  "a_n": 0.001953125,
+  "base_cells_per_axis": 256,
+  "code": {
+    "commit": "8e99989ccac600caa19c7dd5ce0f67bd49601a5e",
+    "dirty": false
+  },
+  "conley": [
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 0,
+      "nerve_cell_counts": [
+        11459,
+        44126,
+        43779,
+        11277,
+        198,
+        33
+      ],
+      "pair_atoms": {
+        "A": 0,
+        "S": 11440,
+        "X": 11440
+      },
+      "pair_pieces": {
+        "A": 0,
+        "X": 11459
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 104.30075695796404,
+      "shift_class": [
+        "x-1",
+        "x-1",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 1,
+      "nerve_cell_counts": [
+        19,
+        52,
+        45,
+        11
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.005600541015155613,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 2,
+      "nerve_cell_counts": [
+        51,
+        166,
+        175,
+        74,
+        18,
+        3
+      ],
+      "pair_atoms": {
+        "A": 45,
+        "S": 6,
+        "X": 51
+      },
+      "pair_pieces": {
+        "A": 45,
+        "X": 51
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.04576362494844943,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 3,
+      "nerve_cell_counts": [
+        23,
+        75,
+        91,
+        53,
+        18,
+        3
+      ],
+      "pair_atoms": {
+        "A": 22,
+        "S": 1,
+        "X": 23
+      },
+      "pair_pieces": {
+        "A": 22,
+        "X": 23
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.014369708020240068,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 4,
+      "nerve_cell_counts": [
+        20,
+        65,
+        82,
+        51,
+        18,
+        3
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.013124666060321033,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 5,
+      "nerve_cell_counts": [
+        44,
+        140,
+        143,
+        56,
+        12,
+        2
+      ],
+      "pair_atoms": {
+        "A": 39,
+        "S": 5,
+        "X": 44
+      },
+      "pair_pieces": {
+        "A": 39,
+        "X": 44
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03360733401495963,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 6,
+      "nerve_cell_counts": [
+        20,
+        65,
+        82,
+        51,
+        18,
+        3
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.013090874999761581,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 7,
+      "nerve_cell_counts": [
+        23,
+        75,
+        91,
+        53,
+        18,
+        3
+      ],
+      "pair_atoms": {
+        "A": 22,
+        "S": 1,
+        "X": 23
+      },
+      "pair_pieces": {
+        "A": 22,
+        "X": 23
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.014400416985154152,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 8,
+      "nerve_cell_counts": [
+        20,
+        65,
+        82,
+        51,
+        18,
+        3
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.013228958006948233,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 9,
+      "nerve_cell_counts": [
+        22,
+        62,
+        54,
+        13
+      ],
+      "pair_atoms": {
+        "A": 20,
+        "S": 2,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 22
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.006359167047776282,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  ],
+  "conley_labels_in_figure": {
+    "0": [
+      "x-1",
+      "x-1",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "1": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "2": [
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "3": [
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "4": [
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "5": [
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "6": [
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "7": [
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "8": [
+      "0",
+      "0",
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "9": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ]
+  },
+  "conley_options": {
+    "max_pieces": 100000
+  },
+  "construction": "Xi_n generated by K_j(mu) and Q_j(mu,k) for j <= n (def:suspension-grid, Xi_n = Xi_{n-1} ^ Xi_n(X_n)); elementary pieces with generator signatures",
+  "continuous_system_conley_index_certified": false,
+  "discarded_exits": {
+    "endpoints": 0,
+    "source_atoms": 0
+  },
+  "endpoint_probe": {
+    "base_cells_probed": 150,
+    "base_probe_lattice": "5x5 per cell",
+    "evaluation_failures": 0,
+    "guard_intervals_probed": 20,
+    "missed": 0,
+    "phase_probes_per_interval": 7,
+    "witnesses_in_window": 3890
+  },
+  "example": "spiking-neuron",
+  "figure_variants": {
+    "all": {
+      "blocked_nodes_shown": [],
+      "files": [
+        "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out/paper-grid-spiking-neuron-tau500-level7-base256-corners-gap-refined.pdf",
+        "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out/paper-grid-spiking-neuron-tau500-level7-base256-corners-gap-refined.png"
+      ],
+      "hidden_nodes": [],
+      "order_shown": [
+        [
+          1,
+          0
+        ],
+        [
+          2,
+          1
+        ],
+        [
+          3,
+          2
+        ],
+        [
+          4,
+          3
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          4
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          8,
+          6
+        ],
+        [
+          8,
+          7
+        ],
+        [
+          9,
+          7
+        ]
+      ],
+      "rule": "every Morse node",
+      "shown_nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "variant": "all"
+    },
+    "nontrivial": {
+      "blocked_nodes_shown": [],
+      "files": [
+        "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out/paper-grid-spiking-neuron-tau500-level7-base256-corners-gap-refined-nontrivial.pdf",
+        "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out/paper-grid-spiking-neuron-tau500-level7-base256-corners-gap-refined-nontrivial.png"
+      ],
+      "hidden_nodes": [
+        {
+          "morse_node": 1,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 2,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 3,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 4,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 5,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 6,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 7,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 8,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 9,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        }
+      ],
+      "order_shown": [],
+      "rule": "Morse nodes whose finite-relation index is trivial are hidden; nodes with a blocked index are kept and marked 'blocked'; the order shown is reachability in the full Morse graph, transitively reduced",
+      "shown_nodes": [
+        0
+      ],
+      "variant": "nontrivial"
+    }
+  },
+  "figures": [
+    "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out/paper-grid-spiking-neuron-tau500-level7-base256-corners-gap-refined.pdf",
+    "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out/paper-grid-spiking-neuron-tau500-level7-base256-corners-gap-refined.png",
+    "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out/paper-grid-spiking-neuron-tau500-level7-base256-corners-gap-refined-nontrivial.pdf",
+    "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out/paper-grid-spiking-neuron-tau500-level7-base256-corners-gap-refined-nontrivial.png"
+  ],
+  "grid": {
+    "a_n": 0.001953125,
+    "atoms": 58292,
+    "atoms_in_d_image": 11280,
+    "atoms_without_base_cell": 47012,
+    "base_cell_widths": [
+      1.25,
+      5.0
+    ],
+    "base_cells_per_axis": 256,
+    "base_pieces": 11280,
+    "generators": 77560,
+    "guard_curve_straight": true,
+    "guard_intervals": 92,
+    "handle_pieces": 47104,
+    "level": 7,
+    "max_pieces_per_atom": 2,
+    "phase_intervals": 512,
+    "pieces": 58384,
+    "reset_curve_straight": true
+  },
+  "grid_check": {
+    "atoms_nonempty": true,
+    "d_base_preimage_exact": true,
+    "d_contains_interior": true,
+    "d_injective": true,
+    "passed": true,
+    "pieces_cover_window": true,
+    "pieces_disjoint_interiors": true
+  },
+  "image_connectivity": {
+    "atoms": 58292,
+    "disconnected_padded_images": 0,
+    "disconnected_sampled_images": 0
+  },
+  "image_rule": {
+    "command_line": [
+      "spiking-neuron",
+      "--level",
+      "spiking-neuron=7",
+      "--level-offset",
+      "spiking-neuron=1",
+      "--tau",
+      "spiking-neuron=5",
+      "--workers",
+      "3",
+      "--index-max-pieces",
+      "100000",
+      "--gap-refinement-depth",
+      "14",
+      "--output-dir",
+      "/private/tmp/claude-504/-Users-bdoprad-Work/e4aa2f13-2150-41f5-9328-b80bee61a9b9/scratchpad/neuron_sweep/out"
+    ],
+    "default_rule": false,
+    "description": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding; gap refinement depth 14",
+    "eval_mode": "corners",
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "gap_refinement_depth": 14,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "sample_depth": null,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null
+  },
+  "level": 7,
+  "level_offset": 1,
+  "morse_graph": {
+    "edges": [
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        7,
+        4
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        9,
+        7
+      ]
+    ],
+    "morse_set_atoms": [
+      "2410-2418 2585-2599 2762-2779 2939-2959 3117-3140 3295-3320 3473-3500 3651-3681 3830-3861 4009-4042 4189-4222 4368-4402 4548-4564 4727-4744 4907-4924 5087-5104 5266-5284 5446-5464 5626-5644 5806-5824 5897-5916 5989-6008 6081-6100 6173-6192 6265-6284 6357-6375 6449-6467 6541-6559 6633-6651 6725-6743 6816-6835 6908-6927 7000-7019 7092-7111 7184-7203 7276-7295 7368-7387 7460-7479 7552-7571 7644-7663 7736-7755 7828-7847 7920-7939 8012-8031 8104-8123 8196-8215 8288-8306 8380-8398 8472-8490 8563-8582 8655-8674 8747-8766 8839-8858 8931-8950 9023-9042 9115-9134 9207-9226 9299-9318 9391-9410 9483-9502 9575-9594 9667-9686 9759-9778 9851-9869 9943-9961 10035-10053 10127-10145 10219-10237 10311-10329 10403-10421 10495-10513 10587-10605 10679-10697 10771-10789 10863-10881 10955-10973 11047-11065 11139-11157 11231-11249 26609 27120 27631 28142 28653 29164 29675 30186 30697 31208 31719 32230 32741 33252-42961 43366-43472",
+      "5645",
+      "4565 4745 4925 5105 5285 5465",
+      "4566",
+      "4567",
+      "4746 4926 5106 5286 5466",
+      "4568",
+      "4747",
+      "4748",
+      "4927 5107"
+    ],
+    "morse_set_atoms_encoding": "space-separated nonnegative integers in increasing order; 'a-b' is the closed range a..b",
+    "nodes": [
+      {
+        "atoms": 11440,
+        "base_readout_bounds": {
+          "lower": [
+            -63.75,
+            -85.0
+          ],
+          "upper": [
+            35.0,
+            115.0
+          ]
+        },
+        "base_readout_cells": 1610,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 512,
+        "handle_pieces": 9849,
+        "index": 0,
+        "pieces": 11459
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -41.25,
+            25.0
+          ],
+          "upper": [
+            -40.0,
+            30.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 1,
+        "pieces": 1
+      },
+      {
+        "atoms": 6,
+        "base_readout_bounds": {
+          "lower": [
+            -48.75,
+            25.0
+          ],
+          "upper": [
+            -41.25,
+            30.0
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 2,
+        "pieces": 6
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -48.75,
+            30.0
+          ],
+          "upper": [
+            -47.5,
+            35.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 3,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -48.75,
+            35.0
+          ],
+          "upper": [
+            -47.5,
+            40.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 4,
+        "pieces": 1
+      },
+      {
+        "atoms": 5,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            30.0
+          ],
+          "upper": [
+            -41.25,
+            35.0
+          ]
+        },
+        "base_readout_cells": 5,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 5,
+        "pieces": 5
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -48.75,
+            40.0
+          ],
+          "upper": [
+            -47.5,
+            45.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 6,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            35.0
+          ],
+          "upper": [
+            -46.25,
+            40.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 7,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            40.0
+          ],
+          "upper": [
+            -46.25,
+            45.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 8,
+        "pieces": 1
+      },
+      {
+        "atoms": 2,
+        "base_readout_bounds": {
+          "lower": [
+            -46.25,
+            35.0
+          ],
+          "upper": [
+            -43.75,
+            40.0
+          ]
+        },
+        "base_readout_cells": 2,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 9,
+        "pieces": 2
+      }
+    ],
+    "scc_count": 46843
+  },
+  "morse_graph_path_exit_policy": {
+    "identical_to_endpoint_policy": true
+  },
+  "parameters": {
+    "X": "([-80,-40]x[-300,600]) u ([-40,35]x[-300,160])",
+    "ambient": [
+      [
+        -120.0,
+        200.0
+      ],
+      [
+        -400.0,
+        880.0
+      ]
+    ],
+    "atol": 1e-12,
+    "max_step": 0.02,
+    "rtol": 1e-10,
+    "tau": 5.0
+  },
+  "phase_cells": 512,
+  "python": "3.14.7",
+  "reference_set_identification": null,
+  "relation": {
+    "atoms_with_empty_image": 0,
+    "default_rule": false,
+    "discarded_exit_endpoints": 0,
+    "edges": 957904,
+    "eval_mode": "corners",
+    "evaluated_endpoints": 114891,
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "failed_endpoints": 0,
+    "failure_messages": [],
+    "gap_refinement_depth": 14,
+    "gap_refinement_samples": 55629,
+    "handle_paths": 93,
+    "image_rule": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding; gap refinement depth 14",
+    "left_and_returned_endpoints": 0,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "padding_requested": true,
+    "sample_depth": null,
+    "sampled_edges": 218710,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null,
+    "source_atoms_with_exit": 0,
+    "source_atoms_with_failed_samples": 0,
+    "source_atoms_with_left_and_returned": 0,
+    "unique_base_samples": 11553,
+    "unique_handle_samples": 47709,
+    "unresolved_gap_segments": 0
+  },
+  "runtime_seconds": {
+    "conley": 104.56048008403741,
+    "endpoint_probe": 23.758015291998163,
+    "figure": 0.7795690839411691,
+    "grid": 0.039153584046289325,
+    "image_connectivity": 0.24752887489739805,
+    "morse_graph": 0.004332166980020702,
+    "relation": 148.15260208304971,
+    "relation_detail": {
+      "seconds_base_endpoints": 26.249023957992904,
+      "seconds_gap_refinement": 121.10638145892881,
+      "seconds_handle_endpoints": 0.635746750049293,
+      "seconds_locate": 0.02199170901440084,
+      "seconds_total": 148.15053504193202
+    }
+  },
+  "schema": "paper-suspension-grid-run-v3",
+  "tau": 5.0
+}
