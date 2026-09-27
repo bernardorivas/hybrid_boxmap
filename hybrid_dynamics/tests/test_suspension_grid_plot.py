@@ -16,7 +16,10 @@ import pytest  # noqa: E402
 from matplotlib import patches  # noqa: E402
 
 from hybrid_dynamics import PlotHybridMorseSets, build_suspension_grid  # noqa: E402
-from hybrid_dynamics.examples.paper_grid_examples import bouncing_ball_problem  # noqa: E402
+from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
+    bouncing_ball_problem,
+    paper_grid_problem,
+)
 from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
     FRAME_MARGIN,
     draw_paper_grid_figure,
@@ -301,6 +304,44 @@ def test_output_names_record_a_finer_base_grid():
     assert runner._grid_suffix(6, 0) == "-level6"
     assert runner._grid_suffix(6, 4) == "-level6-base1024"
     assert runner._grid_suffix(7, 1) == "-level7-base256"
+
+
+def test_a_variant_has_its_own_output_names_and_replots(tmp_path):
+    runner = _load_runner_script()
+    names = [
+        runner._output_stem(name, 1.0, 6, 4, "-corners-gap-refined")
+        for name in ("impact-vdp-duffing", "impact-vdp-duffing-beta076")
+    ]
+    assert names == [
+        "paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined",
+        "paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined",
+    ]
+    problem = paper_grid_problem("impact-vdp-duffing-beta076", tau=1.0, level_offset=1)
+    grid = build_suspension_grid(problem.window, problem.guard, 1)
+    morse_sets = [np.array([int(grid.d_map[0])])]
+    summary = {
+        "schema": "paper-suspension-grid-run-v3",
+        "example": "impact-vdp-duffing-beta076",
+        "variant_of": "impact-vdp-duffing",
+        "variant_overrides": {"beta": 0.76},
+        "tau": 1.0,
+        "level": 1,
+        "level_offset": 1,
+        "grid": json.loads(json.dumps(grid.summary())),
+        "morse_graph": {
+            "nodes": [{"index": 0, "atoms": 1}],
+            "edges": [],
+            "morse_set_atoms": [encode_index_ranges(values) for values in morse_sets],
+        },
+        "conley": [_record(0, "nontrivial")],
+    }
+    summary_path = tmp_path / "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.json"
+    summary_path.write_text(json.dumps(summary), encoding="utf-8")
+    result = _load_replot_script().replot(summary_path, variants=("all",))
+    assert [Path(path).name for path in result["figures"]] == [
+        "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.pdf",
+        "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.png",
+    ]
 
 
 def test_replot_rebuilds_the_base_offset_of_the_run(tmp_path):

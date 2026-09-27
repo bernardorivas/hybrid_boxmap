@@ -2,10 +2,13 @@
 
 The reference values (equilibria, impact cycles, Lienard identity) are the
 numerically verified values of the manuscript example with ``eps = 1``,
-``beta = 0.8``, ``w = 0.8``, ``c = 0.7``.
+``beta = 0.8``, ``w = 0.8``, ``c = 0.7``; the last test checks the variant
+``impact-vdp-duffing-beta076`` against the values verified at ``beta = 0.76``.
 """
 
 from __future__ import annotations
+
+import pickle
 
 import numpy as np
 import pytest
@@ -15,8 +18,12 @@ from hybrid_dynamics import SuspensionFlow, build_suspension_grid, check_suspens
 from hybrid_dynamics.examples import ImpactVanDerPolDuffing
 from hybrid_dynamics.examples.impact_vdp_duffing import energy, potential
 from hybrid_dynamics.examples.paper_grid_examples import (
+    PAPER_GRID_PROBLEMS,
+    PAPER_GRID_REFERENCE_SETS,
     impact_vdp_duffing_problem,
     impact_vdp_duffing_reference_sets,
+    paper_grid_problem,
+    paper_grid_problem_factory,
 )
 from hybrid_dynamics.src.suspension_grid_relation import ENDPOINT_BASE, ENDPOINT_HANDLE
 
@@ -158,3 +165,41 @@ def test_paper_grid_problem_and_reference_sets():
     assert np.isclose(cycle[:, 0].max(), 0.8)
     inner = sets["U_Z"]["base"]
     assert np.isclose(inner[:, 0].min(), 0.423591, atol=1e-3)
+
+
+def test_beta076_variant():
+    name = "impact-vdp-duffing-beta076"
+    # A named variant, run only when named; the example keeps beta = 0.8.
+    assert name not in PAPER_GRID_PROBLEMS
+    assert impact_vdp_duffing_problem().parameters["beta"] == 0.8
+    example = paper_grid_problem("impact-vdp-duffing", tau=1.0, level_offset=4)
+    variant = paper_grid_problem(name, tau=1.0, level_offset=4)
+    assert (example.name, variant.name) == ("impact-vdp-duffing", name)
+    assert (example.parameters["beta"], variant.parameters["beta"]) == (0.8, 0.76)
+    assert {key: value for key, value in variant.parameters.items() if key != "beta"} == {
+        key: value for key, value in example.parameters.items() if key != "beta"
+    }
+    # The same window R and guard, so the same grid.
+    assert variant.window.ambient_bounds == ((-1.95, 0.8), (-2.35, 1.95))
+    assert variant.window.cells_per_axis(6) == 1024
+    u = np.linspace(*variant.guard.u_bounds, 5)
+    assert np.allclose(variant.guard.reset(u), example.guard.reset(u))
+    state = np.array([0.3, 0.5])
+    difference = variant.system.ode(0.0, state) - example.system.ode(0.0, state)
+    assert np.allclose(difference, [0.0, (0.76 - 0.8) * 0.5])
+    with pytest.raises(TypeError, match="fixes beta"):
+        paper_grid_problem(name, beta=0.8)
+    # Worker processes rebuild the variant from a pickled factory.
+    rebuilt = pickle.loads(pickle.dumps(paper_grid_problem_factory(name, tau=1.0)))()
+    assert (rebuilt.name, rebuilt.parameters["beta"], rebuilt.tau) == (name, 0.76, 1.0)
+    # The impact cycles at beta = 0.76: pre-impact speeds, extents, periods.
+    sets = PAPER_GRID_REFERENCE_SETS[name](variant, samples=2000)
+    assert set(sets) == {"F", "S", "Z", "C", "U_Z"}
+    assert abs(sets["C"]["handle"][0, 0] - 1.5098383) < 1e-6
+    assert abs(sets["U_Z"]["handle"][0, 0] - 0.6569620) < 1e-6
+    assert np.isclose(sets["C"]["base"][:, 0].min(), -1.685907, atol=1e-4)
+    assert np.isclose(sets["C"]["base"][:, 1].min(), -1.876882, atol=1e-4)
+    assert np.isclose(sets["U_Z"]["base"][:, 0].min(), 0.376129, atol=1e-4)
+    oscillator = ImpactVanDerPolDuffing(beta=0.76)
+    for speed, period in ((1.5098383, 5.955741), (0.6569620, 4.167507)):
+        assert abs(oscillator.impact_return(speed)[1] + 1.0 - period) < 1e-5

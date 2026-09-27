@@ -29,6 +29,14 @@ JSON summary records ``level_offset``, ``base_cells_per_axis``, and
 summary also records which Morse sets contain points of the numerically known
 invariant sets ``F``, ``Z``, ``C``, ``S``, ``U_Z``.
 
+Besides the four examples, the positional names may be the parameter
+variants of ``PAPER_GRID_VARIANTS`` (``impact-vdp-duffing-beta076``, the
+oscillator at ``beta = 0.76``).  A variant is run only when named, its name
+replaces the example's in the output names (so its outputs never overwrite
+those of the example), and the summary records ``variant_of`` and the
+replaced arguments ``variant_overrides``; ``parameters`` holds the values in
+force.  ``--level``, ``--tau``, and ``--level-offset`` take a variant's name.
+
 ``--index-max-pieces N`` skips the index of a Morse set whose pair
 ``X = S cup F(S)`` has more than ``N`` elementary pieces (reported as blocked
 with ``IndexSizeLimitError``); the quotient nerve of ``X`` is held in memory,
@@ -73,6 +81,10 @@ if str(CODE_ROOT) not in sys.path:
 from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
     PAPER_GRID_PROBLEMS,
     PAPER_GRID_REFERENCE_SETS,
+    paper_grid_example,
+    paper_grid_names,
+    paper_grid_overrides,
+    paper_grid_problem,
     paper_grid_problem_factory,
 )
 from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
@@ -110,6 +122,7 @@ DEFAULT_LEVELS = {
     "rimless-wheel": 6,
     "spiking-neuron": 8,
     "impact-vdp-duffing": 7,
+    "impact-vdp-duffing-beta076": 7,
 }
 
 
@@ -135,7 +148,12 @@ def _display_path(path: Path) -> str:
 
 def _arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("examples", nargs="*", choices=tuple(PAPER_GRID_PROBLEMS))
+    parser.add_argument(
+        "examples",
+        nargs="*",
+        choices=paper_grid_names(),
+        help="examples or variants to run (default: the four examples, no variant)",
+    )
     parser.add_argument(
         "--level",
         action="append",
@@ -331,6 +349,17 @@ def _grid_suffix(level: int, level_offset: int) -> str:
     return text
 
 
+def _output_stem(
+    name: str, tau: float, level: int, level_offset: int, sampling_suffix: str
+) -> str:
+    """``paper-grid-<example or variant>-tau<100 tau>-level<n>[-base<m>]<sampling>``."""
+
+    return (
+        f"paper-grid-{name}-tau{int(round(tau * 100)):03d}"
+        f"{_grid_suffix(level, level_offset)}{sampling_suffix}"
+    )
+
+
 def _run(
     name: str,
     level: int,
@@ -342,17 +371,14 @@ def _run(
     options: dict[str, object] = {} if tau is None else {"tau": float(tau)}
     if level_offset:
         options["level_offset"] = int(level_offset)
-    problem = PAPER_GRID_PROBLEMS[name](**options)
+    problem = paper_grid_problem(name, **options)
     factory = paper_grid_problem_factory(name, **options)
     depth = int(arguments.gap_refinement_depth)
     sampling = _sampling_options(arguments)
     suffix = _sampling_suffix(sampling) + ("-gap-refined" if depth > 0 else "")
-    stem = (
-        f"paper-grid-{name}-tau{int(round(problem.tau * 100)):03d}"
-        f"{_grid_suffix(level, problem.window.level_offset)}{suffix}"
-    )
+    stem = _output_stem(name, problem.tau, level, problem.window.level_offset, suffix)
     print(
-        f"== {name}: level {level}, base cells per axis "
+        f"== {name}: parameters {problem.parameters}; level {level}, base cells per axis "
         f"{problem.window.cells_per_axis(level)}, phase cells {2 ** (level + 2)}, "
         f"tau {problem.tau}, sampling {sampling}, gap refinement {depth}",
         flush=True,
@@ -531,6 +557,8 @@ def _run(
     summary = {
         "schema": "paper-suspension-grid-run-v3",
         "example": name,
+        "variant_of": None if paper_grid_example(name) == name else paper_grid_example(name),
+        "variant_overrides": paper_grid_overrides(name),
         "parameters": problem.parameters,
         "tau": problem.tau,
         "level": level,
@@ -612,13 +640,13 @@ def main() -> int:
     taus: dict[str, float] = {}
     for entry in arguments.tau:
         key, value = entry.split("=", 1)
-        if key not in PAPER_GRID_PROBLEMS:
+        if key not in paper_grid_names():
             raise SystemExit(f"unknown example in --tau: {key}")
         taus[key] = float(value)
     offsets: dict[str, int] = {}
     for entry in arguments.level_offset:
         key, value = entry.split("=", 1)
-        if key not in PAPER_GRID_PROBLEMS:
+        if key not in paper_grid_names():
             raise SystemExit(f"unknown example in --level-offset: {key}")
         if int(value) < 0:
             raise SystemExit(f"--level-offset must be nonnegative: {entry}")

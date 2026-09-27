@@ -2,11 +2,11 @@
 """Redraw the figures of paper-grid runs from their JSON summaries.
 
 For each JSON summary written by ``demo/run_paper_grid_examples.py`` this
-script rebuilds the grid ``Xi_n`` of the example and level (a deterministic
-construction; the rebuilt grid must match the ``grid`` record of the run),
-reads the Morse sets (``morse_graph.morse_set_atoms``), the Morse graph, and
-the index records (``conley``), and writes the figure variants next to the
-JSON (or to ``--output-dir``): ``all`` (``<stem>.pdf``/``.png``) and
+script rebuilds the grid ``Xi_n`` of the example (or variant) and level (a
+deterministic construction; the rebuilt grid must match the ``grid`` record of
+the run), reads the Morse sets (``morse_graph.morse_set_atoms``), the Morse
+graph, and the index records (``conley``), and writes the figure variants next
+to the JSON (or to ``--output-dir``): ``all`` (``<stem>.pdf``/``.png``) and
 ``nontrivial`` (``<stem>-nontrivial.pdf``/``.png``).  No dynamics is
 resampled.  The ``figures`` and ``figure_variants`` records of the JSON are
 updated to the files written, and ``figures_replotted`` records the code.
@@ -35,7 +35,7 @@ CODE_ROOT = Path(__file__).resolve().parents[1]
 if str(CODE_ROOT) not in sys.path:
     sys.path.insert(0, str(CODE_ROOT))
 
-from hybrid_dynamics.examples.paper_grid_examples import PAPER_GRID_PROBLEMS  # noqa: E402
+from hybrid_dynamics.examples.paper_grid_examples import paper_grid_problem  # noqa: E402
 from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
     write_paper_grid_figures,
 )
@@ -98,7 +98,7 @@ def replot(
     options: dict[str, object] = {"tau": tau}
     if level_offset:
         options["level_offset"] = level_offset
-    problem = PAPER_GRID_PROBLEMS[example](**options)
+    problem = paper_grid_problem(example, **options)
     grid = build_suspension_grid(problem.window, problem.guard, level)
     rebuilt = json.loads(json.dumps(grid.summary()))
     if rebuilt != summary["grid"]:

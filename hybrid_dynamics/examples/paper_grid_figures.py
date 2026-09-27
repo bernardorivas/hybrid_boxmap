@@ -38,6 +38,7 @@ from ..src.suspension_grid_plot import (
     morse_figure_selection,
     suspension_grid_morse_sets_plot_data,
 )
+from .paper_grid_examples import paper_grid_example
 
 
 #: Fraction of the chart span added on each side of a chart shown whole, so
@@ -45,7 +46,8 @@ from ..src.suspension_grid_plot import (
 #: oscillator's Zeno point on the wall) are not drawn under the axis lines.
 FRAME_MARGIN = 0.02
 
-#: Axis labels of the base and handle charts and the base view of each example.
+#: Axis labels of the base and handle charts and the base view of each example
+#: (a variant of an example is drawn in the style of the example).
 PAPER_GRID_FIGURE_STYLE: dict[str, dict[str, Any]] = {
     "bouncing-ball": {"labels": (r"$h$", r"$v$"), "handle": (r"$v_G$", r"$s$"), "view": "domain"},
     "rimless-wheel": {
@@ -81,13 +83,14 @@ def draw_paper_grid_figure(
 ) -> AtlasHybridMorsePlot:
     """Draw the figure of the Morse nodes ``shown``: base chart, handle chart, graph.
 
-    The base chart uses the view of :data:`PAPER_GRID_FIGURE_STYLE`; the
-    handle chart shows the whole guard interval against the phase ``s`` in
-    ``[0, 1]``.  Both are widened by :data:`FRAME_MARGIN` when shown whole, and
-    a Morse set too small to see in a chart panel gets a zoom panel.
+    ``example`` is the name of an example or a variant.  The base chart uses
+    the view of :data:`PAPER_GRID_FIGURE_STYLE`; the handle chart shows the
+    whole guard interval against the phase ``s`` in ``[0, 1]``.  Both are
+    widened by :data:`FRAME_MARGIN` when shown whole, and a Morse set too
+    small to see in a chart panel gets a zoom panel.
     """
 
-    style = PAPER_GRID_FIGURE_STYLE[example]
+    style = PAPER_GRID_FIGURE_STYLE[paper_grid_example(example)]
     return plot_atlas_hybrid_morse_sets(
         plot_data,
         clist=CMGDB_MORSE_PALETTE,
