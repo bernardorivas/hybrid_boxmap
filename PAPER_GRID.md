@@ -111,3 +111,56 @@ From `code/`:
 ```
 
 Outputs (PDF, PNG, JSON) are written to `figures/paper_grid/`.
+
+## Recorded runs
+
+All runs below used code commit `350c93e` (clean tree), 12 worker processes,
+and the tolerances of the example classes (`rtol=1e-10`, `atol=1e-12`,
+`max_step=0.02`). Level `n` has `2^n` base cells per axis of the ambient
+rectangle and phase width `a_n = 2^{-n-2}`. The JSON file next to each figure
+in `figures/paper_grid/` holds every count quoted here.
+
+### Rule of the manuscript (`3 x 3` samples, one-atom padding)
+
+| | Ball | Wheel | Neuron |
+|---|---|---|---|
+| `tau`, level `n`, `a_n` | 1.5, 5, 1/128 | 2, 6, 1/256 | 20, 8, 1/1024 |
+| base cells (size) | 1,024 (0.0625 x 0.3125) | 4,096 (0.0125 x 0.0234) | 11,280 (1.25 x 5) |
+| guard intervals x phases | 25 x 128 | 73 x 256 | 92 x 1,024 |
+| pieces / atoms of `Xi_n` | 4,224 / 3,043 | 22,784 / 15,095 | 105,488 / 105,396 |
+| edges of `F_n` | 82,093 | 347,623 | 1,506,348 |
+| Morse graph | `M(0)` | `M(1) -> M(0)` | `M(0)` |
+| atoms (base readout cells) | 1,396 (97) | gait 2,395 (522), saddle 10 (10) | 443 (382) |
+| discarded exit endpoints (source atoms) | 1,359 (352) | 16,665 (2,925) | 0 (0) |
+| atoms with a disconnected image | 150 | 1,560 | 6,064 |
+| missed endpoint probes | 0 of 2,774 | 168 of 3,209 | 49 of 3,890 |
+| finite-relation label | blocked | saddle `(0, x-1, 0, 0)`; gait blocked | blocked |
+| run time | 14 s | 23 s | 313 s |
+
+The blocked labels fail the carrier acyclicity gate: the recorded image of
+some atom of `S` is disconnected. The images of base cells that land on a
+handle are strips spanning many phase cells of width `a_n`, and three samples
+per axis with one-atom padding leave gaps in them. For the neuron the Morse
+set meets only 18 of the 1,024 phase intervals and has 10 components in
+`Sigma X`. With `exit_policy="path"` the ball and wheel have the same Morse
+graphs and base readouts (77,836 and 341,233 edges); the neuron has no exits.
+
+A same-rule run of the neuron at level 7 also gives one Morse node (250
+atoms, 5 components); its label is blocked because `X` contains no base cell
+at the guard, which the quotient-nerve adapter rejects.
+
+### Opt-in gap refinement (not the rule of the manuscript)
+
+| | Ball, `n = 5` | Wheel, `n = 6` | Neuron, `n = 6` | Neuron, `n = 7` |
+|---|---|---|---|---|
+| inserted samples (unresolved gaps) | 16,581 (0) | 94,040 (0) | 165,043 (0) | 654,818 (0) |
+| edges of `F_n` | 83,400 | 398,520 | 338,598 | 1,343,353 |
+| Morse graph | `M(0)` | `M(1) -> M(0)` | `M(1) -> M(0)` | `M(0)` |
+| atoms (base readout cells) | 1,398 (97) | 2,426 (522), 10 (10) | 1,674 (140), 1 (1) | 3,347 (274) |
+| disconnected images, missed probes | 0, 0 | 0, 0 | 0, 0 | 0, 0 |
+| finite-relation labels | `(x-1, x-1, 0, 0)` | gait `(x-1, x-1, 0, 0)`, saddle `(0, x-1, 0, 0)` | both carriers not acyclic | `(x-1, x-1, 0, 0, 0, 0)` |
+| run time | 86 s | 167 s | 258 s | 596 s |
+
+At neuron level 8 the refinement grew to 286,394 inserted samples at depth
+6, roughly doubling per round, and was stopped. At level 6 the one-atom node
+`M(1)` is spurious and the carrier values are connected but not acyclic.
