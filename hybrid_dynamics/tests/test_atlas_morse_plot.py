@@ -468,14 +468,89 @@ def test_detail_zooms_enlarge_the_sets_too_small_to_see():
         assert len(outlines) == 2
         assert sorted(text.get_text() for text in base_axis.texts) == ["A", "B"]
         assert [axis.get_title(loc="left") for axis in plot.zoom_axes] == ["A", "B"]
-        # The specks are still below the resolution of their zoom: marked.
-        assert not plot.zoom_axes[0].lines
-        (marks,) = plot.zoom_axes[1].lines
-        assert len(marks.get_xdata()) == 8
-        # The large set does not meet window A: zoom A draws the strip alone, opaque.
-        assert all(
-            collection.get_alpha() == pytest.approx(0.9)
-            for collection in plot.zoom_axes[0].collections
+        # No symbols: every cell is drawn at its true extent.
+        assert not any(axis.lines for axis in (base_axis, *plot.zoom_axes))
+        (speck_fill,) = _fill_collections(plot.zoom_axes[1])
+        assert _collection_bounds(speck_fill) == pytest.approx(
+            _box_bounds(data.nodes[2].boxes)
         )
+        # The large set does not meet window A: zoom A draws the strip alone, opaque.
+        (strip_fill,) = _fill_collections(plot.zoom_axes[0])
+        assert strip_fill.get_alpha() == pytest.approx(0.9)
+        assert len(strip_fill.get_paths()) == 200
+    finally:
+        plt.close(plot.figure)
+
+
+def _fill_collections(axis):
+    return [c for c in axis.collections if not np.any(c.get_linewidths())]
+
+
+def _outline_collections(axis):
+    return [c for c in axis.collections if np.any(c.get_linewidths())]
+
+
+def _collection_bounds(collection):
+    """Sorted ``(x0, y0, x1, y1)`` of the rectangles of a collection (data units)."""
+
+    return sorted(
+        tuple(np.r_[path.vertices.min(axis=0), path.vertices.max(axis=0)])
+        for path in collection.get_paths()
+    )
+
+
+def _box_bounds(boxes):
+    return sorted(
+        (box.lower[0], box.lower[1], box.upper[0], box.upper[1]) for box in boxes
+    )
+
+
+def test_cells_of_sets_too_small_to_see_are_outlined_at_their_true_extent():
+    from matplotlib.colors import to_rgb
+
+    from hybrid_dynamics.src.atlas_morse_plot import (
+        CELL_OUTLINE_WIDTH,
+        plot_atlas_hybrid_morse_sets,
+    )
+
+    data = _small_set_data()
+    colors = ("#1f77b4", "#e6550d", "#31a354")
+    plot = plot_atlas_hybrid_morse_sets(
+        data,
+        clist=colors,
+        show_handles=True,
+        base_view="domain",
+        handle_view="domain",
+        frame_margin=0.02,
+        detail_zooms=True,
+    )
+    try:
+        base_axis = plot.projection_axes[0]
+        fills = _fill_collections(base_axis)
+        outlines = _outline_collections(base_axis)
+        # One fill per set; outlines only for the strip and the specks, in the
+        # color of their set over white, with a fixed line width and no black.
+        assert len(fills) == 3
+        assert len(outlines) == 2
+        for collection, node in zip(outlines, (1, 2)):
+            assert collection.get_linewidths() == pytest.approx([CELL_OUTLINE_WIDTH])
+            assert np.all(collection.get_facecolor()[:, 3] == 0.0)
+            expected = [1.0 - 0.9 * (1.0 - value) for value in to_rgb(colors[node])]
+            assert collection.get_edgecolor()[0] == pytest.approx([*expected, 1.0])
+            assert _collection_bounds(collection) == pytest.approx(
+                _box_bounds(data.nodes[node].boxes)
+            )
+        # Every cell of every set, at its true extent.
+        for collection, node in zip(fills, (0, 1, 2)):
+            assert _collection_bounds(collection) == pytest.approx(
+                _box_bounds(box for box in data.nodes[node].boxes if box.chart_id == 0)
+            )
+        # The large set is not outlined in the handle chart either.
+        assert _outline_collections(plot.handle_axis) == []
+        # In a zoom, the sets too small to see in the panel keep their outline.
+        for zoom_axis in plot.zoom_axes:
+            (outline,) = _outline_collections(zoom_axis)
+            assert outline.get_linewidths() == pytest.approx([CELL_OUTLINE_WIDTH])
+        assert not hasattr(plot, "marked_sets")
     finally:
         plt.close(plot.figure)

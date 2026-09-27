@@ -13,8 +13,10 @@ set), the handle chart (its handle pieces, guard coordinate against the phase
 ``s`` in ``[0, 1]``), and the Morse graph, in the same colors.  A Morse set too
 small to see in a chart panel gets a zoom panel (``A``, ``B``, ...) next to
 it; its window is outlined and labeled in the panel, and the zoom shows the
-other Morse sets in the window faded.  Cells that are still specks in a zoom,
-or that are too far apart for one zoom, are marked by squares.
+other Morse sets in the window faded.  Every cell is drawn at its true extent,
+with no symbol; the cells of a set too small to see in a chart panel are also
+outlined by a thin line in the color of the set, in the panel and in its
+zooms, so cells smaller than a point are still seen.
 """
 
 from __future__ import annotations
@@ -148,9 +150,11 @@ def write_paper_grid_figures(
     ``conley`` holds the index records of the run (the ``conley`` list of its
     JSON summary).  Returns ``{"figures": [...], "figure_variants": {...}}``,
     where each variant records its files, the shown and hidden nodes (with
-    the reason), the blocked nodes it marks, the order it draws, its zoom
-    panels (label, chart, window, and the Morse nodes they are drawn for),
-    and the Morse sets whose cells are marked by squares in a chart panel.
+    the reason), the blocked nodes it marks, the order it draws, and its
+    zoom panels (label, chart, window, and the Morse nodes they are drawn
+    for).  Summaries written before cells were outlined also have a
+    ``marked_in_panel`` list (sets whose cells were marked by squares); a
+    replot replaces the record and drops it.
     """
 
     plot_data = suspension_grid_morse_sets_plot_data(
@@ -209,9 +213,6 @@ def write_paper_grid_figures(
         finally:
             plt.close(plot.figure)
         record["zooms"] = [zoom.to_dict() for zoom in plot.zooms]
-        record["marked_in_panel"] = [
-            {"chart": chart, "morse_node": node} for chart, node in plot.marked_sets
-        ]
         record["files"] = [display_path(path) for path in outputs]
         figures.extend(record["files"])
         records[variant] = record

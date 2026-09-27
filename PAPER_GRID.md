@@ -192,22 +192,26 @@ zoom is outlined and labeled in the chart panel. Small sets closer than 6%
 of the panel share a zoom, with at most three zooms per panel. A zoom draws
 the sets it is for opaque and the other sets in its window faded. It
 magnifies the two axes of the panel by factors whose ratio is at most 3, and
-its tick labels give the window. Squares larger than the cells mark the
-cells that are still specks in a zoom (a set with at most 64 cells in the
-window, one narrower than 2% of it), and, in the chart panel, the cells of
-a small set spread too far for one zoom (at most 64 cells). This is
+its tick labels give the window. Every cell is drawn at its true extent,
+with no symbol. The cells of a set too small to see in a chart panel (the
+area test above) are also outlined in the color of the set by a line 0.5 pt
+wide, in the panel and in its zooms, so that cells a fraction of a point
+wide are seen; this is how a small set spread too far for one zoom is seen
+in the panel. Larger sets are not outlined. This is
 `draw_paper_grid_figure` in `hybrid_dynamics/examples/paper_grid_figures.py`,
 with the options `frame_margin`, `handle_view`, and `detail_zooms` of
 `plot_atlas_hybrid_morse_sets`.
 
 The JSON summary records each variant under
 `figure_variants` (shown nodes, hidden nodes with the reason, blocked nodes,
-the order drawn, the zooms with their windows and nodes, the sets marked in
-a chart panel, files) and stores the atoms of every Morse set under
-`morse_graph.morse_set_atoms` (strings of atom ranges, `a-b` for the closed
-range). `demo/replot_paper_grid.py` redraws both variants from a summary: it
-rebuilds `Xi_n` from the example and level, checks it against the recorded
-`grid`, and updates `figures` and `figure_variants` in the JSON. Summaries
+the order drawn, the zooms with their windows and nodes, files) and stores
+the atoms of every Morse set under `morse_graph.morse_set_atoms` (strings of
+atom ranges, `a-b` for the closed range). Records written before cells were
+outlined also list, under `marked_in_panel`, the sets whose cells were
+marked by squares in a chart panel. `demo/replot_paper_grid.py` redraws both
+variants from a summary: it rebuilds `Xi_n` from the example and level,
+checks it against the recorded `grid`, and replaces `figures` and
+`figure_variants` in the JSON (dropping `marked_in_panel`). Summaries
 written before the atoms were stored (schema `paper-suspension-grid-run-v2`
 and earlier) cannot be redrawn and have to be rerun. Selection and replot are
 tested in `hybrid_dynamics/tests/test_suspension_grid_plot.py`.
@@ -546,9 +550,9 @@ Caveats:
 - Figures. The 42 base cells of Z (`x` in `[0.7946, 0.8]`, on the wall)
   are drawn in zoom C of the `all` figure and zoom B of the `nontrivial`
   one; its 6,308 handle pieces lie over `v_G` in `[0, 0.081]`. The 16 cells
-  of `M(3)` on the rim of F's node are drawn in zoom A, each marked by a
-  square. The trivial nodes `M(4)`, `M(6)`, and `M(7)` at the tip of S's
-  node are in zoom B of the `all` figure. In the Morse graph of the `all`
+  of `M(3)` on the rim of F's node are drawn in zoom A. The trivial nodes
+  `M(4)`, `M(6)`, and `M(7)` at the tip of S's node are in zoom B of the
+  `all` figure. In the Morse graph of the `all`
   variant the labels of `M(2)` and `M(7)`, and of `M(1)` and `M(0)`,
   overlap.
 
@@ -689,7 +693,7 @@ its good-cover audit, so these are the ranks of `H_*(|X|, |A|)`.
 Figures. The `nontrivial` figure of the `tau = 1` run shows 11 nodes: the
 five sets, the ring nodes `M(3)` and `M(7)` (zoom A), S alone in zoom B,
 and Z with `M(5)`, `M(6)`, `M(8)`, `M(13)` in zoom C, whose handle pieces
-are marked by squares in the handle chart. The `nontrivial` figure of the
+are outlined in the handle chart. The `nontrivial` figure of the
 `tau = 0.5` run shows 6 nodes: C (blocked, over the limit), F, Z (zoom C),
 S (zoom B), U_Z (blocked), and the ring `M(3)` (zoom A); its Morse graph
 reads U_Z -> Z, U_Z -> S, S -> C, S -> `M(3)` -> F. In the `all` variants
