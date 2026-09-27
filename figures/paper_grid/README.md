@@ -26,7 +26,12 @@ Each run has a JSON summary and its figures under the same stem.
   which added the panel figures and left the combined figures as they were,
   and again at `eeba2a0`, which gave the zoom panel figures axis labels and
   the dark Morse graph nodes white text (combined and panel figures); the
-  base panels are unchanged.
+  base panels are unchanged. At `c896334` every figure and panel was redrawn
+  in Paul Tol's "muted" palette: Morse sets with a computed trivial index
+  are gray (`#BBBBBB`), the others take indigo, sand, cyan, green, rose,
+  olive, ... in order of node number, so a set has one color in both
+  variants and all panels. Each JSON lists the palette and the color of
+  every Morse node under `figure_variants.<variant>.colors`.
 - `sweep-bouncing-ball/`, `sweep-rimless-wheel/`, `sweep-spiking-neuron/`,
   `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs),
   figures in the earlier layout.

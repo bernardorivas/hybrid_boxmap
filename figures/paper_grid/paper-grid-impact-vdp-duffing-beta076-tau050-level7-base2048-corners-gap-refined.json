@@ -1013,6 +1013,113 @@
       "blocked_nodes_shown": [
         21
       ],
+      "colors": {
+        "morse_node_colors": [
+          {
+            "color": "#332288",
+            "morse_node": 0
+          },
+          {
+            "color": "#DDCC77",
+            "morse_node": 1
+          },
+          {
+            "color": "#88CCEE",
+            "morse_node": 2
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 3
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 4
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 5
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 6
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 7
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 8
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 9
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 10
+          },
+          {
+            "color": "#117733",
+            "morse_node": 11
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 12
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 13
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 14
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 15
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 16
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 17
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 18
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 19
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 20
+          },
+          {
+            "color": "#CC6677",
+            "morse_node": 21
+          }
+        ],
+        "palette": "Paul Tol muted",
+        "palette_colors": [
+          "#332288",
+          "#DDCC77",
+          "#88CCEE",
+          "#117733",
+          "#CC6677",
+          "#999933",
+          "#44AA99",
+          "#882255",
+          "#AA4499"
+        ],
+        "palette_cycled": false,
+        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; the other Morse nodes (nontrivial label, or no label) take the palette colors in order of node number, so a node has the same color in every figure and panel of the run",
+        "trivial_index_color": "#BBBBBB"
+      },
       "files": [
         "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.pdf",
         "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.png"
@@ -1244,6 +1351,113 @@
       "blocked_nodes_shown": [
         21
       ],
+      "colors": {
+        "morse_node_colors": [
+          {
+            "color": "#332288",
+            "morse_node": 0
+          },
+          {
+            "color": "#DDCC77",
+            "morse_node": 1
+          },
+          {
+            "color": "#88CCEE",
+            "morse_node": 2
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 3
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 4
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 5
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 6
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 7
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 8
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 9
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 10
+          },
+          {
+            "color": "#117733",
+            "morse_node": 11
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 12
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 13
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 14
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 15
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 16
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 17
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 18
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 19
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 20
+          },
+          {
+            "color": "#CC6677",
+            "morse_node": 21
+          }
+        ],
+        "palette": "Paul Tol muted",
+        "palette_colors": [
+          "#332288",
+          "#DDCC77",
+          "#88CCEE",
+          "#117733",
+          "#CC6677",
+          "#999933",
+          "#44AA99",
+          "#882255",
+          "#AA4499"
+        ],
+        "palette_cycled": false,
+        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; the other Morse nodes (nontrivial label, or no label) take the palette colors in order of node number, so a node has the same color in every figure and panel of the run",
+        "trivial_index_color": "#BBBBBB"
+      },
       "files": [
         "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
         "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.png"
@@ -1431,7 +1645,7 @@
   ],
   "figures_replotted": {
     "code": {
-      "commit": "eeba2a03645d50430d3cb6f3c796daee3b7ab510",
+      "commit": "c896334c5d3b45119f801e6a453f4ecc8d8217fd",
       "dirty": false
     },
     "command_line": [

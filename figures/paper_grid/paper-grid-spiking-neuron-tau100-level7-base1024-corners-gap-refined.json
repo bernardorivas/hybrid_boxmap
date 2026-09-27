@@ -14191,6 +14191,1353 @@
   "figure_variants": {
     "all": {
       "blocked_nodes_shown": [],
+      "colors": {
+        "morse_node_colors": [
+          {
+            "color": "#332288",
+            "morse_node": 0
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 1
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 2
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 3
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 4
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 5
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 6
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 7
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 8
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 9
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 10
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 11
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 12
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 13
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 14
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 15
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 16
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 17
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 18
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 19
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 20
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 21
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 22
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 23
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 24
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 25
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 26
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 27
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 28
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 29
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 30
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 31
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 32
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 33
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 34
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 35
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 36
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 37
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 38
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 39
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 40
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 41
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 42
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 43
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 44
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 45
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 46
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 47
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 48
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 49
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 50
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 51
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 52
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 53
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 54
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 55
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 56
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 57
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 58
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 59
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 60
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 61
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 62
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 63
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 64
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 65
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 66
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 67
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 68
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 69
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 70
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 71
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 72
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 73
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 74
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 75
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 76
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 77
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 78
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 79
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 80
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 81
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 82
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 83
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 84
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 85
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 86
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 87
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 88
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 89
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 90
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 91
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 92
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 93
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 94
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 95
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 96
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 97
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 98
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 99
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 100
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 101
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 102
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 103
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 104
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 105
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 106
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 107
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 108
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 109
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 110
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 111
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 112
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 113
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 114
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 115
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 116
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 117
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 118
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 119
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 120
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 121
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 122
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 123
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 124
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 125
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 126
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 127
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 128
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 129
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 130
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 131
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 132
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 133
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 134
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 135
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 136
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 137
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 138
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 139
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 140
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 141
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 142
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 143
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 144
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 145
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 146
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 147
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 148
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 149
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 150
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 151
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 152
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 153
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 154
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 155
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 156
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 157
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 158
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 159
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 160
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 161
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 162
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 163
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 164
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 165
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 166
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 167
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 168
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 169
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 170
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 171
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 172
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 173
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 174
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 175
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 176
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 177
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 178
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 179
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 180
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 181
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 182
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 183
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 184
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 185
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 186
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 187
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 188
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 189
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 190
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 191
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 192
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 193
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 194
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 195
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 196
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 197
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 198
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 199
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 200
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 201
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 202
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 203
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 204
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 205
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 206
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 207
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 208
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 209
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 210
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 211
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 212
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 213
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 214
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 215
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 216
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 217
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 218
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 219
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 220
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 221
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 222
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 223
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 224
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 225
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 226
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 227
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 228
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 229
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 230
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 231
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 232
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 233
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 234
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 235
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 236
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 237
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 238
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 239
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 240
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 241
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 242
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 243
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 244
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 245
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 246
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 247
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 248
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 249
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 250
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 251
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 252
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 253
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 254
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 255
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 256
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 257
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 258
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 259
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 260
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 261
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 262
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 263
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 264
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 265
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 266
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 267
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 268
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 269
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 270
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 271
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 272
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 273
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 274
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 275
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 276
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 277
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 278
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 279
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 280
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 281
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 282
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 283
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 284
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 285
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 286
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 287
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 288
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 289
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 290
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 291
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 292
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 293
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 294
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 295
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 296
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 297
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 298
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 299
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 300
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 301
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 302
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 303
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 304
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 305
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 306
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 307
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 308
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 309
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 310
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 311
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 312
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 313
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 314
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 315
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 316
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 317
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 318
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 319
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 320
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 321
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 322
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 323
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 324
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 325
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 326
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 327
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 328
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 329
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 330
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 331
+          }
+        ],
+        "palette": "Paul Tol muted",
+        "palette_colors": [
+          "#332288",
+          "#DDCC77",
+          "#88CCEE",
+          "#117733",
+          "#CC6677",
+          "#999933",
+          "#44AA99",
+          "#882255",
+          "#AA4499"
+        ],
+        "palette_cycled": false,
+        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; the other Morse nodes (nontrivial label, or no label) take the palette colors in order of node number, so a node has the same color in every figure and panel of the run",
+        "trivial_index_color": "#BBBBBB"
+      },
       "files": [
         "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined.pdf",
         "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined.png"
@@ -17284,6 +18631,1353 @@
     },
     "nontrivial": {
       "blocked_nodes_shown": [],
+      "colors": {
+        "morse_node_colors": [
+          {
+            "color": "#332288",
+            "morse_node": 0
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 1
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 2
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 3
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 4
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 5
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 6
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 7
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 8
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 9
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 10
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 11
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 12
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 13
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 14
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 15
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 16
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 17
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 18
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 19
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 20
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 21
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 22
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 23
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 24
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 25
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 26
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 27
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 28
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 29
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 30
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 31
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 32
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 33
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 34
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 35
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 36
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 37
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 38
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 39
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 40
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 41
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 42
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 43
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 44
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 45
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 46
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 47
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 48
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 49
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 50
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 51
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 52
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 53
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 54
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 55
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 56
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 57
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 58
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 59
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 60
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 61
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 62
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 63
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 64
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 65
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 66
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 67
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 68
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 69
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 70
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 71
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 72
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 73
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 74
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 75
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 76
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 77
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 78
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 79
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 80
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 81
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 82
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 83
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 84
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 85
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 86
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 87
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 88
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 89
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 90
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 91
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 92
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 93
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 94
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 95
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 96
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 97
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 98
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 99
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 100
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 101
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 102
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 103
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 104
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 105
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 106
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 107
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 108
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 109
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 110
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 111
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 112
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 113
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 114
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 115
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 116
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 117
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 118
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 119
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 120
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 121
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 122
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 123
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 124
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 125
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 126
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 127
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 128
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 129
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 130
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 131
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 132
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 133
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 134
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 135
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 136
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 137
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 138
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 139
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 140
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 141
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 142
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 143
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 144
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 145
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 146
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 147
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 148
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 149
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 150
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 151
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 152
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 153
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 154
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 155
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 156
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 157
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 158
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 159
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 160
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 161
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 162
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 163
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 164
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 165
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 166
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 167
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 168
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 169
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 170
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 171
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 172
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 173
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 174
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 175
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 176
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 177
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 178
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 179
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 180
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 181
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 182
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 183
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 184
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 185
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 186
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 187
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 188
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 189
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 190
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 191
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 192
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 193
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 194
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 195
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 196
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 197
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 198
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 199
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 200
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 201
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 202
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 203
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 204
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 205
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 206
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 207
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 208
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 209
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 210
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 211
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 212
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 213
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 214
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 215
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 216
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 217
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 218
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 219
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 220
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 221
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 222
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 223
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 224
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 225
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 226
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 227
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 228
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 229
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 230
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 231
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 232
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 233
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 234
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 235
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 236
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 237
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 238
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 239
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 240
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 241
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 242
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 243
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 244
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 245
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 246
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 247
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 248
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 249
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 250
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 251
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 252
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 253
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 254
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 255
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 256
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 257
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 258
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 259
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 260
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 261
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 262
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 263
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 264
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 265
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 266
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 267
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 268
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 269
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 270
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 271
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 272
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 273
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 274
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 275
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 276
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 277
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 278
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 279
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 280
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 281
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 282
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 283
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 284
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 285
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 286
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 287
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 288
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 289
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 290
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 291
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 292
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 293
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 294
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 295
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 296
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 297
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 298
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 299
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 300
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 301
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 302
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 303
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 304
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 305
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 306
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 307
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 308
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 309
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 310
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 311
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 312
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 313
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 314
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 315
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 316
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 317
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 318
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 319
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 320
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 321
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 322
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 323
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 324
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 325
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 326
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 327
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 328
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 329
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 330
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 331
+          }
+        ],
+        "palette": "Paul Tol muted",
+        "palette_colors": [
+          "#332288",
+          "#DDCC77",
+          "#88CCEE",
+          "#117733",
+          "#CC6677",
+          "#999933",
+          "#44AA99",
+          "#882255",
+          "#AA4499"
+        ],
+        "palette_cycled": false,
+        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; the other Morse nodes (nontrivial label, or no label) take the palette colors in order of node number, so a node has the same color in every figure and panel of the run",
+        "trivial_index_color": "#BBBBBB"
+      },
       "files": [
         "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined-nontrivial.pdf",
         "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined-nontrivial.png"
@@ -18655,7 +21349,7 @@
   ],
   "figures_replotted": {
     "code": {
-      "commit": "eeba2a03645d50430d3cb6f3c796daee3b7ab510",
+      "commit": "c896334c5d3b45119f801e6a453f4ecc8d8217fd",
       "dirty": false
     },
     "command_line": [
