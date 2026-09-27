@@ -32,6 +32,7 @@ import numpy as np
 from matplotlib import patches
 from matplotlib.axes import Axes
 from matplotlib.collections import PatchCollection
+from matplotlib.colors import to_rgb
 from matplotlib.figure import Figure
 from matplotlib.path import Path as MplPath
 from matplotlib.textpath import TextPath
@@ -910,6 +911,34 @@ def _morse_graph_positions(
 MORSE_LABEL_LINE_SPACING = 1.2
 """Distance between label baselines, in multiples of the font size."""
 
+MORSE_LABEL_DARK = "#111111"
+MORSE_LABEL_LIGHT = "#ffffff"
+"""Colors of a node label: dark on a light node, light on a dark node."""
+
+
+def _relative_luminance(color: str) -> float:
+    """Relative luminance of ``color`` (WCAG 2), from 0 (black) to 1 (white)."""
+
+    channels = np.asarray(to_rgb(color), dtype=float)
+    linear = np.where(
+        channels <= 0.04045, channels / 12.92, ((channels + 0.055) / 1.055) ** 2.4
+    )
+    return float(np.dot((0.2126, 0.7152, 0.0722), linear))
+
+
+def _morse_label_color(fill: str) -> str:
+    """The label color, dark or light, with the higher contrast on ``fill``.
+
+    The contrast of two colors is ``(L1 + 0.05) / (L2 + 0.05)`` for their
+    relative luminances ``L1 >= L2`` (WCAG 2).  A dark label on the purple
+    ``#6a3d9a`` has a contrast of about 2.5, a white one about 7.6.
+    """
+
+    fill_luminance = _relative_luminance(fill)
+    dark = (fill_luminance + 0.05) / (_relative_luminance(MORSE_LABEL_DARK) + 0.05)
+    light = (_relative_luminance(MORSE_LABEL_LIGHT) + 0.05) / (fill_luminance + 0.05)
+    return MORSE_LABEL_LIGHT if light > dark else MORSE_LABEL_DARK
+
 
 def _morse_node_size(label: str, font_size: float) -> tuple[float, float]:
     """Return the ellipse size, in inches, that contains a node label.
@@ -957,8 +986,9 @@ def _draw_morse_node_label(
     center: tuple[float, float],
     label: str,
     font_size: float,
+    color: str = MORSE_LABEL_DARK,
 ) -> None:
-    """Draw a node label as a path in data coordinates.
+    """Draw a node label as a path in data coordinates, in ``color``.
 
     The graph layout is in inches, and the label is drawn at ``font_size``
     points in the same units, so it scales with its ellipse however large the
@@ -991,7 +1021,7 @@ def _draw_morse_node_label(
         MorseNodeLabel(
             MplPath.make_compound_path(*line_paths),
             label,
-            facecolor="#111111",
+            facecolor=color,
             edgecolor="none",
             zorder=3,
         ),
@@ -1035,7 +1065,8 @@ def _draw_morse_graph(
     Nodes in ``blocked_index_nodes`` (an index computation was attempted and
     returned a blocker) have a dashed outline.  Their second line is
     ``blocked``, or the text given for the node when ``blocked_index_nodes``
-    is a mapping.
+    is a mapping.  A label is dark on a light node and white on a dark one,
+    whichever has the higher contrast (see :func:`_morse_label_color`).
 
     The layout is in inches, with labels of ``font_size`` points (by default
     7.2, 6.7, or 6.1 as the graph has up to 4, up to 10, or more nodes), so
@@ -1131,6 +1162,7 @@ def _draw_morse_graph(
             (x_position, y_position),
             labels[int(node)],
             font_size,
+            color=_morse_label_color(component.color),
         )
 
     if positions:

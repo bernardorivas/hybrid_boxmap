@@ -199,7 +199,11 @@ The runner writes two figure variants per run (`--figure-variants`, default
 In both variants a node without a label is kept and drawn with a dashed
 outline. Its second line gives the dimensions of the relative homology of
 its pair from degree 0 up, as `dim H (0, 1, 1, 0)`, or `blocked` when they
-are not known.
+are not known. The text of a node is near black (`#111111`) or white,
+whichever has the higher WCAG contrast ratio on the node color. It is white
+on the darker colors of the palette, such as the purple `#6a3d9a`, the
+brown `#8c564b`, the red `#d62728`, and the blue `#1f77b4`: a contrast of
+4.8 to 7.6 on these colors, where near black gives 2.5 to 3.9.
 
 Each figure shows, in the same colors, the base chart (the base readout
 `d_n^{-1}(M)` of each Morse set) and the Morse graph. The handle chart (the
@@ -244,9 +248,11 @@ zoom window with its letter, and each zoom panel has its letter. The sizes:
 - chart panel: axes of 2.6 x 2.75 inches (2.4 x 2.75 for the handle
   chart), about its size in the combined figure, with the same 10 pt tick
   and axis labels;
-- zoom panel: a square of 1.6 inches, with up to four ticks per axis and
+- zoom panel: a square of 1.6 inches, with up to four ticks per axis,
   8 pt tick labels (5.5 pt in the combined figure, where a zoom is 0.7 to
-  1 inch wide);
+  1 inch wide), and 9 pt axis labels naming the coordinates as the chart
+  panel does (in the combined figure a zoom has none, as it sits next to
+  the chart panel);
 - Morse graph: labels of 7 pt, whatever the number of nodes, in a figure
   of the size of its Graphviz layout in inches (with a margin of 0.12
   inches), so the labels print at 7 pt when the figure is shown at its

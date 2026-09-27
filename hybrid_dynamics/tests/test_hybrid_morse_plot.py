@@ -13,13 +13,17 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import pytest
 from matplotlib import patches
+from matplotlib.colors import to_hex
 
 from hybrid_dynamics.src.hybrid_morse_plot import (
     CMGDB_MORSE_PALETTE,
+    MORSE_LABEL_DARK,
+    MORSE_LABEL_LIGHT,
     HybridMorseComponent,
     MorseNodeLabel,
     PlotHybridMorseSets,
     _draw_morse_graph,
+    _morse_label_color,
     morse_graph_node_labels,
     hybrid_morse_components,
     hybrid_morse_hasse,
@@ -270,5 +274,47 @@ def test_node_labels_stay_inside_their_ellipses_in_a_small_axis():
                 + ((vertices[:, 1] - ellipse.center[1]) / (ellipse.height / 2.0)) ** 2
             )
             assert scaled.max() < 1.0, label.text
+    finally:
+        plt.close(figure)
+
+
+def test_node_labels_are_white_on_dark_nodes():
+    # WCAG 2 contrast ratios of a dark (#111111) and a white label on a node.
+    assert _morse_label_color("#6a3d9a") == MORSE_LABEL_LIGHT  # 2.5 against 7.6
+    assert _morse_label_color("#8c564b") == MORSE_LABEL_LIGHT  # 3.2 against 5.9
+    assert _morse_label_color("#e6550d") == MORSE_LABEL_DARK  # 5.1 against 3.7
+    assert _morse_label_color("#ffffb3") == MORSE_LABEL_DARK
+    assert _morse_label_color("#000000") == MORSE_LABEL_LIGHT
+    assert _morse_label_color("#ffffff") == MORSE_LABEL_DARK
+
+    graph = nx.DiGraph([(14, 5), (5, 10)])
+    components = [
+        HybridMorseComponent(
+            index=node,
+            label=f"M({node})",
+            color=CMGDB_MORSE_PALETTE[node],
+            nodes=frozenset((node,)),
+            base_cells=(),
+            phase_cells=(),
+            cemetery_cells=(),
+        )
+        for node in graph.nodes
+    ]
+    figure, axis = plt.subplots()
+    try:
+        _draw_morse_graph(
+            axis,
+            graph,
+            components,
+            conley_indices=None,
+            show_component_sizes=False,
+            show_title=False,
+        )
+        colors = {
+            patch.text: to_hex(patch.get_facecolor())
+            for patch in axis.patches
+            if isinstance(patch, MorseNodeLabel)
+        }
+        assert colors == {"M(14)": "#ffffff", "M(5)": "#ffffff", "M(10)": "#111111"}
     finally:
         plt.close(figure)

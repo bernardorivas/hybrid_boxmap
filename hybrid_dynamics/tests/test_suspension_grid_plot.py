@@ -612,6 +612,15 @@ def test_panel_figures_match_the_combined_figure():
         assert _axes_inches(zoom_axis) == pytest.approx(PANEL_ZOOM_SIZE)
         tick = zoom_axis.xaxis.get_major_ticks()[0]
         assert tick.label1.get_fontsize() == ZOOM_FIGURE_STYLE.tick_label_size
+        # Shown apart from the base panel, the zoom names its coordinates as
+        # that panel does; next to it in the combined figure, it does not.
+        base = panels.axes["base"]
+        assert (zoom_axis.get_xlabel(), zoom_axis.get_ylabel()) == (
+            base.get_xlabel(),
+            base.get_ylabel(),
+        )
+        assert zoom_axis.get_xlabel() and zoom_axis.get_ylabel()
+        assert (combined_zoom.get_xlabel(), combined_zoom.get_ylabel()) == ("", "")
         assert sorted(morse_graph_node_labels(panels.axes["graph"])) == sorted(
             morse_graph_node_labels(plot.morse_graph_axis)
         )

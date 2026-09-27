@@ -1194,7 +1194,11 @@ def _detail_zooms(
 
 @dataclass(frozen=True)
 class _ZoomStyle:
-    """Ticks, lines, and label of a zoom panel (sizes in points)."""
+    """Ticks, lines, and labels of a zoom panel (sizes in points).
+
+    ``axis_label_size`` is the size of the axis labels, or ``None`` for a
+    zoom panel with no axis labels.
+    """
 
     ticks: int
     tick_label_size: float
@@ -1203,10 +1207,12 @@ class _ZoomStyle:
     tick_pad: float
     spine_width: float
     label_size: float
+    axis_label_size: float | None = None
 
 
-# A zoom panel in the column next to its chart panel, and a zoom panel drawn
-# as its own figure (larger, so its tick labels can be larger too).
+# A zoom panel in the column next to its chart panel, whose axis labels it
+# shares, and a zoom panel drawn as its own figure (larger, so its tick labels
+# can be larger too), which names its coordinates as the chart panel does.
 ZOOM_COLUMN_STYLE = _ZoomStyle(
     ticks=2,
     tick_label_size=5.5,
@@ -1224,6 +1230,7 @@ ZOOM_FIGURE_STYLE = _ZoomStyle(
     tick_pad=2.0,
     spine_width=0.8,
     label_size=9.0,
+    axis_label_size=9.0,
 )
 
 
@@ -1233,10 +1240,13 @@ def _draw_zoom_panel(
     components: Sequence[AtlasHybridMorseComponent],
     outlined: Iterable[int] = (),
     style: _ZoomStyle = ZOOM_COLUMN_STYLE,
+    labels: Sequence[str] = (),
 ) -> None:
     """Draw the cells in the window of a zoom, with its label as title.
 
     ``outlined`` are the Morse sets too small to see in the chart panel.
+    With a ``style`` that has axis labels, the axes are labeled with the
+    ``labels`` of the chart coordinates, as in the chart panel.
     """
 
     from matplotlib.ticker import MaxNLocator
@@ -1265,6 +1275,11 @@ def _draw_zoom_panel(
     for spine in zoom_axis.spines.values():
         spine.set_linewidth(style.spine_width)
     zoom_axis.set_title(zoom.label, loc="left", fontsize=style.label_size, pad=2.0)
+    if style.axis_label_size is not None:
+        # A zoom is drawn only for a projection on two coordinates.
+        first, second = zoom.projection
+        zoom_axis.set_xlabel(labels[first], fontsize=style.axis_label_size, labelpad=2.0)
+        zoom_axis.set_ylabel(labels[second], fontsize=style.axis_label_size, labelpad=2.0)
 
 
 def _mark_zoom_window(axis: Axes, zoom: AtlasDetailZoom) -> None:
@@ -1786,7 +1801,7 @@ PANEL_ZOOM_SIZE = (1.6, 1.6)
 # labels, the axis labels, and the letter of a zoom.  The files are saved
 # with a tight bounding box, so unused space is cut.
 PANEL_CHART_MARGINS = (0.75, 0.6, 0.15, 0.15)
-PANEL_ZOOM_MARGINS = (0.65, 0.4, 0.15, 0.3)
+PANEL_ZOOM_MARGINS = (0.8, 0.55, 0.15, 0.3)
 # Font size, in points, of the node labels of the Morse graph drawn as its own
 # figure.  The figure is the size of the graph layout in inches, so the labels
 # print at this size when the figure is shown at its natural size.
@@ -1866,7 +1881,8 @@ def plot_atlas_hybrid_morse_panels(
     and a zoom panel has its letter as title.  A chart panel has axes of
     :data:`PANEL_CHART_SIZE` inches (:data:`PANEL_HANDLE_SIZE` for the handle
     chart) and a zoom panel :data:`PANEL_ZOOM_SIZE`, with larger tick labels
-    than in the combined figure.  The Morse graph is drawn with labels of
+    than in the combined figure and the axis labels of its chart panel, so it
+    can be shown apart from that panel.  The Morse graph is drawn with labels of
     ``graph_font_size`` points in a figure the size of its layout in inches,
     so a larger graph gives a larger figure, and the labels print at that
     size when the figure is shown at its natural size.
@@ -1933,6 +1949,7 @@ def plot_atlas_hybrid_morse_panels(
                         components,
                         outlined=panel.small,
                         style=ZOOM_FIGURE_STYLE,
+                        labels=panel.labels,
                     )
         if show_morse_graph:
             # Drawn first on a whole-figure axis, then the figure is given the
