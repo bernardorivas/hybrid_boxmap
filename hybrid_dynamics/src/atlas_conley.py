@@ -44,6 +44,7 @@ from typing import Any
 from .suspension_complex import (
     CMGDBRelativeHomologyPayload,
     CellularChainMap,
+    ClosedCellSet,
     DoubleMappingCylinderComplex,
     FiniteCellComplex,
     FixedTimeCarrier,
@@ -1678,11 +1679,16 @@ class _InducedCarrierGenerators(Mapping[AtlasNerveSimplex, frozenset[AtlasNerveS
         key = frozenset(target_vertices)
         value = self._cache.get(key)
         if value is None:
-            value = frozenset(
-                cell
-                for vertex in key
-                for cell in self._by_first_vertex.get(vertex, ())
-                if key.issuperset(cell.vertices)
+            # A face of a simplex with every vertex in key has every vertex
+            # in key, so the induced subcomplex is closed under faces.
+            value = ClosedCellSet.of(
+                self._complex,
+                (
+                    cell
+                    for vertex in key
+                    for cell in self._by_first_vertex.get(vertex, ())
+                    if key.issuperset(cell.vertices)
+                ),
             )
             if len(self._cache) >= self._cache_size:
                 self._cache.pop(next(iter(self._cache)))

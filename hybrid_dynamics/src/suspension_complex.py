@@ -126,9 +126,12 @@ def _rank_mod_prime(columns: Iterable[Iterable[Tuple[int, int]]], modulus: int) 
             else:
                 vector.pop(row, None)
 
+        get = vector.get
+        pop = vector.pop
         while vector:
             pivot = max(vector)
-            if pivot not in pivots:
+            pivot_vector = pivots.get(pivot)
+            if pivot_vector is None:
                 inverse = pow(vector[pivot], -1, modulus)
                 vector = {
                     row: (coefficient * inverse) % modulus
@@ -138,14 +141,13 @@ def _rank_mod_prime(columns: Iterable[Iterable[Tuple[int, int]]], modulus: int) 
                 pivots[pivot] = vector
                 break
 
-            pivot_vector = pivots[pivot]
             scale = vector[pivot]
             for row, coefficient in pivot_vector.items():
-                value = (vector.get(row, 0) - scale * coefficient) % modulus
+                value = (get(row, 0) - scale * coefficient) % modulus
                 if value:
                     vector[row] = value
                 else:
-                    vector.pop(row, None)
+                    pop(row, None)
 
     return len(pivots)
 
@@ -193,12 +195,14 @@ def _add_scaled_mod(
     scale %= modulus
     if not scale:
         return
+    get = accumulator.get
+    pop = accumulator.pop
     for coordinate, coefficient in vector.items():
-        value = (accumulator.get(coordinate, 0) + scale * coefficient) % modulus
+        value = (get(coordinate, 0) + scale * coefficient) % modulus
         if value:
             accumulator[coordinate] = value
         else:
-            accumulator.pop(coordinate, None)
+            pop(coordinate, None)
 
 
 def _eliminate_columns_mod_prime(
@@ -290,6 +294,25 @@ def _solve_with_pivots(
     }
 
 
+class ClosedCellSet(frozenset):
+    """A set of cells of ``complex`` that is closed under faces.
+
+    Code that builds a subcomplex by a rule that guarantees closedness (an
+    induced subcomplex of a simplicial complex, for example) can return it as
+    this type; :class:`FixedTimeCarrier` then takes the set as its own
+    closure instead of recomputing it.  Equality and hashing are those of
+    ``frozenset``.
+    """
+
+    __slots__ = ("complex",)
+
+    @classmethod
+    def of(cls, complex_: "FiniteCellComplex", cells: Iterable[Cell]) -> "ClosedCellSet":
+        value = cls(cells)
+        value.complex = complex_
+        return value
+
+
 class FiniteCellComplex:
     """A finite oriented cellular chain complex over the integers.
 
@@ -368,6 +391,7 @@ class FiniteCellComplex:
         self._position = {cell: position for position, cell in enumerate(ordered_cells)}
         self._dimensions = MappingProxyType(normalized_dimensions)
         self._boundaries = MappingProxyType(normalized_boundaries)
+        self._boundary_chains = normalized_boundaries
         self._by_dimension = tuple(tuple(group) for group in by_dimension)
         self._metadata = MappingProxyType(dict(metadata or {}))
 
@@ -406,15 +430,20 @@ class FiniteCellComplex:
 
     def closure(self, generators: Iterable[Cell]) -> FrozenSet[Cell]:
         pending = list(generators)
-        result = set()
+        result: set = set()
+        known = self._position
+        boundaries = self._boundary_chains
+        pop = pending.pop
+        extend = pending.extend
+        add = result.add
         while pending:
-            cell = pending.pop()
-            if cell not in self._dimensions:
+            cell = pop()
+            if cell not in known:
                 raise ValueError(f"unknown closure generator: {cell!r}")
             if cell in result:
                 continue
-            result.add(cell)
-            pending.extend(self._boundaries[cell])
+            add(cell)
+            extend(boundaries[cell])
         return frozenset(result)
 
     def is_subcomplex(self, cells: Collection[Cell]) -> bool:
@@ -2018,10 +2047,17 @@ class FixedTimeCarrier:
         # Equal values are stored as one object.
         acyclicity_cache: Dict[FrozenSet[Cell], Tuple[bool, FrozenSet[Cell]]] = {}
         for source in complex_.cells:
-            generators = tuple(image_generators[source])
-            if not generators:
-                raise ValueError(f"carrier image of {source!r} must be nonempty")
-            image = complex_.closure(generators)
+            value = image_generators[source]
+            if isinstance(value, ClosedCellSet) and value.complex is complex_:
+                # Already closed in this complex: it is its own closure.
+                if not value:
+                    raise ValueError(f"carrier image of {source!r} must be nonempty")
+                image = value
+            else:
+                generators = tuple(value)
+                if not generators:
+                    raise ValueError(f"carrier image of {source!r} must be nonempty")
+                image = complex_.closure(generators)
             cached = acyclicity_cache.get(image)
             if cached is None:
                 acyclic = (

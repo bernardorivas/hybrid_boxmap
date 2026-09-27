@@ -388,3 +388,61 @@ def test_index_size_limit_reports_a_blocker():
     at_limit = compute_suspension_grid_conley_index(relation, morse_set, max_pieces=pieces)
     assert at_limit.blocker == unlimited.blocker
     assert at_limit.shift_class == unlimited.shift_class
+
+
+def _scanned_chain_map_images(carrier):
+    """The chain selector with carrier cells found by scanning the complex."""
+
+    from hybrid_dynamics.src.suspension_complex import _solve_linear_system_mod_prime
+
+    complex_ = carrier.complex
+    images = {}
+    for dimension in range(complex_.max_dimension + 1):
+        for source in complex_.cells_of_dimension(dimension):
+            value = carrier.image(source)
+            if dimension == 0:
+                vertices = [cell for cell in complex_.cells_of_dimension(0) if cell in value]
+                images[source] = {vertices[0]: 1}
+                continue
+            right_hand_side = {}
+            for face, incidence in complex_.boundary(source).items():
+                for target, coefficient in images[face].items():
+                    entry = (right_hand_side.get(target, 0) + incidence * coefficient) % carrier.modulus
+                    if entry:
+                        right_hand_side[target] = entry
+                    else:
+                        right_hand_side.pop(target, None)
+            rows = [cell for cell in complex_.cells_of_dimension(dimension - 1) if cell in value]
+            columns = [cell for cell in complex_.cells_of_dimension(dimension) if cell in value]
+            images[source] = _solve_linear_system_mod_prime(
+                rows,
+                columns,
+                {cell: complex_.boundary(cell) for cell in columns},
+                right_hand_side,
+                carrier.modulus,
+            )
+    return images
+
+
+def test_chain_selector_matches_the_scan_of_the_complex(monkeypatch):
+    problem = PAPER_GRID_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
+    grid = build_suspension_grid(problem.window, problem.guard, 3)
+    relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
+    morse = compute_suspension_morse_graph(relation)
+    prepare = atlas_conley.prepare_atlas_relation_conley_2d
+    preparations = []
+
+    def recording(*arguments, **options):
+        preparations.append(prepare(*arguments, **options))
+        return preparations[-1]
+
+    from hybrid_dynamics.src import suspension_grid_conley
+
+    monkeypatch.setattr(suspension_grid_conley, "prepare_atlas_relation_conley_2d", recording)
+    for index, morse_set in enumerate(morse.morse_sets):
+        assert compute_suspension_grid_conley_index(relation, morse_set, morse_node=index).computed
+    assert preparations
+    for preparation in preparations:
+        expected = _scanned_chain_map_images(preparation.carrier)
+        for cell in preparation.carrier.complex.cells:
+            assert dict(preparation.chain_map.image(cell)) == expected[cell]
