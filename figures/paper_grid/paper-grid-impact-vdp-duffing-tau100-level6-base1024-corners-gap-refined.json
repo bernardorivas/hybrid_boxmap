@@ -370,7 +370,6 @@
         "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.png"
       ],
       "hidden_nodes": [],
-      "marked_in_panel": [],
       "order_shown": [
         [
           3,
@@ -504,7 +503,6 @@
           "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
         }
       ],
-      "marked_in_panel": [],
       "order_shown": [
         [
           3,
@@ -527,7 +525,7 @@
           5
         ]
       ],
-      "rule": "Morse nodes whose finite-relation index is trivial are hidden; nodes with a blocked index are kept and marked 'blocked'; the order shown is reachability in the full Morse graph, transitively reduced",
+      "rule": "Morse nodes whose finite-relation index is trivial are hidden; nodes without a label are kept, with a dashed outline and the dimensions of the relative homology of their pair (or 'blocked' when it is not known); the order shown is reachability in the full Morse graph, transitively reduced",
       "shown_nodes": [
         0,
         1,
@@ -587,7 +585,7 @@
   ],
   "figures_replotted": {
     "code": {
-      "commit": "6b779ab646c5062b6bd271a72004f275366354f0",
+      "commit": "7d8778d37d8989e410ff5b7035b65374901538d5",
       "dirty": true
     },
     "command_line": [

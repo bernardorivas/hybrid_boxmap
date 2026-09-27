@@ -1018,7 +1018,6 @@
         "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.png"
       ],
       "hidden_nodes": [],
-      "marked_in_panel": [],
       "order_shown": [
         [
           3,
@@ -1297,7 +1296,6 @@
           "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
         }
       ],
-      "marked_in_panel": [],
       "order_shown": [
         [
           11,
@@ -1373,6 +1371,22 @@
     "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
     "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.png"
   ],
+  "figures_replotted": {
+    "code": {
+      "commit": "7d8778d37d8989e410ff5b7035b65374901538d5",
+      "dirty": true
+    },
+    "command_line": [
+      "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined.json"
+    ],
+    "script": "demo/replot_paper_grid.py"
+  },
   "grid": {
     "a_n": 0.001953125,
     "atoms": 4670347,
