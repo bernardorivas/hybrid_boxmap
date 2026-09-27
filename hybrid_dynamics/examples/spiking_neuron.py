@@ -18,6 +18,7 @@ from typing import Sequence
 
 import numpy as np
 
+from ..src.batched_suspension_flow import BatchDynamics
 from ..src.hybrid_system import HybridSystem
 
 
@@ -174,6 +175,29 @@ class SpikingNeuron:
             rtol=self.rtol,
             atol=self.atol,
         )
+
+    def batch_dynamics(self) -> BatchDynamics:
+        """The vector field, event function, and reset of the system on arrays of states."""
+
+        def vector_field(states: np.ndarray) -> np.ndarray:
+            v = states[:, 0]
+            u = states[:, 1]
+            return np.stack(
+                (
+                    (0.7 * (v + 60.0) * (v + 40.0) - u + 70.0) / 100.0,
+                    0.03 * (-2.0 * (v + 60.0) - u),
+                ),
+                axis=1,
+            )
+
+        def event(states: np.ndarray) -> np.ndarray:
+            return states[:, 0] - V_PEAK
+
+        def reset(states: np.ndarray) -> np.ndarray:
+            u = states[:, 1]
+            return np.stack((np.full_like(u, V_RESET), u + U_RESET_SHIFT), axis=1)
+
+        return BatchDynamics(vector_field=vector_field, event=event, reset=reset)
 
     def simulate(
         self,

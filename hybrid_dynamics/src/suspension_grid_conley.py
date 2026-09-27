@@ -29,12 +29,16 @@ relation is sampled.
 
 from __future__ import annotations
 
+import multiprocessing
 import time
+from collections.abc import Callable, Sequence
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
 from typing import Any
 
 import numpy as np
 import numpy.typing as npt
+from scipy import sparse
 
 from .atlas_conley import (
     AffineBoundaryEmbedding2D,
@@ -45,8 +49,8 @@ from .atlas_conley import (
     prepare_atlas_relation_conley_2d,
 )
 from .suspension_complex import _rank_mod_prime
-from .suspension_grid import SuspensionGrid, UnsupportedSuspensionGridError
-from .suspension_grid_relation import SuspensionGridRelation
+from .suspension_grid import SuspensionGrid, UnsupportedSuspensionGridError, build_suspension_grid
+from .suspension_grid_relation import SuspensionGridProblem, SuspensionGridRelation
 
 
 BASE_CHART = 0
@@ -210,6 +214,7 @@ def compute_suspension_grid_conley_index(
     morse_node: int = 0,
     maximum_simplex_size: int = 16,
     max_pieces: int | None = None,
+    gluing: AtlasResetGluing2D | None = None,
 ) -> SuspensionGridConleyResult:
     """Shift class of the index map on ``(S cup F(S), F(S) minus S)``.
 
@@ -222,7 +227,8 @@ def compute_suspension_grid_conley_index(
     elementary pieces is not attempted: the blocker is
     ``IndexSizeLimitError``.  The quotient nerve has about ten simplices per
     piece and is held in memory, so this bounds the time and memory of the
-    computation on fine grids.
+    computation on fine grids.  ``gluing`` is ``suspension_grid_gluing`` of
+    the grid, built here when it is not given.
     """
 
     started = time.perf_counter()
@@ -249,7 +255,8 @@ def compute_suspension_grid_conley_index(
                 f"X = S cup F(S) has {x_pieces.size} elementary pieces, more than "
                 f"max_pieces={int(max_pieces)}; the index was not attempted"
             )
-        gluing = suspension_grid_gluing(grid)
+        if gluing is None:
+            gluing = suspension_grid_gluing(grid)
         cells = piece_rectangles(grid, x_pieces)
         nerve = AtlasQuotientNerveComplex2D(
             cells,
@@ -305,10 +312,127 @@ def compute_suspension_grid_conley_index(
     return result
 
 
+# Worker state for the process-parallel index computation.
+_INDEX_WORKER: dict[str, Any] = {}
+
+
+def _initialize_index_worker(
+    factory: Callable[[], SuspensionGridProblem],
+    level: int,
+    summary: dict[str, Any],
+    tau: float,
+) -> None:
+    problem = factory()
+    grid = build_suspension_grid(problem.window, problem.guard, level)
+    if grid.summary() != summary:
+        raise RuntimeError("the grid rebuilt in an index worker differs from the grid of the run")
+    _INDEX_WORKER["grid"] = grid
+    _INDEX_WORKER["gluing"] = suspension_grid_gluing(grid)
+    _INDEX_WORKER["tau"] = float(tau)
+
+
+def _index_task(
+    morse_node: int,
+    morse_set: npt.NDArray[np.int64],
+    rows: sparse.csr_matrix,
+    maximum_simplex_size: int,
+    max_pieces: int | None,
+) -> SuspensionGridConleyResult:
+    relation = SuspensionGridRelation(
+        grid=_INDEX_WORKER["grid"],
+        tau=_INDEX_WORKER["tau"],
+        matrix=rows,
+        sampled=rows,
+        statistics={},
+    )
+    return compute_suspension_grid_conley_index(
+        relation,
+        morse_set,
+        morse_node=morse_node,
+        maximum_simplex_size=maximum_simplex_size,
+        max_pieces=max_pieces,
+        gluing=_INDEX_WORKER["gluing"],
+    )
+
+
+def _rows_for_index(relation: SuspensionGridRelation, morse_set: npt.ArrayLike) -> sparse.csr_matrix:
+    """The relation restricted to the rows of ``S cup F(S)``, the rows the index reads."""
+
+    s_atoms = np.unique(np.asarray(morse_set, dtype=np.int64))
+    x_atoms = np.union1d(s_atoms, relation.image_of(s_atoms))
+    keep = np.zeros(relation.n_atoms, dtype=np.float64)
+    keep[x_atoms] = 1.0
+    return (sparse.diags(keep, format="csr") @ relation.matrix).tocsr()
+
+
+def compute_suspension_grid_conley_indices(
+    relation: SuspensionGridRelation,
+    morse_sets: Sequence[npt.ArrayLike],
+    *,
+    workers: int = 1,
+    problem_factory: Callable[[], SuspensionGridProblem] | None = None,
+    maximum_simplex_size: int = 16,
+    max_pieces: int | None = None,
+) -> list[SuspensionGridConleyResult]:
+    """:func:`compute_suspension_grid_conley_index` of every Morse set, in node order.
+
+    With ``workers > 1`` the Morse sets are handled in worker processes,
+    largest first.  Each worker rebuilds the grid from the picklable
+    ``problem_factory`` (and checks it against the grid of ``relation``) and
+    receives, per Morse set ``S``, only the rows of ``S cup F(S)``, which are
+    the rows the index reads; the results are those of the serial loop.
+    Each worker holds its own copy of the grid (about 1 GB at ``2**10`` and
+    4 GB at ``2**11`` base cells per axis) besides the quotient nerve of the
+    pair it works on.
+    """
+
+    grid = relation.grid
+    sets = [np.asarray(morse_set, dtype=np.int64) for morse_set in morse_sets]
+    workers = min(int(workers), len(sets))
+    if workers <= 1:
+        gluing = suspension_grid_gluing(grid)
+        return [
+            compute_suspension_grid_conley_index(
+                relation,
+                morse_set,
+                morse_node=node,
+                maximum_simplex_size=maximum_simplex_size,
+                max_pieces=max_pieces,
+                gluing=gluing,
+            )
+            for node, morse_set in enumerate(sets)
+        ]
+    if problem_factory is None:
+        raise ValueError("a parallel index computation requires a picklable problem_factory")
+    order = sorted(range(len(sets)), key=lambda node: -sets[node].size)
+    results: list[SuspensionGridConleyResult | None] = [None] * len(sets)
+    with ProcessPoolExecutor(
+        max_workers=workers,
+        mp_context=multiprocessing.get_context("spawn"),
+        initializer=_initialize_index_worker,
+        initargs=(problem_factory, grid.level, grid.summary(), relation.tau),
+    ) as executor:
+        futures = {
+            node: executor.submit(
+                _index_task,
+                node,
+                sets[node],
+                _rows_for_index(relation, sets[node]),
+                maximum_simplex_size,
+                max_pieces,
+            )
+            for node in order
+        }
+        for node, future in futures.items():
+            results[node] = future.result()
+    return [result for result in results if result is not None]
+
+
 __all__ = [
     "IndexSizeLimitError",
     "SuspensionGridConleyResult",
     "compute_suspension_grid_conley_index",
+    "compute_suspension_grid_conley_indices",
     "piece_rectangles",
     "relative_homology_dimensions",
     "suspension_grid_gluing",

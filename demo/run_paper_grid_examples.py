@@ -41,13 +41,23 @@ force.  ``--level``, ``--tau``, and ``--level-offset`` take a variant's name.
 ``X = S cup F(S)`` has more than ``N`` elementary pieces (reported as blocked
 with ``IndexSizeLimitError``); the quotient nerve of ``X`` is held in memory,
 with about ten simplices per piece, so on fine base grids this bounds the time
-and memory of the run.
+and memory of the run.  There is no limit by default.  ``--index-workers N``
+computes the indices of different Morse sets in ``N`` worker processes
+(default 4), largest Morse set first; each worker holds its own copy of the
+grid, about 1 GB at ``2**10`` and 4 GB at ``2**11`` base cells per axis.
+
+The base samples are integrated many at a time
+(:mod:`hybrid_dynamics.src.batched_suspension_flow`), with the step sequence
+of ``solve_ivp``; ``--path-flow`` integrates each sample with
+``SuspensionFlow`` instead, the reference.  The summary records which
+(``integrator``).
 
 ``--figure-variants`` selects the figures: ``all`` (every Morse node, file
 ``<stem>.pdf``) and ``nontrivial`` (file ``<stem>-nontrivial.pdf``), which
 hides the Morse nodes whose finite-relation index was computed and is trivial
-(every homology dimension zero), keeps and marks the nodes whose index is
-blocked, and draws the order between the remaining nodes as reachability in
+(every homology dimension zero), keeps the nodes without a label, marked
+with the dimensions of the relative homology of their pair, and draws the
+order between the remaining nodes as reachability in
 the full Morse graph, transitively reduced.  Both are written by default when
 the index labels are computed.  The JSON summary records, per variant, the
 shown and hidden nodes with the reason, and stores the atoms of every Morse
@@ -95,7 +105,7 @@ from hybrid_dynamics.src.suspension_grid import (  # noqa: E402
     check_suspension_grid,
 )
 from hybrid_dynamics.src.suspension_grid_conley import (  # noqa: E402
-    compute_suspension_grid_conley_index,
+    compute_suspension_grid_conley_indices,
 )
 from hybrid_dynamics.src.suspension_grid_plot import (  # noqa: E402
     FIGURE_VARIANTS,
@@ -180,6 +190,14 @@ def _arguments() -> argparse.Namespace:
     )
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument(
+        "--path-flow",
+        action="store_true",
+        help=(
+            "integrate each base sample with SuspensionFlow (scipy solve_ivp), the "
+            "reference, instead of the batched integrator"
+        ),
+    )
+    parser.add_argument(
         "--eval-mode",
         choices=EVAL_MODES,
         default=DEFAULT_EVAL_MODE,
@@ -211,6 +229,16 @@ def _arguments() -> argparse.Namespace:
     )
     parser.add_argument("--gap-refinement-depth", type=int, default=0)
     parser.add_argument("--no-conley", action="store_true")
+    parser.add_argument(
+        "--index-workers",
+        type=int,
+        default=4,
+        metavar="N",
+        help=(
+            "worker processes for the indices of the Morse sets, largest first "
+            "(default 4; each holds a copy of the grid)"
+        ),
+    )
     parser.add_argument(
         "--index-max-pieces",
         type=int,
@@ -402,6 +430,7 @@ def _run(
         problem_factory=factory,
         progress=lambda message: print(message, flush=True),
         endpoint_cache=endpoint_cache,
+        batched_flow=not arguments.path_flow,
     )
     timings["relation"] = time.perf_counter() - started
 
@@ -427,6 +456,7 @@ def _run(
             workers=arguments.workers,
             problem_factory=factory,
             endpoint_cache=endpoint_cache,
+            batched_flow=not arguments.path_flow,
         )
         path_morse = compute_suspension_morse_graph(path_relation)
         path_policy = {
@@ -515,10 +545,14 @@ def _run(
     conley: list[dict[str, object]] = []
     if not arguments.no_conley:
         started = time.perf_counter()
-        for index, morse_set in enumerate(morse.morse_sets):
-            result = compute_suspension_grid_conley_index(
-                relation, morse_set, morse_node=index, max_pieces=arguments.index_max_pieces
-            )
+        results = compute_suspension_grid_conley_indices(
+            relation,
+            morse.morse_sets,
+            workers=arguments.index_workers,
+            problem_factory=factory,
+            max_pieces=arguments.index_max_pieces,
+        )
+        for index, result in enumerate(results):
             conley.append(result.to_dict())
             print(f"Conley M({index}): {result.to_dict()}", flush=True)
         timings["conley"] = time.perf_counter() - started
@@ -587,6 +621,14 @@ def _run(
             "exit_policy": relation.statistics["exit_policy"],
             "command_line": sys.argv[1:],
         },
+        "integrator": (
+            "SuspensionFlow paths (scipy solve_ivp, RK45), one per sample"
+            if arguments.path_flow or problem.batch_dynamics is None
+            else (
+                "batched RK45 (batched_suspension_flow) with the step sequence of "
+                "solve_ivp; handle samples by SuspensionFlow paths"
+            )
+        ),
         "grid": grid.summary(),
         "grid_check": {
             "passed": check.passed,
@@ -609,7 +651,10 @@ def _run(
         "morse_graph_path_exit_policy": path_policy,
         "reference_set_identification": identification,
         "conley": conley,
-        "conley_options": {"max_pieces": arguments.index_max_pieces},
+        "conley_options": {
+            "max_pieces": arguments.index_max_pieces,
+            "index_workers": arguments.index_workers,
+        },
         "conley_labels_in_figure": {str(key): list(value) for key, value in labels.items()},
         "continuous_system_conley_index_certified": False,
         "discarded_exits": {

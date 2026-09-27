@@ -46,6 +46,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 from scipy.optimize import brentq
 
+from ..src.batched_suspension_flow import BatchDynamics
 from ..src.hybrid_system import HybridSystem
 
 
@@ -178,6 +179,28 @@ class ImpactVanDerPolDuffing:
             rtol=self.rtol,
             atol=self.atol,
         )
+
+    def batch_dynamics(self) -> BatchDynamics:
+        """:func:`ode_fun`, :func:`event_fun`, and :func:`reset_map` on arrays of states."""
+
+        eps = self.eps
+        beta = self.beta
+        w = self.w
+        c = self.c
+
+        def vector_field(states: np.ndarray) -> np.ndarray:
+            x = states[:, 0]
+            v = states[:, 1]
+            return np.stack((v, x - x**3 + eps * (beta - x * x) * v), axis=1)
+
+        def event(states: np.ndarray) -> np.ndarray:
+            return np.where(states[:, 1] >= 0, states[:, 0] - w, -1.0)
+
+        def reset(states: np.ndarray) -> np.ndarray:
+            v = states[:, 1]
+            return np.stack((np.full_like(v, w), -c * v), axis=1)
+
+        return BatchDynamics(vector_field=vector_field, event=event, reset=reset)
 
     def simulate(self, initial_state: np.ndarray, time_span: tuple[float, float]):
         """Simulate the oscillator."""

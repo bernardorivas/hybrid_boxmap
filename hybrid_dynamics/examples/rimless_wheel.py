@@ -13,6 +13,7 @@ System:
 
 import numpy as np
 
+from ..src.batched_suspension_flow import BatchDynamics
 from ..src.hybrid_system import HybridSystem
 
 
@@ -130,6 +131,25 @@ class RimlessWheel:
             rtol=self.rtol,
             atol=self.atol,
         )
+
+    def batch_dynamics(self) -> BatchDynamics:
+        """:func:`ode_fun`, :func:`event_fun`, and :func:`reset_map` on arrays of states."""
+
+        contact = self.alpha + self.gamma
+        theta_new = self.gamma - self.alpha
+        factor = np.cos(2 * self.alpha)
+
+        def vector_field(states: np.ndarray) -> np.ndarray:
+            return np.stack((states[:, 1], np.sin(states[:, 0])), axis=1)
+
+        def event(states: np.ndarray) -> np.ndarray:
+            return states[:, 0] - contact
+
+        def reset(states: np.ndarray) -> np.ndarray:
+            omega = states[:, 1]
+            return np.stack((np.full_like(omega, theta_new), factor * omega), axis=1)
+
+        return BatchDynamics(vector_field=vector_field, event=event, reset=reset)
 
     def simulate(self, initial_state: np.ndarray, time_span: tuple[float, float]):
         """Simulate the rimless wheel."""

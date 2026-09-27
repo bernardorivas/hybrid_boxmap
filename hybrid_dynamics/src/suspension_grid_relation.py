@@ -49,6 +49,13 @@ from scipy import sparse
 from scipy.integrate import solve_ivp
 from scipy.sparse import csgraph
 
+from .batched_suspension_flow import (
+    KIND_BASE,
+    KIND_FAILED,
+    KIND_HANDLE,
+    BatchDynamics,
+    batched_suspension_endpoints,
+)
 from .hybrid_system import HybridSystem
 from .suspension_grid import (
     DyadicBaseWindow,
@@ -63,6 +70,7 @@ IntArray = npt.NDArray[np.int64]
 ENDPOINT_FAILED = -1
 ENDPOINT_BASE = 0
 ENDPOINT_HANDLE = 1
+assert (KIND_FAILED, KIND_BASE, KIND_HANDLE) == (ENDPOINT_FAILED, ENDPOINT_BASE, ENDPOINT_HANDLE)
 
 #: Where each elementary piece is sampled.  ``corners``, ``center``, and
 #: ``random`` mirror ``CMGDB.PrecomputedBoxMap.EvalMode``; ``tensor`` is the
@@ -82,7 +90,13 @@ DEFAULT_SEED = 0
 
 @dataclass
 class SuspensionGridProblem:
-    """A hybrid system with its window, guard parametrization, and ``tau``."""
+    """A hybrid system with its window, guard parametrization, and ``tau``.
+
+    ``batch_dynamics``, when given, is the vectorized form of the system's
+    vector field, event function, and reset; the base endpoints are then
+    integrated for many points at once (:mod:`batched_suspension_flow`),
+    with the step sequence of the scalar solver.
+    """
 
     system: HybridSystem
     window: DyadicBaseWindow
@@ -91,6 +105,7 @@ class SuspensionGridProblem:
     max_step: float | None = None
     name: str = ""
     parameters: dict[str, Any] = field(default_factory=dict)
+    batch_dynamics: BatchDynamics | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -201,6 +216,10 @@ class SuspensionFlow:
     on the guard enters its handle immediately, while a point merely lying on
     the event hypersurface outside ``G`` flows.  This agrees with
     :meth:`HybridSystem.jumps_at_start` on the event surface.
+
+    ``batch`` (a :class:`BatchDynamics`) lets :func:`evaluate_base_endpoints`
+    integrate many base points at once with the same step sequence; the
+    paths of this class remain the reference.
     """
 
     def __init__(
@@ -211,12 +230,14 @@ class SuspensionFlow:
         in_window: Callable[[FloatArray], npt.NDArray[np.bool_]] | None = None,
         guard_in_window: Callable[[FloatArray], npt.NDArray[np.bool_]] | None = None,
         atol: float = 1.0e-9,
+        batch: BatchDynamics | None = None,
     ) -> None:
         self.system = system
         self.max_step = max_step
         self.in_window = in_window
         self.guard_in_window = guard_in_window
         self.atol = float(atol)
+        self.batch = batch
 
     def _flow(self, state: FloatArray, duration: float) -> tuple[Any, float | None, FloatArray | None]:
         kwargs: dict[str, Any] = {
@@ -392,7 +413,9 @@ class EndpointBatch:
         self.failure_rows.extend(int(rows[row]) for row in other.failure_rows)
 
 
-def _make_flow(problem: SuspensionGridProblem, level: int) -> SuspensionFlow:
+def _make_flow(
+    problem: SuspensionGridProblem, level: int, *, batched: bool = True
+) -> SuspensionFlow:
     window = problem.window
     guard = problem.guard
 
@@ -410,6 +433,7 @@ def _make_flow(problem: SuspensionGridProblem, level: int) -> SuspensionFlow:
         max_step=problem.max_step,
         in_window=in_window,
         guard_in_window=guard_in_window,
+        batch=problem.batch_dynamics if batched else None,
     )
 
 
@@ -419,7 +443,52 @@ def evaluate_base_endpoints(
     guard_u: FloatArray,
     tau: float,
 ) -> EndpointBatch:
-    """Endpoints of base points; ``guard_u`` is finite exactly on ``G cap R``."""
+    """Endpoints of base points; ``guard_u`` is finite exactly on ``G cap R``.
+
+    With ``flow.batch`` the points are integrated together by
+    :func:`batched_suspension_endpoints`, and a point it leaves unresolved
+    (where ``solve_ivp`` would stop with an error, or after its step cap) is
+    evaluated by the path of :class:`SuspensionFlow`, the reference.
+    """
+
+    event = flow.system.event_function
+    if flow.batch is None or points.shape[0] == 0 or not getattr(event, "terminal", False):
+        return _evaluate_base_endpoints_by_path(flow, points, guard_u, tau)
+    result = batched_suspension_endpoints(
+        flow.batch,
+        points,
+        np.isfinite(guard_u),
+        tau,
+        direction=float(getattr(event, "direction", 0)),
+        rtol=flow.system.rtol,
+        atol=flow.system.atol,
+        max_step=flow.max_step,
+        in_window=flow.in_window,
+        guard_in_window=flow.guard_in_window,
+        path_atol=flow.atol,
+    )
+    batch = EndpointBatch(
+        kind=result.kind,
+        state=result.state,
+        phase=result.phase,
+        left_window=result.left_window,
+    )
+    unresolved = np.flatnonzero(result.unresolved)
+    if unresolved.size:
+        batch.assign(
+            unresolved,
+            _evaluate_base_endpoints_by_path(flow, points[unresolved], guard_u[unresolved], tau),
+        )
+    return batch
+
+
+def _evaluate_base_endpoints_by_path(
+    flow: SuspensionFlow,
+    points: FloatArray,
+    guard_u: FloatArray,
+    tau: float,
+) -> EndpointBatch:
+    """Endpoints of base points, one :meth:`SuspensionFlow.path` each."""
 
     batch = EndpointBatch.empty(points.shape[0])
     for index in range(points.shape[0]):
@@ -503,10 +572,15 @@ def evaluate_handle_endpoints(
 # Worker state for process-parallel base evaluation.
 _WORKER: dict[str, Any] = {}
 
+#: Smallest number of points a worker integrates at once with a batched flow.
+BATCHED_MIN_CHUNK = 4096
 
-def _initialize_worker(factory: Callable[[], SuspensionGridProblem], level: int) -> None:
+
+def _initialize_worker(
+    factory: Callable[[], SuspensionGridProblem], level: int, batched: bool = True
+) -> None:
     problem = factory()
-    _WORKER["flow"] = _make_flow(problem, level)
+    _WORKER["flow"] = _make_flow(problem, level, batched=batched)
     _WORKER["tau"] = problem.tau
 
 
@@ -644,6 +718,7 @@ class _BaseEvaluator:
         self.grid = grid
         self.flow = flow
         self.tau = tau
+        self.workers = int(workers)
         self.chunk_size = int(chunk_size)
         self.executor = None
         if workers > 1:
@@ -652,16 +727,24 @@ class _BaseEvaluator:
             self.executor = ProcessPoolExecutor(
                 max_workers=workers,
                 initializer=_initialize_worker,
-                initargs=(problem_factory, grid.level),
+                initargs=(problem_factory, grid.level, flow.batch is not None),
             )
+
+    def _chunk(self, size: int) -> int:
+        """Points per task: batched integration wants a few large chunks per worker."""
+
+        if self.flow.batch is None:
+            return self.chunk_size
+        return max(self.chunk_size, BATCHED_MIN_CHUNK, -(-size // (4 * max(self.workers, 1))))
 
     def __call__(self, points: FloatArray) -> EndpointBatch:
         guard_u = self.grid.guard_membership(points) if points.size else np.zeros(0)
-        if self.executor is None or points.shape[0] <= self.chunk_size:
+        chunk = self._chunk(points.shape[0])
+        if self.executor is None or points.shape[0] <= chunk:
             return evaluate_base_endpoints(self.flow, points, guard_u, self.tau)
         chunks = [
-            (points[start : start + self.chunk_size], guard_u[start : start + self.chunk_size])
-            for start in range(0, points.shape[0], self.chunk_size)
+            (points[start : start + chunk], guard_u[start : start + chunk])
+            for start in range(0, points.shape[0], chunk)
         ]
         return EndpointBatch.concatenate(list(self.executor.map(_worker_base_chunk, chunks)))
 
@@ -906,6 +989,7 @@ def compute_suspension_grid_relation(
     chunk_size: int = 256,
     progress: Callable[[str], None] | None = None,
     endpoint_cache: EndpointCache | None = None,
+    batched_flow: bool = True,
 ) -> SuspensionGridRelation:
     """Sample ``F_n`` on ``Xi_n`` as described in the Examples section.
 
@@ -953,6 +1037,13 @@ def compute_suspension_grid_relation(
     With ``workers > 1`` the base samples are evaluated in worker processes,
     each rebuilding the problem from the picklable ``problem_factory``.
 
+    With ``batched_flow`` (the default) and a problem that has
+    ``batch_dynamics``, the base samples are integrated many at a time by
+    :func:`batched_suspension_endpoints`, which follows the step sequence of
+    ``solve_ivp``; ``batched_flow=False`` integrates each sample with
+    :class:`SuspensionFlow`, the reference.  The relation is the same up to
+    endpoints within rounding of a cell boundary.
+
     ``endpoint_cache`` (an :class:`EndpointCache`) reuses the endpoints of
     samples evaluated by an earlier call on the same grid and problem; the
     relation is the same with or without it.
@@ -989,7 +1080,7 @@ def compute_suspension_grid_relation(
     lattice_q = {"corners": 1, "tensor": denominator}.get(eval_mode)
     started = time.perf_counter()
     tau = float(problem.tau)
-    flow = _make_flow(problem, grid.level)
+    flow = _make_flow(problem, grid.level, batched=batched_flow)
 
     def report(message: str) -> None:
         if progress is not None:

@@ -12,6 +12,7 @@ System:
 
 import numpy as np
 
+from ..src.batched_suspension_flow import BatchDynamics
 from ..src.hybrid_system import HybridSystem
 
 
@@ -108,6 +109,25 @@ class BouncingBall:
             rtol=self.rtol,
             atol=self.atol,
         )
+
+    def batch_dynamics(self) -> BatchDynamics:
+        """:func:`ode_fun`, :func:`event_fun`, and :func:`reset_map` on arrays of states."""
+
+        g = self.g
+        c = self.c
+
+        def vector_field(states: np.ndarray) -> np.ndarray:
+            v = states[:, 1]
+            return np.stack((v, np.full_like(v, -g)), axis=1)
+
+        def event(states: np.ndarray) -> np.ndarray:
+            return np.where(states[:, 1] <= 0, states[:, 0], 1.0)
+
+        def reset(states: np.ndarray) -> np.ndarray:
+            v = states[:, 1]
+            return np.stack((np.zeros_like(v), -c * v), axis=1)
+
+        return BatchDynamics(vector_field=vector_field, event=event, reset=reset)
 
     def simulate(self, initial_state: np.ndarray, time_span: tuple[float, float]):
         """Simulate the bouncing ball."""

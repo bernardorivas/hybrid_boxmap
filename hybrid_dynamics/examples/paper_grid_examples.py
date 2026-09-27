@@ -103,6 +103,7 @@ def bouncing_ball_problem(
         tau=float(tau),
         max_step=max_step,
         name="bouncing-ball",
+        batch_dynamics=ball.batch_dynamics(),
         parameters={
             "g": float(gravity),
             "c": c,
@@ -148,6 +149,7 @@ def rimless_wheel_problem(
         tau=float(tau),
         max_step=max_step,
         name="rimless-wheel",
+        batch_dynamics=wheel.batch_dynamics(),
         parameters={
             "alpha": float(alpha),
             "gamma": float(gamma),
@@ -195,6 +197,7 @@ def spiking_neuron_problem(
         tau=float(tau),
         max_step=max_step,
         name="spiking-neuron",
+        batch_dynamics=neuron.batch_dynamics(),
         parameters={
             "X": "([-80,-40]x[-300,600]) u ([-40,35]x[-300,160])",
             "ambient": [list(interval) for interval in NEURON_AMBIENT_BOUNDS],
@@ -243,6 +246,7 @@ def impact_vdp_duffing_problem(
         tau=float(tau),
         max_step=max_step,
         name="impact-vdp-duffing",
+        batch_dynamics=oscillator.batch_dynamics(),
         parameters={
             "eps": oscillator.eps,
             "beta": oscillator.beta,

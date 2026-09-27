@@ -631,3 +631,34 @@ def test_homology_is_reported_when_the_index_map_fails(monkeypatch):
     assert blocked.index_map_blocker == blocked.blocker
     record = blocked.to_dict()
     assert record["homology_computed"] and record["label_source"] == ""
+
+
+def test_parallel_indices_equal_the_serial_ones():
+    from hybrid_dynamics.examples.paper_grid_examples import paper_grid_problem_factory
+    from hybrid_dynamics.src.suspension_grid_conley import compute_suspension_grid_conley_indices
+
+    # Eight Morse sets: seven single atoms with zero relative homology and the
+    # gait, whose index map fails its carrier check on this coarse grid.
+    factory = paper_grid_problem_factory("rimless-wheel", tau=0.5, level_offset=2)
+    problem = factory()
+    grid = _grid(problem, 3)
+    relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
+    morse = compute_suspension_morse_graph(relation)
+    assert len(morse.morse_sets) > 2
+    serial = compute_suspension_grid_conley_indices(relation, morse.morse_sets)
+    parallel = compute_suspension_grid_conley_indices(
+        relation, morse.morse_sets, workers=3, problem_factory=factory
+    )
+
+    def record(result):
+        entry = result.to_dict()
+        entry.pop("seconds")
+        return entry
+
+    assert [record(result) for result in parallel] == [record(result) for result in serial]
+    assert [result.morse_node for result in parallel] == list(range(len(morse.morse_sets)))
+    one_by_one = [
+        compute_suspension_grid_conley_index(relation, morse_set, morse_node=node)
+        for node, morse_set in enumerate(morse.morse_sets)
+    ]
+    assert [record(result) for result in one_by_one] == [record(result) for result in serial]
