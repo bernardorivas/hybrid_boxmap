@@ -177,13 +177,11 @@ class SuspensionFlow:
     of duration one, so the clock is ``T = flow time + completed handles``
     (the semantics of :mod:`sampled_suspension`).
 
-    Unlike :meth:`HybridSystem.simulate`, the start of a flow is decided by
-    the explicit guard ``G cap R`` of the grid: a base point on the guard
-    enters its handle immediately, while a point merely lying on the event
-    hypersurface outside ``G`` flows.  (The legacy simulator resets every
-    initial point with a nonnegative event value; for the rimless wheel this
-    resets states with ``theta = alpha + gamma`` and ``omega < 0``, which are
-    not on the guard.)
+    Whether a path starts on a handle is decided by the caller from the
+    explicit guard ``G cap R`` of the grid (``start_on_handle``): a base point
+    on the guard enters its handle immediately, while a point merely lying on
+    the event hypersurface outside ``G`` flows.  This agrees with
+    :meth:`HybridSystem.jumps_at_start` on the event surface.
     """
 
     def __init__(

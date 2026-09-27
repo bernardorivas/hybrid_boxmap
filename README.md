@@ -258,8 +258,15 @@ Hybrid trajectories evolve in "hybrid time" (t,j) where:
 ### Hybrid system
 A hybrid system consists of
 1. **Flow**: `ẋ = f(x,t)`
-2. **Guard**: `g(x) = 0`
+2. **Guard**: the points of `g(x) = 0` at which the flow crosses (or touches)
+   the surface in the event direction `d`, that is `d · dg/dt ≥ 0`
 3. **Reset**: `x⁺ = r(x⁻)`
+
+A trajectory starts with a jump only from the guard (or from the side past the
+event surface); a point of `g = 0` at which the flow moves against the event
+direction, such as the rimless wheel's `(α + γ, ω)` with `ω < 0`, flows. See
+`HybridSystem.on_guard` and `HybridSystem.jumps_at_start`; an explicit
+`guard_predicate` replaces this rule.
 
 ### CMGDB box map / combinatorial analysis
 

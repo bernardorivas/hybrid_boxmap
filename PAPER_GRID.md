@@ -73,11 +73,13 @@ path starting at `pi(gamma(u), 0)` is followed for `tau + 1` units, and
 `f_tau(pi(gamma(u), s))` is its value at time `tau + s`.
 
 `SuspensionFlow` integrates the flow with the system's vector field, event,
-tolerances, and reset, as `HybridSystem.simulate` does, with one difference:
-whether a base point starts on its handle is decided by the explicit guard
-`G cap R`. The legacy simulator resets every initial state with a nonnegative
-event value; for the rimless wheel this resets states on
-`theta = alpha + gamma` with `omega < 0`, which are not guard points.
+tolerances, and reset, as `HybridSystem.simulate` does. Whether a base point
+starts on its handle is decided by the explicit guard `G cap R`, so a point
+of the event surface outside `G` (the wheel's `theta = alpha + gamma` with
+`omega < 0`) flows. `HybridSystem.simulate` makes the same decision from the
+event function and its direction (`HybridSystem.jumps_at_start`). Before
+this rule the simulator reset every initial state with a nonnegative event
+value, including those wheel states.
 
 `exit_policy="endpoint"` (the default) discards endpoints outside `D`. The
 option `exit_policy="path"` also discards endpoints whose trajectory left `D`

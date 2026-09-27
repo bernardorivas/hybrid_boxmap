@@ -898,16 +898,20 @@ class CMGDBSuspensionBoxMap:
             )
             faces: list[_FaceWitness] = []
             if isinstance(sample, BaseSuspensionSample):
+                # A base endpoint also lies on the guard face of the handle
+                # only if it is a guard point: on the event surface with the
+                # flow not moving against the event direction.
                 try:
-                    event_value = float(
-                        self.system.evaluate_event_function(
+                    guard_face = bool(
+                        self.system.on_guard(
                             sample.continuous_time,
                             sample.state,
+                            tolerance=self.atol,
                         )
                     )
                 except (TypeError, ValueError, FloatingPointError):
-                    event_value = np.inf
-                if np.isfinite(event_value) and abs(event_value) <= self.atol:
+                    guard_face = False
+                if guard_face:
                     reset = np.asarray(
                         self.system.apply_reset_map(sample.state),
                         dtype=np.float64,

@@ -98,10 +98,13 @@ class InadmissibleHeelstrikeError(ValueError):
 class _GarciaHybridSystem(HybridSystem):
     """Reject initial states beyond contact before generic jump handling.
 
-    ``HybridTrajectory`` correctly locates crossings during integration, but its
-    generic initial jump-set convention treats every nonnegative event value as
-    an immediate jump.  For this equality guard, a penetrated or otherwise
-    ineligible initial state is instead an open exit.
+    ``HybridTrajectory`` correctly locates crossings during integration, but
+    for an initial state it jumps immediately at every point past the event
+    surface as well as on the guard (:meth:`HybridSystem.jumps_at_start`).
+    For this equality guard, a penetrated or otherwise ineligible initial
+    state is instead an open exit.  A nonnegative event value already implies
+    transversality ``>= eta``, so the sign test below respects the event
+    direction.
     """
 
     def __init__(self, *args, guard_validator, **kwargs) -> None:

@@ -415,25 +415,12 @@ class HybridTrajectory:
         if not system._check_domain_bounds(current_state):
             raise ValueError("Initial state outside domain bounds")
 
-        # Check if initial state already satisfies event condition
-        initial_event_value = system.evaluate_event_function(
-            current_time, current_state,
-        )
-        # Determine if we should jump based on event value and direction
-        event_direction = getattr(system.event_function, "direction", 0)
-        should_jump = False
-
-        if event_direction == -1:  # Trigger on negative to positive crossing
-            # Jump if we're on the negative side (event condition satisfied)
-            should_jump = initial_event_value <= 0
-        elif event_direction == 1:  # Trigger on positive to negative crossing
-            # Jump if we're on the positive side (event condition satisfied)
-            should_jump = initial_event_value >= 0
-        else:  # event_direction == 0, trigger on any crossing
-            # For bidirectional events, we need to be more careful
-            # Jump if event value is already negative (in the jump region)
-            # This handles cases like thermostat where being below threshold should trigger jump
-            should_jump = initial_event_value < -config.simulation.event_tolerance
+        # An initial state jumps before flowing only if it lies on the guard
+        # (the event surface with the flow crossing in the event direction,
+        # or an explicit guard predicate) or past the event surface; see
+        # HybridSystem.jumps_at_start.  A point of the event surface at which
+        # the flow moves against the event direction flows.
+        should_jump = system.jumps_at_start(current_time, current_state)
 
         if should_jump:
             # Create trivial initial segment before jumping
@@ -465,7 +452,11 @@ class HybridTrajectory:
                 current_state = state_after_jump
                 jump_count = 1
             except Exception as e:
+                # Stop, as for a reset failure during integration: flowing on
+                # after the trivial segment would record a segment without its
+                # jump.
                 warnings.warn(f"Initial reset map failed: {str(e)}", RuntimeWarning)
+                return trajectory
 
         while current_time < t_end and jump_count <= max_jumps:
             # Calculate effective end time based on jump penalty mode

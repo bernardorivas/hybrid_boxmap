@@ -9,8 +9,16 @@ from typing import Callable
 
 import numpy as np
 
+from .config import config
 from .hybrid_time import HybridTime
 from .hybrid_trajectory import HybridTrajectory
+
+# Guard membership of a point on the event surface is decided by the sign of
+# the event function's change along one short forward-Euler step of the flow.
+# The step moves the fastest coordinate by ``_SQRT_EPS * max(1, |x|)``; a
+# change below ``_TANGENCY_FRACTION`` of that displacement counts as tangency.
+_SQRT_EPS = float(np.sqrt(np.finfo(np.float64).eps))
+_TANGENCY_FRACTION = 1.0e-6
 
 
 class HybridSystem:
@@ -20,6 +28,15 @@ class HybridSystem:
     - Continuous dynamics: dx/dt = f(x, t)
     - Event function: g(x) = 0 triggers discrete jumps
     - Reset map: x_new = r(x_old) after event detection
+
+    The guard is the set of points of the event surface ``g = 0`` at which
+    the flow crosses (or touches) the surface in the event direction ``d``:
+    ``G = {g = 0, d * (dg/dt) >= 0}`` for ``d = +1`` or ``-1``, and the whole
+    surface for ``d = 0``.  For the rimless wheel (``g = theta - alpha -
+    gamma``, ``d = +1``) this is ``{theta = alpha + gamma, omega >= 0}``; for
+    the bouncing ball (``g = h`` if ``v <= 0`` else ``1``, ``d = -1``) it is
+    ``{h = 0, v <= 0}``.  An explicit ``guard_predicate`` replaces this rule.
+    See :meth:`on_guard` and :meth:`jumps_at_start`.
     """
 
     def __init__(
@@ -33,6 +50,7 @@ class HybridSystem:
         rtol: float = 1e-10,
         atol: float = 1e-12,
         domain_predicate: Callable[[np.ndarray], bool] | None = None,
+        guard_predicate: Callable[[np.ndarray], bool] | None = None,
     ):
         """Initialize hybrid system.
 
@@ -49,12 +67,18 @@ class HybridSystem:
             domain_predicate: Optional additional membership test for a
                 nonrectangular state space.  When both domain descriptions are
                 supplied, a state must satisfy both.
+            guard_predicate: Optional explicit membership test of the guard.
+                When supplied, it alone decides whether an initial state
+                jumps before flowing (:meth:`jumps_at_start`) and whether a
+                point lies on the guard (:meth:`on_guard`).  Jumps during
+                integration are still located by ``event_function``.
         """
         self.ode = ode
         self.event_function = event_function
         self.reset_map = reset_map
         self.domain_bounds = domain_bounds
         self.domain_predicate = domain_predicate
+        self.guard_predicate = guard_predicate
         self.max_jumps = max_jumps
         self.rtol = rtol
         self.atol = atol
@@ -174,6 +198,96 @@ class HybridSystem:
             True if state is valid
         """
         return self._check_domain_bounds(state)
+
+    @property
+    def event_crossing_direction(self) -> int:
+        """SciPy crossing direction of ``event_function`` (``-1``, ``0``, or ``1``)."""
+
+        return int(np.sign(getattr(self.event_function, "direction", 0)))
+
+    def _event_change_sign(self, t: float, point: np.ndarray, value: float) -> int:
+        """Sign of the change of ``g`` along the flow at ``point`` (0 for tangency).
+
+        The event function is evaluated once more, at the end of a short
+        forward-Euler step of the vector field.  A one-sided step is used
+        because event functions are often defined piecewise off the guard
+        (for example ``h if v <= 0 else 1`` for the bouncing ball).
+        """
+
+        velocity = np.asarray(self.ode(t, point), dtype=np.float64).reshape(-1)
+        speed = float(np.max(np.abs(velocity))) if velocity.size else 0.0
+        if not np.isfinite(speed) or speed == 0.0:
+            return 0
+        displacement = _SQRT_EPS * max(1.0, float(np.max(np.abs(point))))
+        step = displacement / speed
+        try:
+            ahead = float(self.event_function(t + step, point + step * velocity))
+        except (TypeError, ValueError, FloatingPointError):
+            return 0
+        change = ahead - value
+        if not np.isfinite(change) or abs(change) <= _TANGENCY_FRACTION * displacement:
+            return 0
+        return 1 if change > 0.0 else -1
+
+    def on_guard(
+        self,
+        t: float,
+        state: np.ndarray,
+        *,
+        tolerance: float | None = None,
+    ) -> bool:
+        """Whether ``state`` lies on the guard ``G`` as the model defines it.
+
+        With ``guard_predicate`` this is ``guard_predicate(state)``.
+        Otherwise the point must lie on the event surface,
+        ``|g(t, state)| <= tolerance`` (default
+        ``config.simulation.event_tolerance``), and, for a directional event
+        ``d = +1`` or ``-1``, the flow must not leave the surface against the
+        event direction: ``d * (dg/dt) >= 0``, where a tangential flow
+        (``dg/dt = 0``) counts as on the guard.  For ``d = 0`` every point of
+        the surface is on the guard.
+        """
+
+        point = np.asarray(state, dtype=np.float64)
+        if self.guard_predicate is not None:
+            return bool(self.guard_predicate(point))
+        tol = config.simulation.event_tolerance if tolerance is None else float(tolerance)
+        value = float(self.evaluate_event_function(t, point))
+        if not np.isfinite(value) or abs(value) > tol:
+            return False
+        direction = self.event_crossing_direction
+        if direction == 0:
+            return True
+        return direction * self._event_change_sign(t, point, value) >= 0
+
+    def jumps_at_start(self, t: float, state: np.ndarray) -> bool:
+        """Whether a trajectory starting at ``state`` begins with a jump.
+
+        With ``guard_predicate`` this is ``guard_predicate(state)``.
+        Otherwise a point jumps if it lies on the guard (:meth:`on_guard`)
+        or strictly past the event surface, on the side the event crosses
+        into: ``d * g > tolerance`` for ``d = +1`` or ``-1``, and
+        ``g < -tolerance`` for ``d = 0`` (the jump set ``{g <= 0}`` of the
+        thermostat).  The side past the surface lies outside the state space
+        of the ball, wheel, and neuron examples.
+
+        A point of the event surface at which the flow moves against the
+        event direction does not jump: for the rimless wheel,
+        ``(alpha + gamma, omega)`` with ``omega < 0`` flows back.
+        """
+
+        point = np.asarray(state, dtype=np.float64)
+        if self.guard_predicate is not None:
+            return bool(self.guard_predicate(point))
+        tol = config.simulation.event_tolerance
+        value = float(self.evaluate_event_function(t, point))
+        if not np.isfinite(value):
+            return False
+        direction = self.event_crossing_direction
+        past = -value if direction == 0 else direction * value
+        if past > tol:
+            return True
+        return self.on_guard(t, point, tolerance=tol)
 
     def evaluate_event_function(self, t: float, state: np.ndarray) -> float:
         """Evaluate the event function at given time and state.
