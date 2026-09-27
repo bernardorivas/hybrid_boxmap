@@ -872,6 +872,20 @@
           15
         ]
       ],
+      "panel_files": {
+        "base": [
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-base.pdf",
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-base.png"
+        ],
+        "graph": [
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-graph.pdf",
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-graph.png"
+        ],
+        "zoom-A": [
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-zoom-A.pdf",
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-zoom-A.png"
+        ]
+      },
       "rule": "every Morse node",
       "shown_nodes": [
         0,
@@ -1004,6 +1018,20 @@
           0
         ]
       ],
+      "panel_files": {
+        "base": [
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-base.pdf",
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-base.png"
+        ],
+        "graph": [
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.pdf",
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.png"
+        ],
+        "zoom-A": [
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.pdf",
+          "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.png"
+        ]
+      },
       "rule": "Morse nodes whose finite-relation index is trivial are hidden; nodes without a label are kept, with a dashed outline and the dimensions of the relative homology of their pair (or 'blocked' when it is not known); the order shown is reachability in the full Morse graph, transitively reduced",
       "shown_nodes": [
         0,
@@ -1036,13 +1064,25 @@
   "figures": [
     "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.pdf",
     "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.png",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-base.pdf",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-base.png",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-zoom-A.pdf",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-zoom-A.png",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-graph.pdf",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-graph.png",
     "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
-    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial.png"
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial.png",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-base.pdf",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-base.png",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.pdf",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.png",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.pdf",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.png"
   ],
   "figures_replotted": {
     "code": {
-      "commit": "1cb41c0e612096aa8ee55df61f20860e52a5da10",
-      "dirty": true
+      "commit": "98ee08df87cdbf069f2aee5a13c85a8503e79098",
+      "dirty": false
     },
     "command_line": [
       "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",

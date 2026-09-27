@@ -16,6 +16,14 @@ Each run has a JSON summary and its figures under the same stem.
   cells and the run at `tau = 0.5`, level 7, 2048 base cells, both
   gap-refined, recomputed at `a47c88d` (first run at `a7ac462`), each with
   both figure variants.
+- Panel figures in `./`: each panel of the two figures of a run is also its
+  own figure, PDF and PNG, `<variant stem>-base`, `<variant stem>-zoom-A`,
+  `-zoom-B`, ... (one per zoom), `<variant stem>-graph`, and
+  `<variant stem>-handle` when the handle chart is drawn (no current run),
+  with `<variant stem>` = `<stem>` or `<stem>-nontrivial`. Each JSON lists
+  them under `figure_variants.<variant>.panel_files` and in `figures`. Every
+  run in `./` was redrawn at `98ee08d` with `demo/replot_paper_grid.py`,
+  which added the panel figures and left the combined figures as they were.
 - `sweep-bouncing-ball/`, `sweep-rimless-wheel/`, `sweep-spiking-neuron/`,
   `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs),
   figures in the earlier layout.
