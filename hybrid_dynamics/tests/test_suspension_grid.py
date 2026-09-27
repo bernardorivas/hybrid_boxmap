@@ -13,6 +13,7 @@ import sys
 
 import numpy as np
 import pytest
+from scipy import sparse
 
 from hybrid_dynamics import (
     DyadicBaseWindow,
@@ -47,6 +48,7 @@ from hybrid_dynamics.src.sampled_suspension import (
 from hybrid_dynamics.src.suspension_grid_relation import (
     ENDPOINT_BASE,
     ENDPOINT_HANDLE,
+    SuspensionGridRelation,
 )
 
 
@@ -502,6 +504,42 @@ def test_seam_embeddings_of_the_examples():
         ):
             assert np.allclose(gluing.guard.point(value), guard_point)
             assert np.allclose(gluing.reset.point(value), reset_point)
+
+
+def test_neuron_index_without_a_base_cell_at_the_guard():
+    # The Morse sets of the neuron on Xi_6 and Xi_7 contain handle pieces but
+    # no base cell at the guard v = 35 (the guard seam lies outside their
+    # base window).  S below is the upper half of the handle strip over one
+    # guard interval J and the two base cells whose common face is
+    # r(gamma(J)) on v = -50.  With F(S) = S sending every atom onto S, the
+    # label is the homology of |S|, a contractible union of pieces.
+    grid = _grid(spiking_neuron_problem(), 6)
+    index = grid.n_guard // 2
+    handle = [grid.handle_piece(index, k) for k in range(grid.n_phase // 2, grid.n_phase)]
+    pieces = np.array([*handle, *grid.guard_top_cells[index]], dtype=np.int64)
+    atoms = np.unique(grid.atom_of_piece[pieces])
+    # Every atom of S is a single piece of the selection above.
+    assert np.array_equal(
+        np.sort(np.concatenate([grid.atom(atom) for atom in atoms])), np.sort(pieces)
+    )
+    cells = piece_rectangles(grid, pieces)
+    assert max(cell.bounds[2] for cell in cells if cell.chart_id == 0) < 35.0
+    matrix = np.zeros((grid.n_atoms, grid.n_atoms), dtype=bool)
+    matrix[np.ix_(atoms, atoms)] = True
+    relation = SuspensionGridRelation(
+        grid=grid,
+        tau=1.0,
+        matrix=sparse.csr_matrix(matrix),
+        sampled=sparse.csr_matrix(matrix),
+        statistics={},
+    )
+
+    result = compute_suspension_grid_conley_index(relation, atoms)
+
+    assert result.computed, result.blocker
+    assert result.pair_atoms == {"S": atoms.size, "X": atoms.size, "A": 0}
+    assert result.shift_class[0] == "x-1" and set(result.shift_class[1:]) <= {"0"}
+    assert result.homology_dimensions[0] == 1 and not any(result.homology_dimensions[1:])
 
 
 def test_nerve_candidate_index_matches_the_exhaustive_scan(monkeypatch):

@@ -138,6 +138,18 @@ every piece of `F(xi)`. Any failed gate is returned as a blocker, never
 replaced by a label. The results are finite-relation shift classes over
 `GF(5)`; they are not certified indices of the continuous map.
 
+A seam whose line lies outside the extent of the base pieces of `X` meets no
+base piece of `X`. This is the case of a Morse set with handle pieces but no
+base cell at the guard, for example the neuron, whose bottom collars share
+an atom with the base cell at `v = 35`, so that such an `X` has no phase-zero
+handle face either. The quotient nerve accepts such a seam: it contributes no
+base/handle intersection, and handle/handle identifications through it are
+audited like all other intersections (`test_neuron_index_without_a_base_cell_at_the_guard`,
+`test_seam_outside_the_base_window_attaches_no_base_cell`,
+`test_seams_outside_the_base_window_still_glue_handle_cells`). Earlier runs
+reported these Morse sets as blocked with `AtlasGoodCoverError: guard seam is
+not on the boundary of the base Atlas window`.
+
 ## Reproduction
 
 From `code/`:
@@ -192,8 +204,9 @@ set meets only 18 of the 1,024 phase intervals and has 10 components in
 graphs and base readouts (77,836 and 341,233 edges); the neuron has no exits.
 
 A same-rule run of the neuron at level 7 also gives one Morse node (250
-atoms, 5 components); its label is blocked because `X` contains no base cell
-at the guard, which the quotient-nerve adapter rejects.
+atoms, 5 components); its label was blocked because `X` contains no base cell
+at the guard, which the quotient-nerve adapter then rejected (see Index
+labels).
 
 ### Tensor rule with opt-in gap refinement
 

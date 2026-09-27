@@ -281,8 +281,12 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
     """Verified nerve of actual Atlas rectangles in a two-chart reset quotient.
 
     By default both quotient seams must lie on the boundary of the selected
-    base window, preserving the original conservative safeguard.  A caller
-    may explicitly name an interior seam in ``interior_seam_subcomplexes``.
+    base window or outside its extent (all selected base cells in one closed
+    half-plane of the seam line), preserving the original conservative
+    safeguard.  A seam outside the extent meets no selected base cell, so its
+    only identifications are between handle cells, which the intersection
+    audit enumerates like any other.  A caller may explicitly name an
+    interior seam in ``interior_seam_subcomplexes``.
     That is only a request for constructor verification: it succeeds precisely
     when the selected base top cells do not straddle the seam, their seam
     faces completely cover every selected endpoint face of the handle, and
@@ -355,6 +359,7 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
         self._cell_by_index = MappingProxyType({cell.index: cell for cell in normalized})
         self._audit_cache: dict[AtlasNerveSimplex, QuotientIntersectionAudit2D] = {}
         seam_subcomplex_audits: dict[str, AtlasSeamSubcomplexAudit2D] = {}
+        seam_positions: dict[str, str] = {}
 
         for embedding, name in ((gluing.guard, "guard"), (gluing.reset, "reset")):
             if gluing.handle_chart_id not in chart_ids:
@@ -374,17 +379,32 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
                 abs(embedding.fixed_value - minimum) <= self.atol
                 or abs(embedding.fixed_value - maximum) <= self.atol
             )
-            if boundary_seam:
+            # A seam line that misses the extent of the selected base cells
+            # meets none of them: every selected base cell lies strictly on
+            # one side, so no base cell straddles the seam and no base face
+            # lies on it.  Its identifications then relate handle cells only
+            # (a guard point of one handle cell with a reset point of
+            # another), and those are audited below exactly as for a
+            # boundary seam.  This is the case of a selection with handle
+            # cells but no base cell at the seam.
+            outside_seam = bool(
+                embedding.fixed_value < minimum - self.atol
+                or embedding.fixed_value > maximum + self.atol
+            )
+            if boundary_seam or outside_seam:
                 if name in requested_interior:
+                    where = "on the boundary" if boundary_seam else "outside the extent"
                     raise ValueError(
-                        f"{name} was declared interior but lies on the boundary "
+                        f"{name} was declared interior but lies {where} "
                         "of the selected base Atlas window"
                     )
+                seam_positions[name] = "boundary" if boundary_seam else "outside"
                 continue
             if name not in requested_interior:
                 raise AtlasGoodCoverError(
                     f"{name} seam is not on the boundary of the base Atlas window"
                 )
+            seam_positions[name] = "interior"
             seam_subcomplex_audits[name] = self._verify_interior_seam_subcomplex(
                 normalized,
                 embedding=embedding,
@@ -472,6 +492,7 @@ class AtlasQuotientNerveComplex2D(FiniteCellComplex):
                     for chart_id in sorted(chart_ids)
                 },
                 "finite_intersections_verified_contractible": True,
+                "seam_positions": dict(sorted(seam_positions.items())),
                 "interior_seam_subcomplexes": tuple(
                     sorted(self._seam_subcomplex_audits)
                 ),

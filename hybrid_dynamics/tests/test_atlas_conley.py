@@ -416,6 +416,71 @@ def test_interior_reset_rejects_one_sided_local_seam_support():
         )
 
 
+def test_seam_outside_the_base_window_attaches_no_base_cell():
+    # Handle cells but no base cell at the guard, as in the Morse sets of the
+    # spiking neuron on Xi_6 and Xi_7: the guard x=1 lies outside the extent
+    # [-1, 0] of the base cells, the reset x=0 on its boundary.  The guard
+    # face of cell 1 is free in the union, which is a square with a strip
+    # glued along its right edge.
+    cells = (
+        AtlasRectangleCell2D(0, 0, (-1.0, 0.0, 0.0, 1.0)),
+        AtlasRectangleCell2D(1, 1, (0.0, 0.0, 1.0, 0.5)),
+        AtlasRectangleCell2D(2, 1, (0.0, 0.5, 1.0, 1.0)),
+    )
+    gluing = AtlasResetGluing2D(
+        0,
+        1,
+        guard=AffineBoundaryEmbedding2D(0, 1.0, 1.0),
+        reset=AffineBoundaryEmbedding2D(0, 0.0, 1.0),
+    )
+
+    nerve = AtlasQuotientNerveComplex2D(cells, gluing)
+
+    assert nerve.metadata["seam_positions"] == {"guard": "outside", "reset": "boundary"}
+    assert nerve.simplex({0, 2}) in nerve.cell_set
+    assert nerve.simplex({1, 2}) in nerve.cell_set
+    assert AtlasNerveSimplex((0, 1)) not in nerve.cell_set
+    assert nerve.betti_numbers() == (1, 0)
+    with pytest.raises(ValueError, match="declared interior but lies outside"):
+        AtlasQuotientNerveComplex2D(cells, gluing, interior_seam_subcomplexes=("guard",))
+
+
+def test_seams_outside_the_base_window_still_glue_handle_cells():
+    # Guard and reset both embed onto x=1, outside the base cell [-3,-2]x[0,1].
+    # The guard face of cell 1 is identified with the reset face of cell 3
+    # through base points that no selected base cell contains, so the three
+    # handle cells form an annulus: H_0 = 2 (annulus and square), H_1 = 1.
+    gluing = AtlasResetGluing2D(
+        0,
+        1,
+        guard=AffineBoundaryEmbedding2D(0, 1.0, 1.0),
+        reset=AffineBoundaryEmbedding2D(0, 1.0, 1.0),
+    )
+    third = 1.0 / 3.0
+    cells = (
+        AtlasRectangleCell2D(0, 0, (-3.0, 0.0, -2.0, 1.0)),
+        AtlasRectangleCell2D(1, 1, (0.0, 0.0, 1.0, third)),
+        AtlasRectangleCell2D(2, 1, (0.0, third, 1.0, 2.0 * third)),
+        AtlasRectangleCell2D(3, 1, (0.0, 2.0 * third, 1.0, 1.0)),
+    )
+
+    nerve = AtlasQuotientNerveComplex2D(cells, gluing)
+
+    assert nerve.metadata["seam_positions"] == {"guard": "outside", "reset": "outside"}
+    assert nerve.simplex({1, 3}) in nerve.cell_set
+    assert nerve.betti_numbers() == (2, 1)
+
+    # Two phase cells meet in the chart and again through the seams: the
+    # good-cover gate still rejects the disconnected intersection.
+    halves = (
+        AtlasRectangleCell2D(0, 0, (-3.0, 0.0, -2.0, 1.0)),
+        AtlasRectangleCell2D(1, 1, (0.0, 0.0, 1.0, 0.5)),
+        AtlasRectangleCell2D(2, 1, (0.0, 0.5, 1.0, 1.0)),
+    )
+    with pytest.raises(AtlasGoodCoverError, match="extra guard/reset identification"):
+        AtlasQuotientNerveComplex2D(halves, gluing)
+
+
 def test_interior_reset_relation_pipeline_checks_every_algebraic_gate():
     nerve = _interior_reset_quotient()
     pair = AtlasRelativeIndexPair2D(nerve, nerve.atlas_indices, {0})
