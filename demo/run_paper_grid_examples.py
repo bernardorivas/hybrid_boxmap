@@ -18,10 +18,22 @@ selects the opt-in gap refinement of :func:`compute_suspension_grid_relation`
 (corners and tensor only).  Output names carry the
 evaluation mode (``-corners``, ``-center``, ``-random10d4s0``, ``-tensor3``)
 and, with gap refinement, the suffix ``-gap-refined``.  ``--tau EXAMPLE=T``
-replaces the default ``tau`` of an example.  For the impacting van der
-Pol-Duffing oscillator the summary also records which Morse sets contain
-points of the numerically known invariant sets ``F``, ``Z``, ``C``, ``S``,
-``U_Z``.
+replaces the default ``tau`` of an example.  ``--level-offset EXAMPLE=K``
+makes the base grid finer than the phase grid: level ``n`` then has
+``2**(n + K)`` base cells per axis and phase cells of width ``2**(-n-2)``
+(the cofiltration of the manuscript allows any contracting sequence of base
+grids).  A positive offset adds ``-base<cells per axis>`` after the level in
+the output names; offset ``0`` (the default) keeps the earlier names.  The
+JSON summary records ``level_offset``, ``base_cells_per_axis``, and
+``phase_cells``.  For the impacting van der Pol-Duffing oscillator the
+summary also records which Morse sets contain points of the numerically known
+invariant sets ``F``, ``Z``, ``C``, ``S``, ``U_Z``.
+
+``--index-max-pieces N`` skips the index of a Morse set whose pair
+``X = S cup F(S)`` has more than ``N`` elementary pieces (reported as blocked
+with ``IndexSizeLimitError``); the quotient nerve of ``X`` is held in memory,
+with about ten simplices per piece, so on fine base grids this bounds the time
+and memory of the run.
 
 ``--figure-variants`` selects the figures: ``all`` (every Morse node, file
 ``<stem>.pdf``) and ``nontrivial`` (file ``<stem>-nontrivial.pdf``), which
@@ -84,6 +96,7 @@ from hybrid_dynamics.src.suspension_grid_relation import (  # noqa: E402
     DEFAULT_SAMPLE_DEPTH,
     DEFAULT_SEED,
     EVAL_MODES,
+    EndpointCache,
     atom_set_components,
     audit_suspension_grid_endpoints,
     compute_suspension_grid_relation,
@@ -137,6 +150,16 @@ def _arguments() -> argparse.Namespace:
         metavar="EXAMPLE=T",
         help="suspension time per example (defaults: those of the example factories)",
     )
+    parser.add_argument(
+        "--level-offset",
+        action="append",
+        default=[],
+        metavar="EXAMPLE=K",
+        help=(
+            "base grid offset per example: level N has 2**(N+K) base cells per axis "
+            "and 2**(N+2) phase cells (default K=0)"
+        ),
+    )
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument(
         "--eval-mode",
@@ -170,6 +193,16 @@ def _arguments() -> argparse.Namespace:
     )
     parser.add_argument("--gap-refinement-depth", type=int, default=0)
     parser.add_argument("--no-conley", action="store_true")
+    parser.add_argument(
+        "--index-max-pieces",
+        type=int,
+        default=None,
+        metavar="N",
+        help=(
+            "do not attempt the index of a Morse set whose pair X = S cup F(S) has more "
+            "than N elementary pieces; it is reported as blocked (default: no limit)"
+        ),
+    )
     parser.add_argument(
         "--figure-variants",
         default=None,
@@ -289,20 +322,39 @@ def _identify_nodes(
     return result
 
 
+def _grid_suffix(level: int, level_offset: int) -> str:
+    """``-level<n>``, followed by ``-base<cells per axis>`` for a positive offset."""
+
+    text = f"-level{level}"
+    if level_offset:
+        text += f"-base{2 ** (level + level_offset)}"
+    return text
+
+
 def _run(
-    name: str, level: int, arguments: argparse.Namespace, tau: float | None = None
+    name: str,
+    level: int,
+    arguments: argparse.Namespace,
+    tau: float | None = None,
+    level_offset: int = 0,
 ) -> dict[str, object]:
     timings: dict[str, float] = {}
-    options = {} if tau is None else {"tau": float(tau)}
+    options: dict[str, object] = {} if tau is None else {"tau": float(tau)}
+    if level_offset:
+        options["level_offset"] = int(level_offset)
     problem = PAPER_GRID_PROBLEMS[name](**options)
     factory = paper_grid_problem_factory(name, **options)
     depth = int(arguments.gap_refinement_depth)
     sampling = _sampling_options(arguments)
     suffix = _sampling_suffix(sampling) + ("-gap-refined" if depth > 0 else "")
-    stem = f"paper-grid-{name}-tau{int(round(problem.tau * 100)):03d}-level{level}{suffix}"
+    stem = (
+        f"paper-grid-{name}-tau{int(round(problem.tau * 100)):03d}"
+        f"{_grid_suffix(level, problem.window.level_offset)}{suffix}"
+    )
     print(
-        f"== {name}: level {level}, tau {problem.tau}, sampling {sampling}, "
-        f"gap refinement {depth}",
+        f"== {name}: level {level}, base cells per axis "
+        f"{problem.window.cells_per_axis(level)}, phase cells {2 ** (level + 2)}, "
+        f"tau {problem.tau}, sampling {sampling}, gap refinement {depth}",
         flush=True,
     )
 
@@ -312,6 +364,8 @@ def _run(
     timings["grid"] = time.perf_counter() - started
     print(f"grid: {grid.summary()} check={check.passed}", flush=True)
 
+    # Endpoints are evaluated once and reused by the path exit policy below.
+    endpoint_cache = EndpointCache()
     started = time.perf_counter()
     relation = compute_suspension_grid_relation(
         grid,
@@ -321,6 +375,7 @@ def _run(
         workers=arguments.workers,
         problem_factory=factory,
         progress=lambda message: print(message, flush=True),
+        endpoint_cache=endpoint_cache,
     )
     timings["relation"] = time.perf_counter() - started
 
@@ -345,6 +400,7 @@ def _run(
             gap_refinement_depth=depth,
             workers=arguments.workers,
             problem_factory=factory,
+            endpoint_cache=endpoint_cache,
         )
         path_morse = compute_suspension_morse_graph(path_relation)
         path_policy = {
@@ -357,8 +413,15 @@ def _run(
             "seconds": time.perf_counter() - started,
         }
         print(f"path exit policy: {path_policy}", flush=True)
+        del path_relation, path_morse
     else:
         path_policy = {"identical_to_endpoint_policy": True}
+    print(
+        f"endpoint cache: {endpoint_cache.evaluated} samples evaluated, "
+        f"{endpoint_cache.reused} reused",
+        flush=True,
+    )
+    del endpoint_cache
 
     started = time.perf_counter()
     connectivity = relation_image_connectivity(relation)
@@ -427,7 +490,9 @@ def _run(
     if not arguments.no_conley:
         started = time.perf_counter()
         for index, morse_set in enumerate(morse.morse_sets):
-            result = compute_suspension_grid_conley_index(relation, morse_set, morse_node=index)
+            result = compute_suspension_grid_conley_index(
+                relation, morse_set, morse_node=index, max_pieces=arguments.index_max_pieces
+            )
             conley.append(result.to_dict())
             print(f"Conley M({index}): {result.to_dict()}", flush=True)
         timings["conley"] = time.perf_counter() - started
@@ -470,6 +535,8 @@ def _run(
         "tau": problem.tau,
         "level": level,
         "level_offset": problem.window.level_offset,
+        "base_cells_per_axis": grid.cells_per_axis,
+        "phase_cells": grid.n_phase,
         "a_n": grid.a_n,
         "construction": (
             "Xi_n generated by K_j(mu) and Q_j(mu,k) for j <= n (def:suspension-grid, "
@@ -514,6 +581,7 @@ def _run(
         "morse_graph_path_exit_policy": path_policy,
         "reference_set_identification": identification,
         "conley": conley,
+        "conley_options": {"max_pieces": arguments.index_max_pieces},
         "conley_labels_in_figure": {str(key): list(value) for key, value in labels.items()},
         "continuous_system_conley_index_certified": False,
         "discarded_exits": {
@@ -547,8 +615,16 @@ def main() -> int:
         if key not in PAPER_GRID_PROBLEMS:
             raise SystemExit(f"unknown example in --tau: {key}")
         taus[key] = float(value)
+    offsets: dict[str, int] = {}
+    for entry in arguments.level_offset:
+        key, value = entry.split("=", 1)
+        if key not in PAPER_GRID_PROBLEMS:
+            raise SystemExit(f"unknown example in --level-offset: {key}")
+        if int(value) < 0:
+            raise SystemExit(f"--level-offset must be nonnegative: {entry}")
+        offsets[key] = int(value)
     for name in arguments.examples or list(PAPER_GRID_PROBLEMS):
-        _run(name, levels[name], arguments, taus.get(name))
+        _run(name, levels[name], arguments, taus.get(name), offsets.get(name, 0))
     return 0
 
 

@@ -228,3 +228,59 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     other_path.write_text(json.dumps(other_level), encoding="utf-8")
     with pytest.raises(replot.ReplotError, match="rebuilt grid"):
         replot.replot(other_path)
+
+
+def _load_runner_script():
+    path = CODE_ROOT / "demo" / "run_paper_grid_examples.py"
+    spec = importlib.util.spec_from_file_location("run_paper_grid_examples", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_output_names_record_a_finer_base_grid():
+    runner = _load_runner_script()
+    assert runner._grid_suffix(6, 0) == "-level6"
+    assert runner._grid_suffix(6, 4) == "-level6-base1024"
+    assert runner._grid_suffix(7, 1) == "-level7-base256"
+
+
+def test_replot_rebuilds_the_base_offset_of_the_run(tmp_path):
+    problem = bouncing_ball_problem(tau=1.5, level_offset=1)
+    grid = build_suspension_grid(problem.window, problem.guard, 2)
+    assert grid.cells_per_axis == 8 and grid.n_phase == 16
+    morse_sets = [np.array([int(grid.d_map[0])]), np.array([int(grid.d_map[1])])]
+    conley = [_record(0, "nontrivial"), _record(1, "trivial")]
+    summary = {
+        "schema": "paper-suspension-grid-run-v3",
+        "example": "bouncing-ball",
+        "tau": problem.tau,
+        "level": 2,
+        "level_offset": 1,
+        "base_cells_per_axis": 8,
+        "phase_cells": 16,
+        "grid": json.loads(json.dumps(grid.summary())),
+        "morse_graph": {
+            "nodes": [{"index": 0, "atoms": 1}, {"index": 1, "atoms": 1}],
+            "edges": [[1, 0]],
+            "morse_set_atoms": [encode_index_ranges(values) for values in morse_sets],
+        },
+        "conley": conley,
+    }
+    summary_path = tmp_path / "paper-grid-bouncing-ball-tau150-level2-base8-corners.json"
+    summary_path.write_text(json.dumps(summary), encoding="utf-8")
+    replot = _load_replot_script()
+    result = replot.replot(summary_path)
+    assert [Path(path).name for path in result["figures"]] == [
+        "paper-grid-bouncing-ball-tau150-level2-base8-corners.pdf",
+        "paper-grid-bouncing-ball-tau150-level2-base8-corners.png",
+        "paper-grid-bouncing-ball-tau150-level2-base8-corners-nontrivial.pdf",
+        "paper-grid-bouncing-ball-tau150-level2-base8-corners-nontrivial.png",
+    ]
+    assert result["figure_variants"]["nontrivial"]["shown_nodes"] == [0]
+    # Without the offset the rebuilt grid has 4 cells per axis, not the recorded 8.
+    without_offset = {key: value for key, value in summary.items() if key != "level_offset"}
+    other_path = tmp_path / "without-offset.json"
+    other_path.write_text(json.dumps(without_offset), encoding="utf-8")
+    with pytest.raises(replot.ReplotError, match="rebuilt grid"):
+        replot.replot(other_path)

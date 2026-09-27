@@ -90,7 +90,11 @@ def replot(
     example = summary["example"]
     level = int(summary["level"])
     tau = float(summary["tau"])
-    problem = PAPER_GRID_PROBLEMS[example](tau=tau)
+    level_offset = int(summary.get("level_offset", 0))
+    options: dict[str, object] = {"tau": tau}
+    if level_offset:
+        options["level_offset"] = level_offset
+    problem = PAPER_GRID_PROBLEMS[example](**options)
     grid = build_suspension_grid(problem.window, problem.guard, level)
     rebuilt = json.loads(json.dumps(grid.summary()))
     if rebuilt != summary["grid"]:

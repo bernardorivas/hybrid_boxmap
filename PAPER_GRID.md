@@ -8,8 +8,8 @@ two-dimensional base with a one-dimensional guard.
 | Manuscript | Implementation | Test (`hybrid_dynamics/tests/test_suspension_grid.py`) |
 |---|---|---|
 | Phase grids `I_{n,k}`, `a_n = 2^{-n-2}` | `SuspensionGrid.n_phase = 2**(n+2)`, `SuspensionGrid.a_n` | `test_grid_axioms_and_d_n` |
-| Contracting cofiltration `(X_n)` of base grids | `DyadicBaseWindow` (level `j` has `2**(j + level_offset)` cells per axis; cells of `X_j` are traces on `R`) | `test_grid_axioms_and_d_n`, `test_refinement_and_d_commute` |
-| `def:suspension-grid` (`E_n(mu)`, `K_n(mu)`, `Q_n(mu,k)`, `Xi_n(X)`) | `build_suspension_grid`: generator signatures of elementary pieces, `GeneratorKey` | `test_level_zero_ball_grid_matches_the_manuscript_figure`, `test_neuron_reset_on_a_cell_face_gives_shared_collar_atoms` |
+| Contracting cofiltration `(X_n)` of base grids | `DyadicBaseWindow` (level `j` has `2**(j + level_offset)` cells per axis; cells of `X_j` are traces on `R`); runner option `--level-offset` | `test_grid_axioms_and_d_n`, `test_refinement_and_d_commute`, `test_atoms_are_the_classes_of_generator_signatures` |
+| `def:suspension-grid` (`E_n(mu)`, `K_n(mu)`, `Q_n(mu,k)`, `Xi_n(X)`) | `build_suspension_grid`: generator signatures of elementary pieces, `GeneratorKey`, `reference_signatures` | `test_level_zero_ball_grid_matches_the_manuscript_figure`, `test_neuron_reset_on_a_cell_face_gives_shared_collar_atoms` |
 | `fig:suspension-grid` (`Xi_0` with three atoms) | `build_suspension_grid(..., 0)` for the ball | `test_level_zero_ball_grid_matches_the_manuscript_figure` |
 | `Xi_n = Xi_{n-1} ^ Xi_n(X_n)` (generators `K_j`, `Q_j`, `j <= n`) | signatures range over all levels `j <= n` | `test_coarse_top_collars_split_fine_middle_cells`, `test_refinement_and_d_commute` |
 | `rem:guard-grids` (guard partition) | `SuspensionGrid.u_edges`: common refinement of `abs(mu) cap G` and `r^{-1}(abs(mu))` | `test_curved_interior_guard_is_supported` |
@@ -38,7 +38,11 @@ A base piece `mu` lies in `K_j(mu_j)` for its ancestors `mu_j`. A handle piece
 the cells with `r(gamma(J)) subset abs(nu)` when `k >> (n-j) = 2^{j+2}-1` (top
 collar), and otherwise in `Q_j(nu, k >> (n-j))` for the cells with
 `gamma(J) subset abs(nu)`. The atoms of `Xi_n` are the classes of pieces with
-the same signature. Degenerate parts of `E_j(mu)` (a cell meeting the guard or
+the same signature. `build_suspension_grid` forms these classes from a short
+key per piece (the finest cells meeting `gamma(J)` or `r(gamma(J))`, the
+phase, and the top-collar levels of the phase; see `_signature_classes`)
+instead of enumerating the generators; `reference_signatures` enumerates them
+as the definition does, and the tests compare the two. Degenerate parts of `E_j(mu)` (a cell meeting the guard or
 the reset image in a point) contain no piece, which is the regularization.
 Two consequences are visible in the tests: the coarse top collars
 `[1 - a_j, 1]` split the level-`n` middle cells at the coarse breakpoints of
@@ -113,7 +117,12 @@ value, including those wheel states.
 
 `exit_policy="endpoint"` (the default) discards endpoints outside `D`. The
 option `exit_policy="path"` also discards endpoints whose trajectory left `D`
-and returned; the runner reports the Morse graph under both.
+and returned; the runner reports the Morse graph under both. The runner
+passes one `EndpointCache` to both computations, so the second one evaluates
+no sample: endpoints are looked up by the exact coordinates of the sample
+and are a deterministic function of the grid, the problem, and the sample,
+and with gap refinement the gaps under `"path"` are among those under
+`"endpoint"`.
 
 `gap_refinement_depth > 0` is an opt-in rule that is not in the manuscript:
 a sample-lattice edge whose endpoints lie in atoms with disjoint closures is
@@ -136,7 +145,11 @@ atoms as actual closed rectangles in the base chart and in the handle chart
 `CMGDB.ComputeRelativeHomologyShiftClass`. A piece of the atom `xi` is sent to
 every piece of `F(xi)`. Any failed gate is returned as a blocker, never
 replaced by a label. The results are finite-relation shift classes over
-`GF(5)`; they are not certified indices of the continuous map.
+`GF(5)`; they are not certified indices of the continuous map. The quotient
+nerve has about ten simplices per elementary piece of `X` and is held in
+memory; `max_pieces` (runner option `--index-max-pieces N`) skips a Morse set
+whose `X` has more than `N` pieces and reports it as blocked with
+`IndexSizeLimitError`. By default there is no limit.
 
 A seam whose line lies outside the extent of the base pieces of `X` meets no
 base piece of `X`. This is the case of a Morse set with handle pieces but no
