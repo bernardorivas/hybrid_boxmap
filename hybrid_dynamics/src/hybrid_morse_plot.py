@@ -24,7 +24,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Hashable, Iterable, Mapping, Sequence
+from typing import TYPE_CHECKING, Collection, Hashable, Iterable, Mapping, Sequence
 
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -43,6 +43,9 @@ if TYPE_CHECKING:
     )
     from .cmgdb_suspension_boxmap import SuspensionAtlasCharts
 
+
+#: Second line of a Morse-graph node whose index computation was blocked.
+BLOCKED_INDEX_LABEL = "blocked"
 
 # The first entries agree with CMGDB.PlotMorseSets/PlotMorseGraph.  Keeping a
 # local immutable copy avoids making hybrid_dynamics depend on an installed
@@ -940,10 +943,23 @@ def _draw_morse_graph(
     show_component_sizes: bool,
     show_title: bool,
     graph_title: str = "Conley--Morse graph",
+    blocked_index_nodes: Collection[int] = (),
 ) -> None:
-    """Draw a compact CMGDB-style Conley--Morse Hasse diagram."""
+    """Draw a compact CMGDB-style Conley--Morse Hasse diagram.
+
+    Nodes in ``blocked_index_nodes`` (an index computation was attempted and
+    returned a blocker) carry the line ``blocked`` and a dashed outline.
+    """
 
     by_index = {component.index: component for component in components}
+    blocked = frozenset(int(node) for node in blocked_index_nodes)
+    if conley_indices is not None:
+        labeled_and_blocked = sorted(blocked.intersection(conley_indices))
+        if labeled_and_blocked:
+            raise ValueError(
+                "Morse nodes cannot carry an index label and be blocked: "
+                f"{labeled_and_blocked!r}"
+            )
     node_count = len(graph.nodes)
     if node_count <= 4:
         font_size = 7.2
@@ -957,6 +973,8 @@ def _draw_morse_graph(
         lines = [component.label]
         if conley_indices is not None and component.index in conley_indices:
             lines.append(_format_index_label(conley_indices[component.index]))
+        elif component.index in blocked:
+            lines.append(BLOCKED_INDEX_LABEL)
         elif show_component_sizes:
             lines.append(f"{len(component.nodes)} cells")
         labels[int(node)] = "\n".join(lines)
@@ -1004,7 +1022,8 @@ def _draw_morse_graph(
                 height=height,
                 facecolor=component.color,
                 edgecolor="#202020",
-                linewidth=0.8,
+                linewidth=1.0 if component.index in blocked else 0.8,
+                linestyle=(0, (2.2, 1.4)) if component.index in blocked else "solid",
                 zorder=2,
             ),
         )
@@ -1116,6 +1135,7 @@ def PlotHybridMorseSets(
     show_panel_titles: bool = False,
     conley_indices: Mapping[int, object] | None = None,
     finite_relation_annotations: "AtlasFiniteRelationIndexAnnotations | None" = None,
+    blocked_index_nodes: Collection[int] = (),
     show_component_sizes: bool = False,
     base_view: str = "support",
     title: str | None = None,
@@ -1168,6 +1188,9 @@ def PlotHybridMorseSets(
             nerve/carrier audit with
             ``load_atlas_finite_relation_index_annotations``.  They are labeled
             separately from a continuous-system Conley index.
+        blocked_index_nodes: Morse nodes whose index computation returned a
+            blocker instead of a label.  They are drawn with the line
+            ``blocked`` and a dashed outline in the Morse graph.
         show_component_sizes: Put cell counts below graph node labels when no
             Conley-index annotation is supplied.
         base_view: ``"support"`` zooms to the displayed sampled base boxes,
@@ -1217,6 +1240,7 @@ def PlotHybridMorseSets(
             result,
             atlas_charts=atlas_charts,
             finite_relation_annotations=finite_relation_annotations,
+            blocked_index_nodes=blocked_index_nodes,
             morse_nodes=morse_nodes,
             proj_dims=proj_dims,
             handle_proj_dims=handle_proj_dims,
@@ -1343,6 +1367,7 @@ def PlotHybridMorseSets(
             conley_indices=conley_indices,
             show_component_sizes=show_component_sizes,
             show_title=show_panel_titles,
+            blocked_index_nodes=blocked_index_nodes,
         )
 
     if title is not None:

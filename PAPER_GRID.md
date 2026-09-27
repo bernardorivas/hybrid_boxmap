@@ -150,6 +150,30 @@ audited like all other intersections (`test_neuron_index_without_a_base_cell_at_
 reported these Morse sets as blocked with `AtlasGoodCoverError: guard seam is
 not on the boundary of the base Atlas window`.
 
+## Figures
+
+The runner writes two figure variants per run (`--figure-variants`, default
+`all,nontrivial`; `all` only with `--no-conley`):
+
+- `all` (`<stem>.pdf`, `<stem>.png`): every Morse node.
+- `nontrivial` (`<stem>-nontrivial.pdf`, `.png`): the Morse nodes whose
+  finite-relation index was computed and is trivial (every homology dimension
+  zero) are hidden. The remaining nodes keep their numbers and colors, and
+  the order drawn between them is reachability in the full Morse graph,
+  through hidden nodes, transitively reduced.
+
+In both variants a node whose index is blocked is kept, drawn with a dashed
+outline, and labeled `blocked`. The JSON summary records each variant under
+`figure_variants` (shown nodes, hidden nodes with the reason, blocked nodes,
+the order drawn, files) and stores the atoms of every Morse set under
+`morse_graph.morse_set_atoms` (strings of atom ranges, `a-b` for the closed
+range). `demo/replot_paper_grid.py` redraws both variants from a summary: it
+rebuilds `Xi_n` from the example and level, checks it against the recorded
+`grid`, and updates `figures` and `figure_variants` in the JSON. Summaries
+written before the atoms were stored (schema `paper-suspension-grid-run-v2`
+and earlier) cannot be redrawn and have to be rerun. Selection and replot are
+tested in `hybrid_dynamics/tests/test_suspension_grid_plot.py`.
+
 ## Reproduction
 
 From `code/`:
@@ -158,6 +182,7 @@ From `code/`:
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12 --gap-refinement-depth 12
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12 --eval-mode tensor --samples-per-axis 3
+.venv/bin/python demo/replot_paper_grid.py figures/paper_grid/paper-grid-spiking-neuron-*.json
 ```
 
 The runner options `--eval-mode`, `--num-pts`, `--sample-depth`, `--seed`,

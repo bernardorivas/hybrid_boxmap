@@ -848,6 +848,7 @@ def plot_atlas_hybrid_morse_sets(
     *,
     atlas_charts: SuspensionAtlasCharts | None = None,
     finite_relation_annotations: AtlasFiniteRelationIndexAnnotations | None = None,
+    blocked_index_nodes: Iterable[int] = (),
     morse_nodes: Iterable[int] | None = None,
     proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
     handle_proj_dims: Sequence[int] | Sequence[Sequence[int]] | None = None,
@@ -868,7 +869,13 @@ def plot_atlas_hybrid_morse_sets(
     fig_fname: str | Path | None = None,
     dpi: int = 300,
 ) -> AtlasHybridMorsePlot:
-    """Plot actual CMGDB Atlas Morse boxes and the CMGDB Morse order."""
+    """Plot actual CMGDB Atlas Morse boxes and the CMGDB Morse order.
+
+    ``morse_nodes`` selects the drawn nodes; they keep their numbers and
+    colors, and the drawn order is reachability through the hidden nodes,
+    transitively reduced.  Nodes in ``blocked_index_nodes`` are marked as
+    blocked in the Morse graph.
+    """
 
     # Import at call time so the public dispatcher in hybrid_morse_plot can
     # route here without a module-import cycle.
@@ -949,6 +956,12 @@ def plot_atlas_hybrid_morse_sets(
                 "finite-relation annotations refer to unknown Morse nodes: "
                 f"{sorted(unknown_annotations)!r}"
             )
+    blocked_nodes = frozenset(int(node) for node in blocked_index_nodes)
+    unknown_blocked = blocked_nodes.difference(data.vertex_ids)
+    if unknown_blocked:
+        raise ValueError(
+            f"blocked index nodes are not Morse nodes: {sorted(unknown_blocked)!r}"
+        )
     order = atlas_morse_hasse(data, (component.index for component in components))
     panel_count = len(projections) + len(handle_projections) + int(show_morse_graph)
     if panel_count <= 0:
@@ -1020,6 +1033,7 @@ def plot_atlas_hybrid_morse_sets(
             show_component_sizes=show_component_sizes,
             show_title=show_panel_titles,
             graph_title="Morse graph",
+            blocked_index_nodes=blocked_nodes,
         )
 
     if title is not None:

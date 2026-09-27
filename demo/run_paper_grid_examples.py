@@ -23,6 +23,16 @@ Pol-Duffing oscillator the summary also records which Morse sets contain
 points of the numerically known invariant sets ``F``, ``Z``, ``C``, ``S``,
 ``U_Z``.
 
+``--figure-variants`` selects the figures: ``all`` (every Morse node, file
+``<stem>.pdf``) and ``nontrivial`` (file ``<stem>-nontrivial.pdf``), which
+hides the Morse nodes whose finite-relation index was computed and is trivial
+(every homology dimension zero), keeps and marks the nodes whose index is
+blocked, and draws the order between the remaining nodes as reachability in
+the full Morse graph, transitively reduced.  Both are written by default when
+the index labels are computed.  The JSON summary records, per variant, the
+shown and hidden nodes with the reason, and stores the atoms of every Morse
+set, so ``demo/replot_paper_grid.py`` can redraw the figures from it.
+
 Run from the ``code`` directory, for example::
 
     .venv/bin/python demo/run_paper_grid_examples.py --workers 12
@@ -42,24 +52,19 @@ import matplotlib
 
 matplotlib.use("Agg")
 
-import matplotlib.pyplot as plt
 import numpy as np
 
 CODE_ROOT = Path(__file__).resolve().parents[1]
 if str(CODE_ROOT) not in sys.path:
     sys.path.insert(0, str(CODE_ROOT))
 
-from hybrid_dynamics import (  # noqa: E402
-    PlotHybridMorseSets,
-    save_hybrid_morse_figure,
-)
 from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
     PAPER_GRID_PROBLEMS,
     PAPER_GRID_REFERENCE_SETS,
     paper_grid_problem_factory,
 )
-from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
-    AtlasFiniteRelationIndexAnnotations,
+from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
+    write_paper_grid_figures,
 )
 from hybrid_dynamics.src.suspension_grid import (  # noqa: E402
     build_suspension_grid,
@@ -69,7 +74,9 @@ from hybrid_dynamics.src.suspension_grid_conley import (  # noqa: E402
     compute_suspension_grid_conley_index,
 )
 from hybrid_dynamics.src.suspension_grid_plot import (  # noqa: E402
-    suspension_grid_morse_plot_data,
+    FIGURE_VARIANTS,
+    RANGE_ENCODING,
+    encode_index_ranges,
 )
 from hybrid_dynamics.src.suspension_grid_relation import (  # noqa: E402
     DEFAULT_EVAL_MODE,
@@ -90,20 +97,6 @@ DEFAULT_LEVELS = {
     "rimless-wheel": 6,
     "spiking-neuron": 8,
     "impact-vdp-duffing": 7,
-}
-FIGURE_STYLE = {
-    "bouncing-ball": {"labels": (r"$h$", r"$v$"), "handle": (r"$v_G$", r"$s$"), "view": "domain"},
-    "rimless-wheel": {
-        "labels": (r"$\theta$", r"$\dot\theta$"),
-        "handle": (r"$\dot\theta_G$", r"$s$"),
-        "view": "support",
-    },
-    "spiking-neuron": {"labels": (r"$v$", r"$u$"), "handle": (r"$u_G$", r"$s$"), "view": "support"},
-    "impact-vdp-duffing": {
-        "labels": (r"$x$", r"$v$"),
-        "handle": (r"$v_G$", r"$s$"),
-        "view": "domain",
-    },
 }
 
 
@@ -177,6 +170,15 @@ def _arguments() -> argparse.Namespace:
     )
     parser.add_argument("--gap-refinement-depth", type=int, default=0)
     parser.add_argument("--no-conley", action="store_true")
+    parser.add_argument(
+        "--figure-variants",
+        default=None,
+        metavar="VARIANT[,VARIANT]",
+        help=(
+            "comma-separated figure variants from "
+            f"{', '.join(FIGURE_VARIANTS)} (default: all,nontrivial; all with --no-conley)"
+        ),
+    )
     parser.add_argument("--probe-cells", type=int, default=150)
     parser.add_argument("--probe-intervals", type=int, default=20)
     parser.add_argument(
@@ -196,6 +198,23 @@ def _arguments() -> argparse.Namespace:
         parser.error("--samples-per-axis requires --eval-mode tensor")
     if arguments.gap_refinement_depth > 0 and arguments.eval_mode in {"center", "random"}:
         parser.error("--gap-refinement-depth requires --eval-mode corners or tensor")
+    if arguments.figure_variants is None:
+        arguments.figure_variants = ("all",) if arguments.no_conley else FIGURE_VARIANTS
+    else:
+        variants = tuple(
+            dict.fromkeys(
+                value.strip() for value in arguments.figure_variants.split(",") if value.strip()
+            )
+        )
+        unknown = [value for value in variants if value not in FIGURE_VARIANTS]
+        if not variants or unknown:
+            parser.error(
+                f"--figure-variants takes values from {', '.join(FIGURE_VARIANTS)}; "
+                f"got {arguments.figure_variants!r}"
+            )
+        if "nontrivial" in variants and arguments.no_conley:
+            parser.error("--figure-variants nontrivial needs the index labels (drop --no-conley)")
+        arguments.figure_variants = variants
     return arguments
 
 
@@ -421,45 +440,31 @@ def _run(
         for entry in conley
         if entry["computed"]
     }
-    plot_data = suspension_grid_morse_plot_data(
-        grid,
-        morse,
-        metadata={"model": name, "t_star": problem.tau, "level": level},
-    )
-    annotations = (
-        AtlasFiniteRelationIndexAnnotations(
-            shift_classes=labels,
-            coefficient_field=5,
-            result_scope="finite_reset_quotient_relation",
-            audit_path=summary_path,
-        )
-        if labels
-        else None
-    )
-    style = FIGURE_STYLE[name]
     started = time.perf_counter()
-    plot = PlotHybridMorseSets(
-        plot_data,
-        finite_relation_annotations=annotations,
-        axis_labels=style["labels"],
-        handle_axis_labels=style["handle"],
-        show_handles=False,
-        show_morse_graph=True,
-        show_legend=False,
-        show_panel_titles=False,
-        show_component_sizes=False,
-        show_status_note=False,
-        base_view=style["view"],
-        fig_h=3.4,
+    figures = write_paper_grid_figures(
+        grid,
+        morse.morse_sets,
+        morse.edges,
+        conley,
+        example=name,
+        tau=problem.tau,
+        level=level,
+        output_stem=output_dir / stem,
+        audit_path=summary_path,
+        variants=arguments.figure_variants,
+        display_path=_display_path,
     )
-    try:
-        outputs = save_hybrid_morse_figure(plot, output_dir / stem, formats=("pdf", "png"), dpi=400)
-    finally:
-        plt.close(plot.figure)
     timings["figure"] = time.perf_counter() - started
+    for variant, record in figures["figure_variants"].items():
+        print(
+            f"figure {variant}: {len(record['shown_nodes'])} nodes shown, "
+            f"{len(record['hidden_nodes'])} hidden, "
+            f"{len(record['blocked_nodes_shown'])} blocked; {record['files']}",
+            flush=True,
+        )
 
     summary = {
-        "schema": "paper-suspension-grid-run-v2",
+        "schema": "paper-suspension-grid-run-v3",
         "example": name,
         "parameters": problem.parameters,
         "tau": problem.tau,
@@ -503,6 +508,8 @@ def _run(
             "nodes": nodes,
             "edges": [list(edge) for edge in morse.edges],
             "scc_count": morse.n_components,
+            "morse_set_atoms": [encode_index_ranges(values) for values in morse.morse_sets],
+            "morse_set_atoms_encoding": RANGE_ENCODING,
         },
         "morse_graph_path_exit_policy": path_policy,
         "reference_set_identification": identification,
@@ -516,7 +523,8 @@ def _run(
         "runtime_seconds": {**timings, "relation_detail": {
             key: value for key, value in relation.statistics.items() if key.startswith("seconds")
         }},
-        "figures": [_display_path(path) for path in outputs],
+        "figures": figures["figures"],
+        "figure_variants": figures["figure_variants"],
         "code": _git_commit(),
         "python": platform.python_version(),
     }
