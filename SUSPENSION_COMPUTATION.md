@@ -1,5 +1,10 @@
 # CMGDB box maps for a fixed-time hybrid suspension
 
+The suspension grid `Xi_n` of the manuscript (Definition `def:suspension-grid`)
+is implemented separately; see [PAPER_GRID.md](PAPER_GRID.md). This document
+describes the Atlas tagged-chart pipeline, whose base and handle charts are
+refined separately and therefore do not form `Xi_n`.
+
 ## Goal
 
 The computational object is the continuous fixed-time map

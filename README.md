@@ -56,6 +56,30 @@ Atlas workflows additionally require the project
 [CMGDB fork](https://github.com/bernardorivas/CMGDB), which provides
 `AtlasModel` and the tagged multi-rectangle box-map interface.
 
+## Package structure
+
+The computation is organized in three layers. Each layer uses only the ones
+below it, so ordinary CMGDB can be used without any hybrid code
+(`import CMGDB` imports nothing from `hybrid_dynamics`).
+
+1. **CMGDB core.** Cubical grids, box maps, the map graph, strongly connected
+   components, Morse graphs, and Conley indices, as in upstream CMGDB.
+2. **Generic extensions in the project fork of CMGDB** (commit `4150b75`).
+   `AtlasModel` (a grid on a finite disjoint union of rectangular charts with
+   tagged-union box maps), CSR map-graph checkpoints, and
+   `ComputeRelativeHomologyShiftClass` (the shift class of an explicit relative
+   chain map over `GF(5)`). None of these refers to guards, resets, or
+   suspensions.
+3. **`hybrid_dynamics`** (this package): hybrid systems, the unit-handle
+   suspension semiflow, and the constructions below.
+
+| Construction | Modules | Relation to the manuscript |
+|---|---|---|
+| Paper suspension grid `Xi_n` | `src/suspension_grid.py`, `src/suspension_grid_relation.py`, `src/suspension_grid_conley.py`, `src/suspension_grid_plot.py`, `examples/paper_grid_examples.py`, `demo/run_paper_grid_examples.py` | Implements `def:suspension-grid` with the cofiltration `Xi_n = Xi_{n-1} ^ Xi_n(X_n)`, `d_n` and the base readout of `prop:suspension-grid` and `prop:finite-grid-preimage`, and the sampled map of Section "Examples". SCCs use `scipy.sparse.csgraph`; CMGDB is used only for the final shift class. See [PAPER_GRID.md](PAPER_GRID.md). |
+| Atlas tagged-chart pipeline | `src/cmgdb_suspension_boxmap.py`, `examples/*_atlas.py` | Runs `CMGDB.AtlasModel` on a base chart and a handle chart that are refined separately. The cells are not the atoms of `Xi_n`: collars are not merged into base elements and the reset preimages do not cut the handle. Produced the earlier manuscript figures. |
+| Explicit fixed-time grid | `src/fixed_time_suspension_grid.py`, `src/sampled_suspension.py`, `src/implicit_phase_scc.py` | Base cells plus handle phase slabs over guard cells; pointwise unit-handle clock reference. |
+| Finite complexes and index front end | `src/suspension_complex.py`, `src/atlas_conley.py` | Quotient nerve of actual rectangles, acyclic carriers, chain selectors; shared by the Atlas and the paper-grid index computations. |
+
 ## Repository layout
 
 - `hybrid_dynamics/src/` — reusable simulation, grid, suspension, Atlas,
