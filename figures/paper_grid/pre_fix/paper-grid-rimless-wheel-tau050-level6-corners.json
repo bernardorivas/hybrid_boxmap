@@ -1,0 +1,900 @@
+{
+  "a_n": 0.00390625,
+  "code": {
+    "commit": "0706668da0ac779aed530315b6e71c861c873aa3",
+    "dirty": false
+  },
+  "conley": [
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 0,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.07265112496679649,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 1,
+      "nerve_cell_counts": [
+        22,
+        62,
+        54,
+        13
+      ],
+      "pair_atoms": {
+        "A": 21,
+        "S": 1,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 21,
+        "X": 22
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.047690542007330805,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 2,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03710312501061708,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 3,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.028928833024110645,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 4,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.028836374985985458,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(2101,)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 5,
+      "nerve_cell_counts": [
+        11946,
+        46189,
+        45537,
+        11314
+      ],
+      "pair_atoms": {
+        "A": 45,
+        "S": 7652,
+        "X": 7697
+      },
+      "pair_pieces": {
+        "A": 45,
+        "X": 11946
+      },
+      "result_scope": "",
+      "seconds": 8.556442291010171,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 6,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.028885875013656914,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 7,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.028264916967600584,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 8,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03701049997471273,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 9,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02833108400227502,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 10,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03672525001456961,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  ],
+  "conley_labels_in_figure": {
+    "0": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "1": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "10": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "2": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "3": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "4": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "6": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "7": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "8": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "9": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ]
+  },
+  "construction": "Xi_n generated by K_j(mu) and Q_j(mu,k) for j <= n (def:suspension-grid, Xi_n = Xi_{n-1} ^ Xi_n(X_n)); elementary pieces with generator signatures",
+  "continuous_system_conley_index_certified": false,
+  "discarded_exits": {
+    "endpoints": 994,
+    "source_atoms": 883
+  },
+  "endpoint_probe": {
+    "base_cells_probed": 150,
+    "base_probe_lattice": "5x5 per cell",
+    "evaluation_failures": 0,
+    "guard_intervals_probed": 20,
+    "missed": 140,
+    "phase_probes_per_interval": 7,
+    "witnesses_in_window": 3461
+  },
+  "example": "rimless-wheel",
+  "figures": [
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level6-corners.pdf",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level6-corners.png"
+  ],
+  "grid": {
+    "a_n": 0.00390625,
+    "atoms": 15095,
+    "atoms_in_d_image": 4096,
+    "atoms_without_base_cell": 10999,
+    "base_cell_widths": [
+      0.0125,
+      0.0234375
+    ],
+    "base_cells_per_axis": 64,
+    "base_pieces": 4096,
+    "generators": 20073,
+    "guard_curve_straight": true,
+    "guard_intervals": 73,
+    "handle_pieces": 18688,
+    "level": 6,
+    "max_pieces_per_atom": 4,
+    "phase_intervals": 256,
+    "pieces": 22784,
+    "reset_curve_straight": true
+  },
+  "grid_check": {
+    "atoms_nonempty": true,
+    "d_base_preimage_exact": true,
+    "d_contains_interior": true,
+    "d_injective": true,
+    "passed": true,
+    "pieces_cover_window": true,
+    "pieces_disjoint_interiors": true
+  },
+  "image_connectivity": {
+    "atoms": 15095,
+    "disconnected_padded_images": 454,
+    "disconnected_sampled_images": 967
+  },
+  "image_rule": {
+    "command_line": [
+      "rimless-wheel",
+      "--level",
+      "rimless-wheel=6",
+      "--tau",
+      "rimless-wheel=0.5",
+      "--workers",
+      "3"
+    ],
+    "default_rule": true,
+    "description": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding",
+    "eval_mode": "corners",
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "gap_refinement_depth": 0,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "sample_depth": null,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null
+  },
+  "level": 6,
+  "level_offset": 0,
+  "morse_graph": {
+    "edges": [
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        5,
+        4
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        10,
+        9
+      ]
+    ],
+    "nodes": [
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.1,
+            -0.03125
+          ],
+          "upper": [
+            -0.08750000000000001,
+            -0.0078125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 0,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.07500000000000001,
+            -0.0546875
+          ],
+          "upper": [
+            -0.06250000000000001,
+            -0.03125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 1,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.08750000000000001,
+            -0.03125
+          ],
+          "upper": [
+            -0.07500000000000001,
+            -0.0078125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 2,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.0625,
+            -0.0546875
+          ],
+          "upper": [
+            -0.05,
+            -0.03125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 3,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.04999999999999999,
+            -0.0546875
+          ],
+          "upper": [
+            -0.03749999999999999,
+            -0.03125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 4,
+        "pieces": 1
+      },
+      {
+        "atoms": 7652,
+        "base_readout_bounds": {
+          "lower": [
+            -0.2,
+            -0.1015625
+          ],
+          "upper": [
+            0.6000000000000001,
+            0.9765625
+          ]
+        },
+        "base_readout_cells": 1736,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 256,
+        "handle_pieces": 10165,
+        "index": 5,
+        "pieces": 11901
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.08750000000000001,
+            0.0390625
+          ],
+          "upper": [
+            -0.07500000000000001,
+            0.0625
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 6,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.0625,
+            -0.0546875
+          ],
+          "upper": [
+            0.075,
+            -0.03125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 7,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.1,
+            0.0390625
+          ],
+          "upper": [
+            -0.08750000000000001,
+            0.0625
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 8,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.07500000000000001,
+            -0.0546875
+          ],
+          "upper": [
+            0.08750000000000001,
+            -0.03125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 9,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.08750000000000002,
+            -0.0546875
+          ],
+          "upper": [
+            0.10000000000000002,
+            -0.03125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 10,
+        "pieces": 1
+      }
+    ],
+    "scc_count": 7444
+  },
+  "morse_graph_path_exit_policy": {
+    "identical_to_endpoint_policy": true
+  },
+  "parameters": {
+    "R": [
+      [
+        -0.2,
+        0.6
+      ],
+      [
+        -0.5,
+        1.0
+      ]
+    ],
+    "alpha": 0.4,
+    "atol": 1e-12,
+    "gamma": 0.2,
+    "max_step": 0.02,
+    "rtol": 1e-10,
+    "tau": 0.5
+  },
+  "python": "3.14.7",
+  "reference_set_identification": null,
+  "relation": {
+    "atoms_with_empty_image": 626,
+    "default_rule": true,
+    "discarded_exit_endpoints": 994,
+    "edges": 276407,
+    "eval_mode": "corners",
+    "evaluated_endpoints": 23243,
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "failed_endpoints": 0,
+    "failure_messages": [],
+    "gap_refinement_depth": 0,
+    "handle_paths": 74,
+    "image_rule": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding",
+    "left_and_returned_endpoints": 0,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "padding_requested": true,
+    "sample_depth": null,
+    "sampled_edges": 73501,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null,
+    "source_atoms_with_exit": 883,
+    "source_atoms_with_failed_samples": 0,
+    "source_atoms_with_left_and_returned": 0,
+    "unique_base_samples": 4225,
+    "unique_handle_samples": 19018
+  },
+  "runtime_seconds": {
+    "conley": 8.973100624978542,
+    "endpoint_probe": 3.8756581250345334,
+    "figure": 0.4510159579804167,
+    "grid": 0.14816137502202764,
+    "image_connectivity": 1.6997468750341795,
+    "morse_graph": 0.005118290951941162,
+    "relation": 2.094911082996987,
+    "relation_detail": {
+      "seconds_base_endpoints": 1.8622262499993667,
+      "seconds_handle_endpoints": 0.06674745900090784,
+      "seconds_locate": 0.022359041962772608,
+      "seconds_total": 2.094877583964262
+    }
+  },
+  "schema": "paper-suspension-grid-run-v2",
+  "tau": 0.5
+}

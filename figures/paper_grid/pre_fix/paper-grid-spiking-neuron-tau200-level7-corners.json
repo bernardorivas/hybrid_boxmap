@@ -1,0 +1,7183 @@
+{
+  "a_n": 0.001953125,
+  "code": {
+    "commit": "0706668da0ac779aed530315b6e71c861c873aa3",
+    "dirty": false
+  },
+  "conley": [
+    {
+      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(1817,)) is not acyclic over GF(5)",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 0,
+      "nerve_cell_counts": [
+        3678,
+        11832,
+        11163,
+        3160,
+        270,
+        45
+      ],
+      "pair_atoms": {
+        "A": 0,
+        "S": 3658,
+        "X": 3658
+      },
+      "pair_pieces": {
+        "A": 0,
+        "X": 3678
+      },
+      "result_scope": "",
+      "seconds": 1.856408999999985,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 1,
+      "nerve_cell_counts": [
+        19,
+        52,
+        45,
+        11
+      ],
+      "pair_atoms": {
+        "A": 16,
+        "S": 3,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 16,
+        "X": 19
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.06357870897045359,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 2,
+      "nerve_cell_counts": [
+        23,
+        65,
+        57,
+        14
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 5,
+        "X": 23
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 23
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.04390450002392754,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 3,
+      "nerve_cell_counts": [
+        15,
+        39,
+        33,
+        8
+      ],
+      "pair_atoms": {
+        "A": 14,
+        "S": 1,
+        "X": 15
+      },
+      "pair_pieces": {
+        "A": 14,
+        "X": 15
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.018895916000474244,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 4,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "",
+      "seconds": 0.0006277500069700181,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 5,
+      "nerve_cell_counts": [
+        15,
+        39,
+        33,
+        8
+      ],
+      "pair_atoms": {
+        "A": 14,
+        "S": 1,
+        "X": 15
+      },
+      "pair_pieces": {
+        "A": 14,
+        "X": 15
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.019574415986426175,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 6,
+      "nerve_cell_counts": [
+        19,
+        52,
+        45,
+        11
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03370566701050848,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 7,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0005659160087816417,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 8,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02231824997579679,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 9,
+      "nerve_cell_counts": [
+        15,
+        39,
+        33,
+        8
+      ],
+      "pair_atoms": {
+        "A": 14,
+        "S": 1,
+        "X": 15
+      },
+      "pair_pieces": {
+        "A": 14,
+        "X": 15
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.018889458035118878,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 10,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.00047258398262783885,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 11,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "",
+      "seconds": 0.0003047919599339366,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 12,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021680249948985875,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 13,
+      "nerve_cell_counts": [
+        20,
+        55,
+        48,
+        12
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03743787499843165,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 14,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0005182079621590674,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 15,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 22,
+        "S": 1,
+        "X": 23
+      },
+      "pair_pieces": {
+        "A": 22,
+        "X": 23
+      },
+      "result_scope": "",
+      "seconds": 0.0003393750521354377,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 16,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.022103750030510128,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 17,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021530875004827976,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 18,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.022680249996483326,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 19,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "",
+      "seconds": 0.0004933750024065375,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 20,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "",
+      "seconds": 0.00029274995904415846,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 21,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02196666697273031,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 22,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0004682499566115439,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 23,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.00030504202004522085,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 24,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021836834028363228,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 25,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "",
+      "seconds": 0.0004937079502269626,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 26,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021668165980372578,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 27,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "",
+      "seconds": 0.00036137504503130913,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 28,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 16,
+        "S": 1,
+        "X": 17
+      },
+      "pair_pieces": {
+        "A": 16,
+        "X": 17
+      },
+      "result_scope": "",
+      "seconds": 0.00028295896481722593,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 29,
+      "nerve_cell_counts": [
+        19,
+        52,
+        45,
+        11
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.033106249989941716,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 30,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0005174159887246788,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 31,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.00032187497708946466,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 32,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02190112497191876,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 33,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02172004198655486,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 34,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "",
+      "seconds": 0.0003932919935323298,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 35,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 16,
+        "S": 1,
+        "X": 17
+      },
+      "pair_pieces": {
+        "A": 16,
+        "X": 17
+      },
+      "result_scope": "",
+      "seconds": 0.0002690420369617641,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 36,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021668749977834523,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 37,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021930124959908426,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 38,
+      "nerve_cell_counts": [
+        20,
+        55,
+        48,
+        12
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03748737496789545,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 39,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0005273330025374889,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 40,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0003178339684382081,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 41,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021906332985963672,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 42,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 16,
+        "S": 1,
+        "X": 17
+      },
+      "pair_pieces": {
+        "A": 16,
+        "X": 17
+      },
+      "result_scope": "",
+      "seconds": 0.0004402089980430901,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 43,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021904166031163186,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 44,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02186462498502806,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 45,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0008137920522131026,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 46,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0008995000389404595,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 47,
+      "nerve_cell_counts": [
+        20,
+        55,
+        48,
+        12
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.037719834013842046,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 48,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.022124041977804154,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 49,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021868459007237107,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 50,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0004885829985141754,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 51,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0003150000120513141,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 52,
+      "nerve_cell_counts": [
+        43,
+        130,
+        117,
+        29
+      ],
+      "pair_atoms": {
+        "A": 38,
+        "S": 5,
+        "X": 43
+      },
+      "pair_pieces": {
+        "A": 38,
+        "X": 43
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.1810526250046678,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 53,
+      "nerve_cell_counts": [
+        24,
+        68,
+        60,
+        15
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 6,
+        "X": 24
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 24
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.04736762499669567,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 54,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0004588330048136413,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 55,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.00030654098372906446,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 56,
+      "nerve_cell_counts": [
+        19,
+        52,
+        45,
+        11
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03167070902418345,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 57,
+      "nerve_cell_counts": [
+        15,
+        39,
+        33,
+        8
+      ],
+      "pair_atoms": {
+        "A": 14,
+        "S": 1,
+        "X": 15
+      },
+      "pair_pieces": {
+        "A": 14,
+        "X": 15
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.01911745802499354,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 58,
+      "nerve_cell_counts": [
+        24,
+        68,
+        60,
+        15
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 6,
+        "X": 24
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 24
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.04735579196130857,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 59,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02148491598200053,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 60,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0004033750155940652,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 61,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0003037079586647451,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 62,
+      "nerve_cell_counts": [
+        18,
+        48,
+        41,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.027011334022972733,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 63,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021763791039120406,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 64,
+      "nerve_cell_counts": [
+        24,
+        68,
+        60,
+        15
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 6,
+        "X": 24
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 24
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.04695158399408683,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 65,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021850749966688454,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 66,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02174995798850432,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 67,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0004263340379111469,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 68,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.00029920798260718584,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 69,
+      "nerve_cell_counts": [
+        17,
+        44,
+        37,
+        9
+      ],
+      "pair_atoms": {
+        "A": 16,
+        "S": 1,
+        "X": 17
+      },
+      "pair_pieces": {
+        "A": 16,
+        "X": 17
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.023001042020041496,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 70,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021548540971707553,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 71,
+      "nerve_cell_counts": [
+        24,
+        68,
+        60,
+        15
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 6,
+        "X": 24
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 24
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.04663749999599531,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 72,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02158237498952076,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 73,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021500500035472214,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 74,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021889374998863786,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 75,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 22,
+        "S": 1,
+        "X": 23
+      },
+      "pair_pieces": {
+        "A": 22,
+        "X": 23
+      },
+      "result_scope": "",
+      "seconds": 0.0004123329999856651,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 76,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.00030329200671985745,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 77,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021101250022184104,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 78,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02169291698373854,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 79,
+      "nerve_cell_counts": [
+        24,
+        68,
+        60,
+        15
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 6,
+        "X": 24
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 24
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.04621620802208781,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 80,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02177783299703151,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 81,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021637999976519495,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 82,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021575250022578984,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 83,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0004088749992661178,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 84,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02073187497444451,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 85,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02190245798556134,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 86,
+      "nerve_cell_counts": [
+        23,
+        65,
+        57,
+        14
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 5,
+        "X": 23
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 23
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.04402249999111518,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 87,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021685416984837502,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 88,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021778082998935133,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 89,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.022003665973898023,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 90,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 21,
+        "S": 1,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 21,
+        "X": 22
+      },
+      "result_scope": "",
+      "seconds": 0.0004982500104233623,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 91,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.020914749999064952,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 92,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021821332979016006,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 93,
+      "nerve_cell_counts": [
+        20,
+        55,
+        48,
+        12
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 5,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03210412501357496,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 94,
+      "nerve_cell_counts": [
+        15,
+        39,
+        33,
+        8
+      ],
+      "pair_atoms": {
+        "A": 14,
+        "S": 1,
+        "X": 15
+      },
+      "pair_pieces": {
+        "A": 14,
+        "X": 15
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.018845124985091388,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 95,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021651584014762193,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 96,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021366207976825535,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 97,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021759084018412977,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 98,
+      "nerve_cell_counts": [
+        20,
+        55,
+        48,
+        12
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 5,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03170970804058015,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 99,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.022057624999433756,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 100,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02205037500243634,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 101,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021779834001790732,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 102,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021791249979287386,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 103,
+      "nerve_cell_counts": [
+        20,
+        55,
+        48,
+        12
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 5,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.031946333998348564,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 104,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.022064500022679567,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 105,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021436709037516266,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 106,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02137949998723343,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 107,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021599291008897126,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 108,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.021913250035140663,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 109,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.022043167031370103,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 110,
+      "nerve_cell_counts": [
+        19,
+        52,
+        45,
+        11
+      ],
+      "pair_atoms": {
+        "A": 16,
+        "S": 3,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 16,
+        "X": 19
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.030570207978598773,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 111,
+      "nerve_cell_counts": [
+        16,
+        42,
+        36,
+        9
+      ],
+      "pair_atoms": {
+        "A": 15,
+        "S": 1,
+        "X": 16
+      },
+      "pair_pieces": {
+        "A": 15,
+        "X": 16
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.022144999995362014,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 112,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "",
+      "seconds": 0.0004480830393731594,
+      "shift_class": []
+    },
+    {
+      "blocker": "AtlasGoodCoverError: guard seam is not on the boundary of the base Atlas window",
+      "coefficient_field": 5,
+      "computed": false,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [],
+      "morse_node": 113,
+      "nerve_cell_counts": [],
+      "pair_atoms": {
+        "A": 20,
+        "S": 1,
+        "X": 21
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 21
+      },
+      "result_scope": "",
+      "seconds": 0.0003035000408999622,
+      "shift_class": []
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "morse_node": 114,
+      "nerve_cell_counts": [
+        20,
+        55,
+        48,
+        12
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.03707670798758045,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  ],
+  "conley_labels_in_figure": {
+    "1": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "100": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "101": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "102": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "103": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "104": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "105": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "106": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "107": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "108": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "109": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "110": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "111": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "114": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "12": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "13": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "16": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "17": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "18": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "2": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "21": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "24": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "26": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "29": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "3": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "32": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "33": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "36": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "37": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "38": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "41": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "43": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "44": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "47": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "48": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "49": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "5": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "52": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "53": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "56": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "57": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "58": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "59": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "6": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "62": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "63": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "64": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "65": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "66": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "69": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "70": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "71": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "72": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "73": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "74": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "77": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "78": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "79": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "8": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "80": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "81": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "82": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "84": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "85": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "86": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "87": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "88": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "89": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "9": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "91": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "92": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "93": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "94": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "95": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "96": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "97": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "98": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "99": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ]
+  },
+  "construction": "Xi_n generated by K_j(mu) and Q_j(mu,k) for j <= n (def:suspension-grid, Xi_n = Xi_{n-1} ^ Xi_n(X_n)); elementary pieces with generator signatures",
+  "continuous_system_conley_index_certified": false,
+  "discarded_exits": {
+    "endpoints": 0,
+    "source_atoms": 0
+  },
+  "endpoint_probe": {
+    "base_cells_probed": 150,
+    "base_probe_lattice": "5x5 per cell",
+    "evaluation_failures": 0,
+    "guard_intervals_probed": 20,
+    "missed": 244,
+    "phase_probes_per_interval": 7,
+    "witnesses_in_window": 3890
+  },
+  "example": "spiking-neuron",
+  "figures": [
+    "figures/paper_grid/paper-grid-spiking-neuron-tau200-level7-corners.pdf",
+    "figures/paper_grid/paper-grid-spiking-neuron-tau200-level7-corners.png"
+  ],
+  "grid": {
+    "a_n": 0.001953125,
+    "atoms": 26326,
+    "atoms_in_d_image": 2820,
+    "atoms_without_base_cell": 23506,
+    "base_cell_widths": [
+      2.5,
+      10.0
+    ],
+    "base_cells_per_axis": 128,
+    "base_pieces": 2820,
+    "generators": 35127,
+    "guard_curve_straight": true,
+    "guard_intervals": 46,
+    "handle_pieces": 23552,
+    "level": 7,
+    "max_pieces_per_atom": 2,
+    "phase_intervals": 512,
+    "pieces": 26372,
+    "reset_curve_straight": true
+  },
+  "grid_check": {
+    "atoms_nonempty": true,
+    "d_base_preimage_exact": true,
+    "d_contains_interior": true,
+    "d_injective": true,
+    "passed": true,
+    "pieces_cover_window": true,
+    "pieces_disjoint_interiors": true
+  },
+  "image_connectivity": {
+    "atoms": 26326,
+    "disconnected_padded_images": 374,
+    "disconnected_sampled_images": 750
+  },
+  "image_rule": {
+    "command_line": [
+      "spiking-neuron",
+      "--workers",
+      "3",
+      "--level",
+      "spiking-neuron=7",
+      "--tau",
+      "spiking-neuron=2",
+      "--gap-refinement-depth",
+      "0"
+    ],
+    "default_rule": true,
+    "description": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding",
+    "eval_mode": "corners",
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "gap_refinement_depth": 0,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "sample_depth": null,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null
+  },
+  "level": 7,
+  "level_offset": 0,
+  "morse_graph": {
+    "edges": [
+      [
+        1,
+        0
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        10,
+        4
+      ],
+      [
+        11,
+        5
+      ],
+      [
+        12,
+        5
+      ],
+      [
+        12,
+        6
+      ],
+      [
+        13,
+        6
+      ],
+      [
+        14,
+        7
+      ],
+      [
+        15,
+        7
+      ],
+      [
+        16,
+        8
+      ],
+      [
+        17,
+        3
+      ],
+      [
+        17,
+        10
+      ],
+      [
+        18,
+        9
+      ],
+      [
+        19,
+        4
+      ],
+      [
+        19,
+        11
+      ],
+      [
+        20,
+        11
+      ],
+      [
+        20,
+        12
+      ],
+      [
+        21,
+        12
+      ],
+      [
+        21,
+        13
+      ],
+      [
+        22,
+        14
+      ],
+      [
+        23,
+        14
+      ],
+      [
+        23,
+        15
+      ],
+      [
+        24,
+        16
+      ],
+      [
+        25,
+        10
+      ],
+      [
+        25,
+        19
+      ],
+      [
+        26,
+        18
+      ],
+      [
+        27,
+        19
+      ],
+      [
+        27,
+        20
+      ],
+      [
+        28,
+        20
+      ],
+      [
+        28,
+        21
+      ],
+      [
+        29,
+        21
+      ],
+      [
+        30,
+        22
+      ],
+      [
+        31,
+        22
+      ],
+      [
+        31,
+        23
+      ],
+      [
+        32,
+        24
+      ],
+      [
+        33,
+        17
+      ],
+      [
+        33,
+        25
+      ],
+      [
+        34,
+        25
+      ],
+      [
+        34,
+        27
+      ],
+      [
+        35,
+        27
+      ],
+      [
+        35,
+        28
+      ],
+      [
+        36,
+        26
+      ],
+      [
+        37,
+        28
+      ],
+      [
+        37,
+        29
+      ],
+      [
+        38,
+        29
+      ],
+      [
+        39,
+        30
+      ],
+      [
+        40,
+        30
+      ],
+      [
+        40,
+        31
+      ],
+      [
+        41,
+        32
+      ],
+      [
+        42,
+        34
+      ],
+      [
+        42,
+        35
+      ],
+      [
+        43,
+        35
+      ],
+      [
+        43,
+        37
+      ],
+      [
+        44,
+        37
+      ],
+      [
+        44,
+        38
+      ],
+      [
+        45,
+        39
+      ],
+      [
+        46,
+        39
+      ],
+      [
+        46,
+        40
+      ],
+      [
+        47,
+        36
+      ],
+      [
+        48,
+        2
+      ],
+      [
+        48,
+        41
+      ],
+      [
+        49,
+        43
+      ],
+      [
+        49,
+        44
+      ],
+      [
+        50,
+        45
+      ],
+      [
+        51,
+        45
+      ],
+      [
+        51,
+        46
+      ],
+      [
+        52,
+        15
+      ],
+      [
+        52,
+        47
+      ],
+      [
+        53,
+        48
+      ],
+      [
+        54,
+        50
+      ],
+      [
+        55,
+        50
+      ],
+      [
+        55,
+        51
+      ],
+      [
+        56,
+        23
+      ],
+      [
+        56,
+        52
+      ],
+      [
+        57,
+        53
+      ],
+      [
+        58,
+        53
+      ],
+      [
+        59,
+        9
+      ],
+      [
+        59,
+        53
+      ],
+      [
+        60,
+        54
+      ],
+      [
+        61,
+        54
+      ],
+      [
+        61,
+        55
+      ],
+      [
+        62,
+        31
+      ],
+      [
+        62,
+        56
+      ],
+      [
+        63,
+        57
+      ],
+      [
+        63,
+        58
+      ],
+      [
+        64,
+        58
+      ],
+      [
+        65,
+        58
+      ],
+      [
+        65,
+        59
+      ],
+      [
+        66,
+        18
+      ],
+      [
+        66,
+        59
+      ],
+      [
+        67,
+        60
+      ],
+      [
+        68,
+        60
+      ],
+      [
+        68,
+        61
+      ],
+      [
+        69,
+        40
+      ],
+      [
+        69,
+        62
+      ],
+      [
+        70,
+        63
+      ],
+      [
+        70,
+        64
+      ],
+      [
+        71,
+        64
+      ],
+      [
+        72,
+        64
+      ],
+      [
+        72,
+        65
+      ],
+      [
+        73,
+        65
+      ],
+      [
+        73,
+        66
+      ],
+      [
+        74,
+        26
+      ],
+      [
+        74,
+        66
+      ],
+      [
+        75,
+        67
+      ],
+      [
+        76,
+        67
+      ],
+      [
+        76,
+        68
+      ],
+      [
+        77,
+        46
+      ],
+      [
+        77,
+        69
+      ],
+      [
+        78,
+        70
+      ],
+      [
+        78,
+        71
+      ],
+      [
+        79,
+        71
+      ],
+      [
+        80,
+        71
+      ],
+      [
+        80,
+        72
+      ],
+      [
+        81,
+        72
+      ],
+      [
+        81,
+        73
+      ],
+      [
+        82,
+        73
+      ],
+      [
+        82,
+        74
+      ],
+      [
+        83,
+        75
+      ],
+      [
+        83,
+        76
+      ],
+      [
+        84,
+        51
+      ],
+      [
+        84,
+        77
+      ],
+      [
+        85,
+        78
+      ],
+      [
+        85,
+        79
+      ],
+      [
+        86,
+        79
+      ],
+      [
+        87,
+        79
+      ],
+      [
+        87,
+        80
+      ],
+      [
+        88,
+        80
+      ],
+      [
+        88,
+        81
+      ],
+      [
+        89,
+        81
+      ],
+      [
+        89,
+        82
+      ],
+      [
+        90,
+        36
+      ],
+      [
+        90,
+        83
+      ],
+      [
+        91,
+        55
+      ],
+      [
+        91,
+        84
+      ],
+      [
+        92,
+        85
+      ],
+      [
+        92,
+        86
+      ],
+      [
+        93,
+        86
+      ],
+      [
+        94,
+        86
+      ],
+      [
+        95,
+        87
+      ],
+      [
+        95,
+        88
+      ],
+      [
+        96,
+        61
+      ],
+      [
+        96,
+        91
+      ],
+      [
+        97,
+        92
+      ],
+      [
+        97,
+        93
+      ],
+      [
+        98,
+        93
+      ],
+      [
+        99,
+        93
+      ],
+      [
+        99,
+        94
+      ],
+      [
+        100,
+        87
+      ],
+      [
+        100,
+        94
+      ],
+      [
+        101,
+        68
+      ],
+      [
+        101,
+        96
+      ],
+      [
+        102,
+        97
+      ],
+      [
+        102,
+        98
+      ],
+      [
+        103,
+        98
+      ],
+      [
+        104,
+        98
+      ],
+      [
+        104,
+        99
+      ],
+      [
+        105,
+        99
+      ],
+      [
+        105,
+        100
+      ],
+      [
+        106,
+        95
+      ],
+      [
+        106,
+        100
+      ],
+      [
+        107,
+        76
+      ],
+      [
+        107,
+        101
+      ],
+      [
+        108,
+        102
+      ],
+      [
+        108,
+        103
+      ],
+      [
+        109,
+        83
+      ],
+      [
+        109,
+        107
+      ],
+      [
+        110,
+        108
+      ],
+      [
+        111,
+        90
+      ],
+      [
+        111,
+        109
+      ],
+      [
+        112,
+        74
+      ],
+      [
+        112,
+        111
+      ],
+      [
+        113,
+        82
+      ],
+      [
+        113,
+        112
+      ],
+      [
+        114,
+        89
+      ],
+      [
+        114,
+        113
+      ]
+    ],
+    "nodes": [
+      {
+        "atoms": 3658,
+        "base_readout_bounds": {
+          "lower": [
+            -75.0,
+            -250.0
+          ],
+          "upper": [
+            35.0,
+            260.0
+          ]
+        },
+        "base_readout_cells": 1633,
+        "components_in_suspension": 85,
+        "handle_phase_intervals_met": 479,
+        "handle_pieces": 2045,
+        "index": 0,
+        "pieces": 3678
+      },
+      {
+        "atoms": 3,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            180.0
+          ],
+          "upper": [
+            -75.0,
+            210.0
+          ]
+        },
+        "base_readout_cells": 3,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 1,
+        "pieces": 3
+      },
+      {
+        "atoms": 5,
+        "base_readout_bounds": {
+          "lower": [
+            -75.0,
+            260.0
+          ],
+          "upper": [
+            -62.5,
+            270.0
+          ]
+        },
+        "base_readout_cells": 5,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 2,
+        "pieces": 5
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            -190.0
+          ],
+          "upper": [
+            -57.5,
+            -180.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 3,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -55.0,
+            -200.0
+          ],
+          "upper": [
+            -52.5,
+            -190.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 4,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -50.0,
+            -210.0
+          ],
+          "upper": [
+            -47.5,
+            -200.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 5,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            -220.0
+          ],
+          "upper": [
+            -45.0,
+            -210.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 6,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            150.0
+          ],
+          "upper": [
+            -45.0,
+            160.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 7,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            210.0
+          ],
+          "upper": [
+            -75.0,
+            220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 8,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -62.5,
+            260.0
+          ],
+          "upper": [
+            -60.0,
+            270.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 9,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -57.5,
+            -200.0
+          ],
+          "upper": [
+            -55.0,
+            -190.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 10,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -52.5,
+            -210.0
+          ],
+          "upper": [
+            -50.0,
+            -200.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 11,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -50.0,
+            -220.0
+          ],
+          "upper": [
+            -47.5,
+            -210.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 12,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            -230.0
+          ],
+          "upper": [
+            -45.0,
+            -220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 13,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            160.0
+          ],
+          "upper": [
+            -45.0,
+            170.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 14,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            150.0
+          ],
+          "upper": [
+            -42.5,
+            160.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 15,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            220.0
+          ],
+          "upper": [
+            -75.0,
+            230.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 16,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            -200.0
+          ],
+          "upper": [
+            -57.5,
+            -190.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 17,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            260.0
+          ],
+          "upper": [
+            -57.5,
+            270.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 18,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -55.0,
+            -210.0
+          ],
+          "upper": [
+            -52.5,
+            -200.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 19,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -52.5,
+            -220.0
+          ],
+          "upper": [
+            -50.0,
+            -210.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 20,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -50.0,
+            -230.0
+          ],
+          "upper": [
+            -47.5,
+            -220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 21,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            170.0
+          ],
+          "upper": [
+            -45.0,
+            180.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 22,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            160.0
+          ],
+          "upper": [
+            -42.5,
+            170.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 23,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            230.0
+          ],
+          "upper": [
+            -75.0,
+            240.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 24,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -57.5,
+            -210.0
+          ],
+          "upper": [
+            -55.0,
+            -200.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 25,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -57.5,
+            260.0
+          ],
+          "upper": [
+            -55.0,
+            270.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 26,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -55.0,
+            -220.0
+          ],
+          "upper": [
+            -52.5,
+            -210.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 27,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -52.5,
+            -230.0
+          ],
+          "upper": [
+            -50.0,
+            -220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 28,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -50.0,
+            -240.0
+          ],
+          "upper": [
+            -47.5,
+            -230.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 29,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            180.0
+          ],
+          "upper": [
+            -45.0,
+            190.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 30,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            170.0
+          ],
+          "upper": [
+            -42.5,
+            180.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 31,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            240.0
+          ],
+          "upper": [
+            -75.0,
+            250.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 32,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            -210.0
+          ],
+          "upper": [
+            -57.5,
+            -200.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 33,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -57.5,
+            -220.0
+          ],
+          "upper": [
+            -55.0,
+            -210.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 34,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -55.0,
+            -230.0
+          ],
+          "upper": [
+            -52.5,
+            -220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 35,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -55.0,
+            260.0
+          ],
+          "upper": [
+            -52.5,
+            270.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 36,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -52.5,
+            -240.0
+          ],
+          "upper": [
+            -50.0,
+            -230.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 37,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -50.0,
+            -250.0
+          ],
+          "upper": [
+            -47.5,
+            -240.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 38,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            190.0
+          ],
+          "upper": [
+            -45.0,
+            200.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 39,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            180.0
+          ],
+          "upper": [
+            -42.5,
+            190.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 40,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            250.0
+          ],
+          "upper": [
+            -75.0,
+            260.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 41,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -57.5,
+            -230.0
+          ],
+          "upper": [
+            -55.0,
+            -220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 42,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -55.0,
+            -240.0
+          ],
+          "upper": [
+            -52.5,
+            -230.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 43,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -52.5,
+            -250.0
+          ],
+          "upper": [
+            -50.0,
+            -240.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 44,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            200.0
+          ],
+          "upper": [
+            -45.0,
+            210.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 45,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            190.0
+          ],
+          "upper": [
+            -42.5,
+            200.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 46,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -30.0,
+            150.0
+          ],
+          "upper": [
+            -27.5,
+            160.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 47,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            260.0
+          ],
+          "upper": [
+            -75.0,
+            270.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 48,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -55.0,
+            -250.0
+          ],
+          "upper": [
+            -52.5,
+            -240.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 49,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            210.0
+          ],
+          "upper": [
+            -45.0,
+            220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 50,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            200.0
+          ],
+          "upper": [
+            -42.5,
+            210.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 51,
+        "pieces": 1
+      },
+      {
+        "atoms": 5,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            150.0
+          ],
+          "upper": [
+            -30.0,
+            160.0
+          ]
+        },
+        "base_readout_cells": 5,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 52,
+        "pieces": 5
+      },
+      {
+        "atoms": 6,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            270.0
+          ],
+          "upper": [
+            -62.5,
+            280.0
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 53,
+        "pieces": 6
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            220.0
+          ],
+          "upper": [
+            -45.0,
+            230.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 54,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            210.0
+          ],
+          "upper": [
+            -42.5,
+            220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 55,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            160.0
+          ],
+          "upper": [
+            -40.0,
+            170.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 56,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            270.0
+          ],
+          "upper": [
+            -77.5,
+            280.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 57,
+        "pieces": 1
+      },
+      {
+        "atoms": 6,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            280.0
+          ],
+          "upper": [
+            -62.5,
+            290.0
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 58,
+        "pieces": 6
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -62.5,
+            270.0
+          ],
+          "upper": [
+            -60.0,
+            280.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 59,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            230.0
+          ],
+          "upper": [
+            -45.0,
+            240.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 60,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            220.0
+          ],
+          "upper": [
+            -42.5,
+            230.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 61,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            170.0
+          ],
+          "upper": [
+            -40.0,
+            180.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 62,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            280.0
+          ],
+          "upper": [
+            -77.5,
+            290.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 63,
+        "pieces": 1
+      },
+      {
+        "atoms": 6,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            290.0
+          ],
+          "upper": [
+            -62.5,
+            300.0
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 64,
+        "pieces": 6
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -62.5,
+            280.0
+          ],
+          "upper": [
+            -60.0,
+            290.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 65,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            270.0
+          ],
+          "upper": [
+            -57.5,
+            280.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 66,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            240.0
+          ],
+          "upper": [
+            -45.0,
+            250.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 67,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            230.0
+          ],
+          "upper": [
+            -42.5,
+            240.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 68,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            180.0
+          ],
+          "upper": [
+            -40.0,
+            190.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 69,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            290.0
+          ],
+          "upper": [
+            -77.5,
+            300.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 70,
+        "pieces": 1
+      },
+      {
+        "atoms": 6,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            300.0
+          ],
+          "upper": [
+            -62.5,
+            310.0
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 71,
+        "pieces": 6
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -62.5,
+            290.0
+          ],
+          "upper": [
+            -60.0,
+            300.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 72,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            280.0
+          ],
+          "upper": [
+            -57.5,
+            290.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 73,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -57.5,
+            270.0
+          ],
+          "upper": [
+            -55.0,
+            280.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 74,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -47.5,
+            250.0
+          ],
+          "upper": [
+            -45.0,
+            260.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 75,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            240.0
+          ],
+          "upper": [
+            -42.5,
+            250.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 76,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            190.0
+          ],
+          "upper": [
+            -40.0,
+            200.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 77,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            300.0
+          ],
+          "upper": [
+            -77.5,
+            310.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 78,
+        "pieces": 1
+      },
+      {
+        "atoms": 6,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            310.0
+          ],
+          "upper": [
+            -62.5,
+            320.0
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 79,
+        "pieces": 6
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -62.5,
+            300.0
+          ],
+          "upper": [
+            -60.0,
+            310.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 80,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            290.0
+          ],
+          "upper": [
+            -57.5,
+            300.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 81,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -57.5,
+            280.0
+          ],
+          "upper": [
+            -55.0,
+            290.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 82,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            250.0
+          ],
+          "upper": [
+            -42.5,
+            260.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 83,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            200.0
+          ],
+          "upper": [
+            -40.0,
+            210.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 84,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            310.0
+          ],
+          "upper": [
+            -77.5,
+            320.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 85,
+        "pieces": 1
+      },
+      {
+        "atoms": 5,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            320.0
+          ],
+          "upper": [
+            -65.0,
+            330.0
+          ]
+        },
+        "base_readout_cells": 5,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 86,
+        "pieces": 5
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -62.5,
+            310.0
+          ],
+          "upper": [
+            -60.0,
+            320.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 87,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            300.0
+          ],
+          "upper": [
+            -57.5,
+            310.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 88,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -57.5,
+            290.0
+          ],
+          "upper": [
+            -55.0,
+            300.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 89,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -45.0,
+            260.0
+          ],
+          "upper": [
+            -42.5,
+            270.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 90,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            210.0
+          ],
+          "upper": [
+            -40.0,
+            220.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 91,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            320.0
+          ],
+          "upper": [
+            -77.5,
+            330.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 92,
+        "pieces": 1
+      },
+      {
+        "atoms": 5,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            330.0
+          ],
+          "upper": [
+            -65.0,
+            340.0
+          ]
+        },
+        "base_readout_cells": 5,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 93,
+        "pieces": 5
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -65.0,
+            320.0
+          ],
+          "upper": [
+            -62.5,
+            330.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 94,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            310.0
+          ],
+          "upper": [
+            -57.5,
+            320.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 95,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            220.0
+          ],
+          "upper": [
+            -40.0,
+            230.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 96,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            330.0
+          ],
+          "upper": [
+            -77.5,
+            340.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 97,
+        "pieces": 1
+      },
+      {
+        "atoms": 5,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            340.0
+          ],
+          "upper": [
+            -65.0,
+            350.0
+          ]
+        },
+        "base_readout_cells": 5,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 98,
+        "pieces": 5
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -65.0,
+            330.0
+          ],
+          "upper": [
+            -62.5,
+            340.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 99,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -62.5,
+            320.0
+          ],
+          "upper": [
+            -60.0,
+            330.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 100,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            230.0
+          ],
+          "upper": [
+            -40.0,
+            240.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 101,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            340.0
+          ],
+          "upper": [
+            -77.5,
+            350.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 102,
+        "pieces": 1
+      },
+      {
+        "atoms": 5,
+        "base_readout_bounds": {
+          "lower": [
+            -77.5,
+            350.0
+          ],
+          "upper": [
+            -65.0,
+            360.0
+          ]
+        },
+        "base_readout_cells": 5,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 103,
+        "pieces": 5
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -65.0,
+            340.0
+          ],
+          "upper": [
+            -62.5,
+            350.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 104,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -62.5,
+            330.0
+          ],
+          "upper": [
+            -60.0,
+            340.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 105,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -60.0,
+            320.0
+          ],
+          "upper": [
+            -57.5,
+            330.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 106,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            240.0
+          ],
+          "upper": [
+            -40.0,
+            250.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 107,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            350.0
+          ],
+          "upper": [
+            -77.5,
+            360.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 108,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            250.0
+          ],
+          "upper": [
+            -40.0,
+            260.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 109,
+        "pieces": 1
+      },
+      {
+        "atoms": 3,
+        "base_readout_bounds": {
+          "lower": [
+            -80.0,
+            360.0
+          ],
+          "upper": [
+            -72.5,
+            370.0
+          ]
+        },
+        "base_readout_cells": 3,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 110,
+        "pieces": 3
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            260.0
+          ],
+          "upper": [
+            -40.0,
+            270.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 111,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            270.0
+          ],
+          "upper": [
+            -40.0,
+            280.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 112,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            280.0
+          ],
+          "upper": [
+            -40.0,
+            290.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 113,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -42.5,
+            290.0
+          ],
+          "upper": [
+            -40.0,
+            300.0
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 114,
+        "pieces": 1
+      }
+    ],
+    "scc_count": 22616
+  },
+  "morse_graph_path_exit_policy": {
+    "identical_to_endpoint_policy": true
+  },
+  "parameters": {
+    "X": "([-80,-40]x[-300,600]) u ([-40,35]x[-300,160])",
+    "ambient": [
+      [
+        -120.0,
+        200.0
+      ],
+      [
+        -400.0,
+        880.0
+      ]
+    ],
+    "atol": 1e-12,
+    "max_step": 0.02,
+    "rtol": 1e-10,
+    "tau": 2.0
+  },
+  "python": "3.14.7",
+  "reference_set_identification": null,
+  "relation": {
+    "atoms_with_empty_image": 0,
+    "default_rule": true,
+    "discarded_exit_endpoints": 0,
+    "edges": 405972,
+    "eval_mode": "corners",
+    "evaluated_endpoints": 27068,
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "failed_endpoints": 0,
+    "failure_messages": [],
+    "gap_refinement_depth": 0,
+    "handle_paths": 47,
+    "image_rule": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding",
+    "left_and_returned_endpoints": 0,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "padding_requested": true,
+    "sample_depth": null,
+    "sampled_edges": 55384,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null,
+    "source_atoms_with_exit": 0,
+    "source_atoms_with_failed_samples": 0,
+    "source_atoms_with_left_and_returned": 0,
+    "unique_base_samples": 2957,
+    "unique_handle_samples": 24111
+  },
+  "runtime_seconds": {
+    "conley": 4.090718415973242,
+    "endpoint_probe": 11.029721583006904,
+    "figure": 0.8780703749507666,
+    "grid": 0.1774610829888843,
+    "image_connectivity": 3.178839166997932,
+    "morse_graph": 0.00781774998176843,
+    "relation": 3.6181367919780314,
+    "relation_detail": {
+      "seconds_base_endpoints": 3.3104073750437237,
+      "seconds_handle_endpoints": 0.1397369169862941,
+      "seconds_locate": 0.013904749997891486,
+      "seconds_total": 3.6180924169602804
+    }
+  },
+  "schema": "paper-suspension-grid-run-v2",
+  "tau": 2.0
+}
