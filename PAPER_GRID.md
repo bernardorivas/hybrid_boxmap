@@ -201,27 +201,18 @@ outline. Its second line gives the dimensions of the relative homology of
 its pair from degree 0 up, as `dim H (0, 1, 1, 0)`, or `blocked` when they
 are not known.
 
-The Morse sets are colored with Paul Tol's "muted" qualitative palette,
-which is safe for color-blind readers and made for print and screen. A
-Morse set whose index is computed and trivial is gray, `#BBBBBB` (the gray
-of Tol's bright and vibrant schemes; the muted pale gray `#DDDDDD` is too
-faint for small cells), so gray appears only in the `all` variant. Every
-other Morse set takes the palette colors in order of node number, so a set
+The Morse sets are colored with CMGDB's default palette
+(`CMGDB_MORSE_PALETTE`), except that a Morse set whose index is computed and
+trivial is gray, `#BBBBBB`, so gray appears only in the `all` variant.
+Morse set `M(i)` otherwise takes palette color `i`, as in CMGDB, so a set
 has the same color in both variants and in every panel of a run. The
-palette order is indigo `#332288`, sand `#DDCC77`, cyan `#88CCEE`, green
-`#117733`, rose `#CC6677`, olive `#999933`, teal `#44AA99`, wine
-`#882255`, purple `#AA4499`. Since most figures show one to five colored
-sets, the first two are the pair farthest apart and each next color is the
-one whose smallest distance to those before it is largest (CIEDE2000, the
-smallest of its values for normal vision and simulated protanopia,
-deuteranopia, and tritanopia); indigo precedes sand as it is also farther
-from white and from the gray. With more than nine such sets the colors
-repeat, and the JSON summary says so; the runs in `figures/paper_grid/`
-have at most six. The text of a node is near black (`#111111`) or white,
-whichever has the higher WCAG contrast ratio on the node color (white on
-indigo, green, wine, and purple). This is `paper_grid_morse_colors` in
-`hybrid_dynamics/examples/paper_grid_figures.py`; the other plotting entry
-points keep the CMGDB palette.
+palette has three grays (colors 7, 22, 23); a Morse set with a nontrivial
+label, or without a label, whose number falls on one of them takes the next
+color that is not gray, so gray always means a trivial index. A set
+numbered past the 40 colors of the palette repeats the colors, and the JSON
+summary says so. The text of a node is near black (`#111111`) or white,
+whichever has the higher WCAG contrast ratio on the node color. This is
+`paper_grid_morse_colors` in `hybrid_dynamics/examples/paper_grid_figures.py`.
 
 Each figure shows, in the same colors, the base chart (the base readout
 `d_n^{-1}(M)` of each Morse set) and the Morse graph. The handle chart (the
@@ -298,8 +289,8 @@ atom ranges, `a-b` for the closed range). The `figures` list has the files
 of each variant followed by those of its panels. Records written before
 cells were outlined also list, under `marked_in_panel`, the sets whose cells
 were marked by squares in a chart panel, records written before the
-panel figures have no `panel_files`, and records written before the Tol
-palette have no `colors`. `demo/replot_paper_grid.py` redraws both
+panel figures have no `panel_files`, and records written before the color
+records have no `colors`. `demo/replot_paper_grid.py` redraws both
 variants and their panels from a summary: it rebuilds `Xi_n` from the
 example and level, checks it against the recorded `grid`, and replaces
 `figures` and `figure_variants` in the JSON (dropping `marked_in_panel`).

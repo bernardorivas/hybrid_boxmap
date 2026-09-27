@@ -23,6 +23,7 @@ from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
 from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
     COLOR_RULE,
     FRAME_MARGIN,
+    PALETTE_GRAYS,
     PANEL_MAX_PIXELS,
     PAPER_GRID_PALETTE,
     PAPER_GRID_PALETTE_NAME,
@@ -45,6 +46,7 @@ from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
     atlas_morse_components,
 )
 from hybrid_dynamics.src.hybrid_morse_plot import (  # noqa: E402
+    CMGDB_MORSE_PALETTE,
     MORSE_LABEL_DARK,
     MORSE_LABEL_LIGHT,
     MorseNodeLabel,
@@ -289,7 +291,7 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     # same in both variants.
     for record in figures["figure_variants"].values():
         assert record["colors"] == paper_grid_color_record(6, CONLEY)
-        assert record["colors"]["palette"] == PAPER_GRID_PALETTE_NAME == "Paul Tol muted"
+        assert record["colors"]["palette"] == PAPER_GRID_PALETTE_NAME == "CMGDB default"
         assert record["colors"]["palette_colors"] == list(PAPER_GRID_PALETTE)
         assert record["colors"]["trivial_index_color"] == TRIVIAL_INDEX_COLOR
         assert record["colors"]["rule"] == COLOR_RULE
@@ -720,67 +722,47 @@ def test_a_very_large_panel_png_has_a_lower_resolution():
         plt.close(figure)
 
 
-# Paul Tol's "muted" qualitative scheme, by the names Tol gives the colors.
-TOL_MUTED = {
-    "#CC6677": "rose",
-    "#332288": "indigo",
-    "#DDCC77": "sand",
-    "#117733": "green",
-    "#88CCEE": "cyan",
-    "#882255": "wine",
-    "#44AA99": "teal",
-    "#999933": "olive",
-    "#AA4499": "purple",
-}
-
-
-def test_the_paper_grid_palette_is_tol_muted_and_trivial_sets_are_gray():
-    assert sorted(PAPER_GRID_PALETTE) == sorted(TOL_MUTED)
-    assert [TOL_MUTED[color] for color in PAPER_GRID_PALETTE] == [
-        "indigo",
-        "sand",
-        "cyan",
-        "green",
-        "rose",
-        "olive",
-        "teal",
-        "wine",
-        "purple",
-    ]
+def test_the_paper_grid_palette_is_cmgdb_and_trivial_sets_are_gray():
+    assert PAPER_GRID_PALETTE == CMGDB_MORSE_PALETTE
+    assert PAPER_GRID_PALETTE_NAME == "CMGDB default"
     assert TRIVIAL_INDEX_COLOR == "#BBBBBB" and TRIVIAL_INDEX_COLOR not in PAPER_GRID_PALETTE
+    assert PALETTE_GRAYS <= {color.lower() for color in PAPER_GRID_PALETTE}
 
-    # Nodes 1 and 3 have a trivial index and are gray; the others (a
-    # nontrivial label, or node 2 without a label) take the palette colors in
-    # order of node number.
+    # Nodes 1 and 3 have a trivial index and are gray; node i of the others
+    # (a nontrivial label, or node 2 without a label) takes palette color i,
+    # as in CMGDB.
     palette = PAPER_GRID_PALETTE
     assert paper_grid_morse_colors(6, CONLEY) == {
         0: palette[0],
         1: TRIVIAL_INDEX_COLOR,
-        2: palette[1],
+        2: palette[2],
         3: TRIVIAL_INDEX_COLOR,
-        4: palette[2],
-        5: palette[3],
+        4: palette[4],
+        5: palette[5],
     }
-    # Without index records every node takes a palette color.
+    # Without index records every node takes its palette color.
     assert paper_grid_morse_colors(3) == {0: palette[0], 1: palette[1], 2: palette[2]}
 
-    # More nodes than colors: the colors repeat, and the record says so.
-    record = paper_grid_color_record(11)
-    assert [entry["color"] for entry in record["morse_node_colors"]] == [
-        *palette,
-        palette[0],
-        palette[1],
-    ]
+    # A colored node whose palette color is gray takes the next color that is
+    # not gray, so gray always means a trivial index.
+    colors = paper_grid_morse_colors(24)
+    assert palette[7].lower() in PALETTE_GRAYS and colors[7] == palette[8]
+    assert palette[22].lower() in PALETTE_GRAYS and palette[23].lower() in PALETTE_GRAYS
+    assert colors[22] == colors[23] == palette[24 % len(palette)]
+    assert not {color.lower() for color in colors.values()} & PALETTE_GRAYS
+
+    # A colored node numbered past the palette: the colors repeat, and the
+    # record says so.
+    record = paper_grid_color_record(len(palette) + 2)
     assert record["palette_cycled"] is True
-    assert "repeat from Morse node 9" in record["palette_cycled_note"]
-    # Gray nodes take no palette color, so nine colored nodes of ten do not cycle.
-    conley = [_record(0, "trivial")] + [_record(node, "nontrivial") for node in range(1, 10)]
-    record = paper_grid_color_record(10, conley)
-    assert record["palette_cycled"] is False and "palette_cycled_note" not in record
-    assert [entry["color"] for entry in record["morse_node_colors"]] == [
-        TRIVIAL_INDEX_COLOR,
-        *palette,
+    assert f"repeat from Morse node {len(palette)}" in record["palette_cycled_note"]
+    assert record["morse_node_colors"][len(palette)]["color"] == palette[0]
+    # A trivial node past the end of the palette is gray and does not cycle.
+    conley = [_record(node, "nontrivial") for node in range(len(palette))] + [
+        _record(len(palette), "trivial")
     ]
+    record = paper_grid_color_record(len(palette) + 1, conley)
+    assert record["palette_cycled"] is False and "palette_cycled_note" not in record
 
     # A palette given as a mapping must color every drawn node.
     _problem, grid, morse_sets = _ball_run()

@@ -27,9 +27,9 @@ and written next to the figure of its variant, as ``<variant stem>-base``,
 where ``<variant stem>`` is ``<stem>`` or ``<stem>-nontrivial``.
 
 The colors are those of :func:`paper_grid_morse_colors`: a Morse set whose
-index is computed and trivial is gray, and the other Morse sets take the
-colors of Paul Tol's "muted" palette in order of node number, so a set has
-the same color in both variants and in every panel of a run.
+index is computed and trivial is gray, and Morse set ``M(i)`` otherwise takes
+color ``i`` of CMGDB's default palette, so a set has the same color in both
+variants and in every panel of a run.
 """
 
 from __future__ import annotations
@@ -50,7 +50,7 @@ from ..src.atlas_morse_plot import (
     plot_atlas_hybrid_morse_panels,
     plot_atlas_hybrid_morse_sets,
 )
-from ..src.hybrid_morse_plot import save_hybrid_morse_figure
+from ..src.hybrid_morse_plot import CMGDB_MORSE_PALETTE, save_hybrid_morse_figure
 from ..src.suspension_grid import SuspensionGrid
 from ..src.suspension_grid_plot import (
     FIGURE_VARIANTS,
@@ -62,42 +62,23 @@ from .paper_grid_examples import paper_grid_example
 
 
 #: Name of the palette of the Morse sets, as recorded in the JSON summary.
-PAPER_GRID_PALETTE_NAME = "Paul Tol muted"
+PAPER_GRID_PALETTE_NAME = "CMGDB default"
 
-#: The nine colors of Paul Tol's "muted" qualitative scheme (from his notes
-#: "Colour Schemes"), which is safe for color-blind readers and made for print
-#: and screen.  Tol's order is rose, indigo, sand, green, cyan, wine, teal,
-#: olive, purple.  Here the colors are ordered so that the first few are as
-#: far apart as possible, since most figures show one to five colored sets:
-#: the first two are the pair farthest apart, and each next color is the one
-#: whose smallest distance to the colors before it is largest.  The distance
-#: is CIEDE2000, the smallest of its values for normal vision and for
-#: simulated protanopia, deuteranopia, and tritanopia.  Of the first pair,
-#: indigo and sand, indigo comes first, as it is also farther from the white
-#: background and from the gray of TRIVIAL_INDEX_COLOR.
-PAPER_GRID_PALETTE: tuple[str, ...] = (
-    "#332288",  # indigo
-    "#DDCC77",  # sand
-    "#88CCEE",  # cyan
-    "#117733",  # green
-    "#CC6677",  # rose
-    "#999933",  # olive
-    "#44AA99",  # teal
-    "#882255",  # wine
-    "#AA4499",  # purple
-)
+#: The default Morse-set palette of CMGDB's plotting functions.
+PAPER_GRID_PALETTE: tuple[str, ...] = CMGDB_MORSE_PALETTE
+
+#: The grays of :data:`PAPER_GRID_PALETTE`.  A Morse set with a nontrivial
+#: label, or without a label, skips them, so gray always means trivial index.
+PALETTE_GRAYS = frozenset({"#7f7f7f", "#636363", "#c7c7c7"})
 
 #: Color of a Morse set whose finite-relation index is computed and trivial.
-#: This is the gray of Tol's bright and vibrant schemes; the pale gray
-#: ``#DDDDDD`` of the muted scheme is too faint for small cells on white and
-#: next to the faded sets of a zoom.
 TRIVIAL_INDEX_COLOR = "#BBBBBB"
 
 COLOR_RULE = (
     "Morse nodes whose finite-relation index is computed and trivial are gray; "
-    "the other Morse nodes (nontrivial label, or no label) take the palette colors "
-    "in order of node number, so a node has the same color in every figure and "
-    "panel of the run"
+    "Morse node i with a nontrivial label, or without a label, takes palette color "
+    "i as in CMGDB (the next color that is not gray, when color i is gray), so a "
+    "node has the same color in every figure and panel of the run"
 )
 
 
@@ -108,16 +89,26 @@ def paper_grid_morse_colors(
     """Color of each Morse node of a run, the same in every figure and panel.
 
     ``conley`` holds the index records of the run (possibly none).  A node
-    whose index is computed and trivial is :data:`TRIVIAL_INDEX_COLOR`.  The
-    other nodes, with a nontrivial label or without a label, take the colors
-    of :data:`PAPER_GRID_PALETTE` in order of node number, starting again from
-    the first color when there are more such nodes than colors.
+    whose index is computed and trivial is :data:`TRIVIAL_INDEX_COLOR`.  Any
+    other node ``i`` takes color ``i`` of :data:`PAPER_GRID_PALETTE`, as in
+    CMGDB, or the next color that is not one of :data:`PALETTE_GRAYS`.
     """
 
     colors = dict.fromkeys(range(int(n_nodes)), TRIVIAL_INDEX_COLOR)
-    for count, node in enumerate(_palette_nodes(n_nodes, conley)):
-        colors[node] = PAPER_GRID_PALETTE[count % len(PAPER_GRID_PALETTE)]
+    for node in _palette_nodes(n_nodes, conley):
+        colors[node] = _palette_color(node)
     return colors
+
+
+def _palette_color(node: int) -> str:
+    """Palette color ``node``, or the next color that is not gray."""
+
+    count = len(PAPER_GRID_PALETTE)
+    for step in range(count):
+        color = PAPER_GRID_PALETTE[(node + step) % count]
+        if color.lower() not in PALETTE_GRAYS:
+            return color
+    raise ValueError("the palette has no color that is not gray")
 
 
 def _palette_nodes(n_nodes: int, conley: Sequence[Mapping[str, Any]]) -> list[int]:
@@ -136,14 +127,15 @@ def paper_grid_color_record(
     """The ``colors`` record of a figure variant in the JSON summary.
 
     It names the palette and lists the color of every Morse node of the run
-    (a node hidden in the variant is not drawn).  When more nodes take
-    palette colors than the palette has, ``palette_cycled`` is true and
-    ``palette_cycled_note`` says from which node the colors repeat.
+    (a node hidden in the variant is not drawn).  When a node that takes a
+    palette color is numbered past the end of the palette, ``palette_cycled``
+    is true and ``palette_cycled_note`` says from which node the colors repeat.
     """
 
     colors = paper_grid_morse_colors(n_nodes, conley)
-    palette_nodes = _palette_nodes(n_nodes, conley)
-    cycled = len(palette_nodes) > len(PAPER_GRID_PALETTE)
+    beyond = [
+        node for node in _palette_nodes(n_nodes, conley) if node >= len(PAPER_GRID_PALETTE)
+    ]
     record: dict[str, Any] = {
         "palette": PAPER_GRID_PALETTE_NAME,
         "palette_colors": list(PAPER_GRID_PALETTE),
@@ -152,13 +144,12 @@ def paper_grid_color_record(
         "morse_node_colors": [
             {"morse_node": node, "color": color} for node, color in colors.items()
         ],
-        "palette_cycled": cycled,
+        "palette_cycled": bool(beyond),
     }
-    if cycled:
+    if beyond:
         record["palette_cycled_note"] = (
-            f"{len(palette_nodes)} Morse nodes take palette colors and the palette has "
-            f"{len(PAPER_GRID_PALETTE)}; the colors repeat from Morse node "
-            f"{palette_nodes[len(PAPER_GRID_PALETTE)]} on"
+            f"the palette has {len(PAPER_GRID_PALETTE)} colors; the colors repeat from "
+            f"Morse node {beyond[0]} on"
         )
     return record
 
@@ -368,7 +359,7 @@ def write_paper_grid_figures(
     variant, then those of its panels.  Summaries written before cells were
     outlined also have a ``marked_in_panel`` list (sets whose cells were
     marked by squares), summaries written before the panel figures have no
-    ``panel_files``, and summaries written before the Tol palette have no
+    ``panel_files``, and summaries written before the color records have no
     ``colors``; a replot replaces the record.
     """
 
