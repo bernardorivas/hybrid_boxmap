@@ -203,7 +203,104 @@ The runner options `--eval-mode`, `--num-pts`, `--sample-depth`, `--seed`,
 options in force, the offsets, and the command line are recorded under
 `image_rule` in the JSON summary. Outputs (PDF, PNG, JSON) are written to
 `figures/paper_grid/`; every non-default choice adds a suffix to the file
-names (`-center`, `-random10d4s0`, `-tensor3`, `-gap-refined`).
+names (`-center`, `-random10d4s0`, `-tensor3`, `-gap-refined`), and a base
+offset adds `-base<cells per axis>` after the level (see the next section).
+
+## Base grids finer than the phase grid
+
+The cofiltration of the manuscript allows any contracting sequence of base
+grids, so the base grid of `Xi_n` can be finer than its phase grid.
+`--level-offset EXAMPLE=K` builds level `n` with `2^(n+K)` base cells per
+axis of the ambient rectangle (`X_j` has `2^(j+K)` cells per axis) and
+`2^(n+2)` phase cells of width `a_n = 2^(-n-2)`; the generators `K_j`, `Q_j`
+range over `j <= n` as before. A positive offset adds `-base<cells per axis>`
+after the level in the output names
+(`paper-grid-bouncing-ball-tau050-level6-base1024-corners.json`); offset `0`
+keeps the earlier names. The JSON summary records `level_offset`,
+`base_cells_per_axis`, and `phase_cells`, and `demo/replot_paper_grid.py`
+rebuilds the grid with the recorded offset.
+
+```bash
+.venv/bin/python demo/run_paper_grid_examples.py bouncing-ball --level bouncing-ball=6 \
+    --level-offset bouncing-ball=4 --tau bouncing-ball=0.5 --workers 3 --index-max-pieces 100000
+```
+
+Where the time goes:
+
+- Base samples. With `corners` every vertex of the base lattice in `R` is
+  evaluated once, with the integrator of the example (`solve_ivp`, RK45,
+  `rtol=1e-10`, `atol=1e-12`, `max_step=0.02`). The cost is linear in the
+  number of vertices, about 0.2 ms (ball, `tau = 0.5`) to 0.9 ms (neuron,
+  `tau = 2`) of wall time per sample with `--workers 3` and four runs at once.
+  This is the floor of a run: the endpoints, and so the relation, depend on
+  the integration.
+- Handle samples: one path per guard coordinate, seconds.
+- Grid, point location, relation assembly, Morse graph, and image
+  connectivity: seconds at 1024 cells per axis, under a minute at 2048.
+- Gap refinement: the inserted samples cost what base samples cost.
+- Index labels: the quotient nerve of `X = S cup F(S)` has about ten
+  simplices per elementary piece and is held in memory with the carriers. A
+  pair blocked by a non-acyclic carrier stops at the first failing cell; a
+  computed index takes about two minutes for `10^4` pieces and ten minutes
+  and 6 to 7 GB for `6 x 10^4` pieces. `--index-max-pieces` skips larger
+  pairs.
+
+The code is exercised against the earlier computations in
+`hybrid_dynamics/tests/test_suspension_grid_scaling.py`: small runs of all
+four examples (with offsets, gap refinement, and both exit policies)
+reproduce the digests of their relations, statistics, Morse graphs, and index
+records computed with commit `24ecdda`.
+
+### Feasibility at phase level 6
+
+Four runs at a time with `--workers 3` on 14 cores (48 GB), commits
+`5a07656` to `575f603`, `--index-max-pieces 100000`, gap refinement depth 12
+where marked. Wall time and the peak resident memory of the run (runner and
+workers). Repeating 17 of these runs with `1eedf06` took between 0.7 and 6.7
+times as long, depending on the load from other processes; most index times
+below predate `575f603`, which shortened a computed index of 11,297 pieces
+from 162 to 112 s. Index labels: nontrivial shift classes with the pieces of
+`X`; the remaining Morse nodes are trivial, blocked by a non-acyclic carrier,
+or over the piece limit.
+
+| Example, `tau` | base cells | gap | wall (s) | peak (GB) | base samples | integration (s) | gap refinement (s, samples) | index (s) | Morse nodes | nontrivial labels (pieces of `X`) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| ball, 0.5 | 256 | no | 27 | 0.9 | 66,049 | 15 | | 3 | 1: 1 blocked | |
+| ball, 0.5 | 512 | no | 63 | 0.9 | 263,169 | 52 | | 3 | 1: 1 blocked | |
+| ball, 0.5 | 1024 | no | 218 | 2.4 | 1,050,625 | 201 | | 3 | 1: 1 blocked | |
+| ball, 0.5 | 2048 | no | 942 | 7.7 | 4,198,401 | 899 | | 3 | 1: 1 blocked | |
+| ball, 0.5 | 256 | yes | 187 | 1.7 | 66,049 | 15 | 8 (40,436) | 158 | 2: 1 blocked | `(x-1, x-1, 0, 0)` (11,297) |
+| ball, 0.5 | 512 | yes | 252 | 2.3 | 263,169 | 52 | 32 (180,232) | 160 | 2: 1 blocked | `(x-1, x-1, 0, 0)` (12,021) |
+| ball, 0.5 | 1024 | yes | 490 | 3.0 | 1,050,625 | 203 | 142 (791,455) | 128 | 1 | `(x-1, x-1, 0, 0)` (13,270) |
+| wheel, 1 | 256 | no | 112 | 1.3 | 66,049 | 24 | | 76 | 8: 4 trivial, 2 blocked | gait `(x-1, x-1, 0, 0)` (9,443); saddle `(0, x-1, 0, 0)` (88) |
+| wheel, 1 | 512 | no | 208 | 1.6 | 263,169 | 93 | | 104 | 6: 4 trivial | gait (13,136); saddle (88) |
+| wheel, 1 | 1024 | no | 543 | 2.5 | 1,050,625 | 370 | | 154 | 6: 4 trivial | gait (19,822); saddle (88) |
+| wheel, 1 | 2048 | no | 1,562 | 9.2 | 4,198,401 | 1,506 | | 8 | 6: 4 trivial, 1 blocked (gait) | saddle (88) |
+| wheel, 1 | 256 | yes | 136 | 1.3 | 66,049 | 23 | 29 (77,863) | 75 | 5: 2 trivial, 1 blocked | gait (9,531); saddle (97) |
+| wheel, 1 | 512 | yes | 293 | 1.6 | 263,169 | 89 | 83 (225,537) | 106 | 4: 2 trivial | gait (13,271); saddle (97) |
+| wheel, 1 | 1024 | yes | 863 | 3.6 | 1,050,625 | 392 | 346 (969,391) | 102 | 4: 2 trivial | gait (20,408); saddle (97) |
+| neuron, 2 | 256 | no | 37 | 0.7 | 11,553 | 11 | | 8 | 143: 142 trivial, 1 blocked | |
+| neuron, 2 | 512 | no | 63 | 1.0 | 45,665 | 39 | | 8 | 84: 83 trivial, 1 blocked | |
+| neuron, 2 | 1024 | no | 185 | 1.8 | 181,569 | 157 | | 9 | 15: 14 trivial, 1 blocked | |
+| neuron, 2 | 2048 | no | 679 | 2.8 | 724,097 | 641 | | 15 | 1: 1 blocked | |
+| neuron, 2 | 256 | yes | 165 | 1.4 | 11,553 | 10 | 20 (26,247) | 120 | 143: 142 trivial | `(x-1, x-1, 0, 0, 0, 0)` (14,694) |
+| neuron, 2 | 512 | yes | 234 | 1.7 | 45,665 | 37 | 44 (56,663) | 137 | 84: 83 trivial | `(x-1, x-1, 0, 0, 0, 0)` (20,053) |
+| neuron, 2 | 1024 | yes | 429 | 3.0 | 181,569 | 163 | 117 (131,410) | 131 | 15: 14 trivial | `(x-1, x-1, 0, 0, 0, 0)` (28,826) |
+| impact, 0.5 | 256 | no | 80 | 3.2 | 66,049 | 19 | | 46 | 1: 1 blocked | |
+| impact, 0.5 | 512 | no | 809 | 6.2 | 263,169 | 71 | | 721 | 25: 6 trivial, 17 blocked | `(x-1, x-1, 0, 0)` (62,782); `(x-1, 0, 0, 0)` (10,579) |
+| impact, 0.5 | 1024 | no | 382 | 2.6 | 1,050,625 | 288 | | 67 | 24: 6 trivial, 16 blocked, 1 over limit (100,895) | `(x-1, 0, 0, 0)` (5,529) |
+| impact, 0.5 | 2048 | no | 1,267 | 9.3 | 4,198,401 | 1,141 | | 59 | 16: 9 trivial, 5 blocked, 1 over limit (180,052) | `(x-1, 0, 0, 0)` (5,539) |
+| impact, 0.5 | 256 | yes | 197 | 3.7 | 66,049 | 18 | 6 (31,767) | 163 | 1: 1 blocked | |
+| impact, 0.5 | 512 | yes | 903 | 6.2 | 263,169 | 69 | 17 (74,452) | 800 | 23: 4 trivial, 17 blocked | `(x-1, x-1, 0, 0)` (63,026); `(x-1, 0, 0, 0)` (10,580) |
+| impact, 0.5 | 1024 | yes | 624 | 4.5 | 1,050,625 | 306 | 75 (269,605) | 212 | 24: 6 trivial, 15 blocked, 1 over limit | `(x-1, 0, 0, 0)` (5,529); `(x-1, x-1, 0, 0)` (15,231) |
+
+Not run, estimated from the rows above (inserted samples at 0.8, 0.9, 0.6,
+and 0.25 times the base samples, at the per-sample cost of the 2048 rows):
+gap refinement at 2048 cells takes about 30 minutes for the ball, 50 for the
+wheel, 20 for the neuron, and 25 to 40 for the impacting oscillator, with
+peaks of about 4 GB for the neuron and 9 to 11 GB for the others. Since `1eedf06` the Morse graph no longer copies the
+relation; on the 2048 ball grid with a synthetic map (72.7 million edges)
+this lowered the peak from 9.8 to 7.6 GB. The 2048 rows predate it.
 
 ## Recorded runs
 
