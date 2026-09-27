@@ -3,16 +3,19 @@
 Outputs of `demo/run_paper_grid_examples.py`, described in `PAPER_GRID.md`.
 Each run has a JSON summary and its figures under the same stem.
 
-- `./`: the recommended run of each example for the paper figures (ball,
-  wheel, neuron at `tau = 5`, oscillator), with `<stem>.pdf/.png` (every
-  Morse node) and `<stem>-nontrivial.pdf/.png` (trivial-index nodes hidden),
-  redrawn at `ff7ca77` with base chart, zoom panels, handle chart, and Morse
-  graph; and the neuron run at `tau = 1` that the sweep first picked, with
-  figures in the earlier layout (base chart and Morse graph).
+- `./`: the recommended run of each example for the paper figures, with
+  `<stem>.pdf/.png` (every Morse node) and `<stem>-nontrivial.pdf/.png`
+  (trivial-index nodes hidden). The ball, the wheel, and the neuron at
+  `tau = 5` were recomputed at `a47c88d` (batched integrator, relative
+  homology of every Morse set, no piece limit); the oscillator at
+  `beta = 0.8` is the run at `8e99989`, with figures redrawn at `6441c93`.
+  The neuron run at `tau = 1` that the sweep first picked is also kept, from
+  `8e99989`.
 - `./`, variant `impact-vdp-duffing-beta076` (the oscillator at
   `beta = 0.76`, same window): the run at `tau = 1`, level 6, 1024 base
   cells and the run at `tau = 0.5`, level 7, 2048 base cells, both
-  gap-refined, at `a7ac462`, each with both figure variants.
+  gap-refined, recomputed at `a47c88d` (first run at `a7ac462`), each with
+  both figure variants.
 - `sweep-bouncing-ball/`, `sweep-rimless-wheel/`, `sweep-spiking-neuron/`,
   `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs),
   figures in the earlier layout.

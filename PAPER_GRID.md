@@ -144,13 +144,33 @@ atoms as actual closed rectangles in the base chart and in the handle chart
 `(u, s)`, and uses `AtlasQuotientNerveComplex2D` (seams `(u,0) ~ gamma(u)`,
 `(u,1) ~ r(gamma(u))`), `prepare_atlas_relation_conley_2d`, and
 `CMGDB.ComputeRelativeHomologyShiftClass`. A piece of the atom `xi` is sent to
-every piece of `F(xi)`. Any failed gate is returned as a blocker, never
-replaced by a label. The results are finite-relation shift classes over
-`GF(5)`; they are not certified indices of the continuous map. The quotient
-nerve has about ten simplices per elementary piece of `X` and is held in
-memory; `max_pieces` (runner option `--index-max-pieces N`) skips a Morse set
-whose `X` has more than `N` pieces and reports it as blocked with
-`IndexSizeLimitError`. By default there is no limit.
+every piece of `F(xi)`. The results are finite-relation shift classes over
+`GF(5)`; they are not certified indices of the continuous map.
+
+The relative homology `H_*(X, A; GF(5))` of the pair is computed first, from
+the relative boundary matrices of the quotient nerve; it needs no carrier.
+If it is zero, the label is zero in every degree whatever the index map, and
+the index map is not formed (`label_source: "zero relative homology"`).
+Otherwise the index map is formed and its shift class is the label
+(`label_source: "index map"`), and the homology dimensions it reports must
+equal those of the boundary matrices. A failed gate of the index map
+(carrier acyclicity, pair preservation, chain map) is recorded as
+`blocker` and `index_map_blocker`, never replaced by a label; the homology
+dimensions are still recorded (`homology_computed`). Only a quotient nerve
+that is not a good cover leaves both unknown.
+
+The quotient nerve has about ten simplices per elementary piece of `X` and
+is held in memory; `max_pieces` (runner option `--index-max-pieces N`) skips
+a Morse set whose `X` has more than `N` pieces and reports it as blocked
+with `IndexSizeLimitError`. By default there is no limit.
+`compute_suspension_grid_conley_indices` computes the indices of all Morse
+sets, in worker processes with `workers > 1` (runner option
+`--index-workers N`, default 4), largest Morse set first. Each worker
+rebuilds the grid from the problem factory, checks it against the grid of
+the run, and receives only the rows of `S cup F(S)`; the records equal those
+of the serial loop (`test_parallel_indices_equal_the_serial_ones`). Each
+worker holds its own copy of the grid, about 1 GB at `2^10` and 4 GB at
+`2^11` base cells per axis.
 
 A seam whose line lies outside the extent of the base pieces of `X` meets no
 base piece of `X`. This is the case of a Morse set with handle pieces but no
@@ -176,8 +196,10 @@ The runner writes two figure variants per run (`--figure-variants`, default
   the order drawn between them is reachability in the full Morse graph,
   through hidden nodes, transitively reduced.
 
-In both variants a node whose index is blocked is kept, drawn with a dashed
-outline, and labeled `blocked`.
+In both variants a node without a label is kept and drawn with a dashed
+outline. Its second line gives the dimensions of the relative homology of
+its pair from degree 0 up, as `dim H (0, 1, 1, 0)`, or `blocked` when they
+are not known.
 
 Each figure has three panels in the same colors: the base chart (the base
 readout `d_n^{-1}(M)` of each Morse set), the handle chart (its handle pieces
@@ -222,6 +244,29 @@ From `code/`:
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12 --eval-mode tensor --samples-per-axis 3
 .venv/bin/python demo/replot_paper_grid.py figures/paper_grid/paper-grid-spiking-neuron-*.json
 ```
+
+The base samples are integrated many at a time by
+`hybrid_dynamics/src/batched_suspension_flow.py`, which runs the RK45 method
+of `solve_ivp` on an array of points with the step sequence `solve_ivp` gives
+each point: the same initial step, error norm, step factors, `max_step`, and
+last step clipped to the time span; the terminal event with its crossing
+direction, detected from the event values at the ends of each step and
+located on the dense output of the step, at the start of the step when the
+event function is zero there (the rule of `brentq`, which matters for wheel
+samples on `theta = alpha + gamma` with `omega < 0`); the unit-time
+handles; and the window exits recorded as `SuspensionPath` records them. A point that
+`solve_ivp` would stop on with an error is evaluated by `SuspensionFlow`,
+which stays the reference (`--path-flow` uses it for every sample; the JSON
+records `integrator`). Each example supplies `BatchDynamics`, the vectorized
+form of its vector field, event function, and reset with the same
+arithmetic. The recorded digests of `test_suspension_grid_scaling.py` pass
+unchanged; at 256 base cells per axis the relations of the five paper
+configurations are identical with either integrator, and so is the wheel
+relation at 2048 cells (81,337,508 edges; the largest difference of an
+endpoint over 4.9 million samples is `5e-14`)
+(`test_batched_suspension_flow.py` compares endpoints, kinds, and exit flags
+on samples of every example, including guard points and points near the
+Zeno points). Handle samples are few and still use `SuspensionFlow`.
 
 The runner options `--eval-mode`, `--num-pts`, `--sample-depth`, `--seed`,
 `--samples-per-axis`, and `--gap-refinement-depth` select the sampling; the
@@ -345,27 +390,34 @@ of the author:
   time-`tau` map is not close to the identity at the scale of the grid. The
   CMGDB ODE examples use `tau` from 0.1 to 1.
 - Extra Morse nodes are acceptable, and a figure may show them. A spurious
-  node with a nontrivial index would be incorrect. A blocked index is
-  unknown, not trivial, so a blocked spurious node is not ruled out.
+  node with a nontrivial index would be incorrect. A node whose pair has
+  zero relative homology has trivial index even when its index map fails; a
+  node without a label and with nonzero homology has an unknown index, so it
+  is not ruled out.
 - Each run is drawn with every Morse node (`<stem>.pdf`, `.png`) and without
   the nodes whose computed index is trivial (`<stem>-nontrivial.pdf`,
   `.png`); see Figures.
 
 ### Recommended configurations
 
-All four runs use corner sampling with gap refinement of depth 14,
-`--workers 3`, and code `8e99989` on a clean tree. Each was chosen from the
-sweep below and then checked independently: the grid was rebuilt, the Morse
-sets decoded from the JSON, the invariant sets located in them, and the
-order recomputed from the edges. The JSON summaries and both figure variants
-are in `figures/paper_grid/`.
+All runs use corner sampling with gap refinement of depth 14. The ball,
+wheel, neuron, and oscillator (`beta = 0.8`) configurations were chosen
+from the sweep below at code `8e99989` (`--workers 3`) and then checked
+independently: the grid was rebuilt, the Morse sets decoded from the JSON,
+the invariant sets located in them, and the order recomputed from the edges.
+The manuscript's oscillator is the variant at `beta = 0.76` of the next
+section. The ball, wheel, and neuron runs and both runs at `beta = 0.76` were
+recomputed at `a47c88d` (see "Recomputation with the batched integrator"):
+their relations, Morse sets, and Morse graphs equal those of the earlier
+runs, and so does every label computed before. The JSON summaries and both
+figure variants are in `figures/paper_grid/`.
 
-| Example | `tau` | level (phase cells) | base cells | Morse graph and labels | wall (s) | check |
-|---|---|---|---|---|---|---|
-| ball | 0.5 | 6 (256) | 1024 | 1 node: `Z~` `(x-1, x-1, 0, 0)` | 528 | passed |
-| wheel | 0.5 | 7 (512) | 2048 | 17 nodes: saddle `(0, x-1, 0, 0)` -> gait `(x-1, x-1, 0, 0)`; 15 trivial | 1,797 | passed; this is the gap-refined twin of the sweep's pick |
-| neuron | 5 | 7 (512) | 1024 | 1 node: cycle `(x-1, x-1, 0, 0, 0, 0)` | 1,232 | the sweep's pick, `tau = 1`, failed the `tau` rule |
-| impact | 1 | 6 (256) | 1024 | 9 nodes: C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`; S, U_Z, and a ring around F blocked; 3 trivial | 1,396 | passed |
+| Example | `tau` | level (phase cells) | base cells | Morse graph and labels | wall (s), `8e99989` | wall (s), `a47c88d` | check |
+|---|---|---|---|---|---|---|---|
+| ball | 0.5 | 6 (256) | 1024 | 1 node: `Z~` `(x-1, x-1, 0, 0)` | 528 | 127 | passed |
+| wheel | 0.5 | 7 (512) | 2048 | 17 nodes: saddle `(0, x-1, 0, 0)` -> gait `(x-1, x-1, 0, 0)`; 15 trivial | 1,797 | 537 | passed; this is the gap-refined twin of the sweep's pick |
+| neuron | 5 | 7 (512) | 1024 | 1 node: cycle `(x-1, x-1, 0, 0, 0, 0)` | 1,232 | 96 | the sweep's pick, `tau = 1`, failed the `tau` rule |
+| impact, `beta = 0.8` | 1 | 6 (256) | 1024 | 9 nodes: C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`; S, U_Z, and a ring around F blocked; 3 trivial | 1,396 | not recomputed | passed |
 
 Figures (`<stem>.png` shows every node, `<stem>-nontrivial.png` hides the
 trivial ones; PDFs alongside), with `<stem>` in `figures/paper_grid/`:
@@ -373,7 +425,8 @@ trivial ones; PDFs alongside), with `<stem>` in `figures/paper_grid/`:
 - ball: `paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined`
 - wheel: `paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined`
 - neuron: `paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined`
-- impact: `paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined`
+- impact, `beta = 0.8`: `paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined`
+  (recorded at `8e99989`; its blocked nodes predate the homology records)
 
 The wheel and neuron files were copied from the sweep. The figures of all
 four were redrawn at `ff7ca77` with `demo/replot_paper_grid.py` in the layout
@@ -384,19 +437,19 @@ layout of a base chart and a Morse graph. The folder also keeps
 sweep's first pick for the neuron, a rerun that equals the sweep run except
 for timings and paths.
 
-To reproduce, from `code/` (add `--output-dir`, or the runner overwrites the
-recorded files of the same name):
+To reproduce the recorded runs, from `code/` (add `--output-dir`, or the
+runner overwrites the recorded files of the same name):
 
 ```bash
 .venv/bin/python demo/run_paper_grid_examples.py bouncing-ball --level bouncing-ball=6 \
     --level-offset bouncing-ball=4 --tau bouncing-ball=0.5 --gap-refinement-depth 14 \
-    --workers 3 --index-max-pieces 100000
+    --workers 12
 .venv/bin/python demo/run_paper_grid_examples.py rimless-wheel --level rimless-wheel=7 \
     --level-offset rimless-wheel=4 --tau rimless-wheel=0.5 --gap-refinement-depth 14 \
-    --workers 3 --index-max-pieces 100000
+    --workers 12
 .venv/bin/python demo/run_paper_grid_examples.py spiking-neuron --level spiking-neuron=7 \
     --level-offset spiking-neuron=3 --tau spiking-neuron=5 --gap-refinement-depth 14 \
-    --workers 3 --index-max-pieces 100000
+    --workers 12
 .venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing --level impact-vdp-duffing=6 \
     --level-offset impact-vdp-duffing=4 --tau impact-vdp-duffing=1 --gap-refinement-depth 14 \
     --workers 3 --index-max-pieces 150000
@@ -598,17 +651,21 @@ is undefined. Tests: `test_beta076_variant` in `test_impact_vdp_duffing.py`
 and `test_a_variant_has_its_own_output_names_and_replots` in
 `test_suspension_grid_plot.py`.
 
-Runs. Code `a7ac462` on a clean tree, corner sampling, gap refinement of
-depth 14, `--index-max-pieces 150000`, `--workers 12`, one run at a time on
-14 cores. Peak memory is the largest resident set of one process
-(`/usr/bin/time -l`). In both runs no endpoint probe is missed (0 of 3,515),
-no padded image is disconnected, and the path exit policy gives the same
-Morse sets and edges.
+Runs. Code `a47c88d` on a clean tree, corner sampling, gap refinement of
+depth 14, no piece limit, `--workers 12`, and `--index-workers 4`
+(`tau = 1`) or 3 (`tau = 0.5`), one run at a time on 14 cores; the index of
+`C` at `tau = 0.5` shared the machine with another job. Peak memory is the
+largest resident set of the run's processes (`/usr/bin/time -l`). In both
+runs no endpoint probe is missed (0 of 3,515), no padded image is
+disconnected, and the path exit policy gives the same Morse sets and edges.
+The first runs, at `a7ac462` with `--index-max-pieces 150000`, gave the same
+relations, Morse sets, and Morse graphs; they differ only in the index
+records, as described below.
 
-| `tau` | level (phase cells) | base cells | wall (s) | peak (GB) | base samples | gap samples | Morse nodes | labels | blocked | trivial |
+| `tau` | level (phase cells) | base cells | wall (s) | peak (GB) | base samples | gap samples | Morse nodes | labels | no label | trivial |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 6 (256) | 1024 | 643 | 8.1 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | 7: U_Z and 6 spurious | 4 |
-| 0.5 | 7 (512) | 2048 | 780 | 11.9 | 4,198,401 | 1,037,721 | 22 | F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | 3: C (240,383 pieces, over the limit), U_Z, 1 spurious | 16 |
+| 1 | 6 (256) | 1024 | 388 (643 at `a7ac462`) | 7.0 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | U_Z, `dim H (0, 1, 1, 0)` | 10 |
+| 0.5 | 7 (512) | 2048 | 1,673 (780 at `a7ac462`, without C's label) | 22.9 | 4,198,401 | 1,037,721 | 22 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | U_Z, `dim H (0, 1, 1, 0)` | 17 |
 
 Stems in `figures/paper_grid/` (JSON, and `<stem>.pdf/.png`,
 `<stem>-nontrivial.pdf/.png`):
@@ -625,11 +682,11 @@ Named nodes of the `tau = 1` run (the `tau = 0.5` run in parentheses):
 
 | set | node | atoms | base cells and extent | handle pieces, `v_G` | label |
 |---|---|---|---|---|---|
-| C | `M(0)` (`M(0)`) | 57,007 (220,442) | 49,769 in `[-1.706, 0.8] x [-1.934, 1.564]` | 12,338 in `[1.438, 1.575]`, all phases | `(x-1, x-1, 0, 0)` (over the piece limit) |
+| C | `M(0)` (`M(0)`) | 57,007 (220,442) | 49,769 in `[-1.706, 0.8] x [-1.934, 1.564]` | 12,338 in `[1.438, 1.575]`, all phases | `(x-1, x-1, 0, 0)` (same) |
 | F | `M(1)` (`M(1)`) | 894 (3,868) | 894 in `[-1.048, -0.951] x [-0.070, 0.065]` | none | `(x-1, 0, 0, 0)` (same) |
 | Z | `M(2)` (`M(2)`) | 3,491 (15,031) | 32 in `[0.7946, 0.8] x [-0.032, 0.035]` | 5,775 in `[0, 0.073]`, all phases | `(x-1, x-1, 0, 0)`, dimensions `(1, 2, 0, 0)` (same) |
 | S | `M(10)` (`M(11)`) | 19 (58) | 19 in `[-0.0137, 0.0104] x [-0.0110, 0.0100]` (58 in `[-0.0110, 0.0104] x [-0.0089, 0.0100]`) | none | `(0, x-1, 0, 0)` (same) |
-| U_Z | `M(14)` (`M(21)`) | 14,682 (60,770) | 9,901 in `[0.319, 0.8] x [-0.477, 0.690]` | 8,091 in `[0.602, 0.699]`, all phases | blocked (same) |
+| U_Z | `M(14)` (`M(21)`) | 14,682 (60,770) | 9,901 in `[0.319, 0.8] x [-0.477, 0.690]` | 8,091 in `[0.602, 0.699]`, all phases | no label, `dim H (0, 1, 1, 0)` (same) |
 
 - S. The Morse set of S is now a small connected set of base cells at the
   origin, no farther than 0.013 (0.011 at 2048 cells) from it, with no
@@ -639,19 +696,20 @@ Named nodes of the `tau = 1` run (the `tau = 0.5` run in parentheses):
   and `A` has two acyclic components. At `beta = 0.8` the same
   configuration gave 8,160 cells in `[-1.440, 0.010] x [-0.981, 0.568]`,
   enclosing F, and a blocked label.
-- U_Z. Blocked in both runs by a non-acyclic carrier, as in every run at
-  `beta = 0.8`. `A` has two components, each an annulus
+- U_Z. No label in either run: the index map fails its carrier check, as in
+  every run at `beta = 0.8`. `A` has two components, each an annulus
   (`H_*(A) = (2, 2)`), and the exit-component carrier sends an exit vertex
-  to its whole component. `H_*(X, A; GF(5))`, computed separately on the
-  same quotient nerve, is `(0, 1, 1, 0)` in both runs (`X` of 25,148 and
-  89,084 pieces), consistent with the predicted `(0, x-1, x-1, 0)`.
+  to its whole component. The code records `H_*(X, A; GF(5)) = (0, 1, 1, 0)`
+  in both runs (`X` of 25,148 and 89,084 pieces), consistent with the
+  predicted `(0, x-1, x-1, 0)`; a separate computation at `a7ac462` on the
+  same quotient nerve gave the same dimensions.
 - Z. The shift class is `x-1` in degrees 0 and 1 although `dim H_1 = 2`
   (it was 1 at `beta = 0.8`); the ball's label has the same form.
-- C at 2048 cells. `X` has 240,383 pieces and was not attempted. If time
-  and memory grow linearly in the pieces (62,107 pieces took 323 s in the
-  `tau = 1` run; 6 to 7 GB for `6 x 10^4` pieces, see Feasibility), the
-  label would take about 20 minutes and 25 GB on top of the run; it was not
-  run.
+- C at 2048 cells. `X` has 240,383 pieces. Without the piece limit its label
+  is computed, `(x-1, x-1, 0, 0)` with homology dimensions `(1, 1, 0, 0)`,
+  as at 1024 cells. It took 1,574 s in one index worker, most of the index
+  stage; the peak of 22.9 GB of the run is most likely this worker. At
+  1024 cells (62,107 pieces) it takes about 355 s.
 - Order. Both Morse graphs give U_Z -> Z, U_Z -> S, S -> C, S -> F among the
   five sets, and every path from U_Z to C or F passes through S. At 1024
   cells U_Z reaches Z through the spurious nodes `M(8)`, `M(5)`, `M(6)`; at
@@ -659,10 +717,12 @@ Named nodes of the `tau = 1` run (the `tau = 0.5` run in parentheses):
 
 Spurious nodes. None has a nontrivial label.
 
-- `tau = 1`: four computed trivial nodes, single cells within 0.013 of S:
+- `tau = 1`: ten trivial nodes. Four are single cells within 0.013 of S:
   `M(4)` on the right unstable branch (toward C), `M(9)` on the left one
   (toward F), `M(11)` on the right stable branch, and `M(12)` next to
-  `M(11)`. Six blocked nodes: `M(3)` and `M(7)` (28 and 14 cells in 9
+  `M(11)`; their pairs have zero relative homology. The other six had no
+  label at `a7ac462`, where the carrier check failed before any homology
+  was computed: `M(3)` and `M(7)` (28 and 14 cells in 9
   components each, around F, the combinatorial rotation ring of the focus
   seen at `beta = 0.8`), `M(5)`, `M(6)`, `M(8)` (one or two base cells
   within two cells of the wall at `|v|` from 0.032 to 0.048, with 22 to 41
@@ -671,47 +731,87 @@ Spurious nodes. None has a nontrivial label.
   components and 22 handle pieces over `v_G` in `[0.682, 0.703]`). For each of the six, `X` and `A` have the same number
   of components (`M(3)` 9, `M(5)` 4, `M(6)` 4, `M(7)` 9, `M(8)` 4, `M(13)`
   9), all acyclic, and `H_*(X, A; GF(5)) = 0`.
-  Their index is therefore trivial although the code reports it blocked: the
-  carrier gate fails before the index map is formed, and any map on a zero
-  space is trivial.
-- `tau = 0.5`: sixteen computed trivial nodes, each of one to three base
-  cells within 0.015 of S, on the connections U_Z -> S, S -> C, and S -> F.
-  One blocked node, `M(3)`: 38 cells around F, the rotation ring, with `X`
-  and `A` of 9 acyclic components each and `H_*(X, A; GF(5)) = 0`, so its
-  index is trivial as well.
+  The code now computes this homology first and labels all six trivial
+  (`label_source: "zero relative homology"`): any map on a zero space has
+  trivial shift class, so the index map is not needed.
+- `tau = 0.5`: seventeen trivial nodes. Sixteen are one to three base cells
+  within 0.015 of S, on the connections U_Z -> S, S -> C, and S -> F. The
+  seventeenth, `M(3)`, is the rotation ring around F (38 cells), with `X`
+  and `A` of 9 acyclic components each and `H_*(X, A; GF(5)) = 0`; it had no
+  label at `a7ac462`.
 
-The relative homology was computed by recomputing the relation of each run
-(the Morse sets were reproduced exactly), forming `X` and `A` and the
-quotient nerve as `compute_suspension_grid_conley_index` does, and taking
-the ranks of the relative boundary matrices over `GF(5)`. The nerve passed
-its good-cover audit, so these are the ranks of `H_*(|X|, |A|)`.
+The relative homology is computed from the relative boundary matrices of
+the quotient nerve over `GF(5)` (see Index labels). The nerve passes its
+good-cover audit, so these are the ranks of `H_*(|X|, |A|)`. A separate
+computation at `a7ac462`, which recomputed the relation of each run and
+formed the pairs in the same way, gave the same dimensions.
 
-Figures. The `nontrivial` figure of the `tau = 1` run shows 11 nodes: the
-five sets, the ring nodes `M(3)` and `M(7)` (zoom A), S alone in zoom B,
-and Z with `M(5)`, `M(6)`, `M(8)`, `M(13)` in zoom C, whose handle pieces
-are marked by squares in the handle chart. The `nontrivial` figure of the
-`tau = 0.5` run shows 6 nodes: C (blocked, over the limit), F, Z (zoom C),
-S (zoom B), U_Z (blocked), and the ring `M(3)` (zoom A); its Morse graph
-reads U_Z -> Z, U_Z -> S, S -> C, S -> `M(3)` -> F. In the `all` variants
-the labels of the Morse graph overlap.
+Figures. In both runs the `nontrivial` figure shows exactly the five sets:
+C, F, Z (zoom B), S (zoom A), and U_Z, with a dashed outline and the line
+`dim H (0, 1, 1, 0)`; its Morse graph reads U_Z -> Z, U_Z -> S, S -> C,
+S -> F. The `all` figure of the `tau = 1` run has the zooms A (the ring
+nodes `M(3)`, `M(7)`), B (S and the trivial cells around it), and C (Z with
+`M(5)`, `M(6)`, `M(8)`, `M(13)`, whose handle pieces are marked by squares
+in the handle chart); that of the `tau = 0.5` run has A (the ring `M(3)`),
+B (S and sixteen trivial cells), and C (Z). Node labels stay inside their
+ellipses; on the 15- and 22-node graphs they are small.
 
-Which run to use: the `tau = 1` run labels all of C, F, Z, S and leaves
-six small blocked nodes whose index is trivial by the computation above;
-the `tau = 0.5` run has the smaller `tau` and a cleaner figure but leaves C
-unlabeled at this piece limit.
+Which run to use: both label C, F, Z, and S, leave only U_Z without a label,
+and have only trivial extra nodes. The `tau = 0.5` run has the smaller
+`tau`; its index stage takes about 26 minutes, most of it for C.
 
 To reproduce, from `code/`:
 
 ```bash
 .venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing-beta076 \
     --level impact-vdp-duffing-beta076=6 --level-offset impact-vdp-duffing-beta076=4 \
-    --tau impact-vdp-duffing-beta076=1 --gap-refinement-depth 14 --workers 12 \
-    --index-max-pieces 150000
+    --tau impact-vdp-duffing-beta076=1 --gap-refinement-depth 14 --workers 12
 .venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing-beta076 \
     --level impact-vdp-duffing-beta076=7 --level-offset impact-vdp-duffing-beta076=4 \
     --tau impact-vdp-duffing-beta076=0.5 --gap-refinement-depth 14 --workers 12 \
-    --index-max-pieces 150000
+    --index-workers 3
 ```
+
+### Recomputation with the batched integrator (`a47c88d`)
+
+The recorded ball, wheel, and neuron runs and the two runs at `beta = 0.76`
+were recomputed at `a47c88d`: batched base endpoints, the relative homology
+of every Morse set, labels from zero homology, no piece limit, and indices
+of different Morse sets in parallel. `--workers 12` throughout. In all five
+runs the relation statistics, the Morse sets, and the Morse graph equal those
+of the earlier record, and every label computed before is unchanged. The
+changes are in the index records only: the oscillator's formerly blocked
+extra nodes (six at `tau = 1`, one at `tau = 0.5`) are now labeled trivial
+from zero homology, C at 2048 cells is labeled, and U_Z keeps no label but
+records `dim H (0, 1, 1, 0)`.
+
+Stage times in seconds (the earlier records used `--workers 3` for the
+ball, wheel, and neuron and 12 for the oscillator; the index stage was
+serial before and uses 4 index workers now, 3 for the oscillator at
+`tau = 0.5`):
+
+| run | base endpoints, before | after | relation, before | after | index, before | after | wall, before | after |
+|---|---|---|---|---|---|---|---|---|
+| ball, `tau = 0.5`, 1024 cells | 202 | 2 | 345 | 6 | 161 | 110 | 528 | 127 |
+| wheel, `tau = 0.5`, 2048 cells | 1,045 | 6 | 1,237 | 19 | 523 | 484 | 1,797 | 537 |
+| neuron, `tau = 5`, 1024 cells | 448 | 3 | 1,108 | 9 | 91 | 75 | 1,232 | 96 |
+| oscillator `beta = 0.76`, `tau = 1`, 1024 cells | 135 | 3 | 213 | 9 | 406 | 359 | 643 | 388 |
+| oscillator `beta = 0.76`, `tau = 0.5`, 2048 cells | 311 | 6 | 386 | 19 | 328 (C skipped) | 1,586 (C: 1,574) | 780 | 1,673 |
+
+With the same 12 workers, the relation through `SuspensionFlow` paths
+(`--path-flow`) takes 110 s for the ball, 286 s for the neuron, and 360 s
+for the wheel (measured while another job shared the machine for the ball
+and the neuron), against 6, 9, and 19 s batched; the relations are
+identical.
+
+The index stage is now the slow part, and within it the largest Morse set:
+C takes 355 s at 1024 cells and 1,574 s at 2048 cells, the gait of the
+wheel 477 s, and the others seconds or less. For such a set the time goes
+to the carrier checks and the chain map of
+`prepare_atlas_relation_conley_2d`, which test the acyclicity of every
+distinct carrier in Python (about `3 x 10^5` distinct carriers for C at 1024
+cells). Parallel index workers only overlap this set with the others; the
+relative homology itself takes a few seconds (3.5 s for C at 1024 cells).
 
 ### Sweep
 
