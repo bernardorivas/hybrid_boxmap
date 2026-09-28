@@ -83,10 +83,13 @@ order between the remaining nodes as reachability in
 the full Morse graph, transitively reduced.  Both are written by default when
 the index labels are computed.  Each panel of a variant is also written as
 its own figure, ``<variant stem>-base``, ``-zoom-A``, ..., ``-graph`` (and
-``-handle`` when drawn).  The JSON summary records, per variant, the shown
-and hidden nodes with the reason and the panel files, and stores the atoms
-of every Morse set, so ``demo/replot_paper_grid.py`` can redraw the figures
-from it.
+``-handle`` when drawn).  With the index labels, the Hasse diagram of the
+attractor lattice (the down-sets of the Morse order of the ``nontrivial``
+variant) is written to ``<stem>-attractor-lattice.pdf``/``.png``.  The JSON summary
+records, per variant, the shown and hidden nodes with the reason and the
+panel files, records the attractor lattice under ``attractor_lattice``, and
+stores the atoms of every Morse set, so ``demo/replot_paper_grid.py`` can
+redraw the figures from it.
 
 Run from the ``code`` directory, for example::
 
@@ -778,6 +781,7 @@ def _run(
         }},
         "figures": figures["figures"],
         "figure_variants": figures["figure_variants"],
+        "attractor_lattice": figures["attractor_lattice"],
         "code": dict(_git_commit()),
         "python": platform.python_version(),
     }

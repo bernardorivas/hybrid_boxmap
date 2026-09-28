@@ -7,12 +7,16 @@ deterministic construction; the rebuilt grid must match the ``grid`` record of
 the run), reads the Morse sets (``morse_graph.morse_set_atoms``), the Morse
 graph, and the index records (``conley``), and writes the figure variants next
 to the JSON (or to ``--output-dir``): ``all`` (``<stem>.pdf``/``.png``) and
-``nontrivial`` (``<stem>-nontrivial.pdf``/``.png``), and each panel of a
+``nontrivial`` (``<stem>-nontrivial.pdf``/``.png``), each panel of a
 variant as its own figure (``<variant stem>-base``, ``-zoom-A``, ...,
-``-handle``, ``-graph``, PDF and PNG).  No dynamics is resampled.  The
-``figures`` and ``figure_variants`` records of the JSON are updated to the
-files written (the panel files under ``panel_files`` of each variant; older
-summaries have none), and ``figures_replotted`` records the code.
+``-handle``, ``-graph``, PDF and PNG), and, for a run with an index record
+for every Morse node, the Hasse diagram of its attractor lattice
+(``<stem>-attractor-lattice.pdf``/``.png``).  No dynamics is resampled.  The
+``figures``, ``figure_variants``, and ``attractor_lattice`` records of the
+JSON are updated to the files written (the panel files under
+``panel_files`` of each variant, the degrees of the labels drawn under
+``index_degrees``; older summaries have none), and ``figures_replotted``
+records the code.
 
 Summaries written before the runner stored the Morse sets have no
 ``morse_graph.morse_set_atoms`` and cannot be redrawn; rerun them.
@@ -173,6 +177,7 @@ def replot(
     if update_json:
         summary["figures"] = figures["figures"]
         summary["figure_variants"] = figures["figure_variants"]
+        summary["attractor_lattice"] = figures["attractor_lattice"]
         summary["figures_replotted"] = {
             "script": script,
             "command_line": sys.argv[1:],
@@ -242,6 +247,23 @@ def main() -> int:
                 f"panels {sorted(record['panel_files'])}",
                 flush=True,
             )
+            every_degree = record["index_degrees"]["morse_nodes_with_every_degree"]
+            if every_degree:
+                print(
+                    f"{path}: {variant}: Morse nodes {every_degree} have an entry that is "
+                    "not zero above degree 2 and are drawn with every degree",
+                    file=sys.stderr,
+                    flush=True,
+                )
+        lattice = figures["attractor_lattice"]
+        if lattice["files"]:
+            print(
+                f"{path}: attractor lattice: {lattice['element_count']} elements, "
+                f"{len(lattice['join_irreducibles'])} join-irreducible; {lattice['files']}",
+                flush=True,
+            )
+        else:
+            print(f"{path}: attractor lattice not drawn: {lattice['not_written']}", flush=True)
     return 1 if failures else 0
 
 

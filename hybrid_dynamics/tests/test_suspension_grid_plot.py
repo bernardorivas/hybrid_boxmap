@@ -355,6 +355,13 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     )
     assert updated["figures"] == figures["figures"]
     assert updated["figures_replotted"]["script"] == "demo/replot_paper_grid.py"
+    # The attractor lattice of the nontrivial nodes 0 < 2 < 4 < 5 (node 2
+    # reaches 0 through the hidden node 1) is a chain of five elements.
+    assert updated["attractor_lattice"] == figures["attractor_lattice"]
+    assert updated["attractor_lattice"]["element_count"] == 5
+    assert updated["attractor_lattice"]["blocked_nodes"] == [2]
+    assert all(Path(path).is_file() for path in updated["attractor_lattice"]["files"])
+    assert updated["figures"][-2:] == updated["attractor_lattice"]["files"]
 
     older = dict(
         summary,
@@ -611,6 +618,11 @@ def test_a_node_without_a_label_shows_its_homology_dimensions():
 
     with_homology = {"homology_computed": True, "homology_dimensions": [0, 1, 1]}
     assert blocked_index_line(with_homology) == "dim H (0, 1, 1)"
+    # Degrees 0 to 2 are shown when the higher dimensions are zero.
+    four_degrees = {"homology_computed": True, "homology_dimensions": [0, 1, 1, 0]}
+    assert blocked_index_line(four_degrees) == "dim H (0, 1, 1)"
+    degree_three = {"homology_computed": True, "homology_dimensions": [0, 1, 1, 2]}
+    assert blocked_index_line(degree_three) == "dim H (0, 1, 1, 2)"
     assert blocked_index_line({"homology_computed": False, "homology_dimensions": []}) == "blocked"
     assert blocked_index_line(_record(2, "blocked")) == "blocked"
 
@@ -734,8 +746,16 @@ def test_each_panel_is_written_and_recorded_for_both_variants(tmp_path):
             assert all(Path(path).is_file() for path in paths)
         listed += record["files"]
         listed += [path for paths in record["panel_files"].values() for path in paths]
-    # The figures list has the files of each variant, then those of its panels.
-    assert figures["figures"] == listed
+    # The attractor lattice of the one nontrivial node: 0 below ↓M(0).
+    lattice = figures["attractor_lattice"]
+    assert [Path(path).name for path in lattice["files"]] == [
+        f"{stem.name}-attractor-lattice.pdf",
+        f"{stem.name}-attractor-lattice.png",
+    ]
+    assert lattice["element_count"] == 2 and lattice["covers"] == [[0, 1]]
+    # The figures list has the files of each variant, then those of its
+    # panels, then those of the attractor lattice.
+    assert figures["figures"] == listed + lattice["files"]
 
 
 def test_panel_figures_match_the_combined_figure():
@@ -977,3 +997,125 @@ def test_a_morse_set_has_one_color_in_every_variant_and_panel():
     assert drawn_colors["nontrivial"] == {
         node: color for node, color in drawn_colors["all"].items() if node not in (1, 3)
     }
+
+
+def _four_degree_conley() -> list[dict[str, object]]:
+    """Index records of the six nodes of ``EDGES`` in four or six degrees.
+
+    Nodes 1 and 3 are trivial, node 2 has no label and the homology of its
+    pair is known, and node 5 has a label that is not zero in degree 3.
+    """
+
+    def labeled(node, shift_class):
+        return {
+            "morse_node": node,
+            "computed": True,
+            "homology_computed": True,
+            "shift_class": list(shift_class),
+            "homology_dimensions": [int(entry != "0") for entry in shift_class],
+            "blocker": "",
+        }
+
+    return [
+        labeled(0, ("x-1", "x-1", "0", "0")),
+        labeled(1, ("0",) * 6),
+        {
+            "morse_node": 2,
+            "computed": False,
+            "homology_computed": True,
+            "shift_class": [],
+            "homology_dimensions": [0, 1, 1, 0],
+            "blocker": "ValueError: carrier image is not acyclic over GF(5)",
+        },
+        labeled(3, ("0", "0", "0", "0")),
+        labeled(4, ("0", "x-1", "0", "0", "0", "0")),
+        labeled(5, ("0", "0", "0", "x-1")),
+    ]
+
+
+def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
+    from hybrid_dynamics.examples import paper_grid_figures
+    from hybrid_dynamics.examples.paper_grid_figures import (
+        INDEX_DEGREES_RULE,
+        SHOWN_INDEX_DEGREES,
+        paper_grid_index_labels,
+        shown_index_entries,
+    )
+
+    assert SHOWN_INDEX_DEGREES == (0, 1, 2)
+    assert shown_index_entries(("x-1", "x-1", "0", "0"), "0") == ("x-1", "x-1", "0")
+    assert shown_index_entries(("0", "x-1", "0", "0", "0", "0"), "0") == ("0", "x-1", "0")
+    assert shown_index_entries(("x-1", "0"), "0") == ("x-1", "0")
+    assert shown_index_entries(("0", "0", "0", "x-1"), "0") is None
+    assert shown_index_entries((0, 1, 1, 0), 0) == (0, 1, 1)
+    assert shown_index_entries((0, 1, 1, 1), 0) is None
+
+    conley = _four_degree_conley()
+    original = json.loads(json.dumps(conley))
+    with pytest.warns(UserWarning, match="Morse node 5"):
+        labels, lines, every_degree = paper_grid_index_labels(conley)
+    assert labels == {
+        0: ("x-1", "x-1", "0"),
+        1: ("0", "0", "0"),
+        3: ("0", "0", "0"),
+        4: ("0", "x-1", "0"),
+        5: ("0", "0", "0", "x-1"),
+    }
+    assert lines == {2: "dim H (0, 1, 1)"}
+    assert every_degree == (5,)
+
+    # The Morse graph of each figure and panel shows the labels in degrees
+    # 0 to 2 (node 5 in every degree), and each variant records it; the
+    # index records keep every degree.
+    drawn: dict[str, list[str]] = {}
+    save = paper_grid_figures.save_hybrid_morse_figure
+
+    def capture(plot, stem, **options):
+        figure = getattr(plot, "figure", plot)
+        drawn[Path(stem).name] = sorted(
+            text for axis in figure.axes for text in morse_graph_node_labels(axis)
+        )
+        return save(plot, stem, **options)
+
+    monkeypatch.setattr(paper_grid_figures, "save_hybrid_morse_figure", capture)
+    problem, grid, morse_sets = _ball_run()
+    stem = tmp_path / "paper-grid-bouncing-ball-tau150-level2-corners"
+    with pytest.warns(UserWarning, match="Morse node 5"):
+        figures = write_paper_grid_figures(
+            grid,
+            morse_sets,
+            EDGES,
+            conley,
+            example="bouncing-ball",
+            tau=problem.tau,
+            level=2,
+            output_stem=stem,
+            audit_path=stem.with_suffix(".json"),
+            variants=("all", "nontrivial"),
+            dpi=60,
+        )
+    assert conley == original
+    shown_nontrivial = [
+        "M(0)\n(x-1, x-1, 0)",
+        "M(2)\ndim H (0, 1, 1)",
+        "M(4)\n(0, x-1, 0)",
+        "M(5)\n(0, 0, 0, x-1)",
+    ]
+    shown_all = sorted(shown_nontrivial + ["M(1)\n(0, 0, 0)", "M(3)\n(0, 0, 0)"])
+    for name in (stem.name, f"{stem.name}-graph"):
+        assert drawn[name] == shown_all
+    for name in (f"{stem.name}-nontrivial", f"{stem.name}-nontrivial-graph"):
+        assert drawn[name] == shown_nontrivial
+    for record in figures["figure_variants"].values():
+        assert record["index_degrees"] == {
+            "degrees_shown": [0, 1, 2],
+            "rule": INDEX_DEGREES_RULE,
+            "morse_nodes_with_every_degree": [5],
+        }
+    # The attractor lattice: nodes 0, 2, 4, 5 form the chain 0 < 2 < 4 < 5.
+    lattice = figures["attractor_lattice"]
+    assert lattice["morse_nodes"] == [0, 2, 4, 5]
+    assert lattice["morse_order"] == [[2, 0], [4, 2], [5, 4]]
+    assert drawn[f"{stem.name}-attractor-lattice"] == sorted(
+        ["0", "↓M(0)", "↓M(2)", "↓M(4)", "↓M(5)"]
+    )

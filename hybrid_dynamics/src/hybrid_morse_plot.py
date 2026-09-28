@@ -814,22 +814,28 @@ def _format_index_label(value: object) -> str:
 def _morse_graph_positions(
     graph: nx.DiGraph,
     node_sizes: Mapping[int, tuple[float, float]],
+    *,
+    keep_edge_order: bool = True,
 ) -> dict[int, tuple[float, float]]:
     """Place repellers above attractors using deterministic Hasse ranks.
 
     ``node_sizes`` is expressed in Graphviz inches.  Passing the presentation
     size into ``dot`` makes its rank spacing account for long Conley-index
     annotations rather than laying out every vertex as an unlabeled default
-    node and allowing the rendered ellipses to overlap afterwards.
+    node and allowing the rendered ellipses to overlap afterwards.  With
+    ``keep_edge_order`` (``ordering=out``), the targets of the edges of a node
+    are placed from left to right in the order of the edges; without it,
+    ``dot`` orders the nodes of a rank to reduce edge crossings.
     """
 
     if not graph.nodes:
         return {}
     dot = shutil.which("dot")
     if dot is not None and len(graph.nodes) > 1:
+        ordering = ", ordering=out" if keep_edge_order else ""
         statements = [
             "digraph MorseOrder {",
-            'graph [rankdir=TB, ranksep="0.30", nodesep="0.22", ordering=out];',
+            f'graph [rankdir=TB, ranksep="0.30", nodesep="0.22"{ordering}];',
         ]
         statements.extend(
             (
@@ -987,13 +993,16 @@ def _draw_morse_node_label(
     label: str,
     font_size: float,
     color: str = MORSE_LABEL_DARK,
+    text: str | None = None,
 ) -> None:
     """Draw a node label as a path in data coordinates, in ``color``.
 
     The graph layout is in inches, and the label is drawn at ``font_size``
     points in the same units, so it scales with its ellipse however large the
     graph and however small the axis.  A text artist would keep its point size
-    and leave the ellipse when the axis shrinks the layout.
+    and leave the ellipse when the axis shrinks the layout.  ``text`` is the
+    label recorded on the patch (by default ``label``), for a label drawn
+    with math text.
     """
 
     lines = label.splitlines()
@@ -1020,7 +1029,7 @@ def _draw_morse_node_label(
     axis.add_patch(
         MorseNodeLabel(
             MplPath.make_compound_path(*line_paths),
-            label,
+            label if text is None else text,
             facecolor=color,
             edgecolor="none",
             zorder=3,

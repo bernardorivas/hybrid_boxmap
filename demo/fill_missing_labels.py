@@ -27,8 +27,9 @@ application) records the nodes recomputed (``morse_nodes``), those that now
 have a label (``labeled``), the pair and index map, the checks, the
 seconds, the script, the command line, and the code commit.  The figures
 are then redrawn with ``demo/replot_paper_grid.py`` (the variants the run
-has), which rewrites the combined and panel figures and the ``figures``,
-``figure_variants``, and ``figures_replotted`` records.  A summary in which
+has), which rewrites the combined and panel figures, the attractor
+lattice, and the ``figures``, ``figure_variants``, ``attractor_lattice``,
+and ``figures_replotted`` records.  A summary in which
 every node has a label is left unchanged.
 
 ``--workers`` evaluates the base samples in worker processes, as in the

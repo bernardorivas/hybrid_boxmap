@@ -30,10 +30,23 @@ The colors are those of :func:`paper_grid_morse_colors`: a Morse set whose
 index is computed and trivial is gray, and Morse set ``M(i)`` otherwise takes
 color ``i`` of CMGDB's default palette, so a set has the same color in both
 variants and in every panel of a run.
+
+The Morse graph shows the index labels, and the homology dimensions of a
+node without a label, in the degrees of :data:`SHOWN_INDEX_DEGREES` (0, 1,
+2): the suspension of a planar window is 2-dimensional, so the entries in
+higher degrees are zero.  They are checked to be zero before they are
+dropped (:func:`paper_grid_index_labels`); the index records keep every
+degree.
+
+The attractor lattice of the run (:func:`write_attractor_lattice_figure`) is
+the lattice of down-sets of the Morse order restricted to the Morse nodes of
+the ``nontrivial`` variant, drawn as a Hasse diagram in
+``<stem>-attractor-lattice.pdf``/``.png``.
 """
 
 from __future__ import annotations
 
+import warnings
 from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -43,6 +56,7 @@ import numpy.typing as npt
 from matplotlib.figure import Figure
 
 from ..src.atlas_morse_plot import (
+    PANEL_GRAPH_FONT_SIZE,
     AtlasFiniteRelationIndexAnnotations,
     AtlasHybridMorsePlot,
     AtlasMorsePanelFigures,
@@ -50,10 +64,17 @@ from ..src.atlas_morse_plot import (
     plot_atlas_hybrid_morse_panels,
     plot_atlas_hybrid_morse_sets,
 )
+from ..src.attractor_lattice import (
+    DownSetLattice,
+    LatticeTooLargeError,
+    down_set_lattice,
+    draw_lattice_hasse_diagram,
+)
 from ..src.hybrid_morse_plot import CMGDB_MORSE_PALETTE, save_hybrid_morse_figure
 from ..src.suspension_grid import SuspensionGrid
 from ..src.suspension_grid_plot import (
     FIGURE_VARIANTS,
+    MorseFigureSelection,
     index_status,
     morse_figure_selection,
     suspension_grid_morse_sets_plot_data,
@@ -204,18 +225,103 @@ def figure_variant_stem(stem: str | Path, variant: str) -> Path:
     return stem if variant == "all" else stem.with_name(f"{stem.name}-{variant}")
 
 
+#: Degrees of the index labels and homology dimensions drawn in the Morse
+#: graph.  The suspension of a planar window is 2-dimensional, so the entries
+#: in degrees 3 and higher are zero.
+SHOWN_INDEX_DEGREES: tuple[int, ...] = (0, 1, 2)
+
+INDEX_DEGREES_RULE = (
+    "the Morse graph shows the index label (shift class) of a node, and the "
+    "homology dimensions of a node without a label, in degrees 0, 1, 2: the "
+    "suspension of a planar window is 2-dimensional, so the entries in degrees 3 "
+    "and higher are zero; they are checked to be '0' (dimension 0) before they are "
+    "dropped, and a node with an entry there that is not zero is drawn with every "
+    "degree and listed under morse_nodes_with_every_degree; the conley records "
+    "keep every degree"
+)
+
+
+def shown_index_entries(entries: Sequence[Any], zero: Any) -> tuple[Any, ...] | None:
+    """The entries of ``entries`` in the degrees of :data:`SHOWN_INDEX_DEGREES`.
+
+    ``entries`` lists a label or homology dimensions by degree from 0 up, and
+    ``zero`` is its zero entry (``"0"`` for a shift class, ``0`` for a
+    dimension).  Returns ``None`` when an entry in a higher degree is not
+    ``zero``.
+    """
+
+    values = tuple(entries)
+    top = SHOWN_INDEX_DEGREES[-1]
+    if any(value != zero for value in values[top + 1 :]):
+        return None
+    return values[: top + 1]
+
+
 def blocked_index_line(entry: Mapping[str, Any]) -> str:
     """Second line of the Morse-graph node of a Morse set without a label.
 
     When the relative homology of its pair is known, the line lists its
-    dimensions from degree ``0`` up, as ``dim H (0, 1, 1, 0)``; otherwise it
-    is ``blocked``.
+    dimensions in the degrees of :data:`SHOWN_INDEX_DEGREES`, as
+    ``dim H (0, 1, 1)`` (in every degree when one of the others is not zero);
+    otherwise it is ``blocked``.
     """
 
     if entry.get("homology_computed"):
-        dimensions = ", ".join(str(int(value)) for value in entry["homology_dimensions"])
+        values = tuple(int(value) for value in entry["homology_dimensions"])
+        shown = shown_index_entries(values, 0)
+        dimensions = ", ".join(str(value) for value in (values if shown is None else shown))
         return f"dim H ({dimensions})"
     return "blocked"
+
+
+def paper_grid_index_labels(
+    conley: Sequence[Mapping[str, Any]],
+) -> tuple[dict[int, tuple[str, ...]], dict[int, str], tuple[int, ...]]:
+    """The index labels and the lines of the nodes without a label, as drawn.
+
+    Returns the shift class of each Morse node with a label and the second
+    line (:func:`blocked_index_line`) of each node without one, both in the
+    degrees of :data:`SHOWN_INDEX_DEGREES`, and the nodes drawn with every
+    degree because an entry in a higher degree is not zero; each of these
+    is also reported by a warning.
+    """
+
+    labels: dict[int, tuple[str, ...]] = {}
+    lines: dict[int, str] = {}
+    every_degree: list[int] = []
+    for entry in conley:
+        node = int(entry["morse_node"])
+        if entry["computed"]:
+            values = tuple(str(value) for value in entry["shift_class"])
+            shown = shown_index_entries(values, "0")
+            labels[node] = values if shown is None else shown
+        else:
+            lines[node] = blocked_index_line(entry)
+            values = tuple(int(value) for value in entry["homology_dimensions"])
+            shown = (
+                shown_index_entries(values, 0) if entry.get("homology_computed") else values
+            )
+        if shown is None:
+            every_degree.append(node)
+            warnings.warn(
+                f"Morse node {node}: {values!r} is not zero in a degree above "
+                f"{SHOWN_INDEX_DEGREES[-1]}; the Morse graph shows every degree",
+                stacklevel=2,
+            )
+    return labels, lines, tuple(sorted(every_degree))
+
+
+def index_degrees_record(shown: Sequence[int], every_degree: Sequence[int]) -> dict[str, Any]:
+    """The ``index_degrees`` record of a figure variant that shows ``shown``."""
+
+    shown_set = {int(node) for node in shown}
+    return {
+        "degrees_shown": list(SHOWN_INDEX_DEGREES),
+        "rule": INDEX_DEGREES_RULE,
+        "morse_nodes_with_every_degree": [
+            int(node) for node in every_degree if int(node) in shown_set
+        ],
+    }
 
 
 def _paper_grid_plot_options(
@@ -348,19 +454,24 @@ def write_paper_grid_figures(
     """Draw and save the requested figure variants of one run.
 
     ``conley`` holds the index records of the run (the ``conley`` list of its
-    JSON summary).  Returns ``{"figures": [...], "figure_variants": {...}}``,
-    where each variant records its files, the shown and hidden nodes (with
-    the reason), the blocked nodes it marks, the order it draws, its zoom
-    panels (label, chart, window, and the Morse nodes they are drawn for),
-    under ``panel_files`` the files of each panel drawn as its own figure
-    (``base``, ``zoom-A``, ..., ``handle``, ``graph``), and under ``colors``
-    the palette and the color of every Morse node
-    (:func:`paper_grid_color_record`).  ``figures`` lists the files of each
-    variant, then those of its panels.  Summaries written before cells were
-    outlined also have a ``marked_in_panel`` list (sets whose cells were
-    marked by squares), summaries written before the panel figures have no
-    ``panel_files``, and summaries written before the color records have no
-    ``colors``; a replot replaces the record.
+    JSON summary).  Returns ``{"figures": [...], "figure_variants": {...},
+    "attractor_lattice": {...}}``, where each variant records its files, the
+    shown and hidden nodes (with the reason), the blocked nodes it marks, the
+    order it draws, its zoom panels (label, chart, window, and the Morse
+    nodes they are drawn for), under ``panel_files`` the files of each panel
+    drawn as its own figure (``base``, ``zoom-A``, ..., ``handle``,
+    ``graph``), under ``colors`` the palette and the color of every Morse
+    node (:func:`paper_grid_color_record`), and under ``index_degrees`` the
+    degrees of the labels drawn (:func:`index_degrees_record`).
+    ``attractor_lattice`` is the record of
+    :func:`write_attractor_lattice_figure`.  ``figures`` lists the files of
+    each variant, then those of its panels, then those of the attractor
+    lattice.  Summaries written before cells were outlined also have a
+    ``marked_in_panel`` list (sets whose cells were marked by squares), and
+    summaries written before the panel figures, the color records, the
+    degree records, or the attractor lattice have no ``panel_files``,
+    ``colors``, ``index_degrees``, or ``attractor_lattice``; a replot
+    replaces the records.
     """
 
     plot_data = suspension_grid_morse_sets_plot_data(
@@ -370,22 +481,14 @@ def write_paper_grid_figures(
         metadata={"model": example, "t_star": tau, "level": level},
     )
     colors = paper_grid_morse_colors(len(morse_sets), conley)
-    labels = {
-        int(entry["morse_node"]): tuple(str(value) for value in entry["shift_class"])
-        for entry in conley
-        if entry["computed"]
-    }
-    blocked_lines = {
-        int(entry["morse_node"]): blocked_index_line(entry)
-        for entry in conley
-        if not entry["computed"]
-    }
+    labels, blocked_lines, every_degree = paper_grid_index_labels(conley)
     figures: list[str] = []
     records: dict[str, Any] = {}
     for variant in dict.fromkeys(variants):
         selection = morse_figure_selection(len(morse_sets), edges, conley, variant)
         record = selection.to_dict()
         record["colors"] = paper_grid_color_record(len(morse_sets), conley)
+        record["index_degrees"] = index_degrees_record(selection.shown, every_degree)
         if not selection.shown:
             record["files"] = []
             record["panel_files"] = {}
@@ -452,21 +555,183 @@ def write_paper_grid_figures(
         for paths in record["panel_files"].values():
             figures.extend(paths)
         records[variant] = record
-    return {"figures": figures, "figure_variants": records}
+    lattice = write_attractor_lattice_figure(
+        len(morse_sets),
+        edges,
+        conley,
+        output_stem=output_stem,
+        colors=colors,
+        dpi=dpi,
+        display_path=display_path,
+    )
+    figures.extend(lattice["files"])
+    return {"figures": figures, "figure_variants": records, "attractor_lattice": lattice}
+
+
+ATTRACTOR_LATTICE_RULE = (
+    "Hasse diagram of the lattice of down-sets, ordered by inclusion, of the Morse "
+    "order restricted to the Morse nodes of the nontrivial variant (a nontrivial "
+    "label, or no label): reachability in the full Morse graph, transitively "
+    "reduced; by Birkhoff's representation theorem its join-irreducible elements "
+    "are the principal down-sets, one for each of these nodes, drawn in the color "
+    "of the node and labeled ↓M(i) (with a dashed outline when M(i) has no "
+    "label); every other element is white and labeled by the join of the "
+    "↓M(i) for the nodes i maximal in it, and the bottom element, the empty "
+    "down-set, is 0"
+)
+
+
+def paper_grid_attractor_lattice(
+    n_nodes: int,
+    edges: Sequence[Sequence[int]],
+    conley: Sequence[Mapping[str, Any]],
+) -> tuple[DownSetLattice, MorseFigureSelection]:
+    """The lattice of down-sets of the Morse order of the ``nontrivial`` variant.
+
+    The poset is the Morse nodes of that variant (their finite-relation
+    index is nontrivial or not known) with the order it draws, reachability
+    in the full Morse graph, transitively reduced
+    (:func:`restricted_morse_order`).  ``conley`` needs a record for every
+    Morse node.  Returns the lattice and the selection of the variant.
+    """
+
+    selection = morse_figure_selection(n_nodes, edges, conley, "nontrivial")
+    return down_set_lattice(selection.shown, selection.order), selection
+
+
+def attractor_lattice_labels(lattice: DownSetLattice) -> dict[int, str]:
+    """Label of each element of a lattice of down-sets of Morse nodes.
+
+    The bottom element (the empty down-set) is ``0``; any other element is
+    the join of the principal down-sets ``↓M(i)`` of the nodes ``i`` maximal
+    in it, so a join-irreducible element ``↓M(i)`` is labeled by itself.
+    """
+
+    return {
+        element: (
+            " ∨ ".join(f"↓M({node})" for node in lattice.maximal(element))
+            if element != lattice.bottom
+            else "0"
+        )
+        for element in range(len(lattice.elements))
+    }
+
+
+def write_attractor_lattice_figure(
+    n_nodes: int,
+    edges: Sequence[Sequence[int]],
+    conley: Sequence[Mapping[str, Any]],
+    *,
+    output_stem: str | Path,
+    colors: Mapping[int, str] | None = None,
+    dpi: int = 400,
+    display_path: Callable[[Path], str] = str,
+) -> dict[str, Any]:
+    """Draw and save the Hasse diagram of the attractor lattice of a run.
+
+    The lattice is that of :func:`paper_grid_attractor_lattice`, drawn by
+    :func:`draw_lattice_hasse_diagram` with labels of
+    :data:`PANEL_GRAPH_FONT_SIZE` points, as the Morse graph panel, to
+    ``<stem>-attractor-lattice.pdf`` and ``.png``.  ``colors`` maps each Morse
+    node to its color (by default :func:`paper_grid_morse_colors`).  Returns
+    the record of the JSON summary: the rule, the Morse nodes and their
+    order, the nodes without a label, every element (its Morse nodes, the
+    nodes maximal in it, its label, and whether it is join-irreducible), the
+    covering pairs ``[lower, upper]``, the join-irreducible elements with
+    their Morse nodes, and the files.  When the run has no index record for
+    some Morse node, every node has a trivial index, or the lattice has more
+    than :data:`MAX_LATTICE_ELEMENTS` elements, nothing is drawn and
+    ``not_written`` gives the reason.
+    """
+
+    record: dict[str, Any] = {"rule": ATTRACTOR_LATTICE_RULE, "files": []}
+    recorded = {int(entry["morse_node"]) for entry in conley}
+    missing = sorted(set(range(int(n_nodes))).difference(recorded))
+    if missing:
+        record["not_written"] = f"the run has no index record for the Morse nodes {missing!r}"
+        return record
+    try:
+        lattice, selection = paper_grid_attractor_lattice(n_nodes, edges, conley)
+    except LatticeTooLargeError as error:
+        record["not_written"] = str(error)
+        return record
+    if not selection.shown:
+        record["not_written"] = "every Morse node has a trivial index"
+        return record
+    principal = {node: lattice.principal(node) for node in lattice.poset}
+    join_irreducibles = set(lattice.join_irreducibles)
+    if join_irreducibles != set(principal.values()):
+        raise AssertionError("the join-irreducible elements are not the principal down-sets")
+    if colors is None:
+        colors = paper_grid_morse_colors(n_nodes, conley)
+    labels = attractor_lattice_labels(lattice)
+    figure, _axis = draw_lattice_hasse_diagram(
+        lattice,
+        labels=labels,
+        colors={element: colors[node] for node, element in principal.items()},
+        dashed={principal[node] for node in selection.blocked},
+        font_size=PANEL_GRAPH_FONT_SIZE,
+        dpi=dpi,
+    )
+    stem = Path(output_stem)
+    try:
+        outputs = save_hybrid_morse_figure(
+            figure,
+            stem.with_name(f"{stem.name}-attractor-lattice"),
+            formats=("pdf", "png"),
+            dpi=_panel_dpi(figure, dpi),
+        )
+    finally:
+        plt.close(figure)
+    record.update(
+        {
+            "morse_nodes": list(lattice.poset),
+            "morse_order": [list(pair) for pair in lattice.order],
+            "blocked_nodes": list(selection.blocked),
+            "element_count": len(lattice.elements),
+            "elements": [
+                {
+                    "element": element,
+                    "morse_nodes": sorted(members),
+                    "maximal": list(lattice.maximal(element)),
+                    "label": labels[element],
+                    "join_irreducible": element in join_irreducibles,
+                }
+                for element, members in enumerate(lattice.elements)
+            ],
+            "covers": [list(pair) for pair in lattice.covers],
+            "join_irreducibles": [
+                {"element": element, "morse_node": node, "label": labels[element]}
+                for node, element in principal.items()
+            ],
+            "files": [display_path(path) for path in outputs],
+        }
+    )
+    return record
 
 
 __all__ = [
+    "ATTRACTOR_LATTICE_RULE",
     "COLOR_RULE",
     "FRAME_MARGIN",
+    "INDEX_DEGREES_RULE",
     "PAPER_GRID_FIGURE_STYLE",
     "PAPER_GRID_PALETTE",
     "PAPER_GRID_PALETTE_NAME",
     "PANEL_MAX_PIXELS",
+    "SHOWN_INDEX_DEGREES",
     "TRIVIAL_INDEX_COLOR",
+    "attractor_lattice_labels",
+    "blocked_index_line",
     "draw_paper_grid_figure",
     "draw_paper_grid_panels",
     "figure_variant_stem",
+    "index_degrees_record",
+    "paper_grid_attractor_lattice",
     "paper_grid_color_record",
+    "paper_grid_index_labels",
     "paper_grid_morse_colors",
+    "shown_index_entries",
+    "write_attractor_lattice_figure",
     "write_paper_grid_figures",
 ]

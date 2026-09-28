@@ -240,9 +240,9 @@ the new labels, and each application appends to `labels_filled` the nodes
 recomputed (`morse_nodes`) and those now labeled (`labeled`), the pair and
 index map, the checks, the seconds of each stage, the script, the command
 line, and the code commit. The figure variants of the run are then redrawn
-with the replot code, which rewrites the combined and panel figures and
-`figures`, `figure_variants`, and `figures_replotted` (with the script
-`demo/fill_missing_labels.py`). A summary of the forward-closure pair is
+with the replot code, which rewrites the combined and panel figures, the
+attractor lattice, and `figures`, `figure_variants`, `attractor_lattice`,
+and `figures_replotted` (with the script `demo/fill_missing_labels.py`). A summary of the forward-closure pair is
 refused, and one in which every node has a label is left unchanged.
 `--workers` evaluates the base samples in worker processes; the index is
 computed in the main process, one node at a time, on the rows of the
@@ -295,8 +295,21 @@ The runner writes two figure variants per run (`--figure-variants`, default
 
 In both variants a node without a label is kept and drawn with a dashed
 outline. Its second line gives the dimensions of the relative homology of
-its pair from degree 0 up, as `dim H (0, 1, 1, 0)`, or `blocked` when they
+its pair in degrees 0, 1, 2, as `dim H (0, 1, 1)`, or `blocked` when they
 are not known.
+
+The Morse graph shows each index label (the shift class by degree) and
+each `dim H` line in degrees 0, 1, 2. The index is computed from degree 0
+up to the dimension of the nerve (4 entries for the ball, the wheel, and
+the oscillator, 4 or 6 for the neuron), but the suspension of a planar
+window is 2-dimensional, so the entries in degrees 3 and higher are zero.
+They are checked to be zero (`"0"` for a shift class, 0 for a dimension)
+before they are dropped. A node with an entry there that is not zero keeps
+its full tuple, with a warning, and is listed under
+`figure_variants.<variant>.index_degrees.morse_nodes_with_every_degree`;
+no current run has one. The `conley` records of the JSON keep every
+degree. This is `paper_grid_index_labels` in
+`hybrid_dynamics/examples/paper_grid_figures.py`.
 
 The Morse sets are colored with CMGDB's default palette
 (`CMGDB_MORSE_PALETTE`), except that a Morse set whose index is computed and
@@ -363,10 +376,10 @@ zoom window with its letter, and each zoom panel has its letter. The sizes:
   of the size of its Graphviz layout in inches (with a margin of 0.12
   inches), so the labels print at 7 pt when the figure is shown at its
   natural size and a larger graph gives a larger figure. The saved graph
-  of the 15 nodes of the oscillator at `beta = 0.76`, `tau = 1`, is 3.75 x
-  6.29 inches, that of its 5 nontrivial nodes 3.13 x 2.19, and that of the
-  single node of the ball 1.45 x 0.82. A PNG is at most 8000 pixels on a
-  side, so the 332 nodes of the neuron at `tau = 1` (16.1 x 26.8 inches)
+  of the 15 nodes of the oscillator at `beta = 0.76`, `tau = 1`, is 3.61 x
+  6.29 inches, that of its 5 nontrivial nodes 2.74 x 2.19, and that of the
+  single node of the ball 1.27 x 0.82. A PNG is at most 8000 pixels on a
+  side, so the 332 nodes of the neuron at `tau = 1` (15.6 x 26.8 inches)
   are written at about 300 dpi instead of 400.
 
 All files are saved with a tight bounding box (0.1 inches of padding). This is
@@ -377,23 +390,76 @@ zoom windows, sets outlined) with `plot_atlas_hybrid_morse_sets`.
 The JSON summary records each variant under
 `figure_variants` (shown nodes, hidden nodes with the reason, blocked nodes,
 the order drawn, the zooms with their windows and nodes, files, under
-`panel_files` the files of each panel by name, and under `colors` the
+`panel_files` the files of each panel by name, under `colors` the
 palette name, its colors in order, the gray, the rule, the color of every
 Morse node, and `palette_cycled`, with a `palette_cycled_note` when the
-colors repeat) and stores
+colors repeat, and under `index_degrees` the degrees shown, the rule, and
+`morse_nodes_with_every_degree`), records the attractor lattice under
+`attractor_lattice` (below), and stores
 the atoms of every Morse set under `morse_graph.morse_set_atoms` (strings of
 atom ranges, `a-b` for the closed range). The `figures` list has the files
-of each variant followed by those of its panels. Records written before
+of each variant followed by those of its panels, then those of the
+attractor lattice. Records written before
 cells were outlined also list, under `marked_in_panel`, the sets whose cells
-were marked by squares in a chart panel, records written before the
-panel figures have no `panel_files`, and records written before the color
-records have no `colors`. `demo/replot_paper_grid.py` redraws both
-variants and their panels from a summary: it rebuilds `Xi_n` from the
-example and level, checks it against the recorded `grid`, and replaces
-`figures` and `figure_variants` in the JSON (dropping `marked_in_panel`).
+were marked by squares in a chart panel, and records written before the
+panel figures, the color records, the degree records, or the attractor
+lattice have no `panel_files`, `colors`, `index_degrees`, or
+`attractor_lattice`. `demo/replot_paper_grid.py` redraws both
+variants, their panels, and the attractor lattice from a summary: it
+rebuilds `Xi_n` from the example and level, checks it against the recorded
+`grid`, and replaces `figures`, `figure_variants`, and `attractor_lattice`
+in the JSON (dropping `marked_in_panel`).
 Summaries written before the atoms were stored (schema `paper-suspension-grid-run-v2`
-and earlier) cannot be redrawn and have to be rerun. Selection, colors, and
-replot are tested in `hybrid_dynamics/tests/test_suspension_grid_plot.py`.
+and earlier) cannot be redrawn and have to be rerun. Selection, colors,
+degrees, and replot are tested in
+`hybrid_dynamics/tests/test_suspension_grid_plot.py`.
+
+### Attractor lattice
+
+A run with an index record for every Morse node also has the Hasse diagram
+of its attractor lattice, `<stem>-attractor-lattice.pdf` and `.png`. By
+Birkhoff's representation theorem, the attractor lattice of a Morse
+decomposition is the lattice `O(P)` of down-sets of the Morse order `P`,
+ordered by inclusion, and its join-irreducible elements are the principal
+down-sets `↓p`; every down-set is the join (union) of the `↓p` for the
+elements `p` maximal in it, and one down-set covers another when it has one
+more element. The figure takes for `P` the order of the `nontrivial`
+variant: the Morse sets whose index is nontrivial or not known, ordered by
+reachability in the full Morse graph, transitively reduced
+(`restricted_morse_order`). For `Q` this set of Morse sets, `D -> D cap Q`
+maps the down-sets of the full Morse order onto those of `Q` and preserves
+unions and intersections, so the diagram is the attractor lattice of the
+run with two attractors identified when they contain the same Morse sets
+of `Q`.
+
+Each join-irreducible element `↓M(i)` is drawn in the color of `M(i)`,
+with a dashed outline when `M(i)` has no label. Every other element is
+white and labeled by the join of the `↓M(i)` for the Morse sets `M(i)`
+maximal in it, as `↓M(2) ∨ ↓M(11)`, with the join symbol drawn as TeX's
+`\vee`; the bottom element, the empty down-set, is `0`. The layout is the
+Graphviz `dot` layout of the Morse graph, bottom element at the bottom,
+except that `dot` orders the elements of a rank to reduce crossings, and
+the figure has the size of its layout with labels of 7 pt, as the Morse
+graph panel. For the oscillator at `beta = 0.76`, `tau = 0.5`, the order of
+the five Morse sets with a nontrivial label is `M(0), M(1) < M(11) < M(21)`
+and `M(2) < M(21)`; the lattice has 11 elements, 5 of them
+join-irreducible (`↓M(0)`, `↓M(1)`, `↓M(2)`, `↓M(11)`, `↓M(21)`, the top),
+and the saved figure is 4.01 x 3.25 inches (the nontrivial Morse graph of
+the run is 2.74 x 2.19).
+
+The JSON records it under `attractor_lattice`: the rule, the Morse nodes
+and their order, the nodes without a label, every element (its Morse
+nodes, the nodes maximal in it, its label, and whether it is
+join-irreducible), the covering pairs `[lower, upper]`, the
+join-irreducible elements with their Morse nodes, and the files. When
+there is no figure (an index record is missing, every index is trivial,
+or there are more than 512 down-sets), `not_written` gives the reason.
+This is `write_attractor_lattice_figure` in
+`hybrid_dynamics/examples/paper_grid_figures.py`, with `down_set_lattice`
+and `draw_lattice_hasse_diagram` in `hybrid_dynamics/src/attractor_lattice.py`;
+the runner writes it and `demo/replot_paper_grid.py` redraws it. The
+lattice and the figure are tested in
+`hybrid_dynamics/tests/test_attractor_lattice.py`.
 
 ## Reproduction
 
@@ -560,7 +626,9 @@ of the author:
   the nodes whose computed index is trivial (`<stem>-nontrivial.pdf`,
   `.png`), and each panel of the two figures is also its own figure
   (`<stem>-base`, `<stem>-zoom-A`, ..., `<stem>-graph`, and the same after
-  `<stem>-nontrivial`); see Figures.
+  `<stem>-nontrivial`), with the index labels in degrees 0, 1, 2. The Hasse
+  diagram of the attractor lattice of the nontrivial Morse sets is
+  `<stem>-attractor-lattice`; see Figures.
 
 ### Recommended configurations
 
