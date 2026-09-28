@@ -20,14 +20,24 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
-The Conley indices use a fork of CMGDB. Building it requires a C++ compiler,
-Boost, GMP, and SDSL.
+The Conley indices use a fork of CMGDB, with prebuilt wheels for Linux x86_64
+and macOS arm64 (Python 3.12 and 3.13):
 
 ```bash
-python -m pip install --no-deps \
-  "git+https://github.com/bernardorivas/CMGDB.git@4150b75304a9b70e5656d46838353a18041a8beb"
-python -m pip install graphviz
+python -m pip install "cmgdb==1.3.3+fork.4" \
+  --find-links https://github.com/bernardorivas/CMGDB/releases/expanded_assets/v1.3.3%2Bfork.4
 ```
+
+On other platforms, build it from source following the fork's instructions.
+
+## Notebooks
+
+| Example | |
+|---|---|
+| Bouncing ball | [Open in Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/bouncing_ball.ipynb) |
+| Rimless wheel | [Open in Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/rimless_wheel.ipynb) |
+| Spiking neuron | [Open in Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/spiking_neuron.ipynb) |
+| Impacting oscillator | [Open in Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/impacting_oscillator.ipynb) |
 
 ## Usage
 
