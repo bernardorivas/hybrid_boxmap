@@ -80,7 +80,10 @@ of ``W``, and their carriers lie in the nerve of ``W cup F(W)``.  So the
 nerve is built on ``W cup F(W)``, the chain map is formed by the
 acyclic-carrier induction on the simplices of the nerve of ``W``, and the
 carriers of the other simplices of the nerve of ``U``, which all lie in
-``V``, are neither formed nor checked.  The nerve is checked to join each
+``V``, are neither formed nor checked.  ``W`` is formed from the atom
+adjacency of the grid.  Before the nerve is built, the rectangles and seams
+of the pieces of ``U`` outside ``W`` are checked not to meet ``S``, the
+test the nerve itself would make, and the nerve is checked to join each
 piece of ``S`` only to pieces of ``W``.
 
 The relative homology ``H_*(X, A; GF(5))`` of the pair is always computed
@@ -174,6 +177,19 @@ def index_pair_atoms(
     meets ``S`` only if ``S`` is not a strongly connected component of ``F``).
     """
 
+    atoms = _pair_atoms(relation, morse_set, index_pair)
+    if index_pair == "forward-closure":
+        _check_forward_invariance(relation, *atoms)
+    return atoms
+
+
+def _pair_atoms(
+    relation: SuspensionGridRelation,
+    morse_set: npt.ArrayLike,
+    index_pair: str,
+) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.int64], npt.NDArray[np.int64]]:
+    """The atoms of :func:`index_pair_atoms`, without the checks of the forward-closure pair."""
+
     if index_pair not in INDEX_PAIRS:
         raise ValueError(f"index_pair must be one of {INDEX_PAIRS!r}; got {index_pair!r}")
     s_atoms = np.unique(np.asarray(morse_set, dtype=np.int64))
@@ -181,7 +197,17 @@ def index_pair_atoms(
         image = relation.image_of(s_atoms)
         return s_atoms, np.union1d(s_atoms, image), np.setdiff1d(image, s_atoms)
     u_atoms = relation.forward_closure(s_atoms)
-    v_atoms = np.setdiff1d(u_atoms, s_atoms)
+    return s_atoms, u_atoms, np.setdiff1d(u_atoms, s_atoms)
+
+
+def _check_forward_invariance(
+    relation: SuspensionGridRelation,
+    s_atoms: npt.NDArray[np.int64],
+    u_atoms: npt.NDArray[np.int64],
+    v_atoms: npt.NDArray[np.int64],
+) -> None:
+    """Raise ``ValueError`` unless ``F(U)`` lies in ``U`` and ``F(V)`` in ``V``."""
+
     outside = np.setdiff1d(relation.image_of(u_atoms), u_atoms)
     if outside.size:
         raise ValueError(f"F(U) is not contained in U: {outside.size} atoms of F(U) lie outside U")
@@ -191,7 +217,6 @@ def index_pair_atoms(
             f"F(V) meets S in {into_s.size} atoms, so S is not a strongly connected "
             "component of F"
         )
-    return s_atoms, u_atoms, v_atoms
 
 
 def _affine_seam(
@@ -574,6 +599,136 @@ def _excision_index_map(
     return _shift_class_of_matrices(matrices)
 
 
+def _footprints(
+    grid: SuspensionGrid,
+    gluing: AtlasResetGluing2D,
+    pieces: npt.NDArray[np.int64],
+    atol: float,
+) -> dict[int, tuple[npt.NDArray[np.int64], npt.NDArray[np.float64]]]:
+    """Closed footprints of pieces in each chart: the pieces and the bounds ``(x0, y0, x1, y1)``.
+
+    A base piece has its rectangle in the base chart.  A handle piece has its
+    rectangle ``(u0, s0, u1, s1)`` in the handle chart and, on a seam
+    (``s0 = 0`` or ``s1 = 1``), the segment of the base chart its face is
+    glued to.  Two pieces meet in the quotient exactly when footprints of
+    both in one chart meet; the quotient nerve finds the candidate
+    neighbors of a cell in the same way.
+    """
+
+    base = pieces[pieces < grid.n_base]
+    handle = pieces[pieces >= grid.n_base]
+    handle_bounds = grid.handle_bounds(handle).reshape(-1, 4)
+    owners = {BASE_CHART: [base], HANDLE_CHART: [handle]}
+    bounds = {
+        BASE_CHART: [grid.base_bounds(base).reshape(-1, 4)],
+        HANDLE_CHART: [handle_bounds],
+    }
+    lower, upper = gluing.phase_bounds
+    for embedding, on_seam in (
+        (gluing.guard, np.abs(handle_bounds[:, 1] - lower) <= atol),
+        (gluing.reset, np.abs(handle_bounds[:, 3] - upper) <= atol),
+    ):
+        ends = embedding.scale * handle_bounds[on_seam][:, [0, 2]] + embedding.offset
+        segments = np.empty((ends.shape[0], 4))
+        fixed, varying = embedding.fixed_axis, embedding.varying_axis
+        segments[:, fixed] = embedding.fixed_value
+        segments[:, 2 + fixed] = embedding.fixed_value
+        segments[:, varying] = ends.min(axis=1)
+        segments[:, 2 + varying] = ends.max(axis=1)
+        owners[BASE_CHART].append(handle[on_seam])
+        bounds[BASE_CHART].append(segments)
+    return {
+        chart: (np.concatenate(owners[chart]), np.concatenate(bounds[chart]))
+        for chart in owners
+    }
+
+
+def _bucket_entries(
+    bounds: npt.NDArray[np.float64],
+    origin: npt.NDArray[np.float64],
+    size: npt.NDArray[np.float64],
+    shape: npt.NDArray[np.int64],
+) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.int64]]:
+    """Pairs ``(row of bounds, bucket)`` for the buckets each rectangle meets.
+
+    The buckets are the cells of the uniform grid of cell size ``size`` with
+    ``shape`` cells from ``origin``; ranges outside it are clipped.
+    """
+
+    first = np.clip(np.floor((bounds[:, :2] - origin) / size), 0, shape - 1).astype(np.int64)
+    last = np.clip(np.floor((bounds[:, 2:] - origin) / size), 0, shape - 1).astype(np.int64)
+    counts = last - first + 1
+    total = counts[:, 0] * counts[:, 1]
+    rows = np.repeat(np.arange(bounds.shape[0]), total)
+    offset = np.arange(int(total.sum())) - np.repeat(np.cumsum(total) - total, total)
+    column = first[rows, 0] + offset // counts[rows, 1]
+    row = first[rows, 1] + offset % counts[rows, 1]
+    return rows, column * shape[1] + row
+
+
+def _pieces_meeting(
+    grid: SuspensionGrid,
+    gluing: AtlasResetGluing2D,
+    pieces: npt.NDArray[np.int64],
+    others: npt.NDArray[np.int64],
+    *,
+    atol: float = 1.0e-9,
+) -> npt.NDArray[np.int64]:
+    """The pieces of ``pieces`` whose closures meet the closure of a piece of ``others``.
+
+    This is decided from the rectangles and the seams of the gluing (see
+    :func:`_footprints`), with the tolerance ``atol``, and not from
+    ``grid.piece_adjacency``.  In each chart the footprints of ``others``
+    are put in the buckets of a uniform grid; a footprint of ``pieces``,
+    widened by ``atol``, is compared with the footprints of ``others`` only
+    when it meets one of their buckets.
+    """
+
+    first = _footprints(grid, gluing, np.asarray(pieces, dtype=np.int64), atol)
+    second = _footprints(grid, gluing, np.asarray(others, dtype=np.int64), atol)
+    found: list[npt.NDArray[np.int64]] = []
+    for chart, (owner, bounds) in first.items():
+        other_bounds = second[chart][1]
+        if not owner.size or not other_bounds.shape[0]:
+            continue
+        widened = bounds + np.array([-atol, -atol, atol, atol])
+        origin = other_bounds[:, :2].min(axis=0)
+        extent = other_bounds[:, 2:].max(axis=0) - origin
+        near = np.all((widened[:, :2] <= origin + extent) & (widened[:, 2:] >= origin), axis=1)
+        owner, widened = owner[near], widened[near]
+        if not owner.size:
+            continue
+        sides = other_bounds[:, 2:] - other_bounds[:, :2]
+        size = np.array(
+            [
+                float(np.median(side[side > atol])) if np.any(side > atol) else max(span, atol)
+                for side, span in zip(sides.T, extent)
+            ]
+        )
+        shape = (np.floor(extent / size) + 1).astype(np.int64)
+        other_rows, other_keys = _bucket_entries(other_bounds, origin, size, shape)
+        rows, keys = _bucket_entries(widened, origin, size, shape)
+        # Only the footprints that share a bucket with ``others`` can meet them.
+        rows = np.unique(rows[np.isin(keys, other_keys)])
+        if not rows.size:
+            continue
+        owner, widened = owner[rows], widened[rows]
+        rows, keys = _bucket_entries(widened, origin, size, shape)
+        order = np.argsort(other_keys, kind="stable")
+        sorted_keys = other_keys[order]
+        start = np.searchsorted(sorted_keys, keys, "left")
+        hits = np.searchsorted(sorted_keys, keys, "right") - start
+        offset = np.arange(int(hits.sum())) - np.repeat(np.cumsum(hits) - hits, hits)
+        left = np.repeat(rows, hits)
+        right = other_rows[order[np.repeat(start, hits) + offset]]
+        a, b = widened[left], other_bounds[right]
+        meet = (a[:, 0] <= b[:, 2]) & (b[:, 0] <= a[:, 2]) & (a[:, 1] <= b[:, 3]) & (b[:, 1] <= a[:, 3])
+        found.append(owner[left[meet]])
+    if not found:
+        return np.zeros(0, dtype=np.int64)
+    return np.unique(np.concatenate(found))
+
+
 def _check_neighborhood(
     grid: SuspensionGrid,
     nerve: AtlasQuotientNerveComplex2D,
@@ -775,7 +930,9 @@ def compute_suspension_grid_conley_index(
 
     The default pair is ``(S cup F(S), F(S) minus S)``;
     ``index_pair="forward-closure"`` gives the pair ``(U, U minus S)`` of
-    the forward closure ``U`` of ``S`` (see :func:`index_pair_atoms`).
+    the forward closure ``U`` of ``S`` (see :func:`index_pair_atoms`); when
+    ``F(V)`` meets ``S`` (``S`` is not a strongly connected component), the
+    index is not attempted and the reason is the blocker.
     The relative homology of the pair is computed first.  If it is zero, the
     label is zero in every degree and the index map is not formed.  A failed
     gate of the index map (carrier acyclicity, pair preservation, chain map)
@@ -791,9 +948,11 @@ def compute_suspension_grid_conley_index(
     ``excise=True`` (forward-closure pair only) computes the same chain
     complex ``C(U) / C(V)`` and index map on the nerve of ``Y = W cup
     F(W)``, where ``W`` is ``S`` with the atoms of ``U`` whose closures meet
-    ``|S|`` (see the module notes).  ``pair_pieces`` then also records the
-    pieces of ``W`` and of ``Y``, ``nerve_cell_counts`` is that of the nerve
-    of ``Y``, and ``max_pieces`` bounds the pieces of ``Y``.
+    ``|S|`` (see the module notes).  A piece of ``U`` outside ``W`` whose
+    rectangle or seam meets ``S`` is reported as the blocker.
+    ``pair_pieces`` then also records the pieces of ``W`` and of ``Y``,
+    ``nerve_cell_counts`` is that of the nerve of ``Y``, and ``max_pieces``
+    bounds the pieces of ``Y``.
 
     ``index_map`` (image pair only) chooses the construction of the index
     map (see the module notes): ``"exit-components"`` (the default),
@@ -812,7 +971,7 @@ def compute_suspension_grid_conley_index(
         raise ValueError(f"index_map must be one of {INDEX_MAPS!r}; got {index_map!r}")
     if index_map != INDEX_MAPS[0] and index_pair == "forward-closure":
         raise ValueError("index_map applies to the image pair")
-    s_atoms, x_atoms, a_atoms = index_pair_atoms(relation, morse_set, index_pair)
+    s_atoms, x_atoms, a_atoms = _pair_atoms(relation, morse_set, index_pair)
     x_pieces = _pieces_of_atoms(grid, x_atoms)
     a_pieces = _pieces_of_atoms(grid, a_atoms)
     x_name, a_name = _PAIR_NAMES[index_pair]
@@ -840,6 +999,10 @@ def compute_suspension_grid_conley_index(
     if excise:
         result.pair_pieces.update(W=int(source_pieces.size), Y=int(nerve_pieces.size))
     try:
+        if index_pair == "forward-closure":
+            # A set that is not a strongly connected component is reported
+            # here, as the blocker, before any homology is computed.
+            _check_forward_invariance(relation, s_atoms, x_atoms, a_atoms)
         if max_pieces is not None and nerve_pieces.size > int(max_pieces):
             raise IndexSizeLimitError(
                 f"{description} has {nerve_pieces.size} elementary pieces, more than "
@@ -847,6 +1010,18 @@ def compute_suspension_grid_conley_index(
             )
         if gluing is None:
             gluing = suspension_grid_gluing(grid)
+        if excise:
+            # W is formed from grid.atom_adjacency; the rectangles and seams
+            # of the pieces decide independently that no piece of U outside
+            # W meets S.
+            outside = x_pieces[~np.isin(grid.atom_of_piece[x_pieces], source_atoms)]
+            meeting = _pieces_meeting(grid, gluing, outside, _pieces_of_atoms(grid, s_atoms))
+            if meeting.size:
+                raise AssertionError(
+                    f"{meeting.size} pieces of U outside W meet S (the first is piece "
+                    f"{int(meeting[0])} of atom {int(grid.atom_of_piece[meeting[0]])}); "
+                    "W does not contain the neighborhood of S"
+                )
         cells = piece_rectangles(grid, nerve_pieces)
         nerve = AtlasQuotientNerveComplex2D(
             cells,
@@ -897,10 +1072,11 @@ def compute_suspension_grid_conley_index(
                     empty = sum(1 for pieces in atom_images.values() if not pieces)
                     if empty:
                         # Samples whose image points lie outside the window are
-                        # discarded, so an atom of V can have an empty image.
+                        # discarded, so an atom of U can have an empty image.
                         raise ValueError(
-                            f"{empty} atoms of V have an empty image (every image point "
-                            "left the window), so their pieces have no carrier"
+                            f"{empty} of the {len(atom_images)} atoms of "
+                            f"{'W' if excise else 'U'} have an empty image (every image "
+                            "point left the window), so their pieces have no carrier"
                         )
                 if excise:
                     payload = _excised_shift_class(pair, source_pieces.tolist(), piece_image)
@@ -1069,7 +1245,7 @@ def compute_suspension_grid_conley_indices(
         ]
     if problem_factory is None:
         raise ValueError("a parallel index computation requires a picklable problem_factory")
-    pair_atoms = [index_pair_atoms(relation, morse_set, index_pair)[1] for morse_set in sets]
+    pair_atoms = [_pair_atoms(relation, morse_set, index_pair)[1] for morse_set in sets]
     order = sorted(range(len(sets)), key=lambda node: -pair_atoms[node].size)
     results: list[SuspensionGridConleyResult | None] = [None] * len(sets)
     with ProcessPoolExecutor(

@@ -36,6 +36,7 @@ from hybrid_dynamics import (
 from hybrid_dynamics.examples.paper_grid_examples import (
     PAPER_GRID_PROBLEMS,
     bouncing_ball_problem,
+    paper_grid_problem_factory,
     rimless_wheel_problem,
     spiking_neuron_problem,
 )
@@ -938,7 +939,10 @@ def _labels_of_every_pair(relation, morse_set, node):
 
 
 def test_forward_closure_pair_is_forward_invariant():
-    from hybrid_dynamics.src.suspension_grid_conley import index_pair_atoms
+    from hybrid_dynamics.src.suspension_grid_conley import (
+        compute_suspension_grid_conley_indices,
+        index_pair_atoms,
+    )
 
     problem = PAPER_GRID_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2)
     grid = _grid(problem, 4)
@@ -953,10 +957,72 @@ def test_forward_closure_pair_is_forward_invariant():
         _, x, a = index_pair_atoms(relation, morse_set)
         assert np.all(np.isin(x, u)) and np.all(np.isin(a, v))
     # {1} is not a strongly connected component of 0 <-> 1: V = {0} maps into S.
+    cycle = _relation_on(grid, [0, 1], [0, 1])
     with pytest.raises(ValueError, match="not a strongly connected component"):
-        index_pair_atoms(_relation_on(grid, [0, 1], [0, 1]), [1], "forward-closure")
+        index_pair_atoms(cycle, [1], "forward-closure")
     with pytest.raises(ValueError, match="index_pair"):
         index_pair_atoms(relation, morse.morse_sets[0], "closure")
+    # The index of such a set is not attempted; the reason is its blocker,
+    # in the serial and in the parallel computation.
+    for excise in (False, True):
+        result = compute_suspension_grid_conley_index(
+            cycle, [1], index_pair="forward-closure", excise=excise
+        )
+        assert not result.computed and not result.homology_computed
+        assert result.blocker.startswith("ValueError: F(V) meets S in 1 atoms")
+    factory = paper_grid_problem_factory("impact-vdp-duffing", tau=3.0, level_offset=2)
+    results = compute_suspension_grid_conley_indices(
+        cycle,
+        [np.array([1]), np.array([0, 1])],
+        workers=2,
+        problem_factory=factory,
+        index_pair="forward-closure",
+    )
+    assert "not a strongly connected component" in results[0].blocker
+    assert "not a strongly connected component" not in results[1].blocker
+
+
+def test_excised_neighborhood_is_checked_against_the_rectangles_and_seams():
+    from hybrid_dynamics.src.suspension_grid_conley import _pieces_meeting, index_pair_atoms
+
+    # The pieces that meet S by the rectangles and seams of the quotient are
+    # those of the grid adjacency, so W contains every piece of U meeting S.
+    for problem, level, depth in (
+        (PAPER_GRID_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2), 4, 2),
+        (_repelling_cylinder_problem(), 2, 0),
+    ):
+        grid = _grid(problem, level)
+        gluing = suspension_grid_gluing(grid)
+        relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=depth)
+        morse = compute_suspension_morse_graph(relation)
+        every_piece = np.arange(grid.n_pieces)
+        for morse_set in morse.morse_sets:
+            s, u, _ = index_pair_atoms(relation, morse_set, "forward-closure")
+            s_pieces = np.concatenate([grid.atom(atom) for atom in s])
+            meeting = _pieces_meeting(grid, gluing, every_piece, s_pieces)
+            assert np.array_equal(meeting, np.unique(grid.piece_adjacency[s_pieces].indices))
+            w = np.union1d(s, np.intersect1d(grid.atom_adjacency[s].indices, u))
+            meeting_u = meeting[np.isin(grid.atom_of_piece[meeting], u)]
+            assert np.all(np.isin(grid.atom_of_piece[meeting_u], w))
+
+    # With an adjacency that misses the neighbors of S, W = S, and the check
+    # reports the pieces of U outside W that meet S instead of a label.
+    problem = _repelling_cylinder_problem()
+    grid = _grid(problem, 2)
+    relation = compute_suspension_grid_relation(grid, problem)
+    morse = compute_suspension_morse_graph(relation)
+    whole = compute_suspension_grid_conley_index(
+        relation, morse.morse_sets[2], index_pair="forward-closure"
+    )
+    assert whole.shift_class == ("0", "x-1", "x-1", "0")
+    grid.atom_adjacency = sparse.identity(grid.n_atoms, format="csr")
+    excised = compute_suspension_grid_conley_index(
+        relation, morse.morse_sets[2], index_pair="forward-closure", excise=True
+    )
+    assert excised.pair_atoms["W"] == excised.pair_atoms["S"]
+    assert not excised.computed and not excised.homology_computed
+    assert excised.blocker.startswith("AssertionError: ")
+    assert "pieces of U outside W meet S" in excised.blocker
 
 
 @pytest.mark.parametrize(
@@ -1031,10 +1097,13 @@ def test_forward_closure_reports_atoms_whose_image_left_the_window():
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
     morse = compute_suspension_morse_graph(relation)
     node = int(np.argmax([values.size for values in morse.morse_sets]))
-    for excise in (False, True):
+    for excise, source in ((False, "U"), (True, "W")):
         result = compute_suspension_grid_conley_index(
             relation, morse.morse_sets[node], index_pair="forward-closure", excise=excise
         )
         assert result.homology_computed and any(result.homology_dimensions)
         assert not result.computed
-        assert "have an empty image" in result.blocker
+        # The count is of the atoms whose images are read: U, or W when excised.
+        assert f"of the {result.pair_atoms[source]} atoms of {source} have an empty image" in (
+            result.blocker
+        )
