@@ -76,33 +76,21 @@ def _git_commit() -> dict[str, object]:
     }
 
 
-def replot(
-    summary_path: Path,
-    *,
-    variants: tuple[str, ...] = FIGURE_VARIANTS,
-    output_dir: Path | None = None,
-    update_json: bool = True,
-) -> dict[str, object]:
-    """Redraw the figure variants of one run; return the figure records."""
+def problem_options(summary: dict[str, object]) -> dict[str, object]:
+    """Keyword arguments of ``paper_grid_problem`` for the run: ``tau`` and the offset."""
 
-    summary_path = Path(summary_path)
-    summary = json.loads(summary_path.read_text(encoding="utf-8"))
-    morse_graph = summary.get("morse_graph", {})
-    encoded = morse_graph.get("morse_set_atoms")
-    if encoded is None:
-        raise ReplotError(
-            f"{summary_path} has no morse_graph.morse_set_atoms (written before the runner "
-            "stored the Morse sets); rerun it with demo/run_paper_grid_examples.py"
-        )
-    example = summary["example"]
-    level = int(summary["level"])
-    tau = float(summary["tau"])
+    options: dict[str, object] = {"tau": float(summary["tau"])}
     level_offset = int(summary.get("level_offset", 0))
-    options: dict[str, object] = {"tau": tau}
     if level_offset:
         options["level_offset"] = level_offset
-    problem = paper_grid_problem(example, **options)
-    grid = build_suspension_grid(problem.window, problem.guard, level)
+    return options
+
+
+def rebuild_problem_and_grid(summary: dict[str, object], summary_path: Path):
+    """The problem and the grid ``Xi_n`` of a run, checked against its ``grid`` record."""
+
+    problem = paper_grid_problem(summary["example"], **problem_options(summary))
+    grid = build_suspension_grid(problem.window, problem.guard, int(summary["level"]))
     rebuilt = json.loads(json.dumps(grid.summary()))
     if rebuilt != summary["grid"]:
         differing = sorted(
@@ -113,13 +101,54 @@ def replot(
         raise ReplotError(
             f"the rebuilt grid of {summary_path} differs from the recorded one in {differing!r}"
         )
-    morse_sets = [decode_index_ranges(text) for text in encoded]
-    recorded_sizes = [int(node["atoms"]) for node in morse_graph["nodes"]]
+    return problem, grid
+
+
+def _encoded_morse_sets(summary: dict[str, object], summary_path: Path) -> list[str]:
+    encoded = summary.get("morse_graph", {}).get("morse_set_atoms")
+    if encoded is None:
+        raise ReplotError(
+            f"{summary_path} has no morse_graph.morse_set_atoms (written before the runner "
+            "stored the Morse sets); rerun it with demo/run_paper_grid_examples.py"
+        )
+    return encoded
+
+
+def recorded_morse_sets(summary: dict[str, object], summary_path: Path, grid) -> list:
+    """The Morse sets stored in the summary, checked against their sizes and the grid."""
+
+    morse_sets = [decode_index_ranges(text) for text in _encoded_morse_sets(summary, summary_path)]
+    recorded_sizes = [int(node["atoms"]) for node in summary["morse_graph"]["nodes"]]
     if [values.size for values in morse_sets] != recorded_sizes:
         raise ReplotError(f"the Morse sets of {summary_path} do not match their recorded sizes")
     if morse_sets and max(int(values.max()) for values in morse_sets if values.size) >= grid.n_atoms:
         raise ReplotError(f"the Morse sets of {summary_path} refer to atoms outside the grid")
-    edges = [tuple(edge) for edge in morse_graph["edges"]]
+    return morse_sets
+
+
+def replot(
+    summary_path: Path,
+    *,
+    variants: tuple[str, ...] = FIGURE_VARIANTS,
+    output_dir: Path | None = None,
+    update_json: bool = True,
+    script: str = "demo/replot_paper_grid.py",
+) -> dict[str, object]:
+    """Redraw the figure variants of one run; return the figure records.
+
+    ``script`` is the script recorded under ``figures_replotted`` (another
+    script that calls this function names itself).
+    """
+
+    summary_path = Path(summary_path)
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    _encoded_morse_sets(summary, summary_path)  # checked before the grid is rebuilt
+    example = summary["example"]
+    level = int(summary["level"])
+    tau = float(summary["tau"])
+    _problem, grid = rebuild_problem_and_grid(summary, summary_path)
+    morse_sets = recorded_morse_sets(summary, summary_path, grid)
+    edges = [tuple(edge) for edge in summary["morse_graph"]["edges"]]
     conley = summary.get("conley", [])
     if "nontrivial" in variants and len(conley) != len(morse_sets):
         raise ReplotError(
@@ -145,7 +174,7 @@ def replot(
         summary["figures"] = figures["figures"]
         summary["figure_variants"] = figures["figure_variants"]
         summary["figures_replotted"] = {
-            "script": "demo/replot_paper_grid.py",
+            "script": script,
             "command_line": sys.argv[1:],
             "code": _git_commit(),
         }

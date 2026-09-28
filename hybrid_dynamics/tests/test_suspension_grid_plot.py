@@ -499,6 +499,113 @@ def test_replot_rebuilds_the_base_offset_of_the_run(tmp_path):
         replot.replot(other_path)
 
 
+def _load_fill_script():
+    path = CODE_ROOT / "demo" / "fill_missing_labels.py"
+    spec = importlib.util.spec_from_file_location("fill_missing_labels", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def _without_seconds(record):
+    return {key: value for key, value in record.items() if key != "seconds"}
+
+
+def test_fill_missing_labels_replaces_only_the_records_without_a_label(tmp_path, monkeypatch):
+    # A small run of the runner (defaults: image pair, index map "auto").
+    runner = _load_runner_script()
+    argv = ["rimless-wheel", "--index-workers", "1", "--output-dir", str(tmp_path)]
+    monkeypatch.setattr("sys.argv", ["run_paper_grid_examples.py", *argv])
+    runner._run("rimless-wheel", 3, runner._arguments(), 1.0, 1)
+    (path,) = tmp_path.glob("*.json")
+    original = json.loads(path.read_text(encoding="utf-8"))
+    conley = original["conley"]
+    labeled = [record["morse_node"] for record in conley if record["computed"]]
+    unlabeled = [record["morse_node"] for record in conley if not record["computed"]]
+    assert len(labeled) >= 2
+
+    # Remove the label of one node, as a run with a piece limit leaves it, and
+    # the figure records, which the fill writes again.
+    removed = labeled[-1]
+    summary = json.loads(json.dumps(original))
+    summary["conley"][removed] = {
+        **conley[removed],
+        "computed": False,
+        "shift_class": [],
+        "homology_dimensions": [],
+        "homology_computed": False,
+        "label_source": "",
+        "nerve_cell_counts": [],
+        "result_scope": "",
+        "blocker": "IndexSizeLimitError: the index was not attempted",
+    }
+    del summary["conley_labels_in_figure"][str(removed)]
+    for key in ("figures", "figure_variants"):
+        del summary[key]
+    text = json.dumps(summary, indent=2, sort_keys=True) + "\n"
+    path.write_text(text, encoding="utf-8")
+
+    fill = _load_fill_script()
+    entry = fill.fill_missing_labels(path)
+    filled = json.loads(path.read_text(encoding="utf-8"))
+    assert entry["morse_nodes"] == sorted([*unlabeled, removed])
+    assert removed in entry["labeled"]
+    # The filled records are those of the runner; the other records are untouched.
+    for node, record in enumerate(filled["conley"]):
+        if node in entry["morse_nodes"]:
+            assert record["index_map"] == "auto"
+            assert _without_seconds(record) == _without_seconds(conley[node])
+        else:
+            assert record == conley[node]
+    assert filled["conley_labels_in_figure"] == original["conley_labels_in_figure"]
+    assert filled["figure_variants"] == original["figure_variants"]
+    assert filled["figures"] == original["figures"]
+    assert all(Path(file).is_file() for file in filled["figures"])
+    assert filled["figures_replotted"]["script"] == "demo/fill_missing_labels.py"
+    (recorded,) = filled["labels_filled"]
+    assert recorded == entry
+    assert recorded["script"] == "demo/fill_missing_labels.py"
+    assert recorded["code"]["commit"] == original["code"]["commit"]
+    assert (recorded["index_pair"], recorded["index_map"]) == ("image", "auto")
+    assert recorded["checked"]["relation_edges"] == original["relation"]["edges"]
+    changed = {
+        "conley",
+        "conley_labels_in_figure",
+        "figures",
+        "figure_variants",
+        "figures_replotted",
+        "labels_filled",
+    }
+    assert {key: value for key, value in filled.items() if key not in changed} == {
+        key: value for key, value in summary.items() if key not in changed
+    }
+
+    # A run whose recomputation differs is refused and left as it was.
+    encoded = summary["morse_graph"]["morse_set_atoms"]
+    in_sets = set(np.concatenate([decode_index_ranges(value) for value in encoded]).tolist())
+    other_atom = next(atom for atom in range(10**6) if atom not in in_sets)
+    moved = json.loads(text)
+    atoms = decode_index_ranges(encoded[removed]).tolist()
+    moved["morse_graph"]["morse_set_atoms"][removed] = encode_index_ranges([other_atom, *atoms[1:]])
+    fewer_edges = json.loads(text)
+    fewer_edges["morse_graph"]["edges"] = fewer_edges["morse_graph"]["edges"][:-1]
+    more_edges = json.loads(text)
+    more_edges["relation"]["edges"] += 1
+    for name, changed_summary, message in (
+        ("moved", moved, "Morse sets"),
+        ("fewer-edges", fewer_edges, "Morse graph"),
+        ("more-edges", more_edges, "edges"),
+    ):
+        refused = tmp_path / "refused" / f"{name}.json"
+        refused.parent.mkdir(exist_ok=True)
+        refused_text = json.dumps(changed_summary, indent=2, sort_keys=True) + "\n"
+        refused.write_text(refused_text, encoding="utf-8")
+        with pytest.raises(fill.FillError, match=message):
+            fill.fill_missing_labels(refused)
+        assert refused.read_text(encoding="utf-8") == refused_text
+        assert sorted(refused.parent.glob(f"{name}*")) == [refused]
+
+
 def test_a_node_without_a_label_shows_its_homology_dimensions():
     from hybrid_dynamics.examples.paper_grid_figures import blocked_index_line
 

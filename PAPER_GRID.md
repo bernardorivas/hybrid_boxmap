@@ -213,6 +213,38 @@ options, with the exit-components construction; `--index-map
 exit-components` reproduces their index records (under names with
 `-index-exit-components`).
 
+`demo/fill_missing_labels.py` computes the labels a recorded run lacks
+without rerunning it. For each JSON summary it rebuilds the problem and
+`Xi_n` as `demo/replot_paper_grid.py` does, recomputes the relation with
+the recorded image rule and integrator (`image_rule`, `integrator`; a
+summary without `integrator` predates the batched integrator and is
+recomputed with `SuspensionFlow` paths), and refuses the summary, changing
+nothing, unless the image rule, the number of edges (`relation.edges`), the
+Morse sets (`morse_graph.morse_set_atoms`, in node order), and the Morse
+graph (`morse_graph.edges`) equal the recorded ones. It then computes the
+index of the image pair with `index_map="auto"` for the Morse nodes whose
+record has no label (`computed: false`) and for no other node. The
+recomputed pair must have the recorded numbers of atoms and pieces (and the
+recorded homology dimensions, when both are known), or the summary is
+refused. Only the records of these nodes are replaced; the other records
+and `conley_options` stay as they were. `conley_labels_in_figure` gains
+the new labels, and each application appends to `labels_filled` the nodes
+recomputed (`morse_nodes`) and those now labeled (`labeled`), the pair and
+index map, the checks, the seconds of each stage, the script, the command
+line, and the code commit. The figure variants of the run are then redrawn
+with the replot code, which rewrites the combined and panel figures and
+`figures`, `figure_variants`, and `figures_replotted` (with the script
+`demo/fill_missing_labels.py`). A summary of the forward-closure pair is
+refused, and one in which every node has a label is left unchanged.
+`--workers` evaluates the base samples in worker processes; the index is
+computed in the main process, one node at a time, on the rows of the
+relation it reads (those of `X`), and `--index-max-pieces` bounds it as in
+the runner. `test_fill_missing_labels_replaces_only_the_records_without_a_label`
+in `test_suspension_grid_plot.py` removes the label of one node of a small
+run, fills it again, checks that the other records are untouched, and
+checks that runs whose recomputed Morse sets, Morse graph, or number of
+edges differ from the record are refused.
+
 The quotient nerve has about ten simplices per elementary piece of `X` and
 is held in memory; `max_pieces` (runner option `--index-max-pieces N`) skips
 a Morse set whose `X` has more than `N` pieces and reports it as blocked
@@ -364,6 +396,7 @@ From `code/`:
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12 --gap-refinement-depth 12
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12 --eval-mode tensor --samples-per-axis 3
 .venv/bin/python demo/replot_paper_grid.py figures/paper_grid/paper-grid-spiking-neuron-*.json
+.venv/bin/python demo/fill_missing_labels.py --workers 12 figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-*.json
 ```
 
 The base samples are integrated many at a time by
