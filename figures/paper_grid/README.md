@@ -40,6 +40,25 @@ Each run has a JSON summary and its figures under the same stem.
   in Paul Tol's "muted" palette at `c896334` and returned to the CMGDB
   palette at the next commit.) Each JSON lists the palette and the color of
   every Morse node under `figure_variants.<variant>.colors`.
+- Every run in `./` was redrawn at `ddaa498`. The Morse graph of each figure
+  and panel now shows the index labels, and the `dim H` line of a node
+  without a label, in degrees 0, 1, 2 only; every dropped entry was checked
+  to be zero (none of the runs has a nonzero entry in degree 3 or higher,
+  so no node keeps its full tuple). The `conley` records keep every
+  degree, and each variant records the degrees shown under
+  `figure_variants.<variant>.index_degrees`. The chart and zoom panels are
+  unchanged.
+- Attractor lattice in `./`: `<stem>-attractor-lattice.pdf/.png`, the Hasse
+  diagram of the lattice of down-sets of the Morse order of the nontrivial
+  variant (Birkhoff), drawn at `ddaa498` for every run in `./`. The
+  join-irreducible elements `↓M(i)` are in the colors of their Morse sets
+  (dashed when `M(i)` has no label), the other elements white, labeled by
+  joins, with bottom `0`. Each JSON records it under `attractor_lattice`
+  and lists its files at the end of `figures`. Elements (join-irreducible):
+  ball `tau = 0.5` 2 (1), wheel `tau = 0.5` 3 (2), neuron `tau = 1` and
+  `tau = 5` 2 (1), oscillator `beta = 0.8`, `tau = 1` 15 (6, of which
+  `M(3)`, `M(5)`, `M(8)` have no label), oscillator `beta = 0.76` at
+  `tau = 1` and `tau = 0.5` 11 (5).
 - `sweep-bouncing-ball/`, `sweep-rimless-wheel/`, `sweep-spiking-neuron/`,
   `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs),
   figures in the earlier layout.

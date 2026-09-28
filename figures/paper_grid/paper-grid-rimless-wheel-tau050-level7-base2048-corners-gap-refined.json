@@ -1,5 +1,78 @@
 {
   "a_n": 0.001953125,
+  "attractor_lattice": {
+    "blocked_nodes": [],
+    "covers": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    "element_count": 3,
+    "elements": [
+      {
+        "element": 0,
+        "join_irreducible": false,
+        "label": "0",
+        "maximal": [],
+        "morse_nodes": []
+      },
+      {
+        "element": 1,
+        "join_irreducible": true,
+        "label": "\u2193M(0)",
+        "maximal": [
+          0
+        ],
+        "morse_nodes": [
+          0
+        ]
+      },
+      {
+        "element": 2,
+        "join_irreducible": true,
+        "label": "\u2193M(9)",
+        "maximal": [
+          9
+        ],
+        "morse_nodes": [
+          0,
+          9
+        ]
+      }
+    ],
+    "files": [
+      "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-attractor-lattice.pdf",
+      "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-attractor-lattice.png"
+    ],
+    "join_irreducibles": [
+      {
+        "element": 1,
+        "label": "\u2193M(0)",
+        "morse_node": 0
+      },
+      {
+        "element": 2,
+        "label": "\u2193M(9)",
+        "morse_node": 9
+      }
+    ],
+    "morse_nodes": [
+      0,
+      9
+    ],
+    "morse_order": [
+      [
+        9,
+        0
+      ]
+    ],
+    "rule": "Hasse diagram of the lattice of down-sets, ordered by inclusion, of the Morse order restricted to the Morse nodes of the nontrivial variant (a nontrivial label, or no label): reachability in the full Morse graph, transitively reduced; by Birkhoff's representation theorem its join-irreducible elements are the principal down-sets, one for each of these nodes, drawn in the color of the node and labeled \u2193M(i) (with a dashed outline when M(i) has no label); every other element is white and labeled by the join of the \u2193M(i) for the nodes i maximal in it, and the bottom element, the empty down-set, is 0"
+  },
   "base_cells_per_axis": 2048,
   "code": {
     "commit": "a47c88d09085eb2b45b8f9d990aa09db37853583",
@@ -920,6 +993,15 @@
         "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.png"
       ],
       "hidden_nodes": [],
+      "index_degrees": {
+        "degrees_shown": [
+          0,
+          1,
+          2
+        ],
+        "morse_nodes_with_every_degree": [],
+        "rule": "the Morse graph shows the index label (shift class) of a node, and the homology dimensions of a node without a label, in degrees 0, 1, 2: the suspension of a planar window is 2-dimensional, so the entries in degrees 3 and higher are zero; they are checked to be '0' (dimension 0) before they are dropped, and a node with an entry there that is not zero is drawn with every degree and listed under morse_nodes_with_every_degree; the conley records keep every degree"
+      },
       "order_shown": [
         [
           2,
@@ -1248,6 +1330,15 @@
           "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
         }
       ],
+      "index_degrees": {
+        "degrees_shown": [
+          0,
+          1,
+          2
+        ],
+        "morse_nodes_with_every_degree": [],
+        "rule": "the Morse graph shows the index label (shift class) of a node, and the homology dimensions of a node without a label, in degrees 0, 1, 2: the suspension of a planar window is 2-dimensional, so the entries in degrees 3 and higher are zero; they are checked to be '0' (dimension 0) before they are dropped, and a node with an entry there that is not zero is drawn with every degree and listed under morse_nodes_with_every_degree; the conley records keep every degree"
+      },
       "order_shown": [
         [
           9,
@@ -1313,12 +1404,14 @@
     "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.pdf",
     "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.png",
     "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.pdf",
-    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.png"
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.png",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-attractor-lattice.pdf",
+    "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined-attractor-lattice.png"
   ],
   "figures_replotted": {
     "code": {
-      "commit": "4e63a3fd0418f0d13111708b581bf7f903318fb1",
-      "dirty": true
+      "commit": "ddaa498b216bed53d8779f03a77cb33ba0fb7916",
+      "dirty": false
     },
     "command_line": [
       "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",

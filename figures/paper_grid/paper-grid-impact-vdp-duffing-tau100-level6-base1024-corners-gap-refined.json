@@ -1,5 +1,376 @@
 {
   "a_n": 0.00390625,
+  "attractor_lattice": {
+    "blocked_nodes": [
+      3,
+      5,
+      8
+    ],
+    "covers": [
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        1,
+        5
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        3,
+        5
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        4,
+        8
+      ],
+      [
+        4,
+        9
+      ],
+      [
+        5,
+        8
+      ],
+      [
+        6,
+        8
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        7,
+        9
+      ],
+      [
+        7,
+        10
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        9,
+        11
+      ],
+      [
+        9,
+        12
+      ],
+      [
+        10,
+        11
+      ],
+      [
+        11,
+        13
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        13,
+        14
+      ]
+    ],
+    "element_count": 15,
+    "elements": [
+      {
+        "element": 0,
+        "join_irreducible": false,
+        "label": "0",
+        "maximal": [],
+        "morse_nodes": []
+      },
+      {
+        "element": 1,
+        "join_irreducible": true,
+        "label": "\u2193M(0)",
+        "maximal": [
+          0
+        ],
+        "morse_nodes": [
+          0
+        ]
+      },
+      {
+        "element": 2,
+        "join_irreducible": true,
+        "label": "\u2193M(1)",
+        "maximal": [
+          1
+        ],
+        "morse_nodes": [
+          1
+        ]
+      },
+      {
+        "element": 3,
+        "join_irreducible": true,
+        "label": "\u2193M(2)",
+        "maximal": [
+          2
+        ],
+        "morse_nodes": [
+          2
+        ]
+      },
+      {
+        "element": 4,
+        "join_irreducible": false,
+        "label": "\u2193M(0) \u2228 \u2193M(1)",
+        "maximal": [
+          0,
+          1
+        ],
+        "morse_nodes": [
+          0,
+          1
+        ]
+      },
+      {
+        "element": 5,
+        "join_irreducible": false,
+        "label": "\u2193M(0) \u2228 \u2193M(2)",
+        "maximal": [
+          0,
+          2
+        ],
+        "morse_nodes": [
+          0,
+          2
+        ]
+      },
+      {
+        "element": 6,
+        "join_irreducible": false,
+        "label": "\u2193M(1) \u2228 \u2193M(2)",
+        "maximal": [
+          1,
+          2
+        ],
+        "morse_nodes": [
+          1,
+          2
+        ]
+      },
+      {
+        "element": 7,
+        "join_irreducible": true,
+        "label": "\u2193M(3)",
+        "maximal": [
+          3
+        ],
+        "morse_nodes": [
+          1,
+          3
+        ]
+      },
+      {
+        "element": 8,
+        "join_irreducible": false,
+        "label": "\u2193M(0) \u2228 \u2193M(1) \u2228 \u2193M(2)",
+        "maximal": [
+          0,
+          1,
+          2
+        ],
+        "morse_nodes": [
+          0,
+          1,
+          2
+        ]
+      },
+      {
+        "element": 9,
+        "join_irreducible": false,
+        "label": "\u2193M(0) \u2228 \u2193M(3)",
+        "maximal": [
+          0,
+          3
+        ],
+        "morse_nodes": [
+          0,
+          1,
+          3
+        ]
+      },
+      {
+        "element": 10,
+        "join_irreducible": false,
+        "label": "\u2193M(2) \u2228 \u2193M(3)",
+        "maximal": [
+          2,
+          3
+        ],
+        "morse_nodes": [
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "element": 11,
+        "join_irreducible": false,
+        "label": "\u2193M(0) \u2228 \u2193M(2) \u2228 \u2193M(3)",
+        "maximal": [
+          0,
+          2,
+          3
+        ],
+        "morse_nodes": [
+          0,
+          1,
+          2,
+          3
+        ]
+      },
+      {
+        "element": 12,
+        "join_irreducible": true,
+        "label": "\u2193M(5)",
+        "maximal": [
+          5
+        ],
+        "morse_nodes": [
+          0,
+          1,
+          3,
+          5
+        ]
+      },
+      {
+        "element": 13,
+        "join_irreducible": false,
+        "label": "\u2193M(2) \u2228 \u2193M(5)",
+        "maximal": [
+          2,
+          5
+        ],
+        "morse_nodes": [
+          0,
+          1,
+          2,
+          3,
+          5
+        ]
+      },
+      {
+        "element": 14,
+        "join_irreducible": true,
+        "label": "\u2193M(8)",
+        "maximal": [
+          8
+        ],
+        "morse_nodes": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          8
+        ]
+      }
+    ],
+    "files": [
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-attractor-lattice.pdf",
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-attractor-lattice.png"
+    ],
+    "join_irreducibles": [
+      {
+        "element": 1,
+        "label": "\u2193M(0)",
+        "morse_node": 0
+      },
+      {
+        "element": 2,
+        "label": "\u2193M(1)",
+        "morse_node": 1
+      },
+      {
+        "element": 3,
+        "label": "\u2193M(2)",
+        "morse_node": 2
+      },
+      {
+        "element": 7,
+        "label": "\u2193M(3)",
+        "morse_node": 3
+      },
+      {
+        "element": 12,
+        "label": "\u2193M(5)",
+        "morse_node": 5
+      },
+      {
+        "element": 14,
+        "label": "\u2193M(8)",
+        "morse_node": 8
+      }
+    ],
+    "morse_nodes": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      8
+    ],
+    "morse_order": [
+      [
+        3,
+        1
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        8,
+        5
+      ]
+    ],
+    "rule": "Hasse diagram of the lattice of down-sets, ordered by inclusion, of the Morse order restricted to the Morse nodes of the nontrivial variant (a nontrivial label, or no label): reachability in the full Morse graph, transitively reduced; by Birkhoff's representation theorem its join-irreducible elements are the principal down-sets, one for each of these nodes, drawn in the color of the node and labeled \u2193M(i) (with a dashed outline when M(i) has no label); every other element is white and labeled by the join of the \u2193M(i) for the nodes i maximal in it, and the bottom element, the empty down-set, is 0"
+  },
   "base_cells_per_axis": 1024,
   "code": {
     "commit": "8e99989ccac600caa19c7dd5ce0f67bd49601a5e",
@@ -456,6 +827,15 @@
         "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.png"
       ],
       "hidden_nodes": [],
+      "index_degrees": {
+        "degrees_shown": [
+          0,
+          1,
+          2
+        ],
+        "morse_nodes_with_every_degree": [],
+        "rule": "the Morse graph shows the index label (shift class) of a node, and the homology dimensions of a node without a label, in degrees 0, 1, 2: the suspension of a planar window is 2-dimensional, so the entries in degrees 3 and higher are zero; they are checked to be '0' (dimension 0) before they are dropped, and a node with an entry there that is not zero is drawn with every degree and listed under morse_nodes_with_every_degree; the conley records keep every degree"
+      },
       "order_shown": [
         [
           3,
@@ -697,6 +1077,15 @@
           "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
         }
       ],
+      "index_degrees": {
+        "degrees_shown": [
+          0,
+          1,
+          2
+        ],
+        "morse_nodes_with_every_degree": [],
+        "rule": "the Morse graph shows the index label (shift class) of a node, and the homology dimensions of a node without a label, in degrees 0, 1, 2: the suspension of a planar window is 2-dimensional, so the entries in degrees 3 and higher are zero; they are checked to be '0' (dimension 0) before they are dropped, and a node with an entry there that is not zero is drawn with every degree and listed under morse_nodes_with_every_degree; the conley records keep every degree"
+      },
       "order_shown": [
         [
           3,
@@ -811,12 +1200,14 @@
     "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-nontrivial-zoom-B.pdf",
     "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-nontrivial-zoom-B.png",
     "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-nontrivial-graph.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-nontrivial-graph.png"
+    "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-nontrivial-graph.png",
+    "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-attractor-lattice.pdf",
+    "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined-attractor-lattice.png"
   ],
   "figures_replotted": {
     "code": {
-      "commit": "4e63a3fd0418f0d13111708b581bf7f903318fb1",
-      "dirty": true
+      "commit": "ddaa498b216bed53d8779f03a77cb33ba0fb7916",
+      "dirty": false
     },
     "command_line": [
       "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",
