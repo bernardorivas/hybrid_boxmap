@@ -1,38 +1,25 @@
-# Paper-grid runs
+# Results in the paper
 
-The four runs used in the paper, one JSON record each, with their figures under
-the same name. The commands that produce them are in the
-[README](../../README.md#reproducing-the-figures-of-the-paper).
+Records and figures of the four computations in the paper "Hybrid Attractor
+Lattices". Each record (`.json`) stores the parameters, the Morse graph, the
+Conley indices, and the command that produced it. Its figures share its name.
 
-| Example | Record |
-|---|---|
-| Bouncing ball | `paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json` |
-| Rimless wheel | `paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.json` |
-| Spiking neuron | `paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined.json` |
-| Impacting oscillator, $\beta=0.76$ | `paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json` |
+## Commands
 
-For a record `<stem>.json`:
+Run from the repository root. Times are for 12 workers.
 
-- `<stem>.pdf` shows every Morse set, with the Morse sets of trivial Conley
-  index in gray, and `<stem>-nontrivial.pdf` shows only those with nontrivial
-  Conley index.
-- `-base`, `-zoom-A`, `-zoom-B`, ..., and `-graph` are the panels of these two
-  figures as separate files, for both variants. `-attractor-lattice` is the
-  lattice of down-sets of the Morse sets with nontrivial Conley index.
-- For every example, the paper includes the `-graph` panel (the full
-  Conley–Morse graph) and the `-nontrivial-base` panel. It also includes the
-  `-nontrivial-zoom-*` panels for the ball, the wheel, and the oscillator, the
-  `-nontrivial-graph` panel (the restricted Conley–Morse graph) for the wheel
-  and the oscillator, and the `-attractor-lattice` figure for the oscillator.
+| Example | Command | Time |
+|---|---|---|
+| Bouncing ball | `python demo/run_paper_grid_examples.py bouncing-ball --tau bouncing-ball=0.5 --level bouncing-ball=6 --level-offset bouncing-ball=4 --gap-refinement-depth 14 --workers 12` | 2 min |
+| Rimless wheel | `python demo/run_paper_grid_examples.py rimless-wheel --tau rimless-wheel=0.5 --level rimless-wheel=7 --level-offset rimless-wheel=4 --gap-refinement-depth 14 --workers 12` | 9 min |
+| Spiking neuron | `python demo/run_paper_grid_examples.py spiking-neuron --tau spiking-neuron=5 --level spiking-neuron=7 --level-offset spiking-neuron=3 --gap-refinement-depth 14 --workers 12` | 2 min |
+| Impacting oscillator | `python demo/run_paper_grid_examples.py impact-vdp-duffing-beta076 --tau impact-vdp-duffing-beta076=0.5 --level impact-vdp-duffing-beta076=7 --level-offset impact-vdp-duffing-beta076=4 --gap-refinement-depth 14 --workers 12 --index-workers 3` | about 30 min |
 
-The record stores:
-- the parameters, the grid, and the image rule;
-- the Morse sets and the Morse graph;
-- the Conley index of every Morse set;
-- the command line and the code commit.
+The oscillator needs more than 20 GB of memory. Add `--output-dir DIR` to keep
+the stored results.
 
-`demo/replot_paper_grid.py` redraws the figures from a record and also writes
-PNG copies, which are not tracked. The Conley index of $M(21)$ in the
-oscillator record was computed afterwards by `demo/fill_missing_labels.py`,
-with the index map built by excision. The record lists that command under
-`labels_filled`.
+To redraw the figures from the stored records:
+
+```bash
+python demo/replot_paper_grid.py --no-update-json --output-dir DIR figures/paper_grid/paper-grid-*.json
+```

@@ -10,7 +10,7 @@ runs with the known invariant sets and indices, are in
 [`proofs.md`](proofs.md).
 
 This note is also the development log of the implementation. The commands
-for the runs used in the paper are in the [README](README.md). Sections that
+for the runs used in the paper are in the [README](../../README.md). Sections that
 describe sweeps and earlier runs (`sweep-*`, `large_tau`, `pre_fix`,
 `superseded-*`) refer to results that are not kept in the repository.
 

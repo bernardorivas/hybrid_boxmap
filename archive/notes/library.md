@@ -3,7 +3,7 @@
 This is the earlier README of the repository. It describes the general library
 (hybrid trajectories, box maps, Morse decompositions) and the tagged-chart
 (Atlas) pipeline. Most of the material it refers to is now in
-[`archive/`](../archive/README.md). For the computations of the paper, see the
+[`archive/`](../README.md). For the computations of the paper, see the
 [README](../README.md).
 
 A Python library for analyzing hybrid dynamical systems: bouncing balls, walking robots, thermostat, etc.
@@ -81,7 +81,7 @@ below it, so ordinary CMGDB can be used without any hybrid code
 
 | Construction | Modules | Relation to the manuscript |
 |---|---|---|
-| Paper suspension grid `Xi_n` | `src/suspension_grid.py`, `src/suspension_grid_relation.py`, `src/suspension_grid_conley.py`, `src/suspension_grid_plot.py`, `examples/paper_grid_examples.py`, `demo/run_paper_grid_examples.py` | Implements `def:suspension-grid` with the cofiltration `Xi_n = Xi_{n-1} ^ Xi_n(X_n)`, `d_n` and the base readout of `prop:suspension-grid` and `prop:finite-grid-preimage`, and the sampled map of Section "Examples". Each elementary piece is sampled at its four vertices by default (`eval_mode="corners"`, as in CMGDB), with `center`, `random`, and the earlier `tensor` rule as options; the image is the set of atoms containing the endpoints, padded by one atom. SCCs use `scipy.sparse.csgraph`; CMGDB is used only for the final shift class. See [PAPER_GRID.md](../PAPER_GRID.md). |
+| Paper suspension grid `Xi_n` | `src/suspension_grid.py`, `src/suspension_grid_relation.py`, `src/suspension_grid_conley.py`, `src/suspension_grid_plot.py`, `examples/paper_grid_examples.py`, `demo/run_paper_grid_examples.py` | Implements `def:suspension-grid` with the cofiltration `Xi_n = Xi_{n-1} ^ Xi_n(X_n)`, `d_n` and the base readout of `prop:suspension-grid` and `prop:finite-grid-preimage`, and the sampled map of Section "Examples". Each elementary piece is sampled at its four vertices by default (`eval_mode="corners"`, as in CMGDB), with `center`, `random`, and the earlier `tensor` rule as options; the image is the set of atoms containing the endpoints, padded by one atom. SCCs use `scipy.sparse.csgraph`; CMGDB is used only for the final shift class. See [PAPER_GRID.md](PAPER_GRID.md). |
 | Atlas tagged-chart pipeline | `src/cmgdb_suspension_boxmap.py`, `examples/*_atlas.py` | Runs `CMGDB.AtlasModel` on a base chart and a handle chart that are refined separately. The cells are not the atoms of `Xi_n`: collars are not merged into base elements and the reset preimages do not cut the handle. Produced the earlier manuscript figures. |
 | Explicit fixed-time grid | `src/fixed_time_suspension_grid.py`, `src/sampled_suspension.py`, `src/implicit_phase_scc.py` | Base cells plus handle phase slabs over guard cells; pointwise unit-handle clock reference. |
 | Finite complexes and index front end | `src/suspension_complex.py`, `src/atlas_conley.py` | Quotient nerve of actual rectangles, acyclic carriers, chain selectors; shared by the Atlas and the paper-grid index computations. |
@@ -107,22 +107,22 @@ below it, so ordinary CMGDB can be used without any hybrid code
 
 The package-level and top-level scientific status documents describe what each
 recorded result does and does not certify. Start with
-[`SUSPENSION_COMPUTATION.md`](../archive/SUSPENSION_COMPUTATION.md) for the current
+[`SUSPENSION_COMPUTATION.md`](../SUSPENSION_COMPUTATION.md) for the current
 fixed-time computation boundary.
 
 Evidence and status are organized by workflow:
 
 - bouncing ball and rimless wheel —
-  [`BOUNCING_BALL_ATLAS.md`](../archive/docs/BOUNCING_BALL_ATLAS.md) and
-  [`RIMLESS_WHEEL_ATLAS.md`](../archive/docs/RIMLESS_WHEEL_ATLAS.md)
+  [`BOUNCING_BALL_ATLAS.md`](BOUNCING_BALL_ATLAS.md) and
+  [`RIMLESS_WHEEL_ATLAS.md`](RIMLESS_WHEEL_ATLAS.md)
 - Garcia walker Atlas, local, tube, and guard-aligned investigations —
-  [`GARCIA_PASSIVE_WALKER_ATLAS.md`](../archive/docs/GARCIA_PASSIVE_WALKER_ATLAS.md)
-  and [`WALKER_LOCAL_INDEX.md`](../archive/docs/WALKER_LOCAL_INDEX.md)
+  [`GARCIA_PASSIVE_WALKER_ATLAS.md`](GARCIA_PASSIVE_WALKER_ATLAS.md)
+  and [`WALKER_LOCAL_INDEX.md`](WALKER_LOCAL_INDEX.md)
 - adaptive spiking-neuron relation, provenance, and finite-relation index
   audit —
-  [`SPIKING_NEURON_ATLAS.md`](../archive/docs/SPIKING_NEURON_ATLAS.md)
+  [`SPIKING_NEURON_ATLAS.md`](SPIKING_NEURON_ATLAS.md)
 - bouncing-ball and rimless-wheel finite-relation index outputs —
-  [`PHYSICAL_CONLEY_RESULTS.md`](../archive/docs/PHYSICAL_CONLEY_RESULTS.md)
+  [`PHYSICAL_CONLEY_RESULTS.md`](PHYSICAL_CONLEY_RESULTS.md)
 
 The implementation, tests, and fingerprinted records under `data/` are the
 computational source of truth; manuscripts provide background and motivation.
@@ -207,8 +207,8 @@ the chosen chart window. It is therefore not yet a compact global self-map or
 a global attractor-lattice computation. A justified cemetery/forward-complete
 compactification or isolating restriction is still needed. The finite gates
 are not a whole-cell enclosure proof, and the run computes no Conley index. See
-[RIMLESS_WHEEL_ATLAS.md](../archive/docs/RIMLESS_WHEEL_ATLAS.md) and the
-[acceptance record](../data/rimless_wheel_atlas/acceptance_tau200_depth10_depth12.json).
+[RIMLESS_WHEEL_ATLAS.md](RIMLESS_WHEEL_ATLAS.md) and the
+[acceptance record](../../data/rimless_wheel_atlas/acceptance_tau200_depth10_depth12.json).
 
 The bouncing ball now has an Atlas integration with an independent closed-form
 ballistic audit. At `tau=1.5`, depths 8 and 10 both produce one connected
@@ -217,8 +217,8 @@ rest-fiber probes, zero disconnected nonempty image values, and zero skipped
 event stages. The predeclared `tau=2.0` screen instead produces four and two
 nodes and is retained as a failed single-node screen. Domain exits remain
 explicit, so this is local-window evidence, not a global self-map result. See
-[BOUNCING_BALL_ATLAS.md](../archive/docs/BOUNCING_BALL_ATLAS.md) and the
-[refinement record](../data/bouncing_ball_atlas/acceptance_tau150_tau200_depth8_depth10.json).
+[BOUNCING_BALL_ATLAS.md](BOUNCING_BALL_ATLAS.md) and the
+[refinement record](../../data/bouncing_ball_atlas/acceptance_tau150_tau200_depth8_depth10.json).
 
 The Garcia passive walker has a deliberately coarse, four-dimensional Atlas
 plumbing run and a native active-subgrid diagnostic:
@@ -238,11 +238,11 @@ strides and both reset-handle traversals. The bounded depth-8/depth-12 screen
 does not close under the sampled relation and has disconnected image covers,
 so it is retained as a rejected diagnostic rather than a resolved walker
 Morse result. See
-[GARCIA_PASSIVE_WALKER_ATLAS.md](../archive/docs/GARCIA_PASSIVE_WALKER_ATLAS.md).
+[GARCIA_PASSIVE_WALKER_ATLAS.md](GARCIA_PASSIVE_WALKER_ATLAS.md).
 The coarse output and active-screen counts are archived in
-[acceptance_tau050_depth4.json](../data/garcia_passive_walker_atlas/acceptance_tau050_depth4.json)
+[acceptance_tau050_depth4.json](../../data/garcia_passive_walker_atlas/acceptance_tau050_depth4.json)
 and
-[active_subgrid_screen_tau050.json](../data/garcia_passive_walker_atlas/active_subgrid_screen_tau050.json).
+[active_subgrid_screen_tau050.json](../../data/garcia_passive_walker_atlas/active_subgrid_screen_tau050.json).
 None of these physical Atlas modules currently certifies a Conley index of the
 underlying continuous fixed-time suspension map.
 The generic topology/carrier front end now builds a verified quotient-aware
@@ -252,7 +252,7 @@ pair-preservation checks. Finite-relation shift classes can be computed and
 are explicitly scoped as non-certified for the continuous system. The stronger
 continuous-system endpoint remains locked unless the physical callback and
 index-pair obligations are separately certified. See
-[ATLAS_CONLEY.md](../archive/docs/ATLAS_CONLEY.md).
+[ATLAS_CONLEY.md](ATLAS_CONLEY.md).
 
 ## Mathematical background
 
@@ -335,11 +335,11 @@ itinerary as `base -> phase -> base` inserts intermediate-time transitions;
 those transitions are not edges of the time-`t_star` map.  The graph utilities
 remain valid for the finite graphs they are given, but graph equality there is
 not evidence that the graph is an outer approximation of the fixed-time map.
-See [SUSPENSION_COMPUTATION.md](../archive/SUSPENSION_COMPUTATION.md).
+See [SUSPENSION_COMPUTATION.md](../SUSPENSION_COMPUTATION.md).
 
 The topology-bearing reset quotient and generalized CMGDB payload are
 described in
-[hybrid_dynamics/SUSPENSION_COMPLEX.md](../archive/docs/SUSPENSION_COMPLEX.md).
+[hybrid_dynamics/SUSPENSION_COMPLEX.md](SUSPENSION_COMPLEX.md).
 
 The legacy SCC reconstruction accepts a graph on base cells plus implicit
 phase descriptors:
@@ -396,4 +396,4 @@ the descriptor came from a reset itinerary.
 
 ## License
 
-MIT License – see [LICENSE](../LICENSE) file.
+MIT License – see [LICENSE](../../LICENSE) file.

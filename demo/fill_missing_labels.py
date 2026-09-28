@@ -20,7 +20,7 @@ pair must have the recorded numbers of atoms and pieces (and, when both
 were computed, the recorded homology dimensions); otherwise the summary is
 refused.  Only the records of those nodes are replaced, by the new records
 (``index_map: "auto"``, ``label_source``, ``exit_components_blocker``, see
-``PAPER_GRID.md``); every other record is kept as it was, and so is
+``archive/notes/PAPER_GRID.md``); every other record is kept as it was, and so is
 ``conley_options``, which describes the run.  ``conley_labels_in_figure``
 gains the new labels, and ``labels_filled`` (a list, one entry per
 application) records the nodes recomputed (``morse_nodes``), those that now

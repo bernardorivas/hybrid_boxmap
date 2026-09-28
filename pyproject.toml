@@ -9,7 +9,7 @@ description = "Suspension grids, Morse graphs, and Conley indices of hybrid dyna
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "bernardorivas", email = "bernardo.apr@gmail.com"}
+    {name = "Bernardo Rivas", email = "bernardo.apr@gmail.com"}
 ]
 keywords = [
     "hybrid systems",

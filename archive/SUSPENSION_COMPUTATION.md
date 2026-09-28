@@ -1,7 +1,7 @@
 # CMGDB box maps for a fixed-time hybrid suspension
 
 The suspension grid `Xi_n` of the manuscript (Definition `def:suspension-grid`)
-is implemented separately; see [PAPER_GRID.md](../PAPER_GRID.md). This document
+is implemented separately; see [PAPER_GRID.md](notes/PAPER_GRID.md). This document
 describes the Atlas tagged-chart pipeline, whose base and handle charts are
 refined separately and therefore do not form `Xi_n`.
 
@@ -178,7 +178,7 @@ face compatible and acyclic over the chosen coefficient field.
 ## Rimless-wheel acceptance record
 
 The first physical Atlas run is documented in
-[`hybrid_dynamics/RIMLESS_WHEEL_ATLAS.md`](docs/RIMLESS_WHEEL_ATLAS.md).
+[`hybrid_dynamics/RIMLESS_WHEEL_ATLAS.md`](notes/RIMLESS_WHEEL_ATLAS.md).
 At depth 12 and `tau=2`, its nonempty local-window relation has two Morse nodes
 and the edge `M(1) -> M(0)`. Independent walking-reference endpoints have no
 misses, every nonempty returned image passes the quotient-connectedness check,

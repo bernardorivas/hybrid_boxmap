@@ -9,7 +9,7 @@ needed to reproduce the paper.
 - `data/`: figure manifests of the Atlas pipeline.
 - `experiments/`: research scripts from the jump-penalty and boundary-bridging
   investigations.
-- `docs/`: notes on the Atlas pipeline and its examples.
+- `notes/`: development notes, including the implementation notes for the paper (`PAPER_GRID.md`), the arguments behind its examples (`proofs.md`), and the earlier README of the package (`library.md`).
 - `INSTRUCTIONS.md` and `SUSPENSION_COMPUTATION.md` describe the box-map library
   and the fixed-time Atlas computation.
 
