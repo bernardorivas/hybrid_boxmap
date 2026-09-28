@@ -212,8 +212,10 @@ def draw_lattice_hasse_diagram(
     (the others are :data:`LATTICE_ELEMENT_FILL`), and ``dashed`` the elements
     with a dashed outline.  Each element is an ellipse around its label,
     placed by the Graphviz layout of the Morse graph with the top element at
-    the top (the nodes of a rank ordered to reduce crossings), and each
-    covering pair is a line.  As for the Morse graph drawn as its own figure,
+    the top (the nodes of a rank ordered to reduce crossings, except that the
+    elements covering the bottom are placed from left to right in the order
+    of ``elements``, that is, of their poset elements), and each covering
+    pair is a line.  As for the Morse graph drawn as its own figure,
     the layout is in inches, with labels of ``font_size`` points, and the
     figure has the size of the layout, so the labels print at that size when
     the figure is shown at its natural size.
@@ -233,7 +235,9 @@ def draw_lattice_hasse_diagram(
         sizes = {
             element: _morse_node_size(drawn[element], font_size) for element in graph.nodes
         }
-    positions = _morse_graph_positions(graph, sizes, keep_edge_order=False)
+    positions = _morse_graph_positions(
+        graph, sizes, keep_edge_order=False, in_ordered=(lattice.bottom,)
+    )
 
     figure = plt.figure(figsize=(1.0, 1.0), dpi=dpi)
     try:

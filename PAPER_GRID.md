@@ -438,9 +438,11 @@ white and labeled by the join of the `↓M(i)` for the Morse sets `M(i)`
 maximal in it, as `↓M(2) ∨ ↓M(11)`, with the join symbol drawn as TeX's
 `\vee`; the bottom element, the empty down-set, is `0`. The layout is the
 Graphviz `dot` layout of the Morse graph, bottom element at the bottom,
-except that `dot` orders the elements of a rank to reduce crossings, and
-the figure has the size of its layout with labels of 7 pt, as the Morse
-graph panel. For the oscillator at `beta = 0.76`, `tau = 0.5`, the order of
+except that `dot` orders the elements of a rank to reduce crossings, with
+the elements that cover the bottom, the `↓M(i)` for the minimal `M(i)`,
+placed from left to right in increasing `i` (`ordering=in` on the bottom
+element), and the figure has the size of its layout with labels of 7 pt,
+as the Morse graph panel. For the oscillator at `beta = 0.76`, `tau = 0.5`, the order of
 the five Morse sets with a nontrivial label is `M(0), M(1) < M(11) < M(21)`
 and `M(2) < M(21)`; the lattice has 11 elements, 5 of them
 join-irreducible (`↓M(0)`, `↓M(1)`, `↓M(2)`, `↓M(11)`, `↓M(21)`, the top),

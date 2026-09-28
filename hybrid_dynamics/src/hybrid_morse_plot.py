@@ -816,6 +816,7 @@ def _morse_graph_positions(
     node_sizes: Mapping[int, tuple[float, float]],
     *,
     keep_edge_order: bool = True,
+    in_ordered: Collection[int] = (),
 ) -> dict[int, tuple[float, float]]:
     """Place repellers above attractors using deterministic Hasse ranks.
 
@@ -825,11 +826,15 @@ def _morse_graph_positions(
     node and allowing the rendered ellipses to overlap afterwards.  With
     ``keep_edge_order`` (``ordering=out``), the targets of the edges of a node
     are placed from left to right in the order of the edges; without it,
-    ``dot`` orders the nodes of a rank to reduce edge crossings.
+    ``dot`` orders the nodes of a rank to reduce edge crossings.  For each
+    node of ``in_ordered`` (``ordering=in`` on the node), the sources of its
+    edges are placed from left to right in increasing order, the order in
+    which the edges are passed to ``dot``.
     """
 
     if not graph.nodes:
         return {}
+    in_ordered = frozenset(int(node) for node in in_ordered)
     dot = shutil.which("dot")
     if dot is not None and len(graph.nodes) > 1:
         ordering = ", ordering=out" if keep_edge_order else ""
@@ -841,7 +846,8 @@ def _morse_graph_positions(
             (
                 f'"{int(node)}" [shape=ellipse, fixedsize=true, '
                 f'width="{node_sizes[int(node)][0]:.6g}", '
-                f'height="{node_sizes[int(node)][1]:.6g}"];'
+                f'height="{node_sizes[int(node)][1]:.6g}"'
+                f'{", ordering=in" if int(node) in in_ordered else ""}];'
             )
             for node in sorted(graph.nodes)
         )

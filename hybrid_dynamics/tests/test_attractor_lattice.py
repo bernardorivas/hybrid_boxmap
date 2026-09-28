@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import itertools
 import json
+import shutil
 from pathlib import Path
 
 import matplotlib
@@ -232,6 +233,31 @@ def test_the_hasse_diagram_draws_every_element_and_cover():
         plt.close(figure)
     with pytest.raises(ValueError, match="no label"):
         draw_lattice_hasse_diagram(lattice, labels={0: "0"})
+
+
+@pytest.mark.skipif(shutil.which("dot") is None, reason="Graphviz dot is not installed")
+def test_the_hasse_diagram_places_the_minimal_elements_in_increasing_order():
+    # The restricted Morse order of the oscillator at beta = 0.76, tau = 0.5.
+    # Without a constraint, dot places the minimal nonzero elements as
+    # ↓M(1), ↓M(0), ↓M(2) and their joins as 0∨1, 1∨2, 0∨2.  With the minimal
+    # elements in increasing order, dot places the joins as 0∨1, 0∨2, 1∨2,
+    # with the same two crossings, which the Boolean lattice of three atoms
+    # forces.
+    lattice = down_set_lattice((0, 1, 2, 11, 21), ((11, 0), (11, 1), (21, 2), (21, 11)))
+    labels = {element: f"e{element}" for element in range(len(lattice.elements))}
+    figure, axis = draw_lattice_hasse_diagram(lattice, labels=labels)
+    try:
+        ellipses = [patch for patch in axis.patches if isinstance(patch, patches.Ellipse)]
+        x = [float(ellipse.center[0]) for ellipse in ellipses]
+        atoms = [lattice.principal(node) for node in (0, 1, 2)]
+        assert atoms == sorted(atoms, key=lambda element: x[element])
+        joins = [lattice.index(pair) for pair in ((0, 1), (0, 2), (1, 2))]
+        assert joins == sorted(joins, key=lambda element: x[element])
+        # ↓M(11) covers 0∨1 only and stays at its left.
+        rank_three = (lattice.principal(11), lattice.index((0, 1, 2)))
+        assert x[rank_three[0]] < x[rank_three[1]]
+    finally:
+        plt.close(figure)
 
 
 def test_the_attractor_lattice_figure_and_its_record(tmp_path):
