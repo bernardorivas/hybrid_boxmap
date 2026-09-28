@@ -1135,6 +1135,11 @@
         "morse_nodes_with_every_degree": [],
         "rule": "the Morse graph shows the index label (shift class) of a node, and the homology dimensions of a node without a label, in degrees 0, 1, 2: the suspension of a planar window is 2-dimensional, so the entries in degrees 3 and higher are zero; they are checked to be '0' (dimension 0) before they are dropped, and a node with an entry there that is not zero is drawn with every degree and listed under morse_nodes_with_every_degree; the conley records keep every degree"
       },
+      "index_display": {
+        "morse_nodes_with_shift_class": [],
+        "rule": "each label lists, by degree, the dimension of the Conley index, that is, of the eventual image of the index map; it is shown only where the index map is the identity on its eventual image (every invariant factor is x-1), as Proposition prop:grid-conley-index predicts for an outer approximation; a node whose shift class has another invariant factor is drawn with its shift class and listed under morse_nodes_with_shift_class; the conley records keep the shift classes",
+        "shown": "dimensions of the Conley index by degree"
+      },
       "order_shown": [
         [
           3,
@@ -1473,6 +1478,11 @@
         "morse_nodes_with_every_degree": [],
         "rule": "the Morse graph shows the index label (shift class) of a node, and the homology dimensions of a node without a label, in degrees 0, 1, 2: the suspension of a planar window is 2-dimensional, so the entries in degrees 3 and higher are zero; they are checked to be '0' (dimension 0) before they are dropped, and a node with an entry there that is not zero is drawn with every degree and listed under morse_nodes_with_every_degree; the conley records keep every degree"
       },
+      "index_display": {
+        "morse_nodes_with_shift_class": [],
+        "rule": "each label lists, by degree, the dimension of the Conley index, that is, of the eventual image of the index map; it is shown only where the index map is the identity on its eventual image (every invariant factor is x-1), as Proposition prop:grid-conley-index predicts for an outer approximation; a node whose shift class has another invariant factor is drawn with its shift class and listed under morse_nodes_with_shift_class; the conley records keep the shift classes",
+        "shown": "dimensions of the Conley index by degree"
+      },
       "order_shown": [
         [
           10,
@@ -1588,13 +1598,17 @@
   ],
   "figures_replotted": {
     "code": {
-      "commit": "a0ca1ef2e449d66a1ae58de8a80a3a79cee369ec",
-      "dirty": false
+      "commit": "874ef80e0ef9028a410c24d1e51ffde0df996a92",
+      "dirty": true
     },
     "command_line": [
+      "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",
       "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json",
       "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.json"
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined.json",
+      "figures/paper_grid/paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined.json"
     ],
     "script": "demo/replot_paper_grid.py"
   },
