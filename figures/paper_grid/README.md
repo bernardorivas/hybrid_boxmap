@@ -58,7 +58,12 @@ Each run has a JSON summary and its figures under the same stem.
   ball `tau = 0.5` 2 (1), wheel `tau = 0.5` 3 (2), neuron `tau = 1` and
   `tau = 5` 2 (1), oscillator `beta = 0.8`, `tau = 1` 15 (6, of which
   `M(3)`, `M(5)`, `M(8)` have no label), oscillator `beta = 0.76` at
-  `tau = 1` and `tau = 0.5` 11 (5).
+  `tau = 1` and `tau = 0.5` 11 (5). The two `beta = 0.76` lattices were
+  redrawn at `a0ca1ef`, with `↓M(0)`, `↓M(1)`, `↓M(2)` from left to right
+  and their joins in the order `0∨1`, `0∨2`, `1∨2`, with the same two
+  crossings; only their lattice files and `figures_replotted` changed. At
+  `beta = 0.8` the ordered layout has more crossings, so the figure is
+  unchanged.
 - `sweep-bouncing-ball/`, `sweep-rimless-wheel/`, `sweep-spiking-neuron/`,
   `sweep-impact-vdp-duffing/`: the small-`tau` sweep at `8e99989` (136 runs),
   figures in the earlier layout.
