@@ -33,10 +33,10 @@ from hybrid_dynamics import (
     piece_rectangles,
     suspension_grid_gluing,
 )
-from hybrid_dynamics.examples.paper_grid_examples import (
-    PAPER_GRID_PROBLEMS,
+from hybrid_dynamics.examples.paper_examples import (
+    PAPER_PROBLEMS,
     bouncing_ball_problem,
-    paper_grid_problem_factory,
+    paper_problem_factory,
     rimless_wheel_problem,
     spiking_neuron_problem,
 )
@@ -426,7 +426,7 @@ def test_zeno_point_circulates_through_the_handle():
 
 
 def test_example_reset_specifications_match_the_systems():
-    for name, factory in PAPER_GRID_PROBLEMS.items():
+    for name, factory in PAPER_PROBLEMS.items():
         problem = factory()
         u = np.linspace(*problem.guard.u_bounds, 7)
         for value, guard_point, reset_point in zip(
@@ -574,7 +574,7 @@ def test_center_forces_padding_and_random_is_deterministic():
 
 
 def test_seam_embeddings_of_the_examples():
-    for factory in PAPER_GRID_PROBLEMS.values():
+    for factory in PAPER_PROBLEMS.values():
         problem = factory()
         grid = _grid(problem, 1 if problem.name != "spiking-neuron" else 6)
         gluing = suspension_grid_gluing(grid)
@@ -714,12 +714,12 @@ def test_homology_is_reported_when_the_index_map_fails(monkeypatch):
 
 
 def test_parallel_indices_equal_the_serial_ones():
-    from hybrid_dynamics.examples.paper_grid_examples import paper_grid_problem_factory
+    from hybrid_dynamics.examples.paper_examples import paper_problem_factory
     from hybrid_dynamics.src.suspension_grid_conley import compute_suspension_grid_conley_indices
 
     # Eight Morse sets: seven single atoms with zero relative homology and the
     # gait, whose index map fails its carrier check on this coarse grid.
-    factory = paper_grid_problem_factory("rimless-wheel", tau=0.5, level_offset=2)
+    factory = paper_problem_factory("rimless-wheel", tau=0.5, level_offset=2)
     problem = factory()
     grid = _grid(problem, 3)
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
@@ -798,7 +798,7 @@ def test_excision_index_map_gives_the_labels_of_the_default_construction(
     elif case == "saddle":
         problem = _saddle_problem()
     else:
-        problem = PAPER_GRID_PROBLEMS[case](tau=tau, level_offset=offset)
+        problem = PAPER_PROBLEMS[case](tau=tau, level_offset=offset)
     grid = _grid(problem, level)
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=depth)
     morse = compute_suspension_morse_graph(relation)
@@ -901,7 +901,7 @@ def test_auto_index_map_falls_back_to_the_excision_pair():
 def test_excision_reports_an_exit_atom_with_an_empty_image():
     # On this coarse grid an atom of A leaves the window: its image is empty
     # and so is the carrier of its piece.  The homology is still reported.
-    problem = PAPER_GRID_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
+    problem = PAPER_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
     grid = _grid(problem, 3)
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
     morse = compute_suspension_morse_graph(relation)
@@ -944,7 +944,7 @@ def test_forward_closure_pair_is_forward_invariant():
         index_pair_atoms,
     )
 
-    problem = PAPER_GRID_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2)
+    problem = PAPER_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2)
     grid = _grid(problem, 4)
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
     morse = compute_suspension_morse_graph(relation)
@@ -970,7 +970,7 @@ def test_forward_closure_pair_is_forward_invariant():
         )
         assert not result.computed and not result.homology_computed
         assert result.blocker.startswith("ValueError: F(V) meets S in 1 atoms")
-    factory = paper_grid_problem_factory("impact-vdp-duffing", tau=3.0, level_offset=2)
+    factory = paper_problem_factory("impact-vdp-duffing", tau=3.0, level_offset=2)
     results = compute_suspension_grid_conley_indices(
         cycle,
         [np.array([1]), np.array([0, 1])],
@@ -988,7 +988,7 @@ def test_excised_neighborhood_is_checked_against_the_rectangles_and_seams():
     # The pieces that meet S by the rectangles and seams of the quotient are
     # those of the grid adjacency, so W contains every piece of U meeting S.
     for problem, level, depth in (
-        (PAPER_GRID_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2), 4, 2),
+        (PAPER_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2), 4, 2),
         (_repelling_cylinder_problem(), 2, 0),
     ):
         grid = _grid(problem, level)
@@ -1029,8 +1029,8 @@ def test_excised_neighborhood_is_checked_against_the_rectangles_and_seams():
     ("factory", "level", "depth", "labeled_with_larger_u"),
     [
         (_translation_problem, 2, 0, 0),
-        (lambda: PAPER_GRID_PROBLEMS["bouncing-ball"](tau=1.5, level_offset=2), 4, 0, 1),
-        (lambda: PAPER_GRID_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2), 4, 2, 4),
+        (lambda: PAPER_PROBLEMS["bouncing-ball"](tau=1.5, level_offset=2), 4, 0, 1),
+        (lambda: PAPER_PROBLEMS["impact-vdp-duffing"](tau=3.0, level_offset=2), 4, 2, 4),
     ],
     ids=["translation-cylinder", "ball-level4-offset2", "oscillator-level4-offset2"],
 )
@@ -1092,7 +1092,7 @@ def test_forward_closure_labels_the_repelling_periodic_orbit():
 
 
 def test_forward_closure_reports_atoms_whose_image_left_the_window():
-    problem = PAPER_GRID_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
+    problem = PAPER_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
     grid = _grid(problem, 3)
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
     morse = compute_suspension_morse_graph(relation)

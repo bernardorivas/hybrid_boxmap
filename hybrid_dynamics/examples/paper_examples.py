@@ -24,12 +24,12 @@ explicitly: ``0.5`` for the ball, the wheel, and the oscillator at
   ``G cap R = {(w, v) : 0 <= v <= 1.95}``, ``r(w, v) = (w, -c v)``,
   ``tau = 3`` by default (the runs also use other values of ``tau``).
 
-:data:`PAPER_GRID_VARIANTS` holds named parameter variants of these examples,
+:data:`PAPER_VARIANTS` holds named parameter variants of these examples,
 such as ``impact-vdp-duffing-beta076`` (the oscillator at ``beta = 0.76``, on
 the same window).  A variant is an example with some factory arguments
 replaced; it has its own name, so the runner's outputs for it never share a
 file name with those of the example, and it is run only when named.
-:func:`paper_grid_problem` builds an example or a variant by name.
+:func:`paper_problem` builds an example or a variant by name.
 
 The factories are module-level functions so that worker processes can rebuild
 a problem from a :func:`functools.partial`.
@@ -313,7 +313,7 @@ def impact_vdp_duffing_reference_sets(
 
 
 #: The examples of the manuscript; the runner's default list.
-PAPER_GRID_PROBLEMS = {
+PAPER_PROBLEMS = {
     "bouncing-ball": bouncing_ball_problem,
     "rimless-wheel": rimless_wheel_problem,
     "spiking-neuron": spiking_neuron_problem,
@@ -327,13 +327,13 @@ PAPER_GRID_PROBLEMS = {
 #: left branches of the saddle's manifolds are farther from a homoclinic loop
 #: (turning points ``0.0566`` apart, against ``0.0143`` at ``beta = 0.8``);
 #: the window ``R`` is the same.
-PAPER_GRID_VARIANTS: dict[str, tuple[str, dict[str, float]]] = {
+PAPER_VARIANTS: dict[str, tuple[str, dict[str, float]]] = {
     "impact-vdp-duffing-beta076": ("impact-vdp-duffing", {"beta": 0.76}),
 }
 
 
 #: Named invariant sets used to identify Morse sets in the runner.
-PAPER_GRID_REFERENCE_SETS = {
+PAPER_REFERENCE_SETS = {
     "impact-vdp-duffing": impact_vdp_duffing_reference_sets,
     "impact-vdp-duffing-beta076": functools.partial(
         impact_vdp_duffing_reference_sets, brackets=IMPACT_BETA076_CYCLE_BRACKETS
@@ -341,50 +341,50 @@ PAPER_GRID_REFERENCE_SETS = {
 }
 
 
-def paper_grid_names() -> tuple[str, ...]:
+def paper_names() -> tuple[str, ...]:
     """The examples followed by the variants."""
 
-    return (*PAPER_GRID_PROBLEMS, *PAPER_GRID_VARIANTS)
+    return (*PAPER_PROBLEMS, *PAPER_VARIANTS)
 
 
-def paper_grid_example(name: str) -> str:
+def paper_example(name: str) -> str:
     """The example of a name: itself for an example, the modified one for a variant."""
 
-    if name in PAPER_GRID_PROBLEMS:
+    if name in PAPER_PROBLEMS:
         return name
-    if name in PAPER_GRID_VARIANTS:
-        return PAPER_GRID_VARIANTS[name][0]
-    raise KeyError(f"unknown paper-grid example or variant {name!r}")
+    if name in PAPER_VARIANTS:
+        return PAPER_VARIANTS[name][0]
+    raise KeyError(f"unknown paper example or variant {name!r}")
 
 
-def paper_grid_overrides(name: str) -> dict[str, float]:
+def paper_overrides(name: str) -> dict[str, float]:
     """The factory arguments a variant replaces (empty for an example)."""
 
-    paper_grid_example(name)
-    return dict(PAPER_GRID_VARIANTS[name][1]) if name in PAPER_GRID_VARIANTS else {}
+    paper_example(name)
+    return dict(PAPER_VARIANTS[name][1]) if name in PAPER_VARIANTS else {}
 
 
-def paper_grid_problem(name: str, **kwargs: object) -> SuspensionGridProblem:
+def paper_problem(name: str, **kwargs: object) -> SuspensionGridProblem:
     """The problem of an example or a variant; ``kwargs`` go to the factory.
 
     A variant's problem carries the variant's name.  Its replaced arguments
     cannot be passed again in ``kwargs``.
     """
 
-    example = paper_grid_example(name)
-    overrides = paper_grid_overrides(name)
+    example = paper_example(name)
+    overrides = paper_overrides(name)
     repeated = sorted(set(overrides) & set(kwargs))
     if repeated:
         raise TypeError(f"{name} fixes {', '.join(repeated)}; they cannot be passed")
-    problem = PAPER_GRID_PROBLEMS[example](**overrides, **kwargs)
+    problem = PAPER_PROBLEMS[example](**overrides, **kwargs)
     return problem if name == example else dataclasses.replace(problem, name=name)
 
 
-def paper_grid_problem_factory(name: str, **kwargs: object) -> functools.partial:
+def paper_problem_factory(name: str, **kwargs: object) -> functools.partial:
     """A picklable zero-argument factory for worker processes."""
 
-    paper_grid_example(name)
-    return functools.partial(paper_grid_problem, name, **kwargs)
+    paper_example(name)
+    return functools.partial(paper_problem, name, **kwargs)
 
 
 __all__ = [
@@ -394,18 +394,18 @@ __all__ = [
     "IMPACT_V_BOUNDS",
     "IMPACT_X_MIN",
     "NEURON_AMBIENT_BOUNDS",
-    "PAPER_GRID_PROBLEMS",
-    "PAPER_GRID_REFERENCE_SETS",
-    "PAPER_GRID_VARIANTS",
+    "PAPER_PROBLEMS",
+    "PAPER_REFERENCE_SETS",
+    "PAPER_VARIANTS",
     "WHEEL_BOUNDS",
     "bouncing_ball_problem",
     "impact_vdp_duffing_problem",
     "impact_vdp_duffing_reference_sets",
-    "paper_grid_example",
-    "paper_grid_names",
-    "paper_grid_overrides",
-    "paper_grid_problem",
-    "paper_grid_problem_factory",
+    "paper_example",
+    "paper_names",
+    "paper_overrides",
+    "paper_problem",
+    "paper_problem_factory",
     "rimless_wheel_problem",
     "spiking_neuron_problem",
 ]

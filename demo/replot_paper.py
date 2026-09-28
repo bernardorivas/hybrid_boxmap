@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Redraw the figures of paper-grid runs from their JSON summaries.
+"""Redraw the figures of paper runs from their JSON summaries.
 
-For each JSON summary written by ``demo/run_paper_grid_examples.py`` this
+For each JSON summary written by ``demo/run_paper_examples.py`` this
 script rebuilds the grid ``Xi_n`` of the example (or variant) and level (a
 deterministic construction; the rebuilt grid must match the ``grid`` record of
 the run), reads the Morse sets (``morse_graph.morse_set_atoms``), the Morse
@@ -23,7 +23,7 @@ Summaries written before the runner stored the Morse sets have no
 
 Run from the repository root, for example::
 
-    .venv/bin/python demo/replot_paper_grid.py figures/paper_grid/*-gap-refined.json
+    .venv/bin/python demo/replot_paper.py figures/paper/*-gap-refined.json
 """
 
 from __future__ import annotations
@@ -42,9 +42,9 @@ CODE_ROOT = Path(__file__).resolve().parents[1]
 if str(CODE_ROOT) not in sys.path:
     sys.path.insert(0, str(CODE_ROOT))
 
-from hybrid_dynamics.examples.paper_grid_examples import paper_grid_problem  # noqa: E402
-from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
-    write_paper_grid_figures,
+from hybrid_dynamics.examples.paper_examples import paper_problem  # noqa: E402
+from hybrid_dynamics.examples.paper_figures import (  # noqa: E402
+    write_paper_figures,
 )
 from hybrid_dynamics.src.suspension_grid import build_suspension_grid  # noqa: E402
 from hybrid_dynamics.src.suspension_grid_plot import (  # noqa: E402
@@ -81,7 +81,7 @@ def _git_commit() -> dict[str, object]:
 
 
 def problem_options(summary: dict[str, object]) -> dict[str, object]:
-    """Keyword arguments of ``paper_grid_problem`` for the run: ``tau`` and the offset."""
+    """Keyword arguments of ``paper_problem`` for the run: ``tau`` and the offset."""
 
     options: dict[str, object] = {"tau": float(summary["tau"])}
     level_offset = int(summary.get("level_offset", 0))
@@ -93,7 +93,7 @@ def problem_options(summary: dict[str, object]) -> dict[str, object]:
 def rebuild_problem_and_grid(summary: dict[str, object], summary_path: Path):
     """The problem and the grid ``Xi_n`` of a run, checked against its ``grid`` record."""
 
-    problem = paper_grid_problem(summary["example"], **problem_options(summary))
+    problem = paper_problem(summary["example"], **problem_options(summary))
     grid = build_suspension_grid(problem.window, problem.guard, int(summary["level"]))
     rebuilt = json.loads(json.dumps(grid.summary()))
     if rebuilt != summary["grid"]:
@@ -113,7 +113,7 @@ def _encoded_morse_sets(summary: dict[str, object], summary_path: Path) -> list[
     if encoded is None:
         raise ReplotError(
             f"{summary_path} has no morse_graph.morse_set_atoms (written before the runner "
-            "stored the Morse sets); rerun it with demo/run_paper_grid_examples.py"
+            "stored the Morse sets); rerun it with demo/run_paper_examples.py"
         )
     return encoded
 
@@ -136,7 +136,7 @@ def replot(
     variants: tuple[str, ...] = FIGURE_VARIANTS,
     output_dir: Path | None = None,
     update_json: bool = True,
-    script: str = "demo/replot_paper_grid.py",
+    script: str = "demo/replot_paper.py",
 ) -> dict[str, object]:
     """Redraw the figure variants of one run; return the figure records.
 
@@ -161,7 +161,7 @@ def replot(
         )
 
     directory = summary_path.parent if output_dir is None else Path(output_dir)
-    figures = write_paper_grid_figures(
+    figures = write_paper_figures(
         grid,
         morse_sets,
         edges,

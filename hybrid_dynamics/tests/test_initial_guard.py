@@ -13,7 +13,7 @@ import pytest
 
 from hybrid_dynamics import HybridSystem
 from hybrid_dynamics.examples.bouncing_ball import BouncingBall
-from hybrid_dynamics.examples.paper_grid_examples import rimless_wheel_problem
+from hybrid_dynamics.examples.paper_examples import rimless_wheel_problem
 from hybrid_dynamics.examples.rimless_wheel import RimlessWheel
 from hybrid_dynamics.examples.spiking_neuron import SpikingNeuron, V_PEAK, V_RESET
 from hybrid_dynamics.examples.thermostat import Thermostat

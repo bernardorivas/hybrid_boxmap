@@ -5,7 +5,7 @@ For each example this runner builds ``Xi_n`` (``def:suspension-grid`` with the
 cofiltration ``Xi_n = Xi_{n-1} ^ Xi_n(X_n)``), samples the multivalued map of
 the Examples section, computes the Morse graph, attempts the finite-relation
 Conley labels, and writes a figure (PDF and PNG) and a JSON summary to
-``figures/paper_grid``.
+``figures/paper``.
 
 The default image rule samples the four vertices of every elementary piece
 of every atom (``--eval-mode corners``, the CMGDB default), takes the closed
@@ -30,7 +30,7 @@ summary also records which Morse sets contain points of the numerically known
 invariant sets ``F``, ``Z``, ``C``, ``S``, ``U_Z``.
 
 Besides the four examples, the positional names may be the parameter
-variants of ``PAPER_GRID_VARIANTS`` (``impact-vdp-duffing-beta076``, the
+variants of ``PAPER_VARIANTS`` (``impact-vdp-duffing-beta076``, the
 oscillator at ``beta = 0.76``).  A variant is run only when named, its name
 replaces the example's in the output names (so its outputs never overwrite
 those of the example), and the summary records ``variant_of`` and the
@@ -88,12 +88,12 @@ attractor lattice (the down-sets of the Morse order of the ``nontrivial``
 variant) is written to ``<stem>-attractor-lattice.pdf``/``.png``.  The JSON summary
 records, per variant, the shown and hidden nodes with the reason and the
 panel files, records the attractor lattice under ``attractor_lattice``, and
-stores the atoms of every Morse set, so ``demo/replot_paper_grid.py`` can
+stores the atoms of every Morse set, so ``demo/replot_paper.py`` can
 redraw the figures from it.
 
 Run from the repository root, for example::
 
-    .venv/bin/python demo/run_paper_grid_examples.py --workers 12
+    .venv/bin/python demo/run_paper_examples.py --workers 12
 """
 
 from __future__ import annotations
@@ -117,17 +117,17 @@ CODE_ROOT = Path(__file__).resolve().parents[1]
 if str(CODE_ROOT) not in sys.path:
     sys.path.insert(0, str(CODE_ROOT))
 
-from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
-    PAPER_GRID_PROBLEMS,
-    PAPER_GRID_REFERENCE_SETS,
-    paper_grid_example,
-    paper_grid_names,
-    paper_grid_overrides,
-    paper_grid_problem,
-    paper_grid_problem_factory,
+from hybrid_dynamics.examples.paper_examples import (  # noqa: E402
+    PAPER_PROBLEMS,
+    PAPER_REFERENCE_SETS,
+    paper_example,
+    paper_names,
+    paper_overrides,
+    paper_problem,
+    paper_problem_factory,
 )
-from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
-    write_paper_grid_figures,
+from hybrid_dynamics.examples.paper_figures import (  # noqa: E402
+    write_paper_figures,
 )
 from hybrid_dynamics.src.suspension_grid import (  # noqa: E402
     build_suspension_grid,
@@ -176,7 +176,7 @@ def _git_commit() -> dict[str, object]:
 
     :func:`main` reads it before any output is written.  Changes under
     ``figures/`` are outputs and are not counted, as in
-    ``demo/replot_paper_grid.py``.
+    ``demo/replot_paper.py``.
     """
 
     def run(*arguments: str) -> str:
@@ -206,7 +206,7 @@ def _arguments() -> argparse.Namespace:
     parser.add_argument(
         "examples",
         nargs="*",
-        choices=paper_grid_names(),
+        choices=paper_names(),
         help="examples or variants to run (default: the four examples, no variant)",
     )
     parser.add_argument(
@@ -337,7 +337,7 @@ def _arguments() -> argparse.Namespace:
     parser.add_argument("--probe-cells", type=int, default=150)
     parser.add_argument("--probe-intervals", type=int, default=20)
     parser.add_argument(
-        "--output-dir", type=Path, default=CODE_ROOT / "figures" / "paper_grid"
+        "--output-dir", type=Path, default=CODE_ROOT / "figures" / "paper"
     )
     arguments = parser.parse_args()
     random_options = {
@@ -488,10 +488,10 @@ def _grid_suffix(level: int, level_offset: int) -> str:
 def _output_stem(
     name: str, tau: float, level: int, level_offset: int, sampling_suffix: str
 ) -> str:
-    """``paper-grid-<example or variant>-tau<100 tau>-level<n>[-base<m>]<sampling>``."""
+    """``paper-<example or variant>-tau<100 tau>-level<n>[-base<m>]<sampling>``."""
 
     return (
-        f"paper-grid-{name}-tau{int(round(tau * 100)):03d}"
+        f"paper-{name}-tau{int(round(tau * 100)):03d}"
         f"{_grid_suffix(level, level_offset)}{sampling_suffix}"
     )
 
@@ -507,8 +507,8 @@ def _run(
     options: dict[str, object] = {} if tau is None else {"tau": float(tau)}
     if level_offset:
         options["level_offset"] = int(level_offset)
-    problem = paper_grid_problem(name, **options)
-    factory = paper_grid_problem_factory(name, **options)
+    problem = paper_problem(name, **options)
+    factory = paper_problem_factory(name, **options)
     depth = int(arguments.gap_refinement_depth)
     sampling = _sampling_options(arguments)
     suffix = _sampling_suffix(sampling) + ("-gap-refined" if depth > 0 else "")
@@ -646,7 +646,7 @@ def _run(
             }
         )
 
-    reference_sets = PAPER_GRID_REFERENCE_SETS.get(name)
+    reference_sets = PAPER_REFERENCE_SETS.get(name)
     identification = (
         _identify_nodes(grid, morse, reference_sets(problem)) if reference_sets else None
     )
@@ -678,7 +678,7 @@ def _run(
         if entry["computed"]
     }
     started = time.perf_counter()
-    figures = write_paper_grid_figures(
+    figures = write_paper_figures(
         grid,
         morse.morse_sets,
         morse.edges,
@@ -703,8 +703,8 @@ def _run(
     summary = {
         "schema": "paper-suspension-grid-run-v3",
         "example": name,
-        "variant_of": None if paper_grid_example(name) == name else paper_grid_example(name),
-        "variant_overrides": paper_grid_overrides(name),
+        "variant_of": None if paper_example(name) == name else paper_example(name),
+        "variant_overrides": paper_overrides(name),
         "parameters": problem.parameters,
         "tau": problem.tau,
         "level": level,
@@ -802,18 +802,18 @@ def main() -> int:
     taus: dict[str, float] = {}
     for entry in arguments.tau:
         key, value = entry.split("=", 1)
-        if key not in paper_grid_names():
+        if key not in paper_names():
             raise SystemExit(f"unknown example in --tau: {key}")
         taus[key] = float(value)
     offsets: dict[str, int] = {}
     for entry in arguments.level_offset:
         key, value = entry.split("=", 1)
-        if key not in paper_grid_names():
+        if key not in paper_names():
             raise SystemExit(f"unknown example in --level-offset: {key}")
         if int(value) < 0:
             raise SystemExit(f"--level-offset must be nonnegative: {entry}")
         offsets[key] = int(value)
-    for name in arguments.examples or list(PAPER_GRID_PROBLEMS):
+    for name in arguments.examples or list(PAPER_PROBLEMS):
         _run(name, levels[name], arguments, taus.get(name), offsets.get(name, 0))
     return 0
 

@@ -1,4 +1,4 @@
-"""The paper-grid pipeline on fine base grids computes what it computed before.
+"""The paper pipeline on fine base grids computes what it computed before.
 
 The atoms of ``Xi_n``, the image components, the endpoint evaluation of the
 exit policies, and the relation carriers of the index were rewritten for base
@@ -34,7 +34,7 @@ from hybrid_dynamics import (
     compute_suspension_grid_relation,
     compute_suspension_morse_graph,
 )
-from hybrid_dynamics.examples.paper_grid_examples import PAPER_GRID_PROBLEMS
+from hybrid_dynamics.examples.paper_examples import PAPER_PROBLEMS
 from hybrid_dynamics.src import atlas_conley
 from hybrid_dynamics.src.suspension_grid import reference_signatures
 from hybrid_dynamics.src.suspension_grid_relation import (
@@ -101,7 +101,7 @@ def _run_digest(grid, relation, morse, conley) -> str:
 @pytest.mark.parametrize("case", sorted(DIGEST_CASES))
 def test_runs_match_the_digests_of_the_earlier_code(case):
     name, level, offset, tau, depth = DIGEST_CASES[case]
-    problem = PAPER_GRID_PROBLEMS[name](tau=tau, level_offset=offset)
+    problem = PAPER_PROBLEMS[name](tau=tau, level_offset=offset)
     grid = build_suspension_grid(problem.window, problem.guard, level)
     cache = EndpointCache()
     for policy in ("endpoint", "path"):
@@ -150,7 +150,7 @@ def _curved_guard() -> GuardResetSpec:
 )
 def test_atoms_are_the_classes_of_generator_signatures(name, levels, offsets):
     for offset in offsets:
-        problem = PAPER_GRID_PROBLEMS[name](level_offset=offset)
+        problem = PAPER_PROBLEMS[name](level_offset=offset)
         for level in levels:
             grid = build_suspension_grid(problem.window, problem.guard, level)
             signatures, generators, atoms = reference_signatures(grid)
@@ -177,7 +177,7 @@ def test_atoms_of_a_curved_guard_with_a_finer_base():
 
 
 def test_image_components_match_the_count_per_atom():
-    problem = PAPER_GRID_PROBLEMS["impact-vdp-duffing"](tau=0.5, level_offset=1)
+    problem = PAPER_PROBLEMS["impact-vdp-duffing"](tau=0.5, level_offset=1)
     grid = build_suspension_grid(problem.window, problem.guard, 3)
     relation = compute_suspension_grid_relation(grid, problem)
     for matrix in (relation.matrix, relation.sampled):
@@ -345,7 +345,7 @@ def _assembled_carrier_generators(complex_, vertex_images, **_options):
     ],
 )
 def test_carriers_on_demand_match_the_assembled_carriers(monkeypatch, name, level, offset, tau, depth):
-    problem = PAPER_GRID_PROBLEMS[name](tau=tau, level_offset=offset)
+    problem = PAPER_PROBLEMS[name](tau=tau, level_offset=offset)
     grid = build_suspension_grid(problem.window, problem.guard, level)
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=depth)
     morse = compute_suspension_morse_graph(relation)
@@ -378,7 +378,7 @@ def test_carriers_on_demand_match_the_assembled_carriers(monkeypatch, name, leve
 
 
 def test_index_size_limit_reports_a_blocker():
-    problem = PAPER_GRID_PROBLEMS["bouncing-ball"](tau=0.5, level_offset=1)
+    problem = PAPER_PROBLEMS["bouncing-ball"](tau=0.5, level_offset=1)
     grid = build_suspension_grid(problem.window, problem.guard, 3)
     relation = compute_suspension_grid_relation(grid, problem)
     morse_set = compute_suspension_morse_graph(relation).morse_sets[0]
@@ -428,7 +428,7 @@ def _scanned_chain_map_images(carrier):
 
 
 def test_chain_selector_matches_the_scan_of_the_complex(monkeypatch):
-    problem = PAPER_GRID_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
+    problem = PAPER_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
     grid = build_suspension_grid(problem.window, problem.guard, 3)
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
     morse = compute_suspension_morse_graph(relation)

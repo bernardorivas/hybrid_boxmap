@@ -209,8 +209,8 @@
       }
     ],
     "files": [
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-attractor-lattice.pdf",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-attractor-lattice.png"
+      "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-attractor-lattice.pdf",
+      "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-attractor-lattice.png"
     ],
     "join_irreducibles": [
       {
@@ -1465,8 +1465,8 @@
         "trivial_index_color": "#BBBBBB"
       },
       "files": [
-        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.pdf",
-        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.png"
+        "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.pdf",
+        "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.png"
       ],
       "hidden_nodes": [],
       "index_degrees": {
@@ -1583,24 +1583,24 @@
       ],
       "panel_files": {
         "base": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-base.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-base.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-base.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-base.png"
         ],
         "graph": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-graph.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-graph.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-graph.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-graph.png"
         ],
         "zoom-A": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-A.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-A.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-A.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-A.png"
         ],
         "zoom-B": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-B.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-B.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-B.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-B.png"
         ],
         "zoom-C": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-C.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-C.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-C.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-C.png"
         ]
       },
       "rule": "every Morse node",
@@ -1846,8 +1846,8 @@
         "trivial_index_color": "#BBBBBB"
       },
       "files": [
-        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
-        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.png"
+        "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
+        "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.png"
       ],
       "hidden_nodes": [
         {
@@ -1953,20 +1953,20 @@
       ],
       "panel_files": {
         "base": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-base.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-base.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-base.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-base.png"
         ],
         "graph": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.png"
         ],
         "zoom-A": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.png"
         ],
         "zoom-B": [
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-B.pdf",
-          "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-B.png"
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-B.pdf",
+          "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-B.png"
         ]
       },
       "rule": "Morse nodes whose finite-relation index is trivial are hidden; nodes without a label are kept, with a dashed outline and the dimensions of the relative homology of their pair (or 'blocked' when it is not known); the order shown is reachability in the full Morse graph, transitively reduced",
@@ -2021,30 +2021,30 @@
     }
   },
   "figures": [
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-base.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-base.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-A.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-A.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-B.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-B.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-C.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-C.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-graph.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-graph.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-base.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-base.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-B.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-B.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.png",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-attractor-lattice.pdf",
-    "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-attractor-lattice.png"
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-base.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-base.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-A.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-A.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-B.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-B.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-C.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-zoom-C.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-graph.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-graph.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-base.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-base.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-A.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-B.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-zoom-B.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-nontrivial-graph.png",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-attractor-lattice.pdf",
+    "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined-attractor-lattice.png"
   ],
   "figures_replotted": {
     "code": {
@@ -2052,15 +2052,15 @@
       "dirty": true
     },
     "command_line": [
-      "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined.json"
+      "figures/paper/paper-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",
+      "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json",
+      "figures/paper/paper-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined.json",
+      "figures/paper/paper-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.json",
+      "figures/paper/paper-rimless-wheel-tau050-level7-base2048-corners-gap-refined.json",
+      "figures/paper/paper-spiking-neuron-tau100-level7-base1024-corners-gap-refined.json",
+      "figures/paper/paper-spiking-neuron-tau500-level7-base1024-corners-gap-refined.json"
     ],
-    "script": "demo/replot_paper_grid.py"
+    "script": "demo/replot_paper.py"
   },
   "grid": {
     "a_n": 0.001953125,
@@ -2161,7 +2161,7 @@
       "command_line": [
         "--workers",
         "4",
-        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json"
+        "figures/paper/paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json"
       ],
       "index_map": "auto",
       "index_pair": "image",

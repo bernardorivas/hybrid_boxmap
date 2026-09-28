@@ -31,8 +31,8 @@ describe sweeps and earlier runs (`sweep-*`, `large_tau`, `pre_fix`,
 | Morse sets, order, base readout (`MG(F_n)`, `d_n^{-1}(M)`) | `compute_suspension_morse_graph`, `SuspensionMorseGraph.base_readouts`, `SuspensionGridRelation.forward_closure` | `test_ball_relation_is_one_morse_node_at_level_three` |
 | Finite-relation index labels (Section "Examples") | `compute_suspension_grid_conley_index` (pair `(S cup F(S), F(S) minus S)`, nerve of elementary pieces, `atlas_conley`, CMGDB shift class over `GF(5)`; `index_map` `exit-components`, `excision`, `auto`) | `test_translation_cylinder_relation_morse_graph_probes_and_index`, `test_seam_embeddings_of_the_examples`, `test_excision_index_map_gives_the_labels_of_the_default_construction`, `test_auto_index_map_falls_back_to_the_excision_pair` |
 | `prop:grid-conley-index` (the pair `(U, U minus S)`, `U` the forward closure of `S`) | `compute_suspension_grid_conley_index(..., index_pair="forward-closure", excise=...)`, `index_pair_atoms` | `test_forward_closure_pair_is_forward_invariant`, `test_forward_closure_labels_equal_the_image_labels`, `test_forward_closure_labels_the_repelling_periodic_orbit`, `test_excised_neighborhood_is_checked_against_the_rectangles_and_seams` |
-| Examples: ball, wheel, neuron | `examples/paper_grid_examples.py`, `demo/run_paper_grid_examples.py` | `test_example_reset_specifications_match_the_systems` |
-| Parameter variants (the oscillator at `beta = 0.76`) | `PAPER_GRID_VARIANTS`, `paper_grid_problem` | `test_beta076_variant` (`test_impact_vdp_duffing.py`), `test_a_variant_has_its_own_output_names_and_replots` (`test_suspension_grid_plot.py`) |
+| Examples: ball, wheel, neuron | `examples/paper_examples.py`, `demo/run_paper_examples.py` | `test_example_reset_specifications_match_the_systems` |
+| Parameter variants (the oscillator at `beta = 0.76`) | `PAPER_VARIANTS`, `paper_problem` | `test_beta076_variant` (`test_impact_vdp_duffing.py`), `test_a_variant_has_its_own_output_names_and_replots` (`test_suspension_grid_plot.py`) |
 
 ## Construction
 
@@ -217,7 +217,7 @@ The runner writes the outputs of a choice other than its defaults (image
 pair, `auto`) under names with `-index-exit-components`, `-index-excision`,
 or `-index-forward-closure` (and `-excised`) appended, and records the choice
 under `conley_options` (`index_pair`, `index_map`, `excise`) in the JSON
-summary. The summaries in `figures/paper_grid` were written before these
+summary. The summaries in `figures/paper` were written before these
 options, with the exit-components construction; `--index-map
 exit-components` reproduces their index records (under names with
 `-index-exit-components`), except the records of U_Z in the two runs at
@@ -227,7 +227,7 @@ oscillator at `beta = 0.76`").
 
 `demo/fill_missing_labels.py` computes the labels a recorded run lacks
 without rerunning it. For each JSON summary it rebuilds the problem and
-`Xi_n` as `demo/replot_paper_grid.py` does, recomputes the relation with
+`Xi_n` as `demo/replot_paper.py` does, recomputes the relation with
 the recorded image rule and integrator (`image_rule`, `integrator`; a
 summary without `integrator` predates the batched integrator and is
 recomputed with `SuspensionFlow` paths), and refuses the summary, changing
@@ -320,8 +320,8 @@ before they are dropped. A node with an entry there that is not zero keeps
 its full tuple, with a warning, and is listed under
 `figure_variants.<variant>.index_degrees.morse_nodes_with_every_degree`;
 no current run has one. The `conley` records of the JSON keep every
-degree. This is `paper_grid_index_labels` in
-`hybrid_dynamics/examples/paper_grid_figures.py`.
+degree. This is `paper_index_labels` in
+`hybrid_dynamics/examples/paper_figures.py`.
 
 The Morse sets are colored with CMGDB's default palette
 (`CMGDB_MORSE_PALETTE`), except that a Morse set whose index is computed and
@@ -334,7 +334,7 @@ color that is not gray, so gray always means a trivial index. A set
 numbered past the 40 colors of the palette repeats the colors, and the JSON
 summary says so. The text of a node is near black (`#111111`) or white,
 whichever has the higher WCAG contrast ratio on the node color. This is
-`paper_grid_morse_colors` in `hybrid_dynamics/examples/paper_grid_figures.py`.
+`paper_morse_colors` in `hybrid_dynamics/examples/paper_figures.py`.
 
 Each figure shows, in the same colors, the base chart (the base readout
 `d_n^{-1}(M)` of each Morse set) and the Morse graph. The handle chart (the
@@ -362,7 +362,7 @@ area test above) are also outlined in the color of the set by a line 0.5 pt
 wide, in the panel and in its zooms, so that cells a fraction of a point
 wide are seen; this is how a small set spread too far for one zoom is seen
 in the panel. Larger sets are not outlined. This is
-`draw_paper_grid_figure` in `hybrid_dynamics/examples/paper_grid_figures.py`,
+`draw_paper_figure` in `hybrid_dynamics/examples/paper_figures.py`,
 with the options `frame_margin`, `handle_view`, and `detail_zooms` of
 `plot_atlas_hybrid_morse_sets`.
 
@@ -395,7 +395,7 @@ zoom window with its letter, and each zoom panel has its letter. The sizes:
   are written at about 300 dpi instead of 400.
 
 All files are saved with a tight bounding box (0.1 inches of padding). This is
-`draw_paper_grid_panels`, through `plot_atlas_hybrid_morse_panels` in
+`draw_paper_panels`, through `plot_atlas_hybrid_morse_panels` in
 `hybrid_dynamics/src/atlas_morse_plot.py`, which shares its layout (limits,
 zoom windows, sets outlined) with `plot_atlas_hybrid_morse_sets`.
 
@@ -416,7 +416,7 @@ cells were outlined also list, under `marked_in_panel`, the sets whose cells
 were marked by squares in a chart panel, and records written before the
 panel figures, the color records, the degree records, or the attractor
 lattice have no `panel_files`, `colors`, `index_degrees`, or
-`attractor_lattice`. `demo/replot_paper_grid.py` redraws both
+`attractor_lattice`. `demo/replot_paper.py` redraws both
 variants, their panels, and the attractor lattice from a summary: it
 rebuilds `Xi_n` from the example and level, checks it against the recorded
 `grid`, and replaces `figures`, `figure_variants`, and `attractor_lattice`
@@ -469,9 +469,9 @@ join-irreducible elements with their Morse nodes, and the files. When
 there is no figure (an index record is missing, every index is trivial,
 or there are more than 512 down-sets), `not_written` gives the reason.
 This is `write_attractor_lattice_figure` in
-`hybrid_dynamics/examples/paper_grid_figures.py`, with `down_set_lattice`
+`hybrid_dynamics/examples/paper_figures.py`, with `down_set_lattice`
 and `draw_lattice_hasse_diagram` in `hybrid_dynamics/src/attractor_lattice.py`;
-the runner writes it and `demo/replot_paper_grid.py` redraws it. The
+the runner writes it and `demo/replot_paper.py` redraws it. The
 lattice and the figure are tested in
 `hybrid_dynamics/tests/test_attractor_lattice.py`.
 
@@ -480,11 +480,11 @@ lattice and the figure are tested in
 From the repository root:
 
 ```bash
-.venv/bin/python demo/run_paper_grid_examples.py --workers 12
-.venv/bin/python demo/run_paper_grid_examples.py --workers 12 --gap-refinement-depth 12
-.venv/bin/python demo/run_paper_grid_examples.py --workers 12 --eval-mode tensor --samples-per-axis 3
-.venv/bin/python demo/replot_paper_grid.py figures/paper_grid/paper-grid-spiking-neuron-*.json
-.venv/bin/python demo/fill_missing_labels.py --workers 12 figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-*.json
+.venv/bin/python demo/run_paper_examples.py --workers 12
+.venv/bin/python demo/run_paper_examples.py --workers 12 --gap-refinement-depth 12
+.venv/bin/python demo/run_paper_examples.py --workers 12 --eval-mode tensor --samples-per-axis 3
+.venv/bin/python demo/replot_paper.py figures/paper/paper-spiking-neuron-*.json
+.venv/bin/python demo/fill_missing_labels.py --workers 12 figures/paper/paper-impact-vdp-duffing-beta076-*.json
 ```
 
 The base samples are integrated many at a time by
@@ -514,15 +514,15 @@ The runner options `--eval-mode`, `--num-pts`, `--sample-depth`, `--seed`,
 `--samples-per-axis`, and `--gap-refinement-depth` select the sampling; the
 options in force, the offsets, and the command line are recorded under
 `image_rule` in the JSON summary. Outputs (PDF, PNG, JSON) are written to
-`figures/paper_grid/`; every non-default choice adds a suffix to the file
+`figures/paper/`; every non-default choice adds a suffix to the file
 names (`-center`, `-random10d4s0`, `-tensor3`, `-gap-refined`), and a base
 offset adds `-base<cells per axis>` after the level (see the next section).
 The commands above use the default `tau` of each example; the
 configurations for the paper figures are in the README and in "Paper figures at small `tau`". A parameter variant
-(`PAPER_GRID_VARIANTS`, at present `impact-vdp-duffing-beta076`) is run only
+(`PAPER_VARIANTS`, at present `impact-vdp-duffing-beta076`) is run only
 when named and has its name in the output names; see "The oscillator at
 `beta = 0.76`". The runs used in the paper are kept in
-`figures/paper_grid/` and listed in `figures/paper_grid/README.md`.
+`figures/paper/` and listed in `figures/paper/README.md`.
 
 ## Base grids finer than the phase grid
 
@@ -533,13 +533,13 @@ axis of the ambient rectangle (`X_j` has `2^(j+K)` cells per axis) and
 `2^(n+2)` phase cells of width `a_n = 2^(-n-2)`; the generators `K_j`, `Q_j`
 range over `j <= n` as before. A positive offset adds `-base<cells per axis>`
 after the level in the output names
-(`paper-grid-bouncing-ball-tau050-level6-base1024-corners.json`); offset `0`
+(`paper-bouncing-ball-tau050-level6-base1024-corners.json`); offset `0`
 keeps the earlier names. The JSON summary records `level_offset`,
-`base_cells_per_axis`, and `phase_cells`, and `demo/replot_paper_grid.py`
+`base_cells_per_axis`, and `phase_cells`, and `demo/replot_paper.py`
 rebuilds the grid with the recorded offset.
 
 ```bash
-.venv/bin/python demo/run_paper_grid_examples.py bouncing-ball --level bouncing-ball=6 \
+.venv/bin/python demo/run_paper_examples.py bouncing-ball --level bouncing-ball=6 \
     --level-offset bouncing-ball=4 --tau bouncing-ball=0.5 --workers 3 --index-max-pieces 100000
 ```
 
@@ -654,7 +654,7 @@ section. The ball, wheel, and neuron runs and both runs at `beta = 0.76` were
 recomputed at `a47c88d` (see "Recomputation with the batched integrator"):
 their relations, Morse sets, and Morse graphs equal those of the earlier
 runs, and so does every label computed before. The JSON summaries and both
-figure variants are in `figures/paper_grid/`.
+figure variants are in `figures/paper/`.
 
 | Example | `tau` | level (phase cells) | base cells | Morse graph and labels | wall (s), `8e99989` | wall (s), `a47c88d` | check |
 |---|---|---|---|---|---|---|---|
@@ -666,21 +666,21 @@ figure variants are in `figures/paper_grid/`.
 Figures (`<stem>.png` shows every node, `<stem>-nontrivial.png` hides the
 trivial ones; PDFs alongside, and the panel figures `<stem>-base.png`,
 `<stem>-zoom-A.png`, ..., `<stem>-graph.png`, `<stem>-nontrivial-base.png`,
-...), with `<stem>` in `figures/paper_grid/`:
+...), with `<stem>` in `figures/paper/`:
 
-- ball: `paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined`
-- wheel: `paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined`
-- neuron: `paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined`
-- impact, `beta = 0.8`: `paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined`
+- ball: `paper-bouncing-ball-tau050-level6-base1024-corners-gap-refined`
+- wheel: `paper-rimless-wheel-tau050-level7-base2048-corners-gap-refined`
+- neuron: `paper-spiking-neuron-tau500-level7-base1024-corners-gap-refined`
+- impact, `beta = 0.8`: `paper-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined`
   (recorded at `8e99989`; its blocked nodes predate the homology records)
 
 The wheel and neuron files were copied from the sweep. The figures of all
-four were redrawn at `ff7ca77` with `demo/replot_paper_grid.py` in the layout
+four were redrawn at `ff7ca77` with `demo/replot_paper.py` in the layout
 of Figures (base chart, zoom panels, handle chart, Morse graph); the figures
 of the sweep have the earlier layout of a base chart and a Morse graph.
 Every run in the folder, the neuron run at `tau = 1` below included, was
 then redrawn with its panel figures. The folder also keeps
-`paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined`, the
+`paper-spiking-neuron-tau100-level7-base1024-corners-gap-refined`, the
 sweep's first pick for the neuron, a rerun that equals the sweep run except
 for timings and paths.
 
@@ -688,16 +688,16 @@ To reproduce the recorded runs, from `code/` (add `--output-dir`, or the
 runner overwrites the recorded files of the same name):
 
 ```bash
-.venv/bin/python demo/run_paper_grid_examples.py bouncing-ball --level bouncing-ball=6 \
+.venv/bin/python demo/run_paper_examples.py bouncing-ball --level bouncing-ball=6 \
     --level-offset bouncing-ball=4 --tau bouncing-ball=0.5 --gap-refinement-depth 14 \
     --workers 12
-.venv/bin/python demo/run_paper_grid_examples.py rimless-wheel --level rimless-wheel=7 \
+.venv/bin/python demo/run_paper_examples.py rimless-wheel --level rimless-wheel=7 \
     --level-offset rimless-wheel=4 --tau rimless-wheel=0.5 --gap-refinement-depth 14 \
     --workers 12
-.venv/bin/python demo/run_paper_grid_examples.py spiking-neuron --level spiking-neuron=7 \
+.venv/bin/python demo/run_paper_examples.py spiking-neuron --level spiking-neuron=7 \
     --level-offset spiking-neuron=3 --tau spiking-neuron=5 --gap-refinement-depth 14 \
     --workers 12
-.venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing --level impact-vdp-duffing=6 \
+.venv/bin/python demo/run_paper_examples.py impact-vdp-duffing --level impact-vdp-duffing=6 \
     --level-offset impact-vdp-duffing=4 --tau impact-vdp-duffing=1 --gap-refinement-depth 14 \
     --workers 3 --index-max-pieces 150000
 ```
@@ -881,16 +881,16 @@ predicted are those of an attracting periodic orbit for C and Z,
 `(x-1, 0, ...)` for F, `(0, x-1, 0, ...)` for S, and `(0, x-1, x-1, ...)`
 for U_Z.
 
-The variant. `PAPER_GRID_VARIANTS` in `examples/paper_grid_examples.py` maps
+The variant. `PAPER_VARIANTS` in `examples/paper_examples.py` maps
 a variant name to its example and the factory arguments it replaces
 (`impact-vdp-duffing-beta076`: `impact-vdp-duffing` with `beta = 0.76`), and
-`paper_grid_problem(name, ...)` builds an example or a variant. The runner
+`paper_problem(name, ...)` builds an example or a variant. The runner
 takes a variant as a positional name and in `--level`, `--tau`, and
 `--level-offset`, but runs it only when named: the default list is still the
 four examples. The variant's name replaces the example's in the output
 names, so its files never overwrite the runs at `beta = 0.8`. The JSON
 summary records `variant_of`, `variant_overrides`, and `parameters.beta`.
-`demo/replot_paper_grid.py` rebuilds variants, and the figures use the axes
+`demo/replot_paper.py` rebuilds variants, and the figures use the axes
 of the example. The reference sets bracket the cycles by `u` in
 `[1.4, 1.9]` (C) and `[0.55, 0.70]` (U_Z); the second bracket ends below
 `(0.7109, 0.7434)`, where orbits after an impact go to F and the impact map
@@ -914,13 +914,13 @@ records, as described below.
 | 1 | 6 (256) | 1024 | 388 (643 at `a7ac462`) | 7.0 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)`, U_Z `(0, x-1, x-1, 0)` (filled at `657bf2a`) | none | 10 |
 | 0.5 | 7 (512) | 2048 | 1,673 (780 at `a7ac462`, without C's label) | 22.9 | 4,198,401 | 1,037,721 | 22 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)`, U_Z `(0, x-1, x-1, 0)` (filled in `02270ea`) | none | 17 |
 
-Stems in `figures/paper_grid/` (JSON, `<stem>.pdf/.png`,
+Stems in `figures/paper/` (JSON, `<stem>.pdf/.png`,
 `<stem>-nontrivial.pdf/.png`, and the panel figures of both, as
 `<stem>-base.pdf/.png`, `<stem>-zoom-A.pdf/.png`, ..., `<stem>-graph.pdf/.png`
 and `<stem>-nontrivial-base.pdf/.png`, ...):
 
-- `paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined`
-- `paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined`
+- `paper-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined`
+- `paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined`
 
 The Morse nodes were identified from the recorded Morse sets on the rebuilt
 grid: the runner locates points of the five sets in the pieces of each node
@@ -1041,10 +1041,10 @@ sets and indices.
 To reproduce, from `code/`:
 
 ```bash
-.venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing-beta076 \
+.venv/bin/python demo/run_paper_examples.py impact-vdp-duffing-beta076 \
     --level impact-vdp-duffing-beta076=6 --level-offset impact-vdp-duffing-beta076=4 \
     --tau impact-vdp-duffing-beta076=1 --gap-refinement-depth 14 --workers 12
-.venv/bin/python demo/run_paper_grid_examples.py impact-vdp-duffing-beta076 \
+.venv/bin/python demo/run_paper_examples.py impact-vdp-duffing-beta076 \
     --level impact-vdp-duffing-beta076=7 --level-offset impact-vdp-duffing-beta076=4 \
     --tau impact-vdp-duffing-beta076=0.5 --gap-refinement-depth 14 --workers 12 \
     --index-workers 3
@@ -1099,7 +1099,7 @@ Code `8e99989` on a clean tree, corner sampling, `--workers 3`, and
 `--index-max-pieces` 100,000 for the ball, wheel, and neuron and 150,000 for
 the oscillator, except where a row states another limit. Level `n` has
 `2^(n+2)` phase cells, and the base grid is set with `--level-offset`. The
-files are in `figures/paper_grid/sweep-<example>/`. Wall time is that of the
+files are in `figures/paper/sweep-<example>/`. Wall time is that of the
 runner. Several sweeps ran at once on 14 cores (load average up to about
 70), so wall times are inflated and uneven between runs of the same size.
 
@@ -1337,7 +1337,7 @@ attempt at the same commit, with piece limit 100,000.
   and of Z with U_Z (123,921 pieces) exceeded the lower limit of that run
   and would fit under 150,000; the pair of C (207,714 pieces) would not.
 
-### Runs at the `tau` of an earlier draft (`figures/paper_grid/large_tau/`)
+### Runs at the `tau` of an earlier draft (`figures/paper/large_tau/`)
 
 These corner runs at commit `0706668`, before the seam fix `788063c`, use
 the `tau` of an earlier draft (ball 1.5, wheel 2, neuron 20) and `tau` from 3 to 6.5
@@ -1380,7 +1380,7 @@ of the recorded stages.
   blocked in every run, and S is blocked at `tau = 3` and 4 and lies in no
   Morse set from `tau = 5` on.
 
-### Small-`tau` runs before the seam fix (`figures/paper_grid/pre_fix/`)
+### Small-`tau` runs before the seam fix (`figures/paper/pre_fix/`)
 
 Corner runs at `0706668`, without gap refinement, on the base grid of the
 level. Same schema and columns as the previous folder.
@@ -1417,7 +1417,7 @@ rule that was then the default (now `--eval-mode tensor --samples-per-axis 3`),
 and the tolerances of the example classes (`rtol=1e-10`, `atol=1e-12`,
 `max_step=0.02`). Level `n` has `2^n` base cells per axis of the ambient
 rectangle and phase width `a_n = 2^{-n-2}`. The JSON file next to each figure
-in `figures/paper_grid/superseded-tensor3-350c93e/` holds every count quoted
+in `figures/paper/superseded-tensor3-350c93e/` holds every count quoted
 here; these files predate the corner default and carry no sampling suffix in
 their names.
 

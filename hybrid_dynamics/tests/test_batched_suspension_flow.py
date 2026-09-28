@@ -7,7 +7,7 @@ import functools
 import numpy as np
 import pytest
 
-from hybrid_dynamics.examples.paper_grid_examples import paper_grid_problem
+from hybrid_dynamics.examples.paper_examples import paper_problem
 from hybrid_dynamics.src import suspension_grid_relation as relation_module
 from hybrid_dynamics.src.batched_suspension_flow import batched_suspension_endpoints
 from hybrid_dynamics.src.suspension_grid import build_suspension_grid
@@ -41,7 +41,7 @@ BUSY_POINTS = {
 def _samples(name: str, count: int, seed: int) -> tuple[object, np.ndarray, np.ndarray]:
     """Lattice corners of the window, guard points, and points near ``BUSY_POINTS``."""
 
-    problem = paper_grid_problem(name, tau=EXAMPLES[name], level_offset=4)
+    problem = paper_problem(name, tau=EXAMPLES[name], level_offset=4)
     grid = build_suspension_grid(problem.window, problem.guard, 2)
     rng = np.random.default_rng(seed)
     (x0, x1), (y0, y1) = grid.window.ambient_bounds
@@ -67,7 +67,7 @@ def _samples(name: str, count: int, seed: int) -> tuple[object, np.ndarray, np.n
 
 @pytest.mark.parametrize("name", sorted(EXAMPLES))
 def test_batch_dynamics_equal_the_scalar_functions(name):
-    problem = paper_grid_problem(name)
+    problem = paper_problem(name)
     system = problem.system
     dynamics = problem.batch_dynamics
     rng = np.random.default_rng(1)
@@ -102,7 +102,7 @@ def test_batched_endpoints_equal_the_paths(name):
 
 def test_several_handles_within_tau():
     # tau = 3.5 lets a ball near the Zeno point pass through several handles.
-    problem = paper_grid_problem("bouncing-ball", tau=3.5)
+    problem = paper_problem("bouncing-ball", tau=3.5)
     grid = build_suspension_grid(problem.window, problem.guard, 3)
     rng = np.random.default_rng(3)
     points = np.stack((rng.uniform(0.0, 0.3, 200), rng.uniform(-2.0, 2.0, 200)), axis=1)
@@ -150,7 +150,7 @@ def test_unresolved_points_are_evaluated_by_the_path(monkeypatch):
 
 @pytest.mark.parametrize("name", ["rimless-wheel", "impact-vdp-duffing-beta076"])
 def test_batched_relation_equals_the_path_relation(name):
-    problem = paper_grid_problem(name, tau=EXAMPLES[name], level_offset=2)
+    problem = paper_problem(name, tau=EXAMPLES[name], level_offset=2)
     grid = build_suspension_grid(problem.window, problem.guard, 3)
     batched = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=3)
     reference = compute_suspension_grid_relation(
@@ -168,7 +168,7 @@ def test_a_start_on_the_event_surface_outside_the_guard():
     # and flow.  The event function is zero at the start; for small |omega|
     # the path crosses theta = 0.6 again within its first step, and solve_ivp
     # (brentq) then places the event at time zero.  The batched flow must too.
-    problem = paper_grid_problem("rimless-wheel", tau=0.5, level_offset=4)
+    problem = paper_problem("rimless-wheel", tau=0.5, level_offset=4)
     grid = build_suspension_grid(problem.window, problem.guard, 7)
     # The right edge of the lattice, computed as the relation computes its
     # samples: -0.2 + 2048 * (0.8 / 2048) = alpha + gamma = 0.6000000000000001.

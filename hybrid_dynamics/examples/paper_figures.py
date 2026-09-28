@@ -1,6 +1,6 @@
-"""Figures of the paper-grid runs, shared by the runner and the replot script.
+"""Figures of the paper runs, shared by the runner and the replot script.
 
-:func:`write_paper_grid_figures` draws the Morse sets and the Morse graph of a
+:func:`write_paper_figures` draws the Morse sets and the Morse graph of a
 run on ``Xi_n`` in the figure variants of :mod:`suspension_grid_plot`:
 ``all`` (every Morse node) and ``nontrivial`` (Morse nodes with a computed
 trivial finite-relation index hidden, nodes without a label kept and marked
@@ -20,13 +20,13 @@ with no symbol; the cells of a set too small to see in a chart panel are also
 outlined by a thin line in the color of the set, in the panel and in its
 zooms, so cells smaller than a point are still seen.
 
-Each panel is also drawn as its own figure (:func:`draw_paper_grid_panels`)
+Each panel is also drawn as its own figure (:func:`draw_paper_panels`)
 and written next to the figure of its variant, as ``<variant stem>-base``,
 ``<variant stem>-zoom-A``, ... (one per zoom), ``<variant stem>-graph``, and
 ``<variant stem>-handle`` when the handle chart is drawn, each as PDF and PNG,
 where ``<variant stem>`` is ``<stem>`` or ``<stem>-nontrivial``.
 
-The colors are those of :func:`paper_grid_morse_colors`: a Morse set whose
+The colors are those of :func:`paper_morse_colors`: a Morse set whose
 index is computed and trivial is gray, and Morse set ``M(i)`` otherwise takes
 color ``i`` of CMGDB's default palette, so a set has the same color in both
 variants and in every panel of a run.
@@ -35,7 +35,7 @@ The Morse graph shows the index labels, and the homology dimensions of a
 node without a label, in the degrees of :data:`SHOWN_INDEX_DEGREES` (0, 1,
 2): the suspension of a planar window is 2-dimensional, so the entries in
 higher degrees are zero.  They are checked to be zero before they are
-dropped (:func:`paper_grid_index_labels`); the index records keep every
+dropped (:func:`paper_index_labels`); the index records keep every
 degree.  Each label is the dimension of the Conley index in each degree,
 shown where the index map is the identity on its eventual image, as
 Proposition prop:grid-conley-index predicts for an outer approximation
@@ -82,16 +82,16 @@ from ..src.suspension_grid_plot import (
     morse_figure_selection,
     suspension_grid_morse_sets_plot_data,
 )
-from .paper_grid_examples import paper_grid_example
+from .paper_examples import paper_example
 
 
 #: Name of the palette of the Morse sets, as recorded in the JSON summary.
-PAPER_GRID_PALETTE_NAME = "CMGDB default"
+PAPER_PALETTE_NAME = "CMGDB default"
 
 #: The default Morse-set palette of CMGDB's plotting functions.
-PAPER_GRID_PALETTE: tuple[str, ...] = CMGDB_MORSE_PALETTE
+PAPER_PALETTE: tuple[str, ...] = CMGDB_MORSE_PALETTE
 
-#: The grays of :data:`PAPER_GRID_PALETTE`.  A Morse set with a nontrivial
+#: The grays of :data:`PAPER_PALETTE`.  A Morse set with a nontrivial
 #: label, or without a label, skips them, so gray always means trivial index.
 PALETTE_GRAYS = frozenset({"#7f7f7f", "#636363", "#c7c7c7"})
 
@@ -106,7 +106,7 @@ COLOR_RULE = (
 )
 
 
-def paper_grid_morse_colors(
+def paper_morse_colors(
     n_nodes: int,
     conley: Sequence[Mapping[str, Any]] = (),
 ) -> dict[int, str]:
@@ -114,7 +114,7 @@ def paper_grid_morse_colors(
 
     ``conley`` holds the index records of the run (possibly none).  A node
     whose index is computed and trivial is :data:`TRIVIAL_INDEX_COLOR`.  Any
-    other node ``i`` takes color ``i`` of :data:`PAPER_GRID_PALETTE`, as in
+    other node ``i`` takes color ``i`` of :data:`PAPER_PALETTE`, as in
     CMGDB, or the next color that is not one of :data:`PALETTE_GRAYS`.
     """
 
@@ -127,9 +127,9 @@ def paper_grid_morse_colors(
 def _palette_color(node: int) -> str:
     """Palette color ``node``, or the next color that is not gray."""
 
-    count = len(PAPER_GRID_PALETTE)
+    count = len(PAPER_PALETTE)
     for step in range(count):
-        color = PAPER_GRID_PALETTE[(node + step) % count]
+        color = PAPER_PALETTE[(node + step) % count]
         if color.lower() not in PALETTE_GRAYS:
             return color
     raise ValueError("the palette has no color that is not gray")
@@ -144,7 +144,7 @@ def _palette_nodes(n_nodes: int, conley: Sequence[Mapping[str, Any]]) -> list[in
     return [node for node in range(int(n_nodes)) if node not in trivial]
 
 
-def paper_grid_color_record(
+def paper_color_record(
     n_nodes: int,
     conley: Sequence[Mapping[str, Any]] = (),
 ) -> dict[str, Any]:
@@ -156,13 +156,13 @@ def paper_grid_color_record(
     is true and ``palette_cycled_note`` says from which node the colors repeat.
     """
 
-    colors = paper_grid_morse_colors(n_nodes, conley)
+    colors = paper_morse_colors(n_nodes, conley)
     beyond = [
-        node for node in _palette_nodes(n_nodes, conley) if node >= len(PAPER_GRID_PALETTE)
+        node for node in _palette_nodes(n_nodes, conley) if node >= len(PAPER_PALETTE)
     ]
     record: dict[str, Any] = {
-        "palette": PAPER_GRID_PALETTE_NAME,
-        "palette_colors": list(PAPER_GRID_PALETTE),
+        "palette": PAPER_PALETTE_NAME,
+        "palette_colors": list(PAPER_PALETTE),
         "trivial_index_color": TRIVIAL_INDEX_COLOR,
         "rule": COLOR_RULE,
         "morse_node_colors": [
@@ -172,7 +172,7 @@ def paper_grid_color_record(
     }
     if beyond:
         record["palette_cycled_note"] = (
-            f"the palette has {len(PAPER_GRID_PALETTE)} colors; the colors repeat from "
+            f"the palette has {len(PAPER_PALETTE)} colors; the colors repeat from "
             f"Morse node {beyond[0]} on"
         )
     return record
@@ -185,7 +185,7 @@ FRAME_MARGIN = 0.02
 
 #: Axis labels of the base and handle charts and the base view of each example
 #: (a variant of an example is drawn in the style of the example).
-PAPER_GRID_FIGURE_STYLE: dict[str, dict[str, Any]] = {
+PAPER_FIGURE_STYLE: dict[str, dict[str, Any]] = {
     "bouncing-ball": {"labels": (r"$h$", r"$v$"), "handle": (r"$v_G$", r"$s$"), "view": "domain"},
     "rimless-wheel": {
         "labels": (r"$\theta$", r"$\dot\theta$"),
@@ -340,7 +340,7 @@ def blocked_index_line(entry: Mapping[str, Any]) -> str:
     return "blocked"
 
 
-def paper_grid_index_labels(
+def paper_index_labels(
     conley: Sequence[Mapping[str, Any]],
 ) -> tuple[dict[int, tuple[str, ...]], dict[int, str], tuple[int, ...]]:
     """The index labels and the lines of the nodes without a label, as drawn.
@@ -390,7 +390,7 @@ def index_degrees_record(shown: Sequence[int], every_degree: Sequence[int]) -> d
     }
 
 
-def _paper_grid_plot_options(
+def _paper_plot_options(
     plot_data: AtlasMorsePlotData,
     *,
     example: str,
@@ -405,7 +405,7 @@ def _paper_grid_plot_options(
     has no index records.
     """
 
-    style = PAPER_GRID_FIGURE_STYLE[paper_grid_example(example)]
+    style = PAPER_FIGURE_STYLE[paper_example(example)]
     shown_set = {int(node) for node in shown}
     show_handles = any(
         not any(box.chart_id == plot_data.base_chart_id for box in node.boxes)
@@ -413,7 +413,7 @@ def _paper_grid_plot_options(
         if int(node.index) in shown_set
     )
     if colors is None:
-        colors = paper_grid_morse_colors(len(plot_data.nodes))
+        colors = paper_morse_colors(len(plot_data.nodes))
     return {
         "clist": dict(colors),
         "morse_nodes": shown,
@@ -431,7 +431,7 @@ def _paper_grid_plot_options(
     }
 
 
-def draw_paper_grid_figure(
+def draw_paper_figure(
     plot_data: AtlasMorsePlotData,
     *,
     example: str,
@@ -444,18 +444,18 @@ def draw_paper_grid_figure(
 
     ``example`` is the name of an example or a variant.  The base chart shows
     the base readout ``d_n^{-1}(M)`` of each Morse set in the view of
-    :data:`PAPER_GRID_FIGURE_STYLE`, widened by :data:`FRAME_MARGIN` when
+    :data:`PAPER_FIGURE_STYLE`, widened by :data:`FRAME_MARGIN` when
     shown whole, and a Morse set too small to see gets a zoom panel.  The
     handle chart (guard coordinate against the phase ``s``) is drawn only
     when a shown Morse set has no base cell, since such a set would
     otherwise not appear in the figure.  ``colors`` maps each Morse node to
-    its color (see :func:`paper_grid_morse_colors`); without it, every node
+    its color (see :func:`paper_morse_colors`); without it, every node
     takes a palette color, as when the run has no index records.
     """
 
     return plot_atlas_hybrid_morse_sets(
         plot_data,
-        **_paper_grid_plot_options(
+        **_paper_plot_options(
             plot_data,
             example=example,
             shown=shown,
@@ -470,7 +470,7 @@ def draw_paper_grid_figure(
     )
 
 
-def draw_paper_grid_panels(
+def draw_paper_panels(
     plot_data: AtlasMorsePlotData,
     *,
     example: str,
@@ -480,7 +480,7 @@ def draw_paper_grid_panels(
     colors: Mapping[int, str] | None = None,
     dpi: int = 300,
 ) -> AtlasMorsePanelFigures:
-    """Draw each panel of :func:`draw_paper_grid_figure` as its own figure.
+    """Draw each panel of :func:`draw_paper_figure` as its own figure.
 
     The panels are ``base``, ``zoom-A``, ``zoom-B``, ..., ``handle`` (when
     the figure has the handle chart), and ``graph``, with the same colors,
@@ -490,7 +490,7 @@ def draw_paper_grid_panels(
 
     return plot_atlas_hybrid_morse_panels(
         plot_data,
-        **_paper_grid_plot_options(
+        **_paper_plot_options(
             plot_data,
             example=example,
             shown=shown,
@@ -502,7 +502,7 @@ def draw_paper_grid_panels(
     )
 
 
-def write_paper_grid_figures(
+def write_paper_figures(
     grid: SuspensionGrid,
     morse_sets: Sequence[npt.ArrayLike],
     edges: Sequence[Sequence[int]],
@@ -527,7 +527,7 @@ def write_paper_grid_figures(
     nodes they are drawn for), under ``panel_files`` the files of each panel
     drawn as its own figure (``base``, ``zoom-A``, ..., ``handle``,
     ``graph``), under ``colors`` the palette and the color of every Morse
-    node (:func:`paper_grid_color_record`), and under ``index_degrees`` the
+    node (:func:`paper_color_record`), and under ``index_degrees`` the
     degrees of the labels drawn (:func:`index_degrees_record`).
     ``attractor_lattice`` is the record of
     :func:`write_attractor_lattice_figure`.  ``figures`` lists the files of
@@ -546,15 +546,15 @@ def write_paper_grid_figures(
         edges,
         metadata={"model": example, "t_star": tau, "level": level},
     )
-    colors = paper_grid_morse_colors(len(morse_sets), conley)
-    labels, blocked_lines, every_degree = paper_grid_index_labels(conley)
+    colors = paper_morse_colors(len(morse_sets), conley)
+    labels, blocked_lines, every_degree = paper_index_labels(conley)
     labels, with_shift_class = conley_index_labels(labels)
     figures: list[str] = []
     records: dict[str, Any] = {}
     for variant in dict.fromkeys(variants):
         selection = morse_figure_selection(len(morse_sets), edges, conley, variant)
         record = selection.to_dict()
-        record["colors"] = paper_grid_color_record(len(morse_sets), conley)
+        record["colors"] = paper_color_record(len(morse_sets), conley)
         record["index_degrees"] = index_degrees_record(selection.shown, every_degree)
         record["index_display"] = {
             "shown": "dimensions of the Conley index by degree",
@@ -589,7 +589,7 @@ def write_paper_grid_figures(
         }
         shown_colors = {node: colors[node] for node in selection.shown}
         variant_stem = figure_variant_stem(output_stem, variant)
-        plot = draw_paper_grid_figure(plot_data, **options)
+        plot = draw_paper_figure(plot_data, **options)
         try:
             drawn = tuple(sorted((int(p), int(q)) for p, q in plot.morse_graph.edges))
             if drawn != selection.order:
@@ -603,7 +603,7 @@ def write_paper_grid_figures(
             )
         finally:
             plt.close(plot.figure)
-        panels = draw_paper_grid_panels(plot_data, **options, dpi=dpi)
+        panels = draw_paper_panels(plot_data, **options, dpi=dpi)
         try:
             if panels.zooms != plot.zooms:
                 raise AssertionError("the panel figures have other zooms than the figure")
@@ -655,7 +655,7 @@ ATTRACTOR_LATTICE_RULE = (
 )
 
 
-def paper_grid_attractor_lattice(
+def paper_attractor_lattice(
     n_nodes: int,
     edges: Sequence[Sequence[int]],
     conley: Sequence[Mapping[str, Any]],
@@ -703,11 +703,11 @@ def write_attractor_lattice_figure(
 ) -> dict[str, Any]:
     """Draw and save the Hasse diagram of the attractor lattice of a run.
 
-    The lattice is that of :func:`paper_grid_attractor_lattice`, drawn by
+    The lattice is that of :func:`paper_attractor_lattice`, drawn by
     :func:`draw_lattice_hasse_diagram` with labels of
     :data:`PANEL_GRAPH_FONT_SIZE` points, as the Morse graph panel, to
     ``<stem>-attractor-lattice.pdf`` and ``.png``.  ``colors`` maps each Morse
-    node to its color (by default :func:`paper_grid_morse_colors`).  Returns
+    node to its color (by default :func:`paper_morse_colors`).  Returns
     the record of the JSON summary: the rule, the Morse nodes and their
     order, the nodes without a label, every element (its Morse nodes, the
     nodes maximal in it, its label, and whether it is join-irreducible), the
@@ -725,7 +725,7 @@ def write_attractor_lattice_figure(
         record["not_written"] = f"the run has no index record for the Morse nodes {missing!r}"
         return record
     try:
-        lattice, selection = paper_grid_attractor_lattice(n_nodes, edges, conley)
+        lattice, selection = paper_attractor_lattice(n_nodes, edges, conley)
     except LatticeTooLargeError as error:
         record["not_written"] = str(error)
         return record
@@ -737,7 +737,7 @@ def write_attractor_lattice_figure(
     if join_irreducibles != set(principal.values()):
         raise AssertionError("the join-irreducible elements are not the principal down-sets")
     if colors is None:
-        colors = paper_grid_morse_colors(n_nodes, conley)
+        colors = paper_morse_colors(n_nodes, conley)
     labels = attractor_lattice_labels(lattice)
     figure, _axis = draw_lattice_hasse_diagram(
         lattice,
@@ -790,25 +790,25 @@ __all__ = [
     "FRAME_MARGIN",
     "INDEX_DEGREES_RULE",
     "INDEX_DISPLAY_RULE",
-    "PAPER_GRID_FIGURE_STYLE",
-    "PAPER_GRID_PALETTE",
-    "PAPER_GRID_PALETTE_NAME",
+    "PAPER_FIGURE_STYLE",
+    "PAPER_PALETTE",
+    "PAPER_PALETTE_NAME",
     "PANEL_MAX_PIXELS",
     "SHOWN_INDEX_DEGREES",
     "TRIVIAL_INDEX_COLOR",
     "attractor_lattice_labels",
     "blocked_index_line",
-    "draw_paper_grid_figure",
-    "draw_paper_grid_panels",
+    "draw_paper_figure",
+    "draw_paper_panels",
     "figure_variant_stem",
     "index_degrees_record",
-    "paper_grid_attractor_lattice",
-    "paper_grid_color_record",
-    "paper_grid_index_labels",
+    "paper_attractor_lattice",
+    "paper_color_record",
+    "paper_index_labels",
     "conley_index_dimensions",
     "conley_index_labels",
-    "paper_grid_morse_colors",
+    "paper_morse_colors",
     "shown_index_entries",
     "write_attractor_lattice_figure",
-    "write_paper_grid_figures",
+    "write_paper_figures",
 ]

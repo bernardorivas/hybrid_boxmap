@@ -16,10 +16,10 @@ import networkx as nx  # noqa: E402
 import pytest  # noqa: E402
 from matplotlib import patches  # noqa: E402
 
-from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
+from hybrid_dynamics.examples.paper_figures import (  # noqa: E402
     ATTRACTOR_LATTICE_RULE,
     attractor_lattice_labels,
-    paper_grid_attractor_lattice,
+    paper_attractor_lattice,
     write_attractor_lattice_figure,
 )
 from hybrid_dynamics.src.attractor_lattice import (  # noqa: E402
@@ -36,8 +36,8 @@ CODE_ROOT = Path(__file__).resolve().parents[2]
 OSCILLATOR_RUN = (
     CODE_ROOT
     / "figures"
-    / "paper_grid"
-    / "paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json"
+    / "paper"
+    / "paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json"
 )
 
 # The poset N: 0 and 1 below 2, 1 below 3 (an edge (p, q) puts q below p,
@@ -170,7 +170,7 @@ def _record(node: int, shift_class: tuple[str, ...], computed: bool = True) -> d
 
 def test_the_oscillator_run_has_11_elements_and_5_join_irreducibles():
     summary = json.loads(OSCILLATOR_RUN.read_text(encoding="utf-8"))
-    lattice, selection = paper_grid_attractor_lattice(
+    lattice, selection = paper_attractor_lattice(
         len(summary["morse_graph"]["nodes"]), summary["morse_graph"]["edges"], summary["conley"]
     )
     assert selection.shown == (0, 1, 2, 11, 21) and selection.blocked == ()
@@ -310,7 +310,7 @@ def test_the_attractor_lattice_figure_and_its_record(tmp_path):
         _record(2, ("0", "x-1", "0", "0")),
         _record(3, (), computed=False),
     ]
-    stem = tmp_path / "paper-grid-bouncing-ball-tau050-level2-corners"
+    stem = tmp_path / "paper-bouncing-ball-tau050-level2-corners"
     record = write_attractor_lattice_figure(4, edges, conley, output_stem=stem, dpi=60)
     assert [Path(path).name for path in record["files"]] == [
         f"{stem.name}-attractor-lattice.pdf",

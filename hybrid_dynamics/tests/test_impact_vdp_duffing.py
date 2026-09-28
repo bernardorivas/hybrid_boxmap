@@ -17,13 +17,13 @@ from scipy.integrate import solve_ivp
 from hybrid_dynamics import SuspensionFlow, build_suspension_grid, check_suspension_grid
 from hybrid_dynamics.examples import ImpactVanDerPolDuffing
 from hybrid_dynamics.examples.impact_vdp_duffing import energy, potential
-from hybrid_dynamics.examples.paper_grid_examples import (
-    PAPER_GRID_PROBLEMS,
-    PAPER_GRID_REFERENCE_SETS,
+from hybrid_dynamics.examples.paper_examples import (
+    PAPER_PROBLEMS,
+    PAPER_REFERENCE_SETS,
     impact_vdp_duffing_problem,
     impact_vdp_duffing_reference_sets,
-    paper_grid_problem,
-    paper_grid_problem_factory,
+    paper_problem,
+    paper_problem_factory,
 )
 from hybrid_dynamics.src.suspension_grid_relation import ENDPOINT_BASE, ENDPOINT_HANDLE
 
@@ -153,7 +153,7 @@ def test_zeno_point_circulates_through_the_handle():
     assert 0.0 < state[0, 1] < 0.11 and 0.0 < phase[0] < 0.5
 
 
-def test_paper_grid_problem_and_reference_sets():
+def test_paper_problem_and_reference_sets():
     problem = impact_vdp_duffing_problem()
     assert problem.window.ambient_bounds == ((-1.95, 0.8), (-2.35, 1.95))
     grid = build_suspension_grid(problem.window, problem.guard, 3)
@@ -170,10 +170,10 @@ def test_paper_grid_problem_and_reference_sets():
 def test_beta076_variant():
     name = "impact-vdp-duffing-beta076"
     # A named variant, run only when named; the example keeps beta = 0.8.
-    assert name not in PAPER_GRID_PROBLEMS
+    assert name not in PAPER_PROBLEMS
     assert impact_vdp_duffing_problem().parameters["beta"] == 0.8
-    example = paper_grid_problem("impact-vdp-duffing", tau=1.0, level_offset=4)
-    variant = paper_grid_problem(name, tau=1.0, level_offset=4)
+    example = paper_problem("impact-vdp-duffing", tau=1.0, level_offset=4)
+    variant = paper_problem(name, tau=1.0, level_offset=4)
     assert (example.name, variant.name) == ("impact-vdp-duffing", name)
     assert (example.parameters["beta"], variant.parameters["beta"]) == (0.8, 0.76)
     assert {key: value for key, value in variant.parameters.items() if key != "beta"} == {
@@ -188,12 +188,12 @@ def test_beta076_variant():
     difference = variant.system.ode(0.0, state) - example.system.ode(0.0, state)
     assert np.allclose(difference, [0.0, (0.76 - 0.8) * 0.5])
     with pytest.raises(TypeError, match="fixes beta"):
-        paper_grid_problem(name, beta=0.8)
+        paper_problem(name, beta=0.8)
     # Worker processes rebuild the variant from a pickled factory.
-    rebuilt = pickle.loads(pickle.dumps(paper_grid_problem_factory(name, tau=1.0)))()
+    rebuilt = pickle.loads(pickle.dumps(paper_problem_factory(name, tau=1.0)))()
     assert (rebuilt.name, rebuilt.parameters["beta"], rebuilt.tau) == (name, 0.76, 1.0)
     # The impact cycles at beta = 0.76: pre-impact speeds, extents, periods.
-    sets = PAPER_GRID_REFERENCE_SETS[name](variant, samples=2000)
+    sets = PAPER_REFERENCE_SETS[name](variant, samples=2000)
     assert set(sets) == {"F", "S", "Z", "C", "U_Z"}
     assert abs(sets["C"]["handle"][0, 0] - 1.5098383) < 1e-6
     assert abs(sets["U_Z"]["handle"][0, 0] - 0.6569620) < 1e-6

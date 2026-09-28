@@ -2,7 +2,7 @@
 
 Date: September 27, 2026  
 Status: Reference for readers of the code. Section "Examples" of the paper illustrates the computations without stating results about the examples. This file keeps the statements and arguments of an earlier draft of that section and compares the recorded runs with the invariant sets and indices that these arguments give. The Morse graphs and labels come from sampled multivalued maps, not certified outer approximations, so the comparisons are consistency checks, not proofs.  
-Scope: `lem:window-isolation`, `prop:ball-window`, `prop:wheel-isolation`, and `lem:impact-lienard`; the invariant sets and indices of the bouncing ball, the rimless wheel, the spiking neuron, and the impacting oscillator; the four runs in `figures/paper_grid/` listed under "Runs".  
+Scope: `lem:window-isolation`, `prop:ball-window`, `prop:wheel-isolation`, and `lem:impact-lienard`; the invariant sets and indices of the bouncing ball, the rimless wheel, the spiking neuron, and the impacting oscillator; the four runs in `figures/paper/` listed under "Runs".  
 Source: an earlier draft of Section 6, "Examples", of the paper (September 27, 2026). Computed facts are taken from the JSON run records, recorded at code `a47c88d`. The Conley index of the Morse set of $U_Z$ in the oscillator run was computed afterwards, in commit `02270ea`.
 
 Citations are given by their keys in the bibliography of the paper. The labels `lem:window-isolation`, `prop:ball-window`, `prop:wheel-isolation`, and `lem:impact-lienard` are those of the earlier draft. Other labels are those of the paper.
@@ -70,14 +70,14 @@ The lemma uses the standing hypotheses of the manuscript: $X$ is compact and $\P
 
 ## Runs
 
-| Example | Stem in `figures/paper_grid/` | $\tau$ | Grid | Base cells per axis (cell size) | Phase intervals | Morse sets |
+| Example | Stem in `figures/paper/` | $\tau$ | Grid | Base cells per axis (cell size) | Phase intervals | Morse sets |
 |---|---|---|---|---|---|---|
-| bouncing ball | `paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined` | 0.5 | $\Xi_6$ | 1024 (0.001953 x 0.009766) | 256 | 1 |
-| rimless wheel | `paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined` | 0.5 | $\Xi_7$ | 2048 (0.0003906 x 0.0007324) | 512 | 17 |
-| spiking neuron | `paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined` | 5 | $\Xi_7$ | 1024 of $B$ (0.3125 x 1.25) | 512 | 1 |
-| impacting oscillator, $\beta=0.76$ | `paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined` | 0.5 | $\Xi_7$ | 2048 (0.001343 x 0.002100) | 512 | 22 |
+| bouncing ball | `paper-bouncing-ball-tau050-level6-base1024-corners-gap-refined` | 0.5 | $\Xi_6$ | 1024 (0.001953 x 0.009766) | 256 | 1 |
+| rimless wheel | `paper-rimless-wheel-tau050-level7-base2048-corners-gap-refined` | 0.5 | $\Xi_7$ | 2048 (0.0003906 x 0.0007324) | 512 | 17 |
+| spiking neuron | `paper-spiking-neuron-tau500-level7-base1024-corners-gap-refined` | 5 | $\Xi_7$ | 1024 of $B$ (0.3125 x 1.25) | 512 | 1 |
+| impacting oscillator, $\beta=0.76$ | `paper-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined` | 0.5 | $\Xi_7$ | 2048 (0.001343 x 0.002100) | 512 | 22 |
 
-Each stem has the run record `<stem>.json` and the following figures, as PDF. `demo/replot_paper_grid.py` also writes PNG copies.
+Each stem has the run record `<stem>.json` and the following figures, as PDF. `demo/replot_paper.py` also writes PNG copies.
 
 - `<stem>.pdf`: every Morse set, with the base cells, the zooms, and the Morse graph.
 - `<stem>-nontrivial.pdf`: the same, without the Morse sets whose computed label is trivial, ordered by reachability in $\operatorname{MG}(\mathcal F)$ along paths that may pass through the hidden Morse sets.

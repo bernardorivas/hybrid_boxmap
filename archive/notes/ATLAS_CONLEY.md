@@ -23,7 +23,7 @@ A seam is classified against the extent of the selected base cells along its
 fixed axis: on the boundary, outside, or interior. A seam outside the extent
 meets no selected base cell, which happens when the selection has handle
 cells but no base cell at the seam (the Morse sets of the spiking neuron on
-the paper grid at levels 6 and 7 have no base cell at the guard). Such a seam
+the paper at levels 6 and 7 have no base cell at the guard). Such a seam
 contributes no base/handle intersection; the handle/handle identifications
 through it (a guard point of one handle cell equal to a reset point of
 another) are enumerated and checked for contractibility like every other

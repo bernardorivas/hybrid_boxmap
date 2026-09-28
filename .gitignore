@@ -175,5 +175,5 @@ Thumbs.db
 # Local assistant instructions
 CLAUDE.md
 
-# PNG copies of the paper figures; demo/replot_paper_grid.py regenerates them
-figures/paper_grid/*.png
+# PNG copies of the paper figures; demo/replot_paper.py regenerates them
+figures/paper/*.png

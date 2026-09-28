@@ -1,4 +1,4 @@
-"""Figure variants of the paper-grid runs and the replot from a JSON summary."""
+"""Figure variants of the paper runs and the replot from a JSON summary."""
 
 from __future__ import annotations
 
@@ -16,24 +16,24 @@ import pytest  # noqa: E402
 from matplotlib import patches  # noqa: E402
 
 from hybrid_dynamics import PlotHybridMorseSets, build_suspension_grid  # noqa: E402
-from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
+from hybrid_dynamics.examples.paper_examples import (  # noqa: E402
     bouncing_ball_problem,
-    paper_grid_problem,
+    paper_problem,
 )
-from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
+from hybrid_dynamics.examples.paper_figures import (  # noqa: E402
     COLOR_RULE,
     FRAME_MARGIN,
     PALETTE_GRAYS,
     PANEL_MAX_PIXELS,
-    PAPER_GRID_PALETTE,
-    PAPER_GRID_PALETTE_NAME,
+    PAPER_PALETTE,
+    PAPER_PALETTE_NAME,
     TRIVIAL_INDEX_COLOR,
     _panel_dpi,
-    draw_paper_grid_figure,
-    draw_paper_grid_panels,
-    paper_grid_color_record,
-    paper_grid_morse_colors,
-    write_paper_grid_figures,
+    draw_paper_figure,
+    draw_paper_panels,
+    paper_color_record,
+    paper_morse_colors,
+    write_paper_figures,
 )
 from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
     CELL_OUTLINE_WIDTH,
@@ -190,7 +190,7 @@ def test_paper_figure_draws_the_base_chart_and_enlarges_boundary_cells():
     base_cells = grid.base_bounds(grid.base_readout(handle))
     assert len(base_cells) == 2 and np.all(base_cells[:, 0] == 0.0)
     data = suspension_grid_morse_sets_plot_data(grid, [handle], [])
-    plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0,))
+    plot = draw_paper_figure(data, example="bouncing-ball", shown=(0,))
     try:
         (base_axis,) = plot.projection_axes
         # The set has base cells, so the figure has no handle chart.
@@ -223,7 +223,7 @@ def test_paper_figure_draws_the_base_chart_and_enlarges_boundary_cells():
     lower_corners = grid.base_bounds(np.arange(grid.n_base))[:, :2]
     origin = int(grid.d_map[int(np.argmin(np.abs(lower_corners).sum(axis=1)))])
     data = suspension_grid_morse_sets_plot_data(grid, [np.array([origin])], [])
-    plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0,))
+    plot = draw_paper_figure(data, example="bouncing-ball", shown=(0,))
     try:
         (zoom,) = plot.zooms
         assert (zoom.label, zoom.chart, zoom.morse_nodes) == ("A", "base", (0,))
@@ -250,8 +250,8 @@ def _combined_names(figures) -> list[str]:
 
 
 def _load_replot_script():
-    path = CODE_ROOT / "demo" / "replot_paper_grid.py"
-    spec = importlib.util.spec_from_file_location("replot_paper_grid", path)
+    path = CODE_ROOT / "demo" / "replot_paper.py"
+    spec = importlib.util.spec_from_file_location("replot_paper", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -259,8 +259,8 @@ def _load_replot_script():
 
 def test_runner_figures_and_replot_from_the_json(tmp_path):
     problem, grid, morse_sets = _ball_run()
-    summary_path = tmp_path / "paper-grid-bouncing-ball-tau150-level2-corners.json"
-    figures = write_paper_grid_figures(
+    summary_path = tmp_path / "paper-bouncing-ball-tau150-level2-corners.json"
+    figures = write_paper_figures(
         grid,
         morse_sets,
         EDGES,
@@ -274,10 +274,10 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
         dpi=60,
     )
     assert _combined_names(figures) == [
-        "paper-grid-bouncing-ball-tau150-level2-corners.pdf",
-        "paper-grid-bouncing-ball-tau150-level2-corners.png",
-        "paper-grid-bouncing-ball-tau150-level2-corners-nontrivial.pdf",
-        "paper-grid-bouncing-ball-tau150-level2-corners-nontrivial.png",
+        "paper-bouncing-ball-tau150-level2-corners.pdf",
+        "paper-bouncing-ball-tau150-level2-corners.png",
+        "paper-bouncing-ball-tau150-level2-corners-nontrivial.pdf",
+        "paper-bouncing-ball-tau150-level2-corners-nontrivial.png",
     ]
     assert all(Path(path).is_file() for path in figures["figures"])
     nontrivial = figures["figure_variants"]["nontrivial"]
@@ -290,14 +290,14 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
     # Each variant records the palette and the color of every Morse node, the
     # same in both variants.
     for record in figures["figure_variants"].values():
-        assert record["colors"] == paper_grid_color_record(6, CONLEY)
-        assert record["colors"]["palette"] == PAPER_GRID_PALETTE_NAME == "CMGDB default"
-        assert record["colors"]["palette_colors"] == list(PAPER_GRID_PALETTE)
+        assert record["colors"] == paper_color_record(6, CONLEY)
+        assert record["colors"]["palette"] == PAPER_PALETTE_NAME == "CMGDB default"
+        assert record["colors"]["palette_colors"] == list(PAPER_PALETTE)
         assert record["colors"]["trivial_index_color"] == TRIVIAL_INDEX_COLOR
         assert record["colors"]["rule"] == COLOR_RULE
         assert record["colors"]["morse_node_colors"] == [
             {"morse_node": node, "color": color}
-            for node, color in paper_grid_morse_colors(6, CONLEY).items()
+            for node, color in paper_morse_colors(6, CONLEY).items()
         ]
         assert record["colors"]["palette_cycled"] is False
         assert "palette_cycled_note" not in record["colors"]
@@ -350,11 +350,11 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
         "all"
     ]["panel_files"]
     assert all(
-        record["colors"] == paper_grid_color_record(6, CONLEY)
+        record["colors"] == paper_color_record(6, CONLEY)
         for record in updated["figure_variants"].values()
     )
     assert updated["figures"] == figures["figures"]
-    assert updated["figures_replotted"]["script"] == "demo/replot_paper_grid.py"
+    assert updated["figures_replotted"]["script"] == "demo/replot_paper.py"
     # The attractor lattice of the nontrivial nodes 0 < 2 < 4 < 5 (node 2
     # reaches 0 through the hidden node 1) is a chain of five elements.
     assert updated["attractor_lattice"] == figures["attractor_lattice"]
@@ -381,8 +381,8 @@ def test_runner_figures_and_replot_from_the_json(tmp_path):
 
 
 def _load_runner_script():
-    path = CODE_ROOT / "demo" / "run_paper_grid_examples.py"
-    spec = importlib.util.spec_from_file_location("run_paper_grid_examples", path)
+    path = CODE_ROOT / "demo" / "run_paper_examples.py"
+    spec = importlib.util.spec_from_file_location("run_paper_examples", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -392,7 +392,7 @@ def test_runner_index_options_and_names(monkeypatch):
     runner = _load_runner_script()
 
     def parse(*argv):
-        monkeypatch.setattr("sys.argv", ["run_paper_grid_examples.py", *argv])
+        monkeypatch.setattr("sys.argv", ["run_paper_examples.py", *argv])
         options = runner._index_options(runner._arguments())
         return options, runner._index_suffix(options)
 
@@ -434,10 +434,10 @@ def test_a_variant_has_its_own_output_names_and_replots(tmp_path):
         for name in ("impact-vdp-duffing", "impact-vdp-duffing-beta076")
     ]
     assert names == [
-        "paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined",
-        "paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined",
+        "paper-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined",
+        "paper-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined",
     ]
-    problem = paper_grid_problem("impact-vdp-duffing-beta076", tau=1.0, level_offset=1)
+    problem = paper_problem("impact-vdp-duffing-beta076", tau=1.0, level_offset=1)
     grid = build_suspension_grid(problem.window, problem.guard, 1)
     morse_sets = [np.array([int(grid.d_map[0])])]
     summary = {
@@ -456,12 +456,12 @@ def test_a_variant_has_its_own_output_names_and_replots(tmp_path):
         },
         "conley": [_record(0, "nontrivial")],
     }
-    summary_path = tmp_path / "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.json"
+    summary_path = tmp_path / "paper-impact-vdp-duffing-beta076-tau100-level1-base4-corners.json"
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
     result = _load_replot_script().replot(summary_path, variants=("all",))
     assert _combined_names(result) == [
-        "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.pdf",
-        "paper-grid-impact-vdp-duffing-beta076-tau100-level1-base4-corners.png",
+        "paper-impact-vdp-duffing-beta076-tau100-level1-base4-corners.pdf",
+        "paper-impact-vdp-duffing-beta076-tau100-level1-base4-corners.png",
     ]
 
 
@@ -487,15 +487,15 @@ def test_replot_rebuilds_the_base_offset_of_the_run(tmp_path):
         },
         "conley": conley,
     }
-    summary_path = tmp_path / "paper-grid-bouncing-ball-tau150-level2-base8-corners.json"
+    summary_path = tmp_path / "paper-bouncing-ball-tau150-level2-base8-corners.json"
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
     replot = _load_replot_script()
     result = replot.replot(summary_path)
     assert _combined_names(result) == [
-        "paper-grid-bouncing-ball-tau150-level2-base8-corners.pdf",
-        "paper-grid-bouncing-ball-tau150-level2-base8-corners.png",
-        "paper-grid-bouncing-ball-tau150-level2-base8-corners-nontrivial.pdf",
-        "paper-grid-bouncing-ball-tau150-level2-base8-corners-nontrivial.png",
+        "paper-bouncing-ball-tau150-level2-base8-corners.pdf",
+        "paper-bouncing-ball-tau150-level2-base8-corners.png",
+        "paper-bouncing-ball-tau150-level2-base8-corners-nontrivial.pdf",
+        "paper-bouncing-ball-tau150-level2-base8-corners-nontrivial.png",
     ]
     assert result["figure_variants"]["nontrivial"]["shown_nodes"] == [0]
     # Without the offset the rebuilt grid has 4 cells per axis, not the recorded 8.
@@ -522,7 +522,7 @@ def test_fill_missing_labels_replaces_only_the_records_without_a_label(tmp_path,
     # A small run of the runner (defaults: image pair, index map "auto").
     runner = _load_runner_script()
     argv = ["rimless-wheel", "--index-workers", "1", "--output-dir", str(tmp_path)]
-    monkeypatch.setattr("sys.argv", ["run_paper_grid_examples.py", *argv])
+    monkeypatch.setattr("sys.argv", ["run_paper_examples.py", *argv])
     runner._run("rimless-wheel", 3, runner._arguments(), 1.0, 1)
     (path,) = tmp_path.glob("*.json")
     original = json.loads(path.read_text(encoding="utf-8"))
@@ -614,7 +614,7 @@ def test_fill_missing_labels_replaces_only_the_records_without_a_label(tmp_path,
 
 
 def test_a_node_without_a_label_shows_its_homology_dimensions():
-    from hybrid_dynamics.examples.paper_grid_figures import blocked_index_line
+    from hybrid_dynamics.examples.paper_figures import blocked_index_line
 
     with_homology = {"homology_computed": True, "homology_dimensions": [0, 1, 1]}
     assert blocked_index_line(with_homology) == "dim H (0, 1, 1)"
@@ -650,7 +650,7 @@ def test_paper_figure_draws_the_handle_chart_only_for_a_set_without_base_cells()
     atoms = np.unique(grid.atom_of_piece[grid.handle_piece(0, middle)])
     assert grid.base_readout(atoms).size == 0
     data = suspension_grid_morse_sets_plot_data(grid, [atoms], [])
-    plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0,))
+    plot = draw_paper_figure(data, example="bouncing-ball", shown=(0,))
     try:
         (handle_axis,) = plot.handle_axes
         assert handle_axis.get_xlabel() == r"$v_G$"
@@ -711,8 +711,8 @@ def test_each_panel_is_written_and_recorded_for_both_variants(tmp_path):
     # M(1), the set drawn in the handle chart, has a trivial index, so the
     # nontrivial variant has no handle chart.
     conley = [_record(0, "nontrivial"), _record(1, "trivial")]
-    stem = tmp_path / "paper-grid-bouncing-ball-tau050-level2-corners"
-    figures = write_paper_grid_figures(
+    stem = tmp_path / "paper-bouncing-ball-tau050-level2-corners"
+    figures = write_paper_figures(
         grid,
         morse_sets,
         [(1, 0)],
@@ -761,8 +761,8 @@ def test_each_panel_is_written_and_recorded_for_both_variants(tmp_path):
 def test_panel_figures_match_the_combined_figure():
     _problem, grid, morse_sets = _zoom_and_handle_run()
     data = suspension_grid_morse_sets_plot_data(grid, morse_sets, [(1, 0)])
-    plot = draw_paper_grid_figure(data, example="bouncing-ball", shown=(0, 1))
-    panels = draw_paper_grid_panels(data, example="bouncing-ball", shown=(0, 1))
+    plot = draw_paper_figure(data, example="bouncing-ball", shown=(0, 1))
+    panels = draw_paper_panels(data, example="bouncing-ball", shown=(0, 1))
     try:
         assert list(panels.figures) == ["base", "zoom-A", "handle", "graph"]
         (zoom,) = plot.zooms
@@ -833,7 +833,7 @@ def test_the_graph_panel_is_sized_from_its_layout():
     )
     sizes = []
     for shown in ((0, 1), tuple(range(6))):
-        panels = draw_paper_grid_panels(
+        panels = draw_paper_panels(
             data, example="bouncing-ball", shown=shown, annotations=annotations, dpi=100
         )
         try:
@@ -881,17 +881,17 @@ def test_a_very_large_panel_png_has_a_lower_resolution():
         plt.close(figure)
 
 
-def test_the_paper_grid_palette_is_cmgdb_and_trivial_sets_are_gray():
-    assert PAPER_GRID_PALETTE == CMGDB_MORSE_PALETTE
-    assert PAPER_GRID_PALETTE_NAME == "CMGDB default"
-    assert TRIVIAL_INDEX_COLOR == "#BBBBBB" and TRIVIAL_INDEX_COLOR not in PAPER_GRID_PALETTE
-    assert PALETTE_GRAYS <= {color.lower() for color in PAPER_GRID_PALETTE}
+def test_the_paper_palette_is_cmgdb_and_trivial_sets_are_gray():
+    assert PAPER_PALETTE == CMGDB_MORSE_PALETTE
+    assert PAPER_PALETTE_NAME == "CMGDB default"
+    assert TRIVIAL_INDEX_COLOR == "#BBBBBB" and TRIVIAL_INDEX_COLOR not in PAPER_PALETTE
+    assert PALETTE_GRAYS <= {color.lower() for color in PAPER_PALETTE}
 
     # Nodes 1 and 3 have a trivial index and are gray; node i of the others
     # (a nontrivial label, or node 2 without a label) takes palette color i,
     # as in CMGDB.
-    palette = PAPER_GRID_PALETTE
-    assert paper_grid_morse_colors(6, CONLEY) == {
+    palette = PAPER_PALETTE
+    assert paper_morse_colors(6, CONLEY) == {
         0: palette[0],
         1: TRIVIAL_INDEX_COLOR,
         2: palette[2],
@@ -900,11 +900,11 @@ def test_the_paper_grid_palette_is_cmgdb_and_trivial_sets_are_gray():
         5: palette[5],
     }
     # Without index records every node takes its palette color.
-    assert paper_grid_morse_colors(3) == {0: palette[0], 1: palette[1], 2: palette[2]}
+    assert paper_morse_colors(3) == {0: palette[0], 1: palette[1], 2: palette[2]}
 
     # A colored node whose palette color is gray takes the next color that is
     # not gray, so gray always means a trivial index.
-    colors = paper_grid_morse_colors(24)
+    colors = paper_morse_colors(24)
     assert palette[7].lower() in PALETTE_GRAYS and colors[7] == palette[8]
     assert palette[22].lower() in PALETTE_GRAYS and palette[23].lower() in PALETTE_GRAYS
     assert colors[22] == colors[23] == palette[24 % len(palette)]
@@ -912,7 +912,7 @@ def test_the_paper_grid_palette_is_cmgdb_and_trivial_sets_are_gray():
 
     # A colored node numbered past the palette: the colors repeat, and the
     # record says so.
-    record = paper_grid_color_record(len(palette) + 2)
+    record = paper_color_record(len(palette) + 2)
     assert record["palette_cycled"] is True
     assert f"repeat from Morse node {len(palette)}" in record["palette_cycled_note"]
     assert record["morse_node_colors"][len(palette)]["color"] == palette[0]
@@ -920,7 +920,7 @@ def test_the_paper_grid_palette_is_cmgdb_and_trivial_sets_are_gray():
     conley = [_record(node, "nontrivial") for node in range(len(palette))] + [
         _record(len(palette), "trivial")
     ]
-    record = paper_grid_color_record(len(palette) + 1, conley)
+    record = paper_color_record(len(palette) + 1, conley)
     assert record["palette_cycled"] is False and "palette_cycled_note" not in record
 
     # A palette given as a mapping must color every drawn node.
@@ -943,7 +943,7 @@ def _fill_colors(axis) -> set[str]:
 def test_a_morse_set_has_one_color_in_every_variant_and_panel():
     _problem, grid, morse_sets = _ball_run()
     data = suspension_grid_morse_sets_plot_data(grid, morse_sets, EDGES)
-    colors = paper_grid_morse_colors(6, CONLEY)
+    colors = paper_morse_colors(6, CONLEY)
     # Label text is white on the dark indigo and green, near black elsewhere.
     label_colors = {
         0: MORSE_LABEL_LIGHT,
@@ -962,8 +962,8 @@ def test_a_morse_set_has_one_color_in_every_variant_and_panel():
             "blocked": selection.blocked,
             "colors": colors,
         }
-        plot = draw_paper_grid_figure(data, **options)
-        panels = draw_paper_grid_panels(data, **options, dpi=60)
+        plot = draw_paper_figure(data, **options)
+        panels = draw_paper_panels(data, **options, dpi=60)
         try:
             expected = {node: colors[node] for node in selection.shown}
             for drawing in (plot, panels):
@@ -1034,11 +1034,11 @@ def _four_degree_conley() -> list[dict[str, object]]:
 
 
 def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
-    from hybrid_dynamics.examples import paper_grid_figures
-    from hybrid_dynamics.examples.paper_grid_figures import (
+    from hybrid_dynamics.examples import paper_figures
+    from hybrid_dynamics.examples.paper_figures import (
         INDEX_DEGREES_RULE,
         SHOWN_INDEX_DEGREES,
-        paper_grid_index_labels,
+        paper_index_labels,
         shown_index_entries,
     )
 
@@ -1053,7 +1053,7 @@ def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
     conley = _four_degree_conley()
     original = json.loads(json.dumps(conley))
     with pytest.warns(UserWarning, match="Morse node 5"):
-        labels, lines, every_degree = paper_grid_index_labels(conley)
+        labels, lines, every_degree = paper_index_labels(conley)
     assert labels == {
         0: ("x-1", "x-1", "0"),
         1: ("0", "0", "0"),
@@ -1068,7 +1068,7 @@ def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
     # 0 to 2 (node 5 in every degree), and each variant records it; the
     # index records keep every degree.
     drawn: dict[str, list[str]] = {}
-    save = paper_grid_figures.save_hybrid_morse_figure
+    save = paper_figures.save_hybrid_morse_figure
 
     def capture(plot, stem, **options):
         figure = getattr(plot, "figure", plot)
@@ -1077,11 +1077,11 @@ def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
         )
         return save(plot, stem, **options)
 
-    monkeypatch.setattr(paper_grid_figures, "save_hybrid_morse_figure", capture)
+    monkeypatch.setattr(paper_figures, "save_hybrid_morse_figure", capture)
     problem, grid, morse_sets = _ball_run()
-    stem = tmp_path / "paper-grid-bouncing-ball-tau150-level2-corners"
+    stem = tmp_path / "paper-bouncing-ball-tau150-level2-corners"
     with pytest.warns(UserWarning, match="Morse node 5"):
-        figures = write_paper_grid_figures(
+        figures = write_paper_figures(
             grid,
             morse_sets,
             EDGES,
@@ -1125,7 +1125,7 @@ def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
 
 
 def test_the_morse_graph_shows_the_dimensions_of_the_conley_index():
-    from hybrid_dynamics.examples.paper_grid_figures import (
+    from hybrid_dynamics.examples.paper_figures import (
         conley_index_dimensions,
         conley_index_labels,
     )

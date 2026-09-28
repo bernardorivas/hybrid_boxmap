@@ -35,7 +35,7 @@ The following example computes the Morse sets of the bouncing ball and their
 Conley indices.
 
 ```python
-from hybrid_dynamics.examples.paper_grid_examples import paper_grid_problem
+from hybrid_dynamics.examples.paper_examples import paper_problem
 from hybrid_dynamics.src.suspension_grid import build_suspension_grid
 from hybrid_dynamics.src.suspension_grid_relation import (
     compute_suspension_grid_relation,
@@ -45,7 +45,7 @@ from hybrid_dynamics.src.suspension_grid_conley import (
     compute_suspension_grid_conley_indices,
 )
 
-problem = paper_grid_problem("bouncing-ball", tau=0.5, level_offset=3)
+problem = paper_problem("bouncing-ball", tau=0.5, level_offset=3)
 grid = build_suspension_grid(problem.window, problem.guard, level=5)
 relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=14)
 morse_graph = compute_suspension_morse_graph(relation)
@@ -61,13 +61,13 @@ oscillator. The command-line runner computes any of them and saves the results
 and figures:
 
 ```bash
-python demo/run_paper_grid_examples.py --help
+python demo/run_paper_examples.py --help
 ```
 
 ## Results in the paper
 
 The results of the paper "Hybrid Attractor Lattices" and the commands that
-produce them are in [`figures/paper_grid/`](figures/paper_grid/README.md).
+produce them are in [`figures/paper/`](figures/paper/README.md).
 
 ## Tests
 

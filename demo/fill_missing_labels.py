@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Compute the missing index labels of paper-grid runs from their JSON summaries.
+"""Compute the missing index labels of paper runs from their JSON summaries.
 
-For each JSON summary written by ``demo/run_paper_grid_examples.py`` this
+For each JSON summary written by ``demo/run_paper_examples.py`` this
 script rebuilds the problem and the grid ``Xi_n`` of the run as
-``demo/replot_paper_grid.py`` does (the rebuilt grid must match the ``grid``
+``demo/replot_paper.py`` does (the rebuilt grid must match the ``grid``
 record), and recomputes the relation with the image rule recorded under
 ``image_rule`` and the integrator recorded under ``integrator`` (summaries
 without it predate the batched integrator and are recomputed with
@@ -26,7 +26,7 @@ gains the new labels, and ``labels_filled`` (a list, one entry per
 application) records the nodes recomputed (``morse_nodes``), those that now
 have a label (``labeled``), the pair and index map, the checks, the
 seconds, the script, the command line, and the code commit.  The figures
-are then redrawn with ``demo/replot_paper_grid.py`` (the variants the run
+are then redrawn with ``demo/replot_paper.py`` (the variants the run
 has), which rewrites the combined and panel figures, the attractor
 lattice, and the ``figures``, ``figure_variants``, ``attractor_lattice``,
 and ``figures_replotted`` records.  A summary in which
@@ -40,7 +40,7 @@ limit by default).
 Run from the repository root, for example::
 
     .venv/bin/python demo/fill_missing_labels.py --workers 12 \\
-        figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-*-gap-refined.json
+        figures/paper/paper-impact-vdp-duffing-beta076-*-gap-refined.json
 """
 
 from __future__ import annotations
@@ -61,7 +61,7 @@ CODE_ROOT = Path(__file__).resolve().parents[1]
 if str(CODE_ROOT) not in sys.path:
     sys.path.insert(0, str(CODE_ROOT))
 
-from demo.replot_paper_grid import (  # noqa: E402
+from demo.replot_paper import (  # noqa: E402
     ReplotError,
     _git_commit,
     problem_options,
@@ -69,8 +69,8 @@ from demo.replot_paper_grid import (  # noqa: E402
     recorded_morse_sets,
     replot,
 )
-from hybrid_dynamics.examples.paper_grid_examples import (  # noqa: E402
-    paper_grid_problem_factory,
+from hybrid_dynamics.examples.paper_examples import (  # noqa: E402
+    paper_problem_factory,
 )
 from hybrid_dynamics.src.suspension_grid_conley import (  # noqa: E402
     _rows_for_index,
@@ -181,7 +181,7 @@ def _recompute_records(
         problem,
         **relation_options(summary),
         workers=workers,
-        problem_factory=paper_grid_problem_factory(summary["example"], **problem_options(summary)),
+        problem_factory=paper_problem_factory(summary["example"], **problem_options(summary)),
         progress=report,
     )
     seconds["relation"] = time.perf_counter() - started
