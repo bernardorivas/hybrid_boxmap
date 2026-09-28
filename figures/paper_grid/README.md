@@ -15,7 +15,13 @@ Each run has a JSON summary and its figures under the same stem.
   `beta = 0.76`, same window): the run at `tau = 1`, level 6, 1024 base
   cells and the run at `tau = 0.5`, level 7, 2048 base cells, both
   gap-refined, recomputed at `a47c88d` (first run at `a7ac462`), each with
-  both figure variants.
+  both figure variants. In the `tau = 1` run the label of U_Z (`M(14)`),
+  `(0, x-1, x-1, 0)` from the excision pair, was filled at `657bf2a` by
+  `demo/fill_missing_labels.py`, which replaced only that index record
+  (recorded under `labels_filled`) and redrew the figures and panels of
+  the run. In the `tau = 0.5` run U_Z (`M(21)`) still has no label: the
+  fill needed more than 11.5 GB there and was stopped, leaving the run
+  unchanged.
 - Panel figures in `./`: each panel of the two figures of a run is also its
   own figure, PDF and PNG, `<variant stem>-base`, `<variant stem>-zoom-A`,
   `-zoom-B`, ... (one per zoom), `<variant stem>-graph`, and

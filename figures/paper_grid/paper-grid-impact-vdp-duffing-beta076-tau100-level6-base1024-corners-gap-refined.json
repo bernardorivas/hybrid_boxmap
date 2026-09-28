@@ -553,10 +553,47 @@
       ]
     },
     {
-      "blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(859684,)) is not acyclic over GF(5)",
+      "blocker": "",
       "coefficient_field": 5,
-      "computed": false,
+      "computed": true,
       "continuous_system_conley_index_certified": false,
+      "excision": {
+        "homology_dimensions": [
+          0,
+          1,
+          1,
+          0
+        ],
+        "index_matrices": [
+          [],
+          [
+            [
+              1
+            ]
+          ],
+          [
+            [
+              1
+            ]
+          ],
+          []
+        ],
+        "nerve_cell_counts": [
+          33747,
+          132659,
+          131705,
+          32793
+        ],
+        "pair_atoms": {
+          "Abar": 12945,
+          "Xbar": 27627
+        },
+        "pair_pieces": {
+          "Abar": 15755,
+          "Xbar": 33747
+        }
+      },
+      "exit_components_blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(859684,)) is not acyclic over GF(5)",
       "homology_computed": true,
       "homology_dimensions": [
         0,
@@ -564,8 +601,9 @@
         1,
         0
       ],
-      "index_map_blocker": "ValueError: carrier image of AtlasNerveSimplex(vertices=(859684,)) is not acyclic over GF(5)",
-      "label_source": "",
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "index map (excision pair)",
       "morse_node": 14,
       "nerve_cell_counts": [
         25148,
@@ -582,9 +620,14 @@
         "A": 7156,
         "X": 25148
       },
-      "result_scope": "",
-      "seconds": 8.5190192500595,
-      "shift_class": []
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 185.0959168340778,
+      "shift_class": [
+        "0",
+        "x-1",
+        "x-1",
+        "0"
+      ]
     }
   ],
   "conley_labels_in_figure": {
@@ -622,6 +665,12 @@
       "0",
       "0",
       "0",
+      "0"
+    ],
+    "14": [
+      "0",
+      "x-1",
+      "x-1",
       "0"
     ],
     "2": [
@@ -695,9 +744,7 @@
   "example": "impact-vdp-duffing-beta076",
   "figure_variants": {
     "all": {
-      "blocked_nodes_shown": [
-        14
-      ],
+      "blocked_nodes_shown": [],
       "colors": {
         "morse_node_colors": [
           {
@@ -985,9 +1032,7 @@
       ]
     },
     "nontrivial": {
-      "blocked_nodes_shown": [
-        14
-      ],
+      "blocked_nodes_shown": [],
       "colors": {
         "morse_node_colors": [
           {
@@ -1257,19 +1302,15 @@
   ],
   "figures_replotted": {
     "code": {
-      "commit": "4e63a3fd0418f0d13111708b581bf7f903318fb1",
-      "dirty": true
+      "commit": "657bf2a9e9a3e1aceecacc9e3280967b78bd2c6b",
+      "dirty": false
     },
     "command_line": [
-      "figures/paper_grid/paper-grid-bouncing-ball-tau050-level6-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-impact-vdp-duffing-tau100-level6-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-rimless-wheel-tau050-level7-base2048-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-spiking-neuron-tau100-level7-base1024-corners-gap-refined.json",
-      "figures/paper_grid/paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined.json"
+      "--workers",
+      "12",
+      "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined.json"
     ],
-    "script": "demo/replot_paper_grid.py"
+    "script": "demo/fill_missing_labels.py"
   },
   "grid": {
     "a_n": 0.00390625,
@@ -1353,6 +1394,41 @@
     "seed": null
   },
   "integrator": "batched RK45 (batched_suspension_flow) with the step sequence of solve_ivp; handle samples by SuspensionFlow paths",
+  "labels_filled": [
+    {
+      "checked": {
+        "image_rule": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding; gap refinement depth 14",
+        "morse_graph_edges": 15,
+        "morse_sets": 15,
+        "relation_edges": 19775349
+      },
+      "code": {
+        "commit": "657bf2a9e9a3e1aceecacc9e3280967b78bd2c6b",
+        "dirty": false
+      },
+      "command_line": [
+        "--workers",
+        "12",
+        "figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined.json"
+      ],
+      "index_map": "auto",
+      "index_pair": "image",
+      "labeled": [
+        14
+      ],
+      "max_pieces": null,
+      "morse_nodes": [
+        14
+      ],
+      "script": "demo/fill_missing_labels.py",
+      "seconds": {
+        "grid": 0.5328154589515179,
+        "index": 185.1898243330652,
+        "morse_graph": 0.3040637499652803,
+        "relation": 7.913723457953893
+      }
+    }
+  ],
   "level": 6,
   "level_offset": 4,
   "morse_graph": {

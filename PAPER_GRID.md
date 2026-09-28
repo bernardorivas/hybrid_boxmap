@@ -211,7 +211,9 @@ under `conley_options` (`index_pair`, `index_map`, `excise`) in the JSON
 summary. The summaries in `figures/paper_grid` were written before these
 options, with the exit-components construction; `--index-map
 exit-components` reproduces their index records (under names with
-`-index-exit-components`).
+`-index-exit-components`), except the record of U_Z in the `beta = 0.76`
+run at `tau = 1`, which `demo/fill_missing_labels.py` replaced by a record
+of `auto` (see "The oscillator at `beta = 0.76`").
 
 `demo/fill_missing_labels.py` computes the labels a recorded run lacks
 without rerunning it. For each JSON summary it rebuilds the problem and
@@ -823,7 +825,7 @@ records, as described below.
 
 | `tau` | level (phase cells) | base cells | wall (s) | peak (GB) | base samples | gap samples | Morse nodes | labels | no label | trivial |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | 6 (256) | 1024 | 388 (643 at `a7ac462`) | 7.0 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | U_Z, `dim H (0, 1, 1, 0)` | 10 |
+| 1 | 6 (256) | 1024 | 388 (643 at `a7ac462`) | 7.0 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)`, U_Z `(0, x-1, x-1, 0)` (filled at `657bf2a`) | none | 10 |
 | 0.5 | 7 (512) | 2048 | 1,673 (780 at `a7ac462`, without C's label) | 22.9 | 4,198,401 | 1,037,721 | 22 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | U_Z, `dim H (0, 1, 1, 0)` | 17 |
 
 Stems in `figures/paper_grid/` (JSON, `<stem>.pdf/.png`,
@@ -847,7 +849,7 @@ Named nodes of the `tau = 1` run (the `tau = 0.5` run in parentheses):
 | F | `M(1)` (`M(1)`) | 894 (3,868) | 894 in `[-1.048, -0.951] x [-0.070, 0.065]` | none | `(x-1, 0, 0, 0)` (same) |
 | Z | `M(2)` (`M(2)`) | 3,491 (15,031) | 32 in `[0.7946, 0.8] x [-0.032, 0.035]` | 5,775 in `[0, 0.073]`, all phases | `(x-1, x-1, 0, 0)`, dimensions `(1, 2, 0, 0)` (same) |
 | S | `M(10)` (`M(11)`) | 19 (58) | 19 in `[-0.0137, 0.0104] x [-0.0110, 0.0100]` (58 in `[-0.0110, 0.0104] x [-0.0089, 0.0100]`) | none | `(0, x-1, 0, 0)` (same) |
-| U_Z | `M(14)` (`M(21)`) | 14,682 (60,770) | 9,901 in `[0.319, 0.8] x [-0.477, 0.690]` | 8,091 in `[0.602, 0.699]`, all phases | no label, `dim H (0, 1, 1, 0)` (same) |
+| U_Z | `M(14)` (`M(21)`) | 14,682 (60,770) | 9,901 in `[0.319, 0.8] x [-0.477, 0.690]` | 8,091 in `[0.602, 0.699]`, all phases | `(0, x-1, x-1, 0)`, filled at `657bf2a` (no label, `dim H (0, 1, 1, 0)`) |
 
 - S. The Morse set of S is now a small connected set of base cells at the
   origin, no farther than 0.013 (0.011 at 2048 cells) from it, with no
@@ -857,13 +859,26 @@ Named nodes of the `tau = 1` run (the `tau = 0.5` run in parentheses):
   and `A` has two acyclic components. At `beta = 0.8` the same
   configuration gave 8,160 cells in `[-1.440, 0.010] x [-0.981, 0.568]`,
   enclosing F, and a blocked label.
-- U_Z. No label in either run: the index map fails its carrier check, as in
-  every run at `beta = 0.8`. `A` has two components, each an annulus
-  (`H_*(A) = (2, 2)`), and the exit-component carrier sends an exit vertex
-  to its whole component. The code records `H_*(X, A; GF(5)) = (0, 1, 1, 0)`
-  in both runs (`X` of 25,148 and 89,084 pieces), consistent with the
-  predicted `(0, x-1, x-1, 0)`; a separate computation at `a7ac462` on the
-  same quotient nerve gave the same dimensions.
+- U_Z. In both runs the exit-components index map fails its carrier
+  check, as in every run at `beta = 0.8`. `A` has two components, each an
+  annulus (`H_*(A) = (2, 2)`), and the exit-component carrier sends an exit
+  vertex to its whole component. The code records `H_*(X, A; GF(5)) = (0,
+  1, 1, 0)` in both runs (`X` of 25,148 and 89,084 pieces), consistent with
+  the predicted `(0, x-1, x-1, 0)`; a separate computation at `a7ac462` on
+  the same quotient nerve gave the same dimensions. At `tau = 1` the label
+  was filled at `657bf2a` by `demo/fill_missing_labels.py` (see Index
+  labels), which gave it from the excision pair: `Xbar = X cup F(X)` has
+  27,627 atoms and 33,747 pieces, `H_*(Xbar, Abar; GF(5)) = (0, 1, 1, 0)`,
+  the index map is `(1)` in degrees 1 and 2, and the label is the predicted
+  `(0, x-1, x-1, 0)`. The fill took 206 s (relation 8 s, index 185 s) with
+  a peak resident set of 5.7 GB. At `tau = 0.5` U_Z still has no label.
+  The fill there checked the relation (75,853,808 edges), the Morse sets,
+  and the Morse graph against the record, but was stopped by a memory guard
+  at 11.5 GB (summed over the process tree) about four minutes into the
+  index of U_Z, still growing (from 3.2 GB when the index started); with
+  `--workers 12` the relation stage alone reached that limit (with
+  `--workers 4` it peaked at 10.7 GB). The JSON and figures of that run are
+  unchanged.
 - Z. The shift class is `x-1` in degrees 0 and 1 although `dim H_1 = 2`
   (it was 1 at `beta = 0.8`); the ball's label has the same form.
 - C at 2048 cells. `X` has 240,383 pieces. Without the piece limit its label
@@ -908,9 +923,11 @@ computation at `a7ac462`, which recomputed the relation of each run and
 formed the pairs in the same way, gave the same dimensions.
 
 Figures. In both runs the `nontrivial` figure shows exactly the five sets:
-C, F, Z, S, and U_Z, whose node has a dashed outline and the line
-`dim H (0, 1, 1, 0)`; its Morse graph reads U_Z -> Z, U_Z -> S, S -> C,
-S -> F; its zooms are A (S) and B (Z). The `all` figure of the `tau = 1` run has the
+C, F, Z, S, and U_Z. At `tau = 1` U_Z's node `M(14)` has a solid outline
+and the label `(0, x-1, x-1, 0)` (figures redrawn by the fill at
+`657bf2a`); at `tau = 0.5` `M(21)` has a dashed outline and the line
+`dim H (0, 1, 1, 0)`. The Morse graph of the `nontrivial` figure reads
+U_Z -> Z, U_Z -> S, S -> C, S -> F, and its zooms are A (S) and B (Z). The `all` figure of the `tau = 1` run has the
 zooms A (the ring nodes `M(3)`, `M(7)`), B (S and the trivial cells around
 it), and C (Z with `M(5)`, `M(6)`, `M(8)` at the stop, window
 `[0.782, 0.812] x [-0.067, 0.074]`: `M(6)` and one cell of `M(8)` just
@@ -924,8 +941,9 @@ trivial cells around it), and C (Z).
 Node labels stay inside their ellipses; on the 15- and 22-node graphs they
 are small.
 
-Which run to use: both label C, F, Z, and S, leave only U_Z without a label,
-and have only trivial extra nodes. The `tau = 0.5` run has the smaller
+Which run to use: both label C, F, Z, and S and have only trivial extra
+nodes; the `tau = 1` run also labels U_Z, and the `tau = 0.5` run leaves it
+without a label. The `tau = 0.5` run has the smaller
 `tau`; its index stage takes about 26 minutes, most of it for C.
 
 To reproduce, from `code/`:
