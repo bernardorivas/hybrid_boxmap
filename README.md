@@ -32,7 +32,7 @@ python -m pip install graphviz
 ## Usage
 
 The following example computes the Morse sets of the bouncing ball and their
-Conley indices. It takes about a minute.
+Conley indices.
 
 ```python
 from hybrid_dynamics.examples.paper_grid_examples import paper_grid_problem
