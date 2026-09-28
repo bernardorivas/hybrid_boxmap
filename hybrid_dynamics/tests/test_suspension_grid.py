@@ -741,15 +741,21 @@ def test_parallel_indices_equal_the_serial_ones():
         for node, morse_set in enumerate(morse.morse_sets)
     ]
     assert [record(result) for result in one_by_one] == [record(result) for result in serial]
-    # The forward-closure pair reads the rows of U, which the workers receive.
-    options = {"index_pair": "forward-closure", "excise": True}
-    closure_serial = compute_suspension_grid_conley_indices(relation, morse.morse_sets, **options)
-    closure_parallel = compute_suspension_grid_conley_indices(
-        relation, morse.morse_sets, workers=3, problem_factory=factory, **options
-    )
-    assert [record(result) for result in closure_parallel] == [
-        record(result) for result in closure_serial
-    ]
+    # The forward-closure pair reads the rows of U, and the excision pair of
+    # "auto" the rows of X; the workers receive them.
+    for options in (
+        {"index_pair": "forward-closure", "excise": True},
+        {"index_map": "auto"},
+    ):
+        other_serial = compute_suspension_grid_conley_indices(
+            relation, morse.morse_sets, **options
+        )
+        other_parallel = compute_suspension_grid_conley_indices(
+            relation, morse.morse_sets, workers=3, problem_factory=factory, **options
+        )
+        assert [record(result) for result in other_parallel] == [
+            record(result) for result in other_serial
+        ]
 
 
 # ---------------------------------------------------------------------------
@@ -845,6 +851,50 @@ def test_excision_index_map_of_a_repelling_orbit():
     assert record["homology_dimensions"] == [0, 1, 1, 0]
     assert record["index_matrices"] == [[], [[1]], [[1]], []]
     assert record["pair_atoms"]["Abar"] == record["pair_atoms"]["Xbar"] - default.pair_atoms["S"]
+
+
+def test_auto_index_map_falls_back_to_the_excision_pair():
+    # The exit-components construction is refused on the repelling orbit;
+    # "auto" then takes the label of the excision pair and keeps the first
+    # blocker.  On the attracting orbits the first construction succeeds, and
+    # "auto" gives its label without forming the excision pair.
+    problem = _repelling_orbit_problem()
+    grid = _grid(problem, 4)
+    relation = compute_suspension_grid_relation(grid, problem)
+    morse = compute_suspension_morse_graph(relation)
+    fallbacks = 0
+    for node, morse_set in enumerate(morse.morse_sets):
+        default = compute_suspension_grid_conley_index(relation, morse_set, morse_node=node)
+        auto = compute_suspension_grid_conley_index(
+            relation, morse_set, morse_node=node, index_map="auto"
+        )
+        record = auto.to_dict()
+        assert "index_map" not in default.to_dict()
+        assert record["index_map"] == "auto"
+        assert auto.homology_dimensions == default.homology_dimensions
+        if default.computed:
+            assert auto.shift_class == default.shift_class
+            assert auto.label_source == "index map (exit components)"
+            assert record["exit_components_blocker"] == "" and record["excision"] == {}
+            continue
+        fallbacks += 1
+        assert auto.computed, auto.blocker
+        assert auto.shift_class == ("0", "x-1", "x-1", "0")
+        assert auto.label_source == "index map (excision pair)"
+        assert auto.blocker == auto.index_map_blocker == ""
+        assert record["exit_components_blocker"] == default.index_map_blocker
+        assert "is not acyclic" in record["exit_components_blocker"]
+        assert record["excision"]["index_matrices"] == [[], [[1]], [[1]], []]
+        # With both constructions blocked, the blocker is that of the second.
+        assert record["excision"]["pair_pieces"]["Xbar"] > auto.pair_pieces["X"]
+        limited = compute_suspension_grid_conley_index(
+            relation, morse_set, index_map="auto", max_pieces=auto.pair_pieces["X"]
+        )
+        assert not limited.computed and limited.homology_computed
+        assert limited.exit_components_blocker == record["exit_components_blocker"]
+        assert limited.blocker.startswith("IndexSizeLimitError: Xbar = X cup F(X)")
+        assert limited.index_map_blocker == limited.blocker
+    assert fallbacks == 1
 
 
 def test_excision_reports_an_exit_atom_with_an_empty_image():

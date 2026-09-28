@@ -19,7 +19,7 @@ map partly outside ``X``, so a piece of ``A`` is carried by its connected
 component of ``A`` instead of its image.
 
 For the image pair the index map is built in one of two ways
-(``index_map``).
+(``index_map``), or by the first with the second as fallback (``"auto"``).
 
 ``"exit-components"`` (the default) is the construction above, in which the
 image of every atom of ``A`` (which may map partly outside ``X``) is
@@ -47,6 +47,14 @@ by degree, is read by ``CMGDB.ComputeRelativeHomologyShiftClass`` from the
 matrices of the map on homology.  When ``F(X)`` lies in ``X`` (so that
 ``F(A)`` lies in ``A``), ``Xbar = X``, ``Abar = A``, and ``i`` is the
 identity.
+
+``"auto"`` forms the exit-components map and, only when that map fails
+(a carrier that is not acyclic, for example) and the relative homology is
+nonzero, the excision map on the same nerve of ``X``.  Both are index maps
+of the same pair, so either gives the label.  ``label_source`` names the
+construction that gave it, ``"index map (exit components)"`` or ``"index
+map (excision pair)"``, and ``exit_components_blocker`` keeps the reason the
+first one failed.
 
 With ``index_pair="forward-closure"`` the pair is that of
 Proposition ``prop:grid-conley-index`` of the manuscript,
@@ -134,7 +142,8 @@ INDEX_PAIRS = ("image", "forward-closure")
 _PAIR_NAMES = {"image": ("X", "A"), "forward-closure": ("U", "V")}
 
 #: Constructions of the index map of the image pair; the first is the default.
-INDEX_MAPS = ("exit-components", "excision")
+#: ``"auto"`` uses the first and falls back to ``"excision"`` when it fails.
+INDEX_MAPS = ("exit-components", "excision", "auto")
 
 
 class IndexSizeLimitError(RuntimeError):
@@ -283,10 +292,14 @@ class SuspensionGridConleyResult:
     ``"excision"``, ``excision`` records the pair ``(Xbar, Abar)`` (atoms,
     pieces, nerve cell counts, and homology dimensions, as far as they were
     computed) and the matrices of the index map on ``H_k(X, A; GF(5))``, one
-    list of rows per degree.  ``to_dict`` writes ``index_pair`` only for the
-    forward-closure pair, and ``index_map`` and ``excision`` only for
-    ``"excision"``, so the record of the default pair and construction keeps
-    the keys it had before.
+    list of rows per degree.  For ``"auto"``, ``label_source`` names the
+    construction that gave the label and ``exit_components_blocker`` is the
+    reason the exit-components construction failed (empty if it did not).
+    ``to_dict`` writes ``index_pair`` only for the forward-closure pair,
+    ``index_map`` and ``excision`` only for a construction other than the
+    default, and ``exit_components_blocker`` only for ``"auto"``, so the
+    record of the default pair and construction keeps the keys it had
+    before.
     """
 
     morse_node: int
@@ -304,6 +317,7 @@ class SuspensionGridConleyResult:
     index_pair: str = "image"
     index_map: str = INDEX_MAPS[0]
     excision: dict[str, Any] = field(default_factory=dict)
+    exit_components_blocker: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         record = {
@@ -329,6 +343,8 @@ class SuspensionGridConleyResult:
         if self.index_map != INDEX_MAPS[0]:
             record["index_map"] = self.index_map
             record["excision"] = self.excision
+        if self.index_map == "auto":
+            record["exit_components_blocker"] = self.exit_components_blocker
         return record
 
 
@@ -780,10 +796,12 @@ def compute_suspension_grid_conley_index(
     of ``Y``, and ``max_pieces`` bounds the pieces of ``Y``.
 
     ``index_map`` (image pair only) chooses the construction of the index
-    map (see the module notes): ``"exit-components"`` (the default) or
-    ``"excision"``.  With ``"excision"`` and ``max_pieces``, the index map is
-    also not attempted when ``Xbar = X cup F(X)`` has more pieces; the
-    homology of ``(X, A)`` is still reported.
+    map (see the module notes): ``"exit-components"`` (the default),
+    ``"excision"``, or ``"auto"``, the first with the second as fallback when
+    the first fails and the relative homology is nonzero.  With the
+    excision construction and ``max_pieces``, the index map is also not
+    attempted when ``Xbar = X cup F(X)`` has more pieces; the homology of
+    ``(X, A)`` is still reported.
     """
 
     started = time.perf_counter()
@@ -856,7 +874,63 @@ def compute_suspension_grid_conley_index(
             result.label_source = "zero relative homology"
             result.seconds = time.perf_counter() - started
             return result
-        if index_map == "excision":
+        if index_map != "excision":
+            x_set = set(x_pieces.tolist())
+            # In the forward-closure pair every atom maps into U and every atom
+            # of V into V, so each piece is carried by its true image.
+            exit_atoms = set(a_atoms.tolist()) if index_pair == "image" else set()
+            piece_image: dict[int, list[int]] = {}
+            atom_images: dict[int, list[int]] = {}
+            for atom in source_atoms.tolist():
+                targets = relation.image(atom)
+                pieces = [int(piece) for target in targets for piece in grid.atom(target)]
+                if atom in exit_atoms:
+                    # Exit sources are carried by their connected A component;
+                    # their raw targets outside X are recorded exits.
+                    pieces = [piece for piece in pieces if piece in x_set]
+                atom_images[atom] = pieces
+            for piece in source_pieces.tolist():
+                piece_image[piece] = atom_images[int(grid.atom_of_piece[piece])]
+            payload = None
+            try:
+                if index_pair == "forward-closure":
+                    empty = sum(1 for pieces in atom_images.values() if not pieces)
+                    if empty:
+                        # Samples whose image points lie outside the window are
+                        # discarded, so an atom of V can have an empty image.
+                        raise ValueError(
+                            f"{empty} atoms of V have an empty image (every image point "
+                            "left the window), so their pieces have no carrier"
+                        )
+                if excise:
+                    payload = _excised_shift_class(pair, source_pieces.tolist(), piece_image)
+                else:
+                    preparation = prepare_atlas_relation_conley_2d(
+                        pair,
+                        top_relation=piece_image,
+                        use_exit_component_carrier=index_pair == "image",
+                    )
+                    payload = preparation.compute_finite_relation_shift_class()
+            except Exception as error:  # the homology stays; only the label is missing
+                blocker = f"{type(error).__name__}: {error}"
+                if index_map != "auto":
+                    result.index_map_blocker = blocker
+                    raise
+                # The excision construction is tried below.
+                result.exit_components_blocker = blocker
+            if payload is not None:
+                dimensions = tuple(int(v) for v in payload["homology_dimensions"])
+                if dimensions != result.homology_dimensions:
+                    raise AssertionError(
+                        f"the index map reports homology dimensions {dimensions!r}, but the "
+                        f"relative boundary matrices give {result.homology_dimensions!r}"
+                    )
+                result.shift_class = tuple(str(entry) for entry in payload["shift_class"])
+                result.label_source = (
+                    "index map (exit components)" if index_map == "auto" else "index map"
+                )
+        if not result.label_source:
+            # "excision", or "auto" after the exit-components construction failed.
             try:
                 result.shift_class = _excision_index_map(
                     relation,
@@ -874,57 +948,10 @@ def compute_suspension_grid_conley_index(
             except Exception as error:  # the homology stays; only the label is missing
                 result.index_map_blocker = f"{type(error).__name__}: {error}"
                 raise
-            result.computed = True
-            result.label_source = "index map"
-            result.seconds = time.perf_counter() - started
-            return result
-        x_set = set(x_pieces.tolist())
-        # In the forward-closure pair every atom maps into U and every atom
-        # of V into V, so each piece is carried by its true image.
-        exit_atoms = set(a_atoms.tolist()) if index_pair == "image" else set()
-        piece_image: dict[int, list[int]] = {}
-        atom_images: dict[int, list[int]] = {}
-        for atom in source_atoms.tolist():
-            targets = relation.image(atom)
-            pieces = [int(piece) for target in targets for piece in grid.atom(target)]
-            if atom in exit_atoms:
-                # Exit sources are carried by their connected A component;
-                # their raw targets outside X are recorded exits.
-                pieces = [piece for piece in pieces if piece in x_set]
-            atom_images[atom] = pieces
-        for piece in source_pieces.tolist():
-            piece_image[piece] = atom_images[int(grid.atom_of_piece[piece])]
-        try:
-            if index_pair == "forward-closure":
-                empty = sum(1 for pieces in atom_images.values() if not pieces)
-                if empty:
-                    # Samples whose image points lie outside the window are
-                    # discarded, so an atom of V can have an empty image.
-                    raise ValueError(
-                        f"{empty} atoms of V have an empty image (every image point "
-                        "left the window), so their pieces have no carrier"
-                    )
-            if excise:
-                payload = _excised_shift_class(pair, source_pieces.tolist(), piece_image)
-            else:
-                preparation = prepare_atlas_relation_conley_2d(
-                    pair,
-                    top_relation=piece_image,
-                    use_exit_component_carrier=index_pair == "image",
-                )
-                payload = preparation.compute_finite_relation_shift_class()
-        except Exception as error:  # the homology stays; only the label is missing
-            result.index_map_blocker = f"{type(error).__name__}: {error}"
-            raise
-        dimensions = tuple(int(v) for v in payload["homology_dimensions"])
-        if dimensions != result.homology_dimensions:
-            raise AssertionError(
-                f"the index map reports homology dimensions {dimensions!r}, but the "
-                f"relative boundary matrices give {result.homology_dimensions!r}"
+            result.label_source = (
+                "index map (excision pair)" if index_map == "auto" else "index map"
             )
         result.computed = True
-        result.shift_class = tuple(str(entry) for entry in payload["shift_class"])
-        result.label_source = "index map"
     except Exception as error:  # the blocker is reported, never replaced by a label
         result.blocker = f"{type(error).__name__}: {error}"
     result.seconds = time.perf_counter() - started
