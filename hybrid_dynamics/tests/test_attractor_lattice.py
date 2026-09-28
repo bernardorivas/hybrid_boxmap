@@ -25,6 +25,7 @@ from hybrid_dynamics.examples.paper_grid_figures import (  # noqa: E402
 from hybrid_dynamics.src.attractor_lattice import (  # noqa: E402
     LATTICE_ELEMENT_FILL,
     LatticeTooLargeError,
+    cover_crossings,
     down_set_lattice,
     draw_lattice_hasse_diagram,
 )
@@ -256,8 +257,47 @@ def test_the_hasse_diagram_places_the_minimal_elements_in_increasing_order():
         # ↓M(11) covers 0∨1 only and stays at its left.
         rank_three = (lattice.principal(11), lattice.index((0, 1, 2)))
         assert x[rank_three[0]] < x[rank_three[1]]
+        centers = {element: tuple(ellipse.center) for element, ellipse in enumerate(ellipses)}
+        assert cover_crossings(centers, lattice.covers) == 2
     finally:
         plt.close(figure)
+
+
+@pytest.mark.skipif(shutil.which("dot") is None, reason="Graphviz dot is not installed")
+def test_the_hasse_diagram_keeps_the_free_layout_when_the_order_adds_crossings():
+    # The restricted Morse order of the oscillator at beta = 0.8, tau = 1.  With
+    # the minimal elements in increasing order, dot draws 6 crossings, and
+    # with its own order of these elements, 4.
+    lattice = down_set_lattice((0, 1, 2, 3, 5, 8), ((3, 1), (5, 0), (5, 3), (8, 2), (8, 5)))
+    labels = {element: f"e{element}" for element in range(len(lattice.elements))}
+    figure, axis = draw_lattice_hasse_diagram(lattice, labels=labels)
+    try:
+        ellipses = [patch for patch in axis.patches if isinstance(patch, patches.Ellipse)]
+        centers = {element: tuple(ellipse.center) for element, ellipse in enumerate(ellipses)}
+        assert cover_crossings(centers, lattice.covers) == 4
+    finally:
+        plt.close(figure)
+
+
+def test_cover_crossings_counts_crossing_lines_without_a_common_end():
+    # Two lines that cross, a third from a common end, and a fourth that
+    # touches a line only at its own end.
+    positions = {0: (0.0, 0.0), 1: (1.0, 0.0), 2: (0.0, 1.0), 3: (1.0, 1.0), 4: (0.5, 0.5)}
+    assert cover_crossings(positions, ((0, 3), (1, 2))) == 1
+    assert cover_crossings(positions, ((0, 3), (0, 2))) == 0
+    assert cover_crossings(positions, ((0, 2), (1, 3))) == 0
+    assert cover_crossings(positions, ((0, 3), (1, 4))) == 0
+    # The Boolean lattice of three atoms has two crossings in the numerical order.
+    lattice = down_set_lattice((0, 1, 2), ())
+    by_rank = {}
+    for element, members in enumerate(lattice.elements):
+        by_rank.setdefault(len(members), []).append(element)
+    positions = {
+        element: (float(column), float(rank))
+        for rank, elements in by_rank.items()
+        for column, element in enumerate(elements)
+    }
+    assert cover_crossings(positions, lattice.covers) == 2
 
 
 def test_the_attractor_lattice_figure_and_its_record(tmp_path):

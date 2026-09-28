@@ -195,6 +195,35 @@ def down_set_lattice(
     )
 
 
+def cover_crossings(
+    positions: Mapping[int, tuple[float, float]],
+    covers: Iterable[Sequence[int]],
+) -> int:
+    """The number of pairs of covering pairs whose lines cross.
+
+    Each covering pair ``(i, j)`` is the segment between the centers
+    ``positions[i]`` and ``positions[j]``.  Two segments with a common end
+    do not count, and two segments count when each meets the line through
+    the other at a point other than its ends.
+    """
+
+    def side(origin, first, second) -> float:
+        return (first[0] - origin[0]) * (second[1] - origin[1]) - (first[1] - origin[1]) * (
+            second[0] - origin[0]
+        )
+
+    segments = [(int(lower), int(upper)) for lower, upper in covers]
+    count = 0
+    for position, (a, b) in enumerate(segments):
+        for c, d in segments[position + 1 :]:
+            if {a, b} & {c, d}:
+                continue
+            p, q, r, s = (positions[node] for node in (a, b, c, d))
+            if side(p, q, r) * side(p, q, s) < 0 and side(r, s, p) * side(r, s, q) < 0:
+                count += 1
+    return count
+
+
 def draw_lattice_hasse_diagram(
     lattice: DownSetLattice,
     *,
@@ -212,10 +241,11 @@ def draw_lattice_hasse_diagram(
     (the others are :data:`LATTICE_ELEMENT_FILL`), and ``dashed`` the elements
     with a dashed outline.  Each element is an ellipse around its label,
     placed by the Graphviz layout of the Morse graph with the top element at
-    the top (the nodes of a rank ordered to reduce crossings, except that the
-    elements covering the bottom are placed from left to right in the order
-    of ``elements``, that is, of their poset elements), and each covering
-    pair is a line.  As for the Morse graph drawn as its own figure,
+    the top (the nodes of a rank ordered to reduce crossings; the elements
+    covering the bottom are placed from left to right in the order of
+    ``elements``, that is, of their poset elements, unless this layout has
+    more crossings, see :func:`cover_crossings`), and each covering pair is
+    a line.  As for the Morse graph drawn as its own figure,
     the layout is in inches, with labels of ``font_size`` points, and the
     figure has the size of the layout, so the labels print at that size when
     the figure is shown at its natural size.
@@ -238,6 +268,9 @@ def draw_lattice_hasse_diagram(
     positions = _morse_graph_positions(
         graph, sizes, keep_edge_order=False, in_ordered=(lattice.bottom,)
     )
+    free = _morse_graph_positions(graph, sizes, keep_edge_order=False)
+    if cover_crossings(free, lattice.covers) < cover_crossings(positions, lattice.covers):
+        positions = free
 
     figure = plt.figure(figsize=(1.0, 1.0), dpi=dpi)
     try:
@@ -298,6 +331,7 @@ __all__ = [
     "MAX_LATTICE_ELEMENTS",
     "DownSetLattice",
     "LatticeTooLargeError",
+    "cover_crossings",
     "down_set_lattice",
     "draw_lattice_hasse_diagram",
 ]
