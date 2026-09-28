@@ -20,7 +20,8 @@ two-dimensional base with a one-dimensional guard.
 | `def:suspension-multivalued-map` with the sampling rule of Section "Examples" | `compute_suspension_grid_relation` (`eval_mode`, default `corners`), `piece_evaluation_offsets` | `test_translation_cylinder_relation_morse_graph_probes_and_index`, `test_ball_relation_is_one_morse_node_at_level_three`, `test_default_sampling_is_the_corners_of_every_piece`, `test_evaluation_offsets_mirror_cmgdb`, `test_center_forces_padding_and_random_is_deterministic` |
 | Window `D = Sigma(R)`, exits discarded | `SuspensionGrid.locate_base_points`, `SuspensionGrid.locate_handle_points` | `test_identifications_contribute_both_sides` |
 | Morse sets, order, base readout (`MG(F_n)`, `d_n^{-1}(M)`) | `compute_suspension_morse_graph`, `SuspensionMorseGraph.base_readouts`, `SuspensionGridRelation.forward_closure` | `test_ball_relation_is_one_morse_node_at_level_three` |
-| Finite-relation index labels (Section "Examples") | `compute_suspension_grid_conley_index` (pair `(S cup F(S), F(S) minus S)`, nerve of elementary pieces, `atlas_conley`, CMGDB shift class over `GF(5)`) | `test_translation_cylinder_relation_morse_graph_probes_and_index`, `test_seam_embeddings_of_the_examples` |
+| Finite-relation index labels (Section "Examples") | `compute_suspension_grid_conley_index` (pair `(S cup F(S), F(S) minus S)`, nerve of elementary pieces, `atlas_conley`, CMGDB shift class over `GF(5)`; `index_map` `exit-components`, `excision`, `auto`) | `test_translation_cylinder_relation_morse_graph_probes_and_index`, `test_seam_embeddings_of_the_examples`, `test_excision_index_map_gives_the_labels_of_the_default_construction`, `test_auto_index_map_falls_back_to_the_excision_pair` |
+| `prop:grid-conley-index` (the pair `(U, U minus S)`, `U` the forward closure of `S`) | `compute_suspension_grid_conley_index(..., index_pair="forward-closure", excise=...)`, `index_pair_atoms` | `test_forward_closure_pair_is_forward_invariant`, `test_forward_closure_labels_equal_the_image_labels`, `test_forward_closure_labels_the_repelling_periodic_orbit`, `test_excised_neighborhood_is_checked_against_the_rectangles_and_seams` |
 | Examples: ball, wheel, neuron | `examples/paper_grid_examples.py`, `demo/run_paper_grid_examples.py` | `test_example_reset_specifications_match_the_systems` |
 | Parameter variants (the oscillator at `beta = 0.76`) | `PAPER_GRID_VARIANTS`, `paper_grid_problem` | `test_beta076_variant` (`test_impact_vdp_duffing.py`), `test_a_variant_has_its_own_output_names_and_replots` (`test_suspension_grid_plot.py`) |
 
@@ -159,16 +160,72 @@ equal those of the boundary matrices. A failed gate of the index map
 dimensions are still recorded (`homology_computed`). Only a quotient nerve
 that is not a good cover leaves both unknown.
 
+The atoms of `A` map partly outside `X`, and the index map of the pair
+`(X, A)` is built in one of three ways (`index_map`, runner option
+`--index-map`):
+
+- `exit-components` (the default of the library): a piece of `A` is
+  carried by its connected component of `A`, which is zero in
+  `C(X)/C(A)`. The map is refused when a component is not acyclic, for
+  example an annulus around a repelling periodic orbit.
+- `excision`: the true images, on the pair `Xbar = X cup F(X)`,
+  `Abar = Xbar minus S`. The chain map `C(X, A) -> C(Xbar, Abar)` is chosen
+  from the acyclic carrier spanned by the images of the vertices, the
+  inclusion `(X, A) -> (Xbar, Abar)` (an excision) is checked to be an
+  isomorphism on `H_*( ; GF(5))`, and the label is the shift class of
+  `i_*^{-1} F_*`. An atom of `X` whose image points all left the window has
+  no carrier, and the map is refused.
+- `auto` (the default of the runner): `exit-components`, and `excision`
+  only when that map fails and the relative homology is nonzero. The
+  record names the construction that gave the label in `label_source`
+  (`"index map (exit components)"` or `"index map (excision pair)"`) and
+  keeps the reason the first one failed as `exit_components_blocker`; when
+  both fail, `blocker` is that of the excision construction.
+
+A record of the default construction has the keys it had before; a record
+of another one adds `index_map` and `excision` (the pair `(Xbar, Abar)` and
+the matrices of the index map on homology), and one of `auto` also
+`exit_components_blocker`. On the repelling periodic orbit of
+`test_auto_index_map_falls_back_to_the_excision_pair`, `exit-components` is
+refused and `auto` gives `(0, x-1, x-1, 0)` from the excision pair.
+
+`index_pair="forward-closure"` (runner option `--index-pair
+forward-closure`) uses instead the pair of `prop:grid-conley-index`,
+`U = S cup F(S) cup F^2(S) cup ...` and `V = U minus S`. Both are forward
+invariant, so every piece is carried by its true image and `index_map` does
+not apply. A Morse set for which `F(V)` meets `S` (not a strongly connected
+component) is reported as blocked. `U` holds everything downstream of `S`;
+`excise=True` (runner option `--index-excise`) computes the same chain
+complex `C(U)/C(V)` and index map on the nerve of `Y = W cup F(W)`, where
+`W` is `S` with the atoms of `U` that meet it. `W` is taken from the atom
+adjacency of the grid, and the pieces of `U` outside `W` are checked, by
+their rectangles and seams, not to meet `S`
+(`test_excised_neighborhood_is_checked_against_the_rectangles_and_seams`).
+The record adds `index_pair`, and `pair_atoms` and `pair_pieces` count `U`
+and `V` (and `W` and `Y`).
+
+The runner writes the outputs of a choice other than its defaults (image
+pair, `auto`) under names with `-index-exit-components`, `-index-excision`,
+or `-index-forward-closure` (and `-excised`) appended, and records the choice
+under `conley_options` (`index_pair`, `index_map`, `excise`) in the JSON
+summary. The summaries in `figures/paper_grid` were written before these
+options, with the exit-components construction; `--index-map
+exit-components` reproduces their index records (under names with
+`-index-exit-components`).
+
 The quotient nerve has about ten simplices per elementary piece of `X` and
 is held in memory; `max_pieces` (runner option `--index-max-pieces N`) skips
 a Morse set whose `X` has more than `N` pieces and reports it as blocked
-with `IndexSizeLimitError`. By default there is no limit.
+with `IndexSizeLimitError` (the same bound applies to `Xbar` in the
+excision construction, and to `U`, or `Y` when excised, for the
+forward-closure pair). By default there is no limit.
 `compute_suspension_grid_conley_indices` computes the indices of all Morse
 sets, in worker processes with `workers > 1` (runner option
-`--index-workers N`, default 4), largest Morse set first. Each worker
+`--index-workers N`, default 4), largest pair first. Each worker
 rebuilds the grid from the problem factory, checks it against the grid of
-the run, and receives only the rows of `S cup F(S)`; the records equal those
-of the serial loop (`test_parallel_indices_equal_the_serial_ones`). Each
+the run, and receives only the rows of the pair, `S cup F(S)` or `U`; the
+records equal those of the serial loop
+(`test_parallel_indices_equal_the_serial_ones`). Each
 worker holds its own copy of the grid, about 1 GB at `2^10` and 4 GB at
 `2^11` base cells per axis.
 

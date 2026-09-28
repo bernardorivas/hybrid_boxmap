@@ -381,6 +381,38 @@ def _load_runner_script():
     return module
 
 
+def test_runner_index_options_and_names(monkeypatch):
+    runner = _load_runner_script()
+
+    def parse(*argv):
+        monkeypatch.setattr("sys.argv", ["run_paper_grid_examples.py", *argv])
+        options = runner._index_options(runner._arguments())
+        return options, runner._index_suffix(options)
+
+    # The default index map of the runner is "auto", without a suffix.
+    assert parse() == ({"index_pair": "image", "index_map": "auto"}, "")
+    assert parse("--index-map", "exit-components") == (
+        {"index_pair": "image", "index_map": "exit-components"},
+        "-index-exit-components",
+    )
+    assert parse("--index-map", "excision")[1] == "-index-excision"
+    assert parse("--index-pair", "forward-closure") == (
+        {"index_pair": "forward-closure", "excise": False},
+        "-index-forward-closure",
+    )
+    assert parse("--index-pair", "forward-closure", "--index-excise")[1] == (
+        "-index-forward-closure-excised"
+    )
+    for argv in (
+        ("--index-pair", "forward-closure", "--index-map", "auto"),
+        ("--index-excise",),
+        ("--no-conley", "--index-map", "excision"),
+        ("--index-map", "other"),
+    ):
+        with pytest.raises(SystemExit):
+            parse(*argv)
+
+
 def test_output_names_record_a_finer_base_grid():
     runner = _load_runner_script()
     assert runner._grid_suffix(6, 0) == "-level6"

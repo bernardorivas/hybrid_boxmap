@@ -37,14 +37,36 @@ those of the example), and the summary records ``variant_of`` and the
 replaced arguments ``variant_overrides``; ``parameters`` holds the values in
 force.  ``--level``, ``--tau``, and ``--level-offset`` take a variant's name.
 
-``--index-max-pieces N`` skips the index of a Morse set whose pair
-``X = S cup F(S)`` has more than ``N`` elementary pieces (reported as blocked
-with ``IndexSizeLimitError``); the quotient nerve of ``X`` is held in memory,
-with about ten simplices per piece, so on fine base grids this bounds the time
-and memory of the run.  There is no limit by default.  ``--index-workers N``
-computes the indices of different Morse sets in ``N`` worker processes
-(default 4), largest Morse set first; each worker holds its own copy of the
-grid, about 1 GB at ``2**10`` and 4 GB at ``2**11`` base cells per axis.
+``--index-pair`` chooses the pair of each Morse set ``S``: ``image`` (the
+default), ``X = S cup F(S)`` and ``A = F(S) minus S``, or
+``forward-closure``, the pair ``(U, U minus S)`` of ``prop:grid-conley-index``
+with ``U`` the forward closure of ``S``.  ``--index-excise`` computes the
+forward-closure pair on the neighborhood ``Y = W cup F(W)`` of ``S``, where
+``W`` is ``S`` with the atoms of ``U`` that meet it: the same chain complex
+and index map on a smaller nerve.  ``--index-map`` chooses the index map of
+the image pair: ``exit-components`` (the atoms of ``A`` carried by their
+components of ``A``), ``excision`` (the true images, on ``(X cup F(X), X cup
+F(X) minus S)``), or ``auto`` (the default), which uses the exit components
+and falls back to the excision pair only when that map fails and the
+relative homology is nonzero.  With ``auto`` each index record names the
+construction that gave the label in ``label_source`` and keeps the reason
+the first one failed as ``exit_components_blocker``.  A choice other than
+the defaults adds ``-index-<map>`` (``-index-exit-components``,
+``-index-excision``) or ``-index-forward-closure`` (``-excised`` appended
+with ``--index-excise``) to the output names, and the summary records the
+choice under ``conley_options``.
+
+``--index-max-pieces N`` skips the index of a Morse set whose nerve would
+have more than ``N`` elementary pieces (reported as blocked with
+``IndexSizeLimitError``): the nerve of ``X`` for the image pair (and that of
+``X cup F(X)`` for the excision construction), of ``U`` for the
+forward-closure pair, and of ``Y`` when it is excised.  The quotient nerve
+is held in memory, with about ten simplices per piece, so on fine base grids
+this bounds the time and memory of the run.  There is no limit by default.
+``--index-workers N`` computes the indices of different Morse sets in ``N``
+worker processes (default 4), largest pair first; each worker holds its own
+copy of the grid, about 1 GB at ``2**10`` and 4 GB at ``2**11`` base cells
+per axis.
 
 The base samples are integrated many at a time
 (:mod:`hybrid_dynamics.src.batched_suspension_flow`), with the step sequence
@@ -109,6 +131,8 @@ from hybrid_dynamics.src.suspension_grid import (  # noqa: E402
     check_suspension_grid,
 )
 from hybrid_dynamics.src.suspension_grid_conley import (  # noqa: E402
+    INDEX_MAPS,
+    INDEX_PAIRS,
     compute_suspension_grid_conley_indices,
 )
 from hybrid_dynamics.src.suspension_grid_plot import (  # noqa: E402
@@ -130,6 +154,9 @@ from hybrid_dynamics.src.suspension_grid_relation import (  # noqa: E402
     relation_image_connectivity,
 )
 
+
+#: Index map of the image pair used when ``--index-map`` is not given.
+DEFAULT_INDEX_MAP = "auto"
 
 DEFAULT_LEVELS = {
     "bouncing-ball": 5,
@@ -250,7 +277,7 @@ def _arguments() -> argparse.Namespace:
         default=4,
         metavar="N",
         help=(
-            "worker processes for the indices of the Morse sets, largest first "
+            "worker processes for the indices of the Morse sets, largest pair first "
             "(default 4; each holds a copy of the grid)"
         ),
     )
@@ -260,8 +287,39 @@ def _arguments() -> argparse.Namespace:
         default=None,
         metavar="N",
         help=(
-            "do not attempt the index of a Morse set whose pair X = S cup F(S) has more "
-            "than N elementary pieces; it is reported as blocked (default: no limit)"
+            "do not attempt the index of a Morse set whose nerve (X = S cup F(S), or U, "
+            "or Y = W cup F(W) with --index-excise, and X cup F(X) for the excision "
+            "construction) has more than N elementary pieces; it is reported as blocked "
+            "(default: no limit)"
+        ),
+    )
+    parser.add_argument(
+        "--index-pair",
+        choices=INDEX_PAIRS,
+        default=INDEX_PAIRS[0],
+        help=(
+            "pair of each Morse set S: image, (S cup F(S), F(S) minus S), or "
+            "forward-closure, (U, U minus S) with U the forward closure of S "
+            "(default: image)"
+        ),
+    )
+    parser.add_argument(
+        "--index-map",
+        choices=INDEX_MAPS,
+        default=None,
+        help=(
+            "index map of the image pair: exit-components, excision, or auto, the exit "
+            "components with the excision pair as fallback when that map fails and the "
+            f"relative homology is nonzero (default: {DEFAULT_INDEX_MAP})"
+        ),
+    )
+    parser.add_argument(
+        "--index-excise",
+        action="store_true",
+        help=(
+            "forward-closure pair: compute it on the neighborhood W cup F(W) of S, with W "
+            "the atoms of S and those of U meeting S, instead of on all of U (same index "
+            "map)"
         ),
     )
     parser.add_argument(
@@ -292,6 +350,20 @@ def _arguments() -> argparse.Namespace:
         parser.error("--samples-per-axis requires --eval-mode tensor")
     if arguments.gap_refinement_depth > 0 and arguments.eval_mode in {"center", "random"}:
         parser.error("--gap-refinement-depth requires --eval-mode corners or tensor")
+    if arguments.no_conley and (
+        arguments.index_pair != INDEX_PAIRS[0]
+        or arguments.index_map is not None
+        or arguments.index_excise
+    ):
+        parser.error("--index-pair, --index-map, and --index-excise need the index labels")
+    if arguments.index_pair == "forward-closure":
+        if arguments.index_map is not None:
+            parser.error("--index-map applies to the image pair (--index-pair image)")
+    else:
+        if arguments.index_excise:
+            parser.error("--index-excise requires --index-pair forward-closure")
+        if arguments.index_map is None:
+            arguments.index_map = DEFAULT_INDEX_MAP
     if arguments.figure_variants is None:
         arguments.figure_variants = ("all",) if arguments.no_conley else FIGURE_VARIANTS
     else:
@@ -340,6 +412,24 @@ def _sampling_suffix(options: dict[str, object]) -> str:
     if mode == "tensor":
         return f"-tensor{options['samples_per_axis']}"
     return f"-{mode}"
+
+
+def _index_options(arguments: argparse.Namespace) -> dict[str, object]:
+    """Keyword arguments of :func:`compute_suspension_grid_conley_indices` for the pair."""
+
+    if arguments.index_pair == "forward-closure":
+        return {"index_pair": "forward-closure", "excise": bool(arguments.index_excise)}
+    return {"index_pair": arguments.index_pair, "index_map": arguments.index_map}
+
+
+def _index_suffix(options: dict[str, object]) -> str:
+    """Empty for the image pair with the default index map, else ``-index-...``."""
+
+    if options["index_pair"] == "forward-closure":
+        return "-index-forward-closure" + ("-excised" if options["excise"] else "")
+    if options["index_map"] == DEFAULT_INDEX_MAP:
+        return ""
+    return f"-index-{options['index_map']}"
 
 
 def _identify_nodes(
@@ -419,6 +509,9 @@ def _run(
     depth = int(arguments.gap_refinement_depth)
     sampling = _sampling_options(arguments)
     suffix = _sampling_suffix(sampling) + ("-gap-refined" if depth > 0 else "")
+    index_options = {} if arguments.no_conley else _index_options(arguments)
+    if index_options:
+        suffix += _index_suffix(index_options)
     stem = _output_stem(name, problem.tau, level, problem.window.level_offset, suffix)
     print(
         f"== {name}: parameters {problem.parameters}; level {level}, base cells per axis "
@@ -566,6 +659,7 @@ def _run(
             workers=arguments.index_workers,
             problem_factory=factory,
             max_pieces=arguments.index_max_pieces,
+            **index_options,
         )
         for index, result in enumerate(results):
             conley.append(result.to_dict())
@@ -669,6 +763,9 @@ def _run(
         "conley_options": {
             "max_pieces": arguments.index_max_pieces,
             "index_workers": arguments.index_workers,
+            "index_pair": index_options.get("index_pair"),
+            "index_map": index_options.get("index_map"),
+            "excise": index_options.get("excise", False),
         },
         "conley_labels_in_figure": {str(key): list(value) for key, value in labels.items()},
         "continuous_system_conley_index_certified": False,
