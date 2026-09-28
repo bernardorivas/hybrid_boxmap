@@ -5,6 +5,11 @@ Index" and Section "Examples" of `paper/b_main.tex` to the implementing
 functions and to the tests that check them. The implementation covers a
 two-dimensional base with a one-dimensional guard.
 
+The statements and proofs behind the four examples (`lem:window-isolation`,
+`prop:ball-window`, `prop:wheel-isolation`, `lem:impact-lienard`), and the
+comparison of the recorded runs with the known invariant sets and indices,
+are in [`proofs.md`](proofs.md).
+
 | Manuscript | Implementation | Test (`hybrid_dynamics/tests/test_suspension_grid.py`) |
 |---|---|---|
 | Phase grids `I_{n,k}`, `a_n = 2^{-n-2}` | `SuspensionGrid.n_phase = 2**(n+2)`, `SuspensionGrid.a_n` | `test_grid_axioms_and_d_n` |
@@ -211,9 +216,10 @@ under `conley_options` (`index_pair`, `index_map`, `excise`) in the JSON
 summary. The summaries in `figures/paper_grid` were written before these
 options, with the exit-components construction; `--index-map
 exit-components` reproduces their index records (under names with
-`-index-exit-components`), except the record of U_Z in the `beta = 0.76`
-run at `tau = 1`, which `demo/fill_missing_labels.py` replaced by a record
-of `auto` (see "The oscillator at `beta = 0.76`").
+`-index-exit-components`), except the records of U_Z in the two runs at
+`beta = 0.76` (`tau = 1` and `tau = 0.5`), which
+`demo/fill_missing_labels.py` replaced by records of `auto` (see "The
+oscillator at `beta = 0.76`").
 
 `demo/fill_missing_labels.py` computes the labels a recorded run lacks
 without rerunning it. For each JSON summary it rebuilds the problem and
@@ -826,7 +832,7 @@ records, as described below.
 | `tau` | level (phase cells) | base cells | wall (s) | peak (GB) | base samples | gap samples | Morse nodes | labels | no label | trivial |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 1 | 6 (256) | 1024 | 388 (643 at `a7ac462`) | 7.0 | 1,050,625 | 672,562 | 15 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)`, U_Z `(0, x-1, x-1, 0)` (filled at `657bf2a`) | none | 10 |
-| 0.5 | 7 (512) | 2048 | 1,673 (780 at `a7ac462`, without C's label) | 22.9 | 4,198,401 | 1,037,721 | 22 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)` | U_Z, `dim H (0, 1, 1, 0)` | 17 |
+| 0.5 | 7 (512) | 2048 | 1,673 (780 at `a7ac462`, without C's label) | 22.9 | 4,198,401 | 1,037,721 | 22 | C `(x-1, x-1, 0, 0)`, F `(x-1, 0, 0, 0)`, Z `(x-1, x-1, 0, 0)`, S `(0, x-1, 0, 0)`, U_Z `(0, x-1, x-1, 0)` (filled in `02270ea`) | none | 17 |
 
 Stems in `figures/paper_grid/` (JSON, `<stem>.pdf/.png`,
 `<stem>-nontrivial.pdf/.png`, and the panel figures of both, as
@@ -849,7 +855,7 @@ Named nodes of the `tau = 1` run (the `tau = 0.5` run in parentheses):
 | F | `M(1)` (`M(1)`) | 894 (3,868) | 894 in `[-1.048, -0.951] x [-0.070, 0.065]` | none | `(x-1, 0, 0, 0)` (same) |
 | Z | `M(2)` (`M(2)`) | 3,491 (15,031) | 32 in `[0.7946, 0.8] x [-0.032, 0.035]` | 5,775 in `[0, 0.073]`, all phases | `(x-1, x-1, 0, 0)`, dimensions `(1, 2, 0, 0)` (same) |
 | S | `M(10)` (`M(11)`) | 19 (58) | 19 in `[-0.0137, 0.0104] x [-0.0110, 0.0100]` (58 in `[-0.0110, 0.0104] x [-0.0089, 0.0100]`) | none | `(0, x-1, 0, 0)` (same) |
-| U_Z | `M(14)` (`M(21)`) | 14,682 (60,770) | 9,901 in `[0.319, 0.8] x [-0.477, 0.690]` | 8,091 in `[0.602, 0.699]`, all phases | `(0, x-1, x-1, 0)`, filled at `657bf2a` (no label, `dim H (0, 1, 1, 0)`) |
+| U_Z | `M(14)` (`M(21)`) | 14,682 (60,770) | 9,901 in `[0.319, 0.8] x [-0.477, 0.690]` | 8,091 in `[0.602, 0.699]`, all phases | `(0, x-1, x-1, 0)`, filled at `657bf2a` (same, filled in `02270ea`) |
 
 - S. The Morse set of S is now a small connected set of base cells at the
   origin, no farther than 0.013 (0.011 at 2048 cells) from it, with no
@@ -871,14 +877,19 @@ Named nodes of the `tau = 1` run (the `tau = 0.5` run in parentheses):
   27,627 atoms and 33,747 pieces, `H_*(Xbar, Abar; GF(5)) = (0, 1, 1, 0)`,
   the index map is `(1)` in degrees 1 and 2, and the label is the predicted
   `(0, x-1, x-1, 0)`. The fill took 206 s (relation 8 s, index 185 s) with
-  a peak resident set of 5.7 GB. At `tau = 0.5` U_Z still has no label.
-  The fill there checked the relation (75,853,808 edges), the Morse sets,
-  and the Morse graph against the record, but was stopped by a memory guard
-  at 11.5 GB (summed over the process tree) about four minutes into the
-  index of U_Z, still growing (from 3.2 GB when the index started); with
+  a peak resident set of 5.7 GB. At `tau = 0.5` the label was filled in
+  commit `02270ea` (fill run at code `ef18d3f`, `--workers 4`). The fill
+  checked the relation (75,853,808 edges), the Morse sets, and the Morse
+  graph against the record and gave the label from the excision pair:
+  `Xbar` has 84,612 atoms and 104,212 pieces, `Abar` 23,842 atoms and
+  29,738 pieces, `H_*(Xbar, Abar; GF(5)) = (0, 1, 1, 0)`, the index map is
+  `(1)` in degrees 1 and 2, and the label is the predicted
+  `(0, x-1, x-1, 0)`. It took 22 s for the relation and 706 s for the
+  index, with a peak of 18.3 GB, and changed no other index record. An
+  earlier attempt had been stopped by a memory guard at 11.5 GB (summed
+  over the process tree) about four minutes into the index of U_Z; with
   `--workers 12` the relation stage alone reached that limit (with
-  `--workers 4` it peaked at 10.7 GB). The JSON and figures of that run are
-  unchanged.
+  `--workers 4` it peaked at 10.7 GB).
 - Z. The shift class is `x-1` in degrees 0 and 1 although `dim H_1 = 2`
   (it was 1 at `beta = 0.8`); the ball's label has the same form.
 - C at 2048 cells. `X` has 240,383 pieces. Without the piece limit its label
@@ -923,10 +934,9 @@ computation at `a7ac462`, which recomputed the relation of each run and
 formed the pairs in the same way, gave the same dimensions.
 
 Figures. In both runs the `nontrivial` figure shows exactly the five sets:
-C, F, Z, S, and U_Z. At `tau = 1` U_Z's node `M(14)` has a solid outline
-and the label `(0, x-1, x-1, 0)` (figures redrawn by the fill at
-`657bf2a`); at `tau = 0.5` `M(21)` has a dashed outline and the line
-`dim H (0, 1, 1, 0)`. The Morse graph of the `nontrivial` figure reads
+C, F, Z, S, and U_Z. U_Z's node, `M(14)` at `tau = 1` and `M(21)` at
+`tau = 0.5`, has a solid outline and the label `(0, x-1, x-1, 0)` (figures
+redrawn by the fill, at `657bf2a` and in `02270ea`). The Morse graph of the `nontrivial` figure reads
 U_Z -> Z, U_Z -> S, S -> C, S -> F, and its zooms are A (S) and B (Z). The `all` figure of the `tau = 1` run has the
 zooms A (the ring nodes `M(3)`, `M(7)`), B (S and the trivial cells around
 it), and C (Z with `M(5)`, `M(6)`, `M(8)` at the stop, window
@@ -941,10 +951,12 @@ trivial cells around it), and C (Z).
 Node labels stay inside their ellipses; on the 15- and 22-node graphs they
 are small.
 
-Which run to use: both label C, F, Z, and S and have only trivial extra
-nodes; the `tau = 1` run also labels U_Z, and the `tau = 0.5` run leaves it
-without a label. The `tau = 0.5` run has the smaller
-`tau`; its index stage takes about 26 minutes, most of it for C.
+Which run to use: both label all five sets, C, F, Z, S, and U_Z, and have
+only trivial extra nodes. The `tau = 0.5` run has the smaller `tau`, at
+which `f_tau` is not the identity on `Z~` (period 1); its index stage takes
+about 26 minutes, most of it for C, and the fill of U_Z's label about 12
+minutes. `proofs.md` compares the `tau = 0.5` run with the known invariant
+sets and indices.
 
 To reproduce, from `code/`:
 
@@ -969,7 +981,9 @@ of the earlier record, and every label computed before is unchanged. The
 changes are in the index records only: the oscillator's formerly blocked
 extra nodes (six at `tau = 1`, one at `tau = 0.5`) are now labeled trivial
 from zero homology, C at 2048 cells is labeled, and U_Z keeps no label but
-records `dim H (0, 1, 1, 0)`.
+records `dim H (0, 1, 1, 0)`. U_Z's label was filled later in both runs
+(at `657bf2a` for `tau = 1` and in `02270ea` for `tau = 0.5`; see "The
+oscillator at `beta = 0.76`").
 
 Stage times in seconds (the earlier records used `--workers 3` for the
 ball, wheel, and neuron and 12 for the oscillator; the index stage was
