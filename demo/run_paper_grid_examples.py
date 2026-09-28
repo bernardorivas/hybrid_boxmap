@@ -91,7 +91,7 @@ panel files, records the attractor lattice under ``attractor_lattice``, and
 stores the atoms of every Morse set, so ``demo/replot_paper_grid.py`` can
 redraw the figures from it.
 
-Run from the ``code`` directory, for example::
+Run from the repository root, for example::
 
     .venv/bin/python demo/run_paper_grid_examples.py --workers 12
 """

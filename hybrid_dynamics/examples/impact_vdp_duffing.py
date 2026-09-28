@@ -12,7 +12,7 @@ System:
 - Jump condition: x = w and v >= 0 (the particle at the stop, moving into it)
 - Reset map: [w, v] -> [w, -c v]
 
-The example of the manuscript uses ``eps = 1``, ``beta = 0.8``, ``w = 0.8``,
+The default parameters are ``eps = 1``, ``beta = 0.8``, ``w = 0.8``,
 ``c = 0.7`` and the window ``R = [-1.95, 0.8] x [-2.35, 1.95]``.  Numerically
 (pre-impact speeds ``u``, suspension periods with unit handles), the
 invariant sets in ``R`` are

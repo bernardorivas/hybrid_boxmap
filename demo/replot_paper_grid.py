@@ -21,9 +21,9 @@ records the code.
 Summaries written before the runner stored the Morse sets have no
 ``morse_graph.morse_set_atoms`` and cannot be redrawn; rerun them.
 
-Run from the ``code`` directory, for example::
+Run from the repository root, for example::
 
-    .venv/bin/python demo/replot_paper_grid.py figures/paper_grid/*-corners.json
+    .venv/bin/python demo/replot_paper_grid.py figures/paper_grid/*-gap-refined.json
 """
 
 from __future__ import annotations

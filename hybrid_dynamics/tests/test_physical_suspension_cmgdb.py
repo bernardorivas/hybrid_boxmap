@@ -17,7 +17,7 @@ def test_all_physical_skeletons_reach_the_generalized_cmgdb_endpoint():
 
     results = run_all_physical_suspension_examples(compute_cmgdb=True)
     baseline = json.loads(
-        (Path(__file__).parents[2] / "physical_suspension_baseline.json").read_text(),
+        (Path(__file__).parents[2] / "data" / "physical_suspension_baseline.json").read_text(),
     )
 
     assert len(results) == 3

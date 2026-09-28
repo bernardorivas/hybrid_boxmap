@@ -1,14 +1,18 @@
-# The manuscript's suspension grid in code
+# The paper's suspension grid in code
 
 This note maps the statements of Section "Finite Realization and the Conley
-Index" and Section "Examples" of `paper/b_main.tex` to the implementing
+Index" and Section "Examples" of the paper to the implementing
 functions and to the tests that check them. The implementation covers a
 two-dimensional base with a one-dimensional guard.
 
-The statements and proofs behind the four examples (`lem:window-isolation`,
-`prop:ball-window`, `prop:wheel-isolation`, `lem:impact-lienard`), and the
-comparison of the recorded runs with the known invariant sets and indices,
-are in [`proofs.md`](proofs.md).
+The arguments behind the four examples, and the comparison of the recorded
+runs with the known invariant sets and indices, are in
+[`proofs.md`](proofs.md).
+
+This note is also the development log of the implementation. The commands
+for the runs used in the paper are in the [README](README.md). Sections that
+describe sweeps and earlier runs (`sweep-*`, `large_tau`, `pre_fix`,
+`superseded-*`) refer to results that are not kept in the repository.
 
 | Manuscript | Implementation | Test (`hybrid_dynamics/tests/test_suspension_grid.py`) |
 |---|---|---|
@@ -473,7 +477,7 @@ lattice and the figure are tested in
 
 ## Reproduction
 
-From `code/`:
+From the repository root:
 
 ```bash
 .venv/bin/python demo/run_paper_grid_examples.py --workers 12
@@ -513,13 +517,12 @@ options in force, the offsets, and the command line are recorded under
 `figures/paper_grid/`; every non-default choice adds a suffix to the file
 names (`-center`, `-random10d4s0`, `-tensor3`, `-gap-refined`), and a base
 offset adds `-base<cells per axis>` after the level (see the next section).
-The commands above use the manuscript's `tau`; the configurations for the
-paper figures are in "Paper figures at small `tau`". A parameter variant
+The commands above use the default `tau` of each example; the
+configurations for the paper figures are in the README and in "Paper figures at small `tau`". A parameter variant
 (`PAPER_GRID_VARIANTS`, at present `impact-vdp-duffing-beta076`) is run only
 when named and has its name in the output names; see "The oscillator at
-`beta = 0.76`". Recorded runs are sorted
-into subfolders of `figures/paper_grid/`, listed in
-`figures/paper_grid/README.md`.
+`beta = 0.76`". The runs used in the paper are kept in
+`figures/paper_grid/` and listed in `figures/paper_grid/README.md`.
 
 ## Base grids finer than the phase grid
 
@@ -621,8 +624,7 @@ this lowered the peak from 9.8 to 7.6 GB. The 2048 rows predate it.
 
 ### Criteria
 
-The configurations for the figures of Section "Examples" follow three rules
-of the author:
+The configurations for the figures of Section "Examples" follow three rules:
 
 - `tau` is small, as in CMGDB practice: just large enough that the
   time-`tau` map is not close to the identity at the scale of the grid. The
@@ -1335,10 +1337,10 @@ attempt at the same commit, with piece limit 100,000.
   and of Z with U_Z (123,921 pieces) exceeded the lower limit of that run
   and would fit under 150,000; the pair of C (207,714 pieces) would not.
 
-### Runs at the manuscript's `tau` (`figures/paper_grid/large_tau/`)
+### Runs at the `tau` of an earlier draft (`figures/paper_grid/large_tau/`)
 
 These corner runs at commit `0706668`, before the seam fix `788063c`, use
-the manuscript's `tau` (ball 1.5, wheel 2, neuron 20) and `tau` from 3 to 6.5
+the `tau` of an earlier draft (ball 1.5, wheel 2, neuron 20) and `tau` from 3 to 6.5
 for the oscillator, with the base grid of the level (`2^n` cells per axis).
 They come from a step that was interrupted. Their summaries (schema
 `paper-suspension-grid-run-v2`) store no Morse-set atoms, so they have one

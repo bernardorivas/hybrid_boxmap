@@ -1,0 +1,42 @@
+{
+  "continuous_system_conley_index_certified": false,
+  "depth": 16,
+  "fingerprint": "a9d2881af2e26e5a1a6e033d69531dfb51b428277fc835629044918efddc26c0",
+  "finite_relation_audit": "data/spiking_neuron_atlas/scientific_clock_v1/adaptive_terminal_bridge_v1/t20/conley_v2/finite_relation_index_audit.json",
+  "finite_relation_conley_index": {
+    "coefficient_field": 5,
+    "computed": true,
+    "result_scope": "finite_reset_quotient_relation",
+    "shift_classes": {
+      "0": [
+        "x-1",
+        "x-1",
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  },
+  "model": "compact_quadratic_integrate_and_fire",
+  "morse_edges": [],
+  "morse_nodes": [
+    0
+  ],
+  "morse_set_cell_counts": {
+    "0": 1113
+  },
+  "paper_copy": "paper/figures/hybrid-morse-spiking-neuron-atlas-tau2000-depth16.pdf",
+  "paper_copy_sha256": "a16278f848ce58c687603ecdbcb79bbe0c23ac29a25a9d6a50c841c62cddcbb0",
+  "pdf": "output/pdf/hybrid-morse-spiking-neuron-atlas-tau2000-depth16.pdf",
+  "pdf_sha256": "a16278f848ce58c687603ecdbcb79bbe0c23ac29a25a9d6a50c841c62cddcbb0",
+  "plot_cache": "data/spiking_neuron_atlas/scientific_clock_v1/adaptive_terminal_bridge_v1/t20/morse_plot_tau2000_depth16.json",
+  "png": "output/pdf/hybrid-morse-spiking-neuron-atlas-tau2000-depth16.png",
+  "png_sha256": "3e52cf45a681bfa8842f2f9ea7ea51ee2fe965453dd2eadd921cb18dcf4384b3",
+  "primary_conley_fingerprint": "2fc5d7869b41c7fb1afcc8c0b1074ec0d94a0486261744cb5f5e366ef69b74fb",
+  "primary_relation_csr_fingerprint": "6a00731ee973c00cb906f5a454d9638028c1044e9c09cdcc3be2fc404c980661",
+  "sampling_comparison_fingerprint": "77d01be6eab45d47ca42f298755f900ee05892204694799a4ac903e1c5ca30bd",
+  "schema": "spiking-neuron-finite-relation-figure-v2",
+  "sensitivity_conley_fingerprint": "7a816b6c881c0428e6a7ccb900a3990df76540ace7a0da76422d64adcf2eeb44",
+  "t_star": 20.0
+}

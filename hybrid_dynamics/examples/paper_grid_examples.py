@@ -1,11 +1,13 @@
-"""The examples of the manuscript on the paper suspension grid.
+"""The examples of the paper on the suspension grid.
 
 Each factory returns a :class:`SuspensionGridProblem` with the system, the
 base window ``R`` (as dyadic grids ``X_j`` with ``2**(j + level_offset)``
 cells per axis of the ambient rectangle; ``level_offset = 0`` by default, and
 a positive offset makes the base grid of level ``j`` finer than its phase grid
 of width ``2**(-j-2)``), the guard parametrization of ``G cap R``, the reset
-on it, and the time ``tau`` stated in the Examples section:
+on it, and a default time ``tau``. The runs in the paper pass ``--tau``
+explicitly: ``0.5`` for the ball, the wheel, and the oscillator at
+``beta = 0.76``, and ``5`` for the neuron (see the README).
 
 * bouncing ball: ``g = 9.81``, ``c = 0.8``, ``R = [0,2] x [-5,5]``,
   ``G cap R = {(0, v) : -5 <= v <= 0}``, ``r(0, v) = (0, -c v)``,

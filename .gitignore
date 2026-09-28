@@ -171,3 +171,9 @@ Thumbs.db
 /data/garcia_passive_walker_atlas/tube_strict_source_restriction_*.json
 /data/garcia_passive_walker_guard_aligned/relation_audit_*.json
 /data/garcia_passive_walker_guard_aligned/relation_bundle_*/
+
+# Local assistant instructions
+CLAUDE.md
+
+# PNG copies of the paper figures; demo/replot_paper_grid.py regenerates them
+figures/paper_grid/*.png

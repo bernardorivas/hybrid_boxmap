@@ -1,7 +1,7 @@
 """Tests for the impacting van der Pol-Duffing oscillator.
 
 The reference values (equilibria, impact cycles, Lienard identity) are the
-numerically verified values of the manuscript example with ``eps = 1``,
+numerically verified values of the default example with ``eps = 1``,
 ``beta = 0.8``, ``w = 0.8``, ``c = 0.7``; the last test checks the variant
 ``impact-vdp-duffing-beta076`` against the values verified at ``beta = 0.76``.
 """

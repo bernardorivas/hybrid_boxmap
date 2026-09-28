@@ -37,7 +37,7 @@ runner; the index is computed in this process, one node at a time.
 ``--index-max-pieces`` bounds the pairs attempted, as in the runner (no
 limit by default).
 
-Run from the ``code`` directory, for example::
+Run from the repository root, for example::
 
     .venv/bin/python demo/fill_missing_labels.py --workers 12 \\
         figures/paper_grid/paper-grid-impact-vdp-duffing-beta076-*-gap-refined.json

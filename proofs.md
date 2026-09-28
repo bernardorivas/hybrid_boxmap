@@ -1,11 +1,11 @@
 # Proofs and computed checks for the four examples
 
 Date: September 27, 2026  
-Status: Reference for readers of the code. The results below are leaving Section "Examples" of the manuscript. This file keeps their statements and arguments, transcribed from the manuscript, and compares the recorded runs with the invariant sets and indices that these arguments give. In the manuscript the four proofs are marked in red, that is, awaiting coauthor review. The Morse graphs and labels come from sampled multivalued maps, not certified outer approximations, so the comparisons are consistency checks, not proofs.  
+Status: Reference for readers of the code. Section "Examples" of the paper illustrates the computations without stating results about the examples. This file keeps the statements and arguments of an earlier draft of that section and compares the recorded runs with the invariant sets and indices that these arguments give. The Morse graphs and labels come from sampled multivalued maps, not certified outer approximations, so the comparisons are consistency checks, not proofs.  
 Scope: `lem:window-isolation`, `prop:ball-window`, `prop:wheel-isolation`, and `lem:impact-lienard`; the invariant sets and indices of the bouncing ball, the rimless wheel, the spiking neuron, and the impacting oscillator; the four runs in `figures/paper_grid/` listed under "Runs".  
-Source: Section 6, "Examples" (`\label{sec:example}`), of `paper/b_main.tex` as of September 27, 2026, with changes not yet committed in the Overleaf checkout (last commit `597295e`). Computed facts are taken from the JSON run records, recorded at code `a47c88d`. The label of $U_Z$ in the oscillator run was filled in commit `02270ea`.
+Source: an earlier draft of Section 6, "Examples", of the paper (September 27, 2026). Computed facts are taken from the JSON run records, recorded at code `a47c88d`. The Conley index of the Morse set of $U_Z$ in the oscillator run was computed afterwards, in commit `02270ea`.
 
-Citations are given by their keys in `paper/refs.bib`. The labels `lem:...` and `prop:...` are those of the manuscript.
+Citations are given by their keys in the bibliography of the paper. The labels `lem:window-isolation`, `prop:ball-window`, `prop:wheel-isolation`, and `lem:impact-lienard` are those of the earlier draft. Other labels are those of the paper.
 
 ## Setting and notation
 
@@ -77,14 +77,14 @@ The lemma uses the standing hypotheses of the manuscript: $X$ is compact and $\P
 | spiking neuron | `paper-grid-spiking-neuron-tau500-level7-base1024-corners-gap-refined` | 5 | $\Xi_7$ | 1024 of $B$ (0.3125 x 1.25) | 512 | 1 |
 | impacting oscillator, $\beta=0.76$ | `paper-grid-impact-vdp-duffing-beta076-tau050-level7-base2048-corners-gap-refined` | 0.5 | $\Xi_7$ | 2048 (0.001343 x 0.002100) | 512 | 22 |
 
-Each stem has the run record `<stem>.json` and the following figures, as PDF with a PNG copy.
+Each stem has the run record `<stem>.json` and the following figures, as PDF. `demo/replot_paper_grid.py` also writes PNG copies.
 
 - `<stem>.pdf`: every Morse set, with the base cells, the zooms, and the Morse graph.
 - `<stem>-nontrivial.pdf`: the same, without the Morse sets whose computed label is trivial, ordered by reachability in $\operatorname{MG}(\mathcal F)$ along paths that may pass through the hidden Morse sets.
 - Panels of `<stem>.pdf`: `<stem>-base.pdf`, `<stem>-zoom-A.pdf`, `<stem>-zoom-B.pdf`, ..., and `<stem>-graph.pdf`, the Morse graph of all Morse sets, in which the sets whose computed label is trivial are gray.
 - Panels of `<stem>-nontrivial.pdf`: `<stem>-nontrivial-base.pdf`, `<stem>-nontrivial-zoom-A.pdf`, ..., and `<stem>-nontrivial-graph.pdf`.
 
-The current figures have no panel of handle pieces, although the captions in the manuscript describe one. The node numbers $M(i)$ below are the indices of `morse_graph.nodes` in the JSON, and an edge $M(i)\to M(j)$ is the pair `[i, j]` of `morse_graph.edges`, meaning that $M(i)$ reaches $M(j)$. In every run, the grid check passed, no sample failed, no side remained unresolved after halving, no padded image is disconnected, and none of the endpoint probes of the manuscript (a $5\times5$ array of points in each of $150$ random base cells and $7$ phases over one point of each of $20$ random guard intervals) was missed.
+The figures have no panel of handle pieces. The node numbers $M(i)$ below are the indices of `morse_graph.nodes` in the JSON, and an edge $M(i)\to M(j)$ is the pair `[i, j]` of `morse_graph.edges`, meaning that $M(i)$ reaches $M(j)$. In every run, the grid check passed, no sample failed, no side remained unresolved after halving, no padded image is disconnected, and none of the endpoint probes of the manuscript (a $5\times5$ array of points in each of $150$ random base cells and $7$ phases over one point of each of $20$ random guard intervals) was missed.
 
 ## Bouncing ball
 
@@ -323,18 +323,14 @@ The other 17 Morse sets contain none of the five sets. Their pairs have zero rel
 
 The figure `<stem>.pdf` has three zooms: A shows $M(3)$ around $Q$, B shows $M(11)$ and the 16 Morse sets near $S$, and C shows $M(2)$ at the stop. The figure `<stem>-nontrivial.pdf` has two: A shows $M(11)$ and B shows $M(2)$.
 
-### Differences from the manuscript's text on this run
-
-The last paragraph of the manuscript's oscillator section describes the $\tau=0.5$ run as it stood before `a47c88d` and `02270ea`. It says that the Morse set of $U_Z$ has no label, that one of the 17 other Morse sets, around $Q$, has no label and zero relative homology, and that the label of the Morse set of $C$ was not computed, since its pair has 240,383 pieces. In the current record every Morse set has a label: $C$'s was computed at `a47c88d` without a piece limit, $M(3)$ around $Q$ is labeled trivial from its zero relative homology at `a47c88d`, and $U_Z$'s was filled in `02270ea`. The manuscript's figure and main comparison use the run at $\tau=1$ on $\Xi_6$, `paper-grid-impact-vdp-duffing-beta076-tau100-level6-base1024-corners-gap-refined`. This file uses the run at $\tau=0.5$ instead.
-
 ## Status of each statement
 
 | Statement | Status |
 |---|---|
-| `lem:window-isolation` | proved (red in the manuscript, awaiting review); uses compactness of $X$ and continuity of $\Phi$ |
-| `prop:ball-window` | proved (red) |
-| `prop:wheel-isolation` | proved (red); uses neither compactness of $X$ nor continuity of $\Phi$ |
-| `lem:impact-lienard` | proved (red); the value $\lambda\approx0.8491$ is a numerical maximum |
+| `lem:window-isolation` | proved in the earlier draft; uses compactness of $X$ and continuity of $\Phi$ |
+| `prop:ball-window` | proved in the earlier draft |
+| `prop:wheel-isolation` | proved in the earlier draft; uses neither compactness of $X$ nor continuity of $\Phi$ |
+| `lem:impact-lienard` | proved in the earlier draft; the value $\lambda\approx0.8491$ is a numerical maximum |
 | oscillator: $\Phi([3.75,\infty),\widetilde D)\subseteq\operatorname{int}_{\Sigma X}\widetilde D$, hence compactness of $X$ and isolation of $\widetilde D$ | numerical, from sampling; not proved |
 | oscillator: $C$, $U_Z$, their impact speeds, multipliers, and periods, the order of the five sets, the basin fractions | numerical |
 | oscillator: indices of $C$, $Q$, $Z$, $S$, $U_Z$ | follow from the numerical description of the five sets |

@@ -6,6 +6,7 @@ import json
 import warnings
 
 import numpy as np
+import pytest
 
 from hybrid_dynamics.examples.garcia_passive_walker_csr import (
     resume_garcia_local_relation_from_csr_checkpoint,
@@ -17,6 +18,7 @@ from hybrid_dynamics.examples.garcia_passive_walker_guard_aligned import (
     _transform_intrinsic_handle_rectangle,
     _transform_physical_rectangle,
     build_guard_aligned_garcia_tube,
+    default_legacy_tube_bundle,
 )
 from hybrid_dynamics.examples.garcia_passive_walker_local import (
     compute_garcia_local_relation,
@@ -62,6 +64,8 @@ def test_rectangle_transforms_contain_every_physical_and_intrinsic_corner():
 def test_guard_aligned_tube_is_pinned_and_uses_complete_internal_attachments(
     tmp_path,
 ):
+    if not default_legacy_tube_bundle().is_dir():
+        pytest.skip("the local tube relation bundle is not in the repository")
     construction = build_guard_aligned_garcia_tube(axis_depth=1)
     payload = construction.to_dict()
     identifiers = json.dumps(
