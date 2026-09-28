@@ -298,8 +298,16 @@ outline. Its second line gives the dimensions of the relative homology of
 its pair in degrees 0, 1, 2, as `dim H (0, 1, 1)`, or `blocked` when they
 are not known.
 
-The Morse graph shows each index label (the shift class by degree) and
-each `dim H` line in degrees 0, 1, 2. The index is computed from degree 0
+The Morse graph shows each index label and each `dim H` line in degrees
+0, 1, 2. An index label is the dimension of the Conley index (the eventual
+image of the index map) in each degree, as `(1, 1, 0)`. It is shown only
+where the index map is the identity on its eventual image, that is, where
+every invariant factor of the shift class is `x-1` (CMGDB writes `x-1`
+k times for dimension k), as `prop:grid-conley-index` predicts for an outer
+approximation. A node with another invariant factor keeps its shift
+class, with a warning, and is listed under
+`figure_variants.<variant>.index_display.morse_nodes_with_shift_class`;
+no current run has one. The `conley` records keep the shift classes. The index is computed from degree 0
 up to the dimension of the nerve (4 entries for the ball, the wheel, and
 the oscillator, 4 or 6 for the neuron), but the suspension of a planar
 window is 2-dimensional, so the entries in degrees 3 and higher are zero.

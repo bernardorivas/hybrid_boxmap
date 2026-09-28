@@ -1095,11 +1095,12 @@ def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
             dpi=60,
         )
     assert conley == original
+    # The labels are the dimensions of the Conley index by degree.
     shown_nontrivial = [
-        "M(0)\n(x-1, x-1, 0)",
+        "M(0)\n(1, 1, 0)",
         "M(2)\ndim H (0, 1, 1)",
-        "M(4)\n(0, x-1, 0)",
-        "M(5)\n(0, 0, 0, x-1)",
+        "M(4)\n(0, 1, 0)",
+        "M(5)\n(0, 0, 0, 1)",
     ]
     shown_all = sorted(shown_nontrivial + ["M(1)\n(0, 0, 0)", "M(3)\n(0, 0, 0)"])
     for name in (stem.name, f"{stem.name}-graph"):
@@ -1112,6 +1113,8 @@ def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
             "rule": INDEX_DEGREES_RULE,
             "morse_nodes_with_every_degree": [5],
         }
+        assert record["index_display"]["shown"] == "dimensions of the Conley index by degree"
+        assert record["index_display"]["morse_nodes_with_shift_class"] == []
     # The attractor lattice: nodes 0, 2, 4, 5 form the chain 0 < 2 < 4 < 5.
     lattice = figures["attractor_lattice"]
     assert lattice["morse_nodes"] == [0, 2, 4, 5]
@@ -1119,3 +1122,26 @@ def test_the_morse_graph_shows_degrees_0_to_2(tmp_path, monkeypatch):
     assert drawn[f"{stem.name}-attractor-lattice"] == sorted(
         ["0", "↓M(0)", "↓M(2)", "↓M(4)", "↓M(5)"]
     )
+
+
+def test_the_morse_graph_shows_the_dimensions_of_the_conley_index():
+    from hybrid_dynamics.examples.paper_grid_figures import (
+        conley_index_dimensions,
+        conley_index_labels,
+    )
+
+    # The index map is the identity on an eventual image of dimension k
+    # exactly when CMGDB writes x-1 k times; the zero module is 0.
+    assert conley_index_dimensions(("x-1", "x-1", "0")) == ("1", "1", "0")
+    assert conley_index_dimensions(("x-1x-1", "0", "0")) == ("2", "0", "0")
+    assert conley_index_dimensions(("0", "0", "0")) == ("0", "0", "0")
+    assert conley_index_dimensions(("x-1", "x+1", "0")) is None
+    assert conley_index_dimensions(("x^2-2x+1", "0", "0")) is None
+    assert conley_index_dimensions(("x-1x", "0", "0")) is None
+
+    # A shift class with another invariant factor is drawn as it is, with a
+    # warning, and listed among the nodes drawn with their shift class.
+    with pytest.warns(UserWarning, match="Morse node 3: the index map is not the identity"):
+        drawn, kept = conley_index_labels({0: ("x-1", "0", "0"), 3: ("0", "x+1", "0")})
+    assert drawn == {0: ("1", "0", "0"), 3: ("0", "x+1", "0")}
+    assert kept == (3,)

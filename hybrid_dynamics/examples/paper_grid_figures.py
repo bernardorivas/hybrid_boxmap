@@ -36,7 +36,10 @@ node without a label, in the degrees of :data:`SHOWN_INDEX_DEGREES` (0, 1,
 2): the suspension of a planar window is 2-dimensional, so the entries in
 higher degrees are zero.  They are checked to be zero before they are
 dropped (:func:`paper_grid_index_labels`); the index records keep every
-degree.
+degree.  Each label is the dimension of the Conley index in each degree,
+shown where the index map is the identity on its eventual image, as
+Proposition prop:grid-conley-index predicts for an outer approximation
+(:func:`conley_index_labels`); the index records keep the shift classes.
 
 The attractor lattice of the run (:func:`write_attractor_lattice_figure`) is
 the lattice of down-sets of the Morse order restricted to the Morse nodes of
@@ -239,6 +242,69 @@ INDEX_DEGREES_RULE = (
     "degree and listed under morse_nodes_with_every_degree; the conley records "
     "keep every degree"
 )
+
+
+INDEX_DISPLAY_RULE = (
+    "each label lists, by degree, the dimension of the Conley index, that is, of "
+    "the eventual image of the index map; it is shown only where the index map is "
+    "the identity on its eventual image (every invariant factor is x-1), as "
+    "Proposition prop:grid-conley-index predicts for an outer approximation; a "
+    "node whose shift class has another invariant factor is drawn with its shift "
+    "class and listed under morse_nodes_with_shift_class; the conley records keep "
+    "the shift classes"
+)
+
+
+def conley_index_dimensions(shift_class: Sequence[str]) -> tuple[str, ...] | None:
+    """Dimensions of the Conley index by degree, when the index map is the identity.
+
+    Each entry of ``shift_class`` is CMGDB's string of the invariant factors of
+    the index map on its eventual image in one degree, written one after the
+    other, or ``"0"`` for the zero module.  On an eventual image of dimension
+    ``k``, the index map is the identity exactly when the entry is ``"x-1"``
+    repeated ``k`` times.  Returns the dimensions as strings, or ``None`` when
+    some entry has another invariant factor.
+    """
+
+    dimensions: list[str] = []
+    for entry in shift_class:
+        text = str(entry).replace(" ", "")
+        if text == "0":
+            dimensions.append("0")
+            continue
+        count, rest = divmod(len(text), len("x-1"))
+        if rest or count == 0 or text != "x-1" * count:
+            return None
+        dimensions.append(str(count))
+    return tuple(dimensions)
+
+
+def conley_index_labels(
+    labels: Mapping[int, Sequence[str]],
+) -> tuple[dict[int, tuple[str, ...]], tuple[int, ...]]:
+    """The labels drawn in the Morse graph: dimensions of the Conley index.
+
+    Each shift class in ``labels`` becomes its dimensions by degree
+    (:func:`conley_index_dimensions`).  A shift class with an invariant factor
+    other than ``x-1`` is kept as it is, reported by a warning, and returned
+    among the nodes drawn with their shift class.
+    """
+
+    drawn: dict[int, tuple[str, ...]] = {}
+    with_shift_class: list[int] = []
+    for node, label in labels.items():
+        dimensions = conley_index_dimensions(label)
+        if dimensions is None:
+            drawn[int(node)] = tuple(str(value) for value in label)
+            with_shift_class.append(int(node))
+            warnings.warn(
+                f"Morse node {node}: the index map is not the identity on its eventual "
+                f"image ({tuple(label)!r}); the Morse graph shows its shift class",
+                stacklevel=2,
+            )
+        else:
+            drawn[int(node)] = dimensions
+    return drawn, tuple(sorted(with_shift_class))
 
 
 def shown_index_entries(entries: Sequence[Any], zero: Any) -> tuple[Any, ...] | None:
@@ -482,6 +548,7 @@ def write_paper_grid_figures(
     )
     colors = paper_grid_morse_colors(len(morse_sets), conley)
     labels, blocked_lines, every_degree = paper_grid_index_labels(conley)
+    labels, with_shift_class = conley_index_labels(labels)
     figures: list[str] = []
     records: dict[str, Any] = {}
     for variant in dict.fromkeys(variants):
@@ -489,6 +556,13 @@ def write_paper_grid_figures(
         record = selection.to_dict()
         record["colors"] = paper_grid_color_record(len(morse_sets), conley)
         record["index_degrees"] = index_degrees_record(selection.shown, every_degree)
+        record["index_display"] = {
+            "shown": "dimensions of the Conley index by degree",
+            "rule": INDEX_DISPLAY_RULE,
+            "morse_nodes_with_shift_class": [
+                node for node in with_shift_class if node in set(selection.shown)
+            ],
+        }
         if not selection.shown:
             record["files"] = []
             record["panel_files"] = {}
@@ -715,6 +789,7 @@ __all__ = [
     "COLOR_RULE",
     "FRAME_MARGIN",
     "INDEX_DEGREES_RULE",
+    "INDEX_DISPLAY_RULE",
     "PAPER_GRID_FIGURE_STYLE",
     "PAPER_GRID_PALETTE",
     "PAPER_GRID_PALETTE_NAME",
@@ -730,6 +805,8 @@ __all__ = [
     "paper_grid_attractor_lattice",
     "paper_grid_color_record",
     "paper_grid_index_labels",
+    "conley_index_dimensions",
+    "conley_index_labels",
     "paper_grid_morse_colors",
     "shown_index_entries",
     "write_attractor_lattice_figure",
