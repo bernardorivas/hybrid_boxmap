@@ -93,16 +93,26 @@ trivial and the index map is not formed.  Otherwise the index map is formed
 and its shift class is the label; if a carrier, pair, or chain-map check
 fails, the homology is still reported and only the label is missing.
 
-The carrier and chain map of the exit-components construction (also the
-first attempt of ``"auto"``) and of the forward-closure pair without
-``excise`` are formed either by the Python construction of
-:func:`atlas_conley.prepare_atlas_relation_conley_2d` or by the native
-kernel ``CMGDB.ComputeCarrierChainMap`` (:mod:`carrier_kernel`), which forms
-the same chain map and hands the same payload to CMGDB.  ``backend``
-chooses: ``"python"``, ``"native"``, or ``"auto"`` (the default), the native
-kernel when the installed CMGDB provides it.  The excision construction and
-the excised forward-closure pair use the Python construction with every
-backend.
+The carrier and chain map of every construction are formed either in
+Python or by the native kernel ``CMGDB.ComputeCarrierChainMap``
+(:mod:`carrier_kernel`), which forms the same carriers and chain map, with
+the same checks and exceptions:
+
+* the exit-components construction (also the first attempt of ``"auto"``)
+  and the forward-closure pair without ``excise``, by
+  :func:`atlas_conley.prepare_atlas_relation_conley_2d` or by the kernel,
+  which hands the same payload to CMGDB;
+* the excision construction, by
+  :class:`suspension_complex.CrossComplexAcyclicCarrier` from the nerve of
+  ``X`` into the nerve of ``Xbar`` or by the kernel with that nerve as its
+  target; the homology bases and the matrices of the index map are
+  computed in Python from the chain map in both cases;
+* the excised forward-closure pair, by the induction on the simplices of
+  the nerve of ``W`` or by the kernel from that subcomplex into the nerve
+  of ``Y``, with the same chain-map entries.
+
+``backend`` chooses: ``"python"``, ``"native"``, or ``"auto"`` (the
+default), the native kernel when the installed CMGDB provides it.
 
 The result is a finite-relation shift class over ``GF(5)``.  It is not a
 certified Conley index of the continuous fixed-time map, because the
@@ -133,11 +143,15 @@ from .atlas_conley import (
 )
 from .carrier_kernel import (
     CONLEY_BACKENDS,
+    KernelChainMap,
+    native_cross_complex_chain_map,
     native_relation_shift_class,
+    native_subcomplex_chain_entries,
     resolve_conley_backend,
 )
 from .suspension_complex import (
     CMGDBRelativeHomologyPayload,
+    CellularMapBetweenComplexes,
     CrossComplexAcyclicCarrier,
     RelativeHomologyBasis,
     _check_right_hand_side,
@@ -468,6 +482,34 @@ def _shift_class_of_matrices(matrices: Sequence[Sequence[Sequence[int]]]) -> tup
     return tuple(str(entry) for entry in payload["shift_class"])
 
 
+def _excision_chain_map(
+    source: AtlasRelativeIndexPair2D,
+    target: AtlasRelativeIndexPair2D,
+    vertex_images: Mapping[int, Collection[int]],
+) -> CellularMapBetweenComplexes:
+    """The chain map ``F_#: C(X, A) -> C(Xbar, Abar)`` of the excision construction.
+
+    ``source`` is ``(X, A)`` and ``target`` is ``(Xbar, Abar)``.  The carrier
+    of a simplex of the nerve of ``X`` is the subcomplex of the nerve of
+    ``Xbar`` induced on the union of the images of its vertices; every
+    carrier is checked to be acyclic, and the carrier of every simplex of
+    ``A`` to lie in ``Abar``, before the chain map is constructed.
+    """
+
+    carrier = CrossComplexAcyclicCarrier(
+        source.complex,
+        target.complex,
+        _InducedCarrierGenerators(target.complex, vertex_images, source_complex=source.complex),
+        modulus=5,
+        validate_acyclic=True,
+    )
+    abar_cells = target.relative_pair.p0_cells
+    for cell in source.relative_pair.p0_cells:
+        if not carrier.image(cell) <= abar_cells:
+            raise ValueError(f"the carrier of {cell!r} in A does not lie in Abar")
+    return carrier.construct_chain_map()
+
+
 def _excision_index_map(
     relation: SuspensionGridRelation,
     gluing: AtlasResetGluing2D,
@@ -481,12 +523,17 @@ def _excision_index_map(
     *,
     maximum_simplex_size: int,
     max_pieces: int | None,
+    backend: str = "python",
 ) -> tuple[str, ...]:
     """Shift class of ``i_*^{-1} F_*`` on ``H_*(X, A; GF(5))``; see the module notes.
 
     ``pair`` is the pair ``(X, A)`` on the nerve of ``X`` and ``dimensions``
     its relative homology.  ``record`` receives the data of ``(Xbar, Abar)``
-    and the matrices of the index map as they are computed.
+    and the matrices of the index map as they are computed.  ``backend``
+    (``"python"`` or ``"native"``) forms the carrier and the chain map
+    ``F_#`` by the Python construction or by the native kernel
+    (:func:`carrier_kernel.native_cross_complex_chain_map`), with the same
+    result.
     """
 
     grid = relation.grid
@@ -560,18 +607,16 @@ def _excision_index_map(
             raise AssertionError(f"the image of the atom {atom} leaves Xbar")
         for piece in grid.atom(atom).tolist():
             vertex_images[int(piece)] = targets
-    carrier = CrossComplexAcyclicCarrier(
-        source.complex,
-        target.complex,
-        _InducedCarrierGenerators(target.complex, vertex_images, source_complex=source.complex),
-        modulus=5,
-        validate_acyclic=True,
-    )
-    abar_cells = target.relative_pair.p0_cells
-    for cell in source.relative_pair.p0_cells:
-        if not carrier.image(cell) <= abar_cells:
-            raise ValueError(f"the carrier of {cell!r} in A does not lie in Abar")
-    chain_map = carrier.construct_chain_map()
+    chain_map: CellularMapBetweenComplexes | KernelChainMap
+    if backend == "native":
+        chain_map = native_cross_complex_chain_map(
+            source,
+            target,
+            vertex_images,
+            lambda: _excision_chain_map(source, target, vertex_images),
+        )
+    else:
+        chain_map = _excision_chain_map(source, target, vertex_images)
 
     if source_homology is None:
         source_homology = RelativeHomologyBasis(source.relative_pair, cycle_degrees=cycle_degrees)
@@ -797,6 +842,8 @@ def _excised_shift_class(
     source_pieces: Collection[int],
     piece_image: Mapping[int, Collection[int]],
     modulus: int = 5,
+    *,
+    backend: str = "python",
 ) -> dict[str, Any]:
     """Shift class of the index map of ``pair`` from a chain map on a subcomplex.
 
@@ -811,10 +858,13 @@ def _excised_shift_class(
     the acyclic-carrier induction of
     :meth:`suspension_complex.FixedTimeCarrier.construct_chain_map`, checked
     to commute with the boundary, and read on the basis of
-    ``C(P1) / C(P0)``; its CMGDB shift class is returned.
+    ``C(P1) / C(P0)``; its CMGDB shift class is returned.  ``backend``
+    (``"python"`` or ``"native"``) forms the chain map by
+    :func:`_excised_chain_map_entries` or by the native kernel
+    (:func:`carrier_kernel.native_subcomplex_chain_entries`), with the same
+    entries.
     """
 
-    complex_ = pair.complex
     relative = pair.relative_pair
     sources = pair.nerve.induced_cells(source_pieces)
     basis = relative.basis_by_dimension
@@ -829,6 +879,44 @@ def _excised_shift_class(
         if outside:
             raise ValueError(f"the image of piece {piece} leaves P1: {sorted(outside)!r}")
         vertex_images[int(piece)] = targets
+    if backend == "native":
+        if modulus != 5:
+            raise ValueError("the native carrier kernel uses GF(5)")
+        chain_entries = native_subcomplex_chain_entries(
+            pair,
+            sources,
+            vertex_images,
+            lambda: _excised_chain_map_entries(pair, sources, vertex_images, modulus),
+        )
+    else:
+        chain_entries = _excised_chain_map_entries(pair, sources, vertex_images, modulus)
+    payload = CMGDBRelativeHomologyPayload(
+        cell_counts=relative.cell_counts,
+        boundary_entries=relative.boundary_entries(modulus=modulus),
+        chain_map_entries=chain_entries,
+        basis_by_dimension=basis,
+    )
+    import CMGDB
+
+    return dict(CMGDB.ComputeRelativeHomologyShiftClass(*payload.as_compute_args()))
+
+
+def _excised_chain_map_entries(
+    pair: AtlasRelativeIndexPair2D,
+    sources: Collection[Any],
+    vertex_images: Mapping[int, frozenset[int]],
+    modulus: int,
+) -> tuple[tuple[tuple[int, int, int], ...], ...]:
+    """Entries on the basis of ``C(P1) / C(P0)`` of the chain map of :func:`_excised_shift_class`.
+
+    The chain map is formed on the simplices of ``pair.complex`` in
+    ``sources``, which contain the basis, from the carriers of
+    ``vertex_images``; the targets in ``P0`` are dropped.
+    """
+
+    complex_ = pair.complex
+    relative = pair.relative_pair
+    basis = relative.basis_by_dimension
     generators = _InducedCarrierGenerators(complex_, vertex_images)
     p0_cells = relative.p0_cells
     p0_vertices = pair.p0_atlas_cells
@@ -919,15 +1007,7 @@ def _excised_shift_class(
                 elif target not in p0_cells:
                     raise AssertionError(f"the chain map sends {source!r} outside P1")
         chain_entries.append(tuple(entries))
-    payload = CMGDBRelativeHomologyPayload(
-        cell_counts=relative.cell_counts,
-        boundary_entries=relative.boundary_entries(modulus=modulus),
-        chain_map_entries=tuple(chain_entries),
-        basis_by_dimension=basis,
-    )
-    import CMGDB
-
-    return dict(CMGDB.ComputeRelativeHomologyShiftClass(*payload.as_compute_args()))
+    return tuple(chain_entries)
 
 
 def compute_suspension_grid_conley_index(
@@ -980,11 +1060,10 @@ def compute_suspension_grid_conley_index(
     ``(X, A)`` is still reported.
 
     ``backend`` (see :data:`carrier_kernel.CONLEY_BACKENDS`) chooses how the
-    carrier and chain map of the exit-components construction and of the
-    forward-closure pair without ``excise`` are formed: ``"python"``,
-    ``"native"`` (``CMGDB.ComputeCarrierChainMap``; ``RuntimeError`` if the
-    installed CMGDB lacks it), or ``"auto"``, the native kernel when it is
-    available.  The result does not depend on it.
+    carrier and chain map of the index map are formed (see the module
+    notes): ``"python"``, ``"native"`` (``CMGDB.ComputeCarrierChainMap``;
+    ``RuntimeError`` if the installed CMGDB lacks it), or ``"auto"``, the
+    native kernel when it is available.  The result does not depend on it.
     """
 
     started = time.perf_counter()
@@ -1104,7 +1183,9 @@ def compute_suspension_grid_conley_index(
                             "point left the window), so their pieces have no carrier"
                         )
                 if excise:
-                    payload = _excised_shift_class(pair, source_pieces.tolist(), piece_image)
+                    payload = _excised_shift_class(
+                        pair, source_pieces.tolist(), piece_image, backend=backend
+                    )
                 elif backend == "native":
                     payload = native_relation_shift_class(
                         pair,
@@ -1151,6 +1232,7 @@ def compute_suspension_grid_conley_index(
                     result.excision,
                     maximum_simplex_size=maximum_simplex_size,
                     max_pieces=max_pieces,
+                    backend=backend,
                 )
             except Exception as error:  # the homology stays; only the label is missing
                 result.index_map_blocker = f"{type(error).__name__}: {error}"

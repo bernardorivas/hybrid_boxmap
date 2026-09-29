@@ -36,20 +36,36 @@ class, the dimensions, and the blockers are those of the Python
 construction.  The Python construction stays the reference and is used
 whenever the installed CMGDB lacks the native function
 (:func:`resolve_conley_backend`).
+
+The function also maps a complex into another one, given as a second set of
+arrays with its own exit mask.  Two constructions of
+:mod:`suspension_grid_conley` use this form, with the same carriers (the
+subcomplex of the target induced on ``T(sigma)``) and the same chain map:
+
+* the excision construction maps the nerve of ``X`` into the nerve of
+  ``Xbar = X cup F(X)`` (:class:`suspension_complex.CrossComplexAcyclicCarrier`);
+  :func:`native_cross_complex_chain_map` returns its chain map;
+* the excised forward-closure pair maps the subcomplex of the nerve of
+  ``Y = W cup F(W)`` spanned by ``W`` into that nerve;
+  :func:`native_subcomplex_chain_entries` returns the chain-map entries on
+  the relative basis of the pair.
+
+Both raise the exceptions of the Python construction, as above.
 """
 
 from __future__ import annotations
 
 import itertools
-from collections.abc import Callable, Collection, Mapping
+from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Any
 
 import numpy as np
 import numpy.typing as npt
 
 from . import atlas_conley
-from .atlas_conley import AtlasRelativeIndexPair2D, _relation_vertex_images
+from .atlas_conley import AtlasNerveSimplex, AtlasRelativeIndexPair2D, _relation_vertex_images
 from .suspension_complex import CMGDBRelativeHomologyPayload, FiniteCellComplex
 
 
@@ -184,12 +200,24 @@ def vertex_image_csr(
     ``complex_.cells_of_dimension(0)[i]``.
     """
 
+    return _image_csr([cell.vertices[0] for cell in complex_.cells_of_dimension(0)], vertex_images)
+
+
+def _image_csr(
+    vertices: Sequence[int],
+    vertex_images: Mapping[int, Collection[int]],
+    targets: Collection[int] | None = None,
+) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.int32]]:
+    """CSR offsets and labels of the images of ``vertices``, restricted to ``targets`` if given."""
+
     images: list[list[int]] = []
-    for cell in complex_.cells_of_dimension(0):
-        vertex = cell.vertices[0]
+    for vertex in vertices:
         if vertex not in vertex_images:
             raise ValueError(f"the vertex {vertex} of the complex has no image")
-        images.append(sorted({int(target) for target in vertex_images[vertex]}))
+        image = {int(target) for target in vertex_images[vertex]}
+        if targets is not None:
+            image.intersection_update(targets)
+        images.append(sorted(image))
     indptr = np.zeros(len(images) + 1, dtype=np.int64)
     np.cumsum([len(image) for image in images], out=indptr[1:])
     indices = np.fromiter(
@@ -214,12 +242,18 @@ def exit_mask(complex_: FiniteCellComplex, exit_vertices: Collection[int]) -> np
 
 @dataclass(frozen=True)
 class CarrierKernelArrays:
-    """Inputs of ``CMGDB.ComputeCarrierChainMap`` for a complex that is its own target."""
+    """Inputs of ``CMGDB.ComputeCarrierChainMap``.
+
+    ``target_simplices`` and ``target_exit`` are ``None`` for a complex that
+    is its own target.
+    """
 
     source_simplices: tuple[npt.NDArray[np.int32], ...]
     vertex_image_indptr: npt.NDArray[np.int64]
     vertex_image_indices: npt.NDArray[np.int32]
     source_exit: npt.NDArray[np.uint8]
+    target_simplices: tuple[npt.NDArray[np.int32], ...] | None = None
+    target_exit: npt.NDArray[np.uint8] | None = None
 
     def compute(self, *, return_carriers: bool = False) -> dict[str, Any]:
         """The result dictionary of ``CMGDB.ComputeCarrierChainMap`` on these arrays."""
@@ -227,6 +261,12 @@ class CarrierKernelArrays:
         import CMGDB
 
         kernel = getattr(CMGDB, KERNEL_FUNCTION)
+        target: dict[str, Any] = {}
+        if self.target_simplices is not None:
+            target = {
+                "target_simplices": list(self.target_simplices),
+                "target_exit": self.target_exit,
+            }
         return dict(
             kernel(
                 list(self.source_simplices),
@@ -235,6 +275,7 @@ class CarrierKernelArrays:
                 self.source_exit,
                 modulus=5,
                 return_carriers=return_carriers,
+                **target,
             )
         )
 
@@ -318,6 +359,16 @@ def kernel_failure(
             f"acyclic-carrier chain selection failed on {cell!r}: the boundary equation "
             "has no solution in the carrier"
         )
+    return _reference_failure(status, cell, reference)
+
+
+def _reference_failure(status: str, cell: object, reference: Callable[[], object]) -> Exception:
+    """The exception that ``reference`` (the Python construction) raises.
+
+    If it raises none, the kernel, which reports ``status`` at ``cell``, and
+    the Python construction disagree, and an ``AssertionError`` is returned.
+    """
+
     try:
         reference()
     except Exception as error:  # the exception of the Python construction
@@ -326,6 +377,30 @@ def kernel_failure(
         f"the native carrier kernel reports {status!r} on {cell!r}, but the Python "
         "construction forms the chain map"
     )
+
+
+def _failing_cell(
+    result: Mapping[str, Any], cells: Sequence[Sequence[Any]]
+) -> tuple[str, int, int, Any]:
+    """Status, degree, row, and source cell of a failed kernel result.
+
+    ``cells[d]`` are the source cells of degree ``d`` in the order of the
+    arrays.  An unknown status or a position outside the source raises
+    ``AssertionError``.
+    """
+
+    status = str(result.get("status"))
+    degree = int(result.get("failure_degree", -1))
+    row = int(result.get("failure_row", -1))
+    if status not in KERNEL_FAILURES:
+        raise AssertionError(f"the native carrier kernel returned the status {status!r}")
+    group = cells[degree] if 0 <= degree < len(cells) else ()
+    if not 0 <= row < len(group):
+        raise AssertionError(
+            f"the native carrier kernel reports {status!r} at degree {degree} and row {row}, "
+            "which is not a cell of the source"
+        )
+    return status, degree, row, group[row]
 
 
 def _entries(degrees: Any) -> tuple[tuple[tuple[int, int, int], ...], ...]:
@@ -417,17 +492,292 @@ def native_relation_shift_class(
     return result
 
 
+# ---------------------------------------------------------------------------
+# Carriers into another complex
+# ---------------------------------------------------------------------------
+
+
+class KernelChainMap:
+    """The chain map of a successful ``ComputeCarrierChainMap`` call, read by source cell.
+
+    ``source_cells[d]`` and ``target_cells[d]`` are the ``d``-cells of the
+    source and of the target in the order of the arrays handed to the
+    kernel, and ``chain_map[d]`` holds the ``(source_row, target_row,
+    coefficient)`` rows it returned, by source row.  :meth:`image` gives the
+    image of a source cell as
+    :meth:`suspension_complex.CellularMapBetweenComplexes.image` does: its
+    target cells with coefficients in ``1..4``, listed in the order of the
+    kernel, which is that of the Python construction.
+    """
+
+    def __init__(
+        self,
+        source_cells: Sequence[Sequence[Any]],
+        target_cells: Sequence[Sequence[Any]],
+        chain_map: Sequence[npt.ArrayLike],
+    ) -> None:
+        if len(chain_map) != len(source_cells):
+            raise AssertionError(
+                f"the native carrier kernel returned {len(chain_map)} degrees of the chain "
+                f"map for a source with {len(source_cells)}"
+            )
+        self._target_cells = target_cells
+        self._images: list[list[list[int]]] = []
+        self._offsets: list[list[int]] = []
+        self._position: dict[Any, tuple[int, int]] = {}
+        for degree, cells in enumerate(source_cells):
+            entries = np.asarray(chain_map[degree], dtype=np.int64).reshape(-1, 3)
+            targets = len(target_cells[degree]) if degree < len(target_cells) else 0
+            if entries.size and (
+                np.any(np.diff(entries[:, 0]) < 0)
+                or entries[0, 0] < 0
+                or entries[-1, 0] >= len(cells)
+                or entries[:, 1].min() < 0
+                or entries[:, 1].max() >= targets
+                or entries[:, 2].min() < 1
+                or entries[:, 2].max() > 4
+            ):
+                raise AssertionError(
+                    f"the native carrier kernel returned invalid chain-map rows in degree {degree}"
+                )
+            self._images.append(entries[:, 1:].tolist())
+            self._offsets.append(
+                np.searchsorted(entries[:, 0], np.arange(len(cells) + 1)).tolist()
+            )
+            for row, cell in enumerate(cells):
+                self._position[cell] = (degree, row)
+
+    def image(self, source_cell: Any) -> Mapping[Any, int]:
+        try:
+            degree, row = self._position[source_cell]
+        except KeyError as error:
+            raise KeyError(f"not a source cell: {source_cell!r}") from error
+        targets = self._target_cells[degree]
+        offsets = self._offsets[degree]
+        return MappingProxyType(
+            {
+                targets[target]: value
+                for target, value in self._images[degree][offsets[row] : offsets[row + 1]]
+            }
+        )
+
+
+def cross_complex_carrier_arrays(
+    source_complex: FiniteCellComplex,
+    target_complex: FiniteCellComplex,
+    vertex_images: Mapping[int, Collection[int]],
+    source_exit_vertices: Collection[int] = (),
+    target_exit_vertices: Collection[int] = (),
+) -> CarrierKernelArrays:
+    """The arrays of the carrier from ``source_complex`` into ``target_complex``.
+
+    The carrier of a source simplex is the subcomplex of ``target_complex``
+    induced on the union of the images of its vertices, as with
+    :class:`atlas_conley._InducedCarrierGenerators` and ``source_complex``:
+    an image vertex that is not a vertex of the target spans no simplex, so
+    it is left out of the arrays.  When ``target_complex`` is
+    ``source_complex``, the target arrays are ``None`` (the kernel then maps
+    the complex into itself) and the two exit sets must be equal.
+    """
+
+    source = simplex_arrays(source_complex)
+    source_labels = source[0][:, 0].tolist()
+    target: tuple[npt.NDArray[np.int32], ...] | None = None
+    target_exit: npt.NDArray[np.uint8] | None = None
+    if target_complex is source_complex:
+        if frozenset(int(v) for v in source_exit_vertices) != frozenset(
+            int(v) for v in target_exit_vertices
+        ):
+            raise ValueError("a complex mapped into itself has one set of exit vertices")
+        target_labels = source_labels
+    else:
+        target = simplex_arrays(target_complex)
+        target_labels = target[0][:, 0].tolist()
+        target_exit = exit_mask(target_complex, target_exit_vertices)
+    indptr, indices = _image_csr(source_labels, vertex_images, frozenset(target_labels))
+    return CarrierKernelArrays(
+        source_simplices=source,
+        vertex_image_indptr=indptr,
+        vertex_image_indices=indices,
+        source_exit=exit_mask(source_complex, source_exit_vertices),
+        target_simplices=target,
+        target_exit=target_exit,
+    )
+
+
+def native_cross_complex_chain_map(
+    source: AtlasRelativeIndexPair2D,
+    target: AtlasRelativeIndexPair2D,
+    vertex_images: Mapping[int, Collection[int]],
+    reference: Callable[[], object],
+) -> KernelChainMap:
+    """The chain map of the excision construction, from the native kernel.
+
+    The Python construction (``reference``; see
+    ``suspension_grid_conley._excision_index_map``) forms the
+    :class:`suspension_complex.CrossComplexAcyclicCarrier` from
+    ``source.complex`` to ``target.complex`` whose value at a simplex is the
+    subcomplex induced on the union of the images of its vertices
+    (:class:`atlas_conley._InducedCarrierGenerators`), checks that the
+    carrier of every simplex of the ``P0`` of ``source`` lies in the ``P0``
+    of ``target``, and constructs the chain map.  The kernel forms the same
+    carriers, makes the same checks in the same order, and constructs the
+    same chain map, which is returned.
+
+    A carrier that is not acyclic is reported at the first simplex of the
+    source with such a carrier, with the message of the Python construction,
+    which checks each simplex in turn for an empty carrier and then for one
+    that is not acyclic; the kernel has found no empty carrier before it
+    checks acyclicity.  The other failures (an empty carrier, the pair, the
+    chain map) are reported by the Python construction in another order or
+    with chains in the message, so ``reference`` is run and its exception
+    raised (``AssertionError`` if it raises none).
+    """
+
+    arrays = cross_complex_carrier_arrays(
+        source.complex,
+        target.complex,
+        vertex_images,
+        source.p0_atlas_cells,
+        target.p0_atlas_cells,
+    )
+    result = arrays.compute()
+    source_cells = [
+        source.complex.cells_of_dimension(degree)
+        for degree in range(len(arrays.source_simplices))
+    ]
+    if result.get("status") != "ok":
+        status, _, _, cell = _failing_cell(result, source_cells)
+        if status == "not_acyclic":
+            raise ValueError(f"carrier image of {cell!r} is not acyclic over GF(5)")
+        raise _reference_failure(status, cell, reference)
+    target_cells = [
+        target.complex.cells_of_dimension(degree)
+        for degree in range(target.complex.max_dimension + 1)
+    ]
+    return KernelChainMap(source_cells, target_cells, result["chain_map"])
+
+
+def native_subcomplex_chain_entries(
+    pair: AtlasRelativeIndexPair2D,
+    sources: Collection[AtlasNerveSimplex],
+    vertex_images: Mapping[int, Collection[int]],
+    reference: Callable[[], object],
+) -> tuple[tuple[tuple[int, int, int], ...], ...]:
+    """The chain-map entries of the excised forward-closure pair, from the native kernel.
+
+    The Python construction (``reference``; see
+    ``suspension_grid_conley._excised_chain_map_entries``) forms the chain
+    map on the simplices of ``pair.complex`` that lie in ``sources`` (a
+    subcomplex ``K`` that contains the basis of ``C(P1) / C(P0)``), the
+    carrier of a simplex being the subcomplex of ``pair.complex`` induced on
+    the union of the images of its vertices, and returns its entries on
+    that basis, column by column, without the targets in ``P0``.  The kernel
+    maps ``K`` into ``pair.complex`` with the same carriers and chain map,
+    and the entries are read from it in the same order.
+
+    The Python construction takes the simplices of ``K`` in order and
+    checks each (its carrier acyclic, then in ``P0`` when the simplex lies
+    in ``P0``) before it forms its image; it raises at the first failure.
+    A carrier leaves ``P0`` from a simplex of ``P0`` only when the carrier of
+    one of its vertices does, and every image before the first carrier that
+    is not acyclic exists, since the earlier carriers are acyclic.  So the
+    first failure is at the first vertex of ``P0`` whose carrier leaves
+    ``P0`` or at the first simplex whose carrier is not acyclic, whichever
+    comes first; these are reported with the messages of the Python
+    construction.  For the other failures ``reference`` is run and its
+    exception raised (``AssertionError`` if it raises none).
+    """
+
+    complex_ = pair.complex
+    relative = pair.relative_pair
+    target = simplex_arrays(complex_)
+    labels = target[0][:, 0]
+    cells = [complex_.cells_of_dimension(degree) for degree in range(len(target))]
+    # The rows of the simplices of K among those of the complex.
+    rows = [
+        np.flatnonzero(
+            np.fromiter((cell in sources for cell in group), dtype=bool, count=len(group))
+        )
+        for group in cells
+    ]
+    source = tuple(np.ascontiguousarray(array[selected]) for array, selected in zip(target, rows))
+    source_labels = source[0][:, 0].tolist()
+    exits = frozenset(int(vertex) for vertex in pair.p0_atlas_cells)
+    target_exit = exit_mask(complex_, exits)
+    indptr, indices = _image_csr(source_labels, vertex_images, frozenset(labels.tolist()))
+    arrays = CarrierKernelArrays(
+        source_simplices=source,
+        vertex_image_indptr=indptr,
+        vertex_image_indices=indices,
+        source_exit=np.fromiter(
+            (label in exits for label in source_labels), dtype=np.uint8, count=len(source_labels)
+        ),
+        target_simplices=target,
+        target_exit=target_exit,
+    )
+    result = arrays.compute()
+    if result.get("status") != "ok":
+        source_cells = [
+            [group[row] for row in selected.tolist()] for group, selected in zip(cells, rows)
+        ]
+        status, degree, row, cell = _failing_cell(result, source_cells)
+        if status == "pair_violation" and degree == 0:
+            raise ValueError(f"the carrier of {cell!r} does not preserve P0")
+        if status == "not_acyclic":
+            # A vertex before the simplex whose carrier leaves P0 fails first.
+            before = row if degree == 0 else len(source_labels)
+            for vertex_row, label in enumerate(source_labels[:before]):
+                image = indices[indptr[vertex_row] : indptr[vertex_row + 1]].tolist()
+                if label in exits and not exits.issuperset(image):
+                    raise ValueError(
+                        f"the carrier of {source_cells[0][vertex_row]!r} does not preserve P0"
+                    )
+            raise ValueError(f"carrier image of {cell!r} is not acyclic over GF(5)")
+        raise _reference_failure(status, cell, reference)
+
+    chain_map = result["chain_map"]
+    if len(chain_map) != len(target):
+        raise AssertionError(
+            f"the native carrier kernel returned {len(chain_map)} degrees of the chain map "
+            f"for a source with {len(target)}"
+        )
+    in_p0 = target_exit.astype(bool)
+    entries: list[tuple[tuple[int, int, int], ...]] = []
+    for degree, array in enumerate(target):
+        # The position of every simplex in the basis of C(P1) / C(P0), or -1 in P0.
+        outside = ~np.all(in_p0[np.searchsorted(labels, array)], axis=1)
+        position = np.full(len(array), -1, dtype=np.int64)
+        position[outside] = np.arange(int(np.count_nonzero(outside)))
+        if int(np.count_nonzero(outside)) != relative.cell_counts[degree]:
+            raise AssertionError(
+                f"the simplices outside P0 are not the basis of C(P1) / C(P0) in degree {degree}"
+            )
+        found = np.asarray(chain_map[degree], dtype=np.int64).reshape(-1, 3)
+        columns = position[rows[degree][found[:, 0]]]
+        images = position[found[:, 1]]
+        keep = (columns >= 0) & (images >= 0)
+        entries.append(
+            tuple(zip(images[keep].tolist(), columns[keep].tolist(), found[keep, 2].tolist()))
+        )
+    return tuple(entries)
+
+
 __all__ = [
     "CONLEY_BACKENDS",
     "CarrierKernelArrays",
     "KERNEL_FAILURES",
     "KERNEL_FUNCTION",
+    "KernelChainMap",
     "carrier_kernel_arrays",
+    "cross_complex_carrier_arrays",
     "exit_mask",
     "kernel_failure",
     "native_carrier_kernel_available",
+    "native_cross_complex_chain_map",
     "native_relation_payload",
     "native_relation_shift_class",
+    "native_subcomplex_chain_entries",
     "relation_carrier_arrays",
     "resolve_conley_backend",
     "simplex_arrays",

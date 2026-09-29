@@ -1,11 +1,13 @@
 """The native carrier kernel of CMGDB against the Python construction.
 
 ``CMGDB.ComputeCarrierChainMap`` forms the carriers and the chain map of
-:func:`atlas_conley.prepare_atlas_relation_conley_2d` natively.  These tests
-check the arrays handed to it (:mod:`carrier_kernel`), the exceptions
-rebuilt from its failures, and the choice of backend, and they run the
-Conley problems of ``test_suspension_grid.py`` with the Python and the
-native backend: the records and every payload passed to
+:func:`atlas_conley.prepare_atlas_relation_conley_2d` natively, and those of
+the excision construction and of the excised forward-closure pair, whose
+carriers lie in another complex.  These tests check the arrays handed to it
+(:mod:`carrier_kernel`), the exceptions rebuilt from its failures, and the
+choice of backend, and they run the Conley problems of
+``test_suspension_grid.py`` with the Python and the native backend in every
+construction: the records and every payload passed to
 ``CMGDB.ComputeRelativeHomologyShiftClass`` must be equal.  The runs with
 the native kernel are skipped when the installed CMGDB lacks it.  The same
 comparisons also run with :func:`reference_carrier_chain_map`, a Python
@@ -45,9 +47,12 @@ from hybrid_dynamics.src import suspension_grid_conley
 from hybrid_dynamics.src.carrier_kernel import (
     KERNEL_FUNCTION,
     carrier_kernel_arrays,
+    cross_complex_carrier_arrays,
     kernel_failure,
     native_carrier_kernel_available,
+    native_cross_complex_chain_map,
     native_relation_payload,
+    native_subcomplex_chain_entries,
     relation_carrier_arrays,
     resolve_conley_backend,
     simplex_arrays,
@@ -112,28 +117,37 @@ def reference_carrier_chain_map(
     modulus=5,
     return_carriers=False,
 ):
-    """``CMGDB.ComputeCarrierChainMap`` for a complex that is its own target, in Python.
+    """``CMGDB.ComputeCarrierChainMap`` in Python.
 
-    The carriers are the subcomplexes induced on the unions of the vertex
-    images; the checks run in the order of the specification (every carrier
-    nonempty, every carrier acyclic, the chain map, then its validation),
-    each reporting the first failing cell in the order of the complex.  The
-    chain map is solved with the elimination of
-    :meth:`suspension_complex.FixedTimeCarrier.construct_chain_map` on the
-    rows of the cells, so its entries come in the order of the Python
-    construction.
+    The carriers are the subcomplexes of the target (the source when
+    ``target_simplices`` is ``None``) induced on the unions of the vertex
+    images; the checks run in the order of the kernel (every carrier
+    nonempty, every carrier acyclic, the carriers of ``P0`` in ``P0``, the
+    chain map, then its validation), each reporting the first failing cell
+    in the order of the complex.  The chain map is solved with the
+    elimination of :meth:`suspension_complex.FixedTimeCarrier.construct_chain_map`
+    on the rows of the cells, so its entries come in the order of the Python
+    construction.  The relative payload is returned when the target is the
+    source.
     """
 
     if modulus != 5:
         raise ValueError("modulus must be 5")
-    if target_simplices is not None or target_exit is not None:
-        raise NotImplementedError("the reference covers a complex that is its own target")
-    simplices = [
-        [tuple(int(v) for v in row) for row in np.asarray(array).reshape(-1, degree + 1)]
-        for degree, array in enumerate(source_simplices)
-    ]
-    row_of = [{simplex: row for row, simplex in enumerate(group)} for group in simplices]
+    if (target_simplices is None) != (target_exit is None):
+        raise ValueError("target_simplices and target_exit go together")
+
+    def read(arrays):
+        simplices = [
+            [tuple(int(v) for v in row) for row in np.asarray(array).reshape(-1, degree + 1)]
+            for degree, array in enumerate(arrays)
+        ]
+        return simplices, [{simplex: row for row, simplex in enumerate(group)} for group in simplices]
+
+    simplices, row_of = read(source_simplices)
+    same = target_simplices is None
+    targets, target_row_of = (simplices, row_of) if same else read(target_simplices)
     labels = [simplex[0] for simplex in simplices[0]]
+    target_labels = [simplex[0] for simplex in targets[0]]
     vertex_row = {label: row for row, label in enumerate(labels)}
     indptr = np.asarray(vertex_image_indptr, dtype=np.int64)
     indices = np.asarray(vertex_image_indices, dtype=np.int64)
@@ -143,10 +157,17 @@ def reference_carrier_chain_map(
         frozenset(int(v) for v in indices[indptr[row] : indptr[row + 1]])
         for row in range(len(labels))
     ]
-    unknown = set().union(*images).difference(labels)
+    unknown = set().union(*images).difference(target_labels)
     if unknown:
         raise IndexError(f"vertex images outside the target: {sorted(unknown)!r}")
     exit_labels = frozenset(label for label, flag in zip(labels, np.asarray(source_exit)) if flag)
+    target_exit_labels = (
+        exit_labels
+        if same
+        else frozenset(
+            label for label, flag in zip(target_labels, np.asarray(target_exit)) if flag
+        )
+    )
 
     def failure(status, degree, row):
         return {"status": status, "failure_degree": degree, "failure_row": row}
@@ -160,7 +181,7 @@ def reference_carrier_chain_map(
             if not key:
                 return failure("empty_carrier", degree, row)
     by_first: dict[int, list[tuple[int, int]]] = {}
-    for degree, group in enumerate(simplices):
+    for degree, group in enumerate(targets):
         for row, simplex in enumerate(group):
             by_first.setdefault(simplex[0], []).append((degree, row))
     carrier_of: dict[frozenset, int] = {}
@@ -170,23 +191,28 @@ def reference_carrier_chain_map(
         for row, key in enumerate(group):
             identifier = carrier_of.get(key)
             if identifier is None:
-                cells = [[] for _ in simplices]
+                cells = [[] for _ in targets]
                 for vertex in key:
                     for cell_degree, cell_row in by_first.get(vertex, ()):
-                        if key.issuperset(simplices[cell_degree][cell_row]):
+                        if key.issuperset(targets[cell_degree][cell_row]):
                             cells[cell_degree].append(cell_row)
                 cells = [sorted(rows) for rows in cells]
-                betti = _betti_numbers(simplices, row_of, cells)
+                betti = _betti_numbers(targets, target_row_of, cells)
                 if betti[0] != 1 or any(betti[1:]):
                     return failure("not_acyclic", degree, row)
                 identifier = carrier_of[key] = len(carrier_cells)
                 carrier_cells.append(cells)
             carrier_ids[degree][row] = identifier
+    in_p0 = [[exit_labels.issuperset(simplex) for simplex in group] for group in simplices]
+    for degree, group in enumerate(keys):
+        for row, key in enumerate(group):
+            if in_p0[degree][row] and not target_exit_labels.issuperset(key):
+                return failure("pair_violation", degree, row)
 
-    def faces(degree, simplex):
+    def faces(simplices_, row_of_, degree, simplex):
         return [
             (
-                row_of[degree - 1][simplex[:index] + simplex[index + 1 :]],
+                row_of_[degree - 1][simplex[:index] + simplex[index + 1 :]],
                 1 if index % 2 == 0 else -1,
             )
             for index in range(degree + 1)
@@ -210,21 +236,23 @@ def reference_carrier_chain_map(
                 images_of[0][row] = {cells[0][0]: 1}
                 continue
             right_hand_side = {}
-            for face, incidence in faces(degree, simplex):
+            for face, incidence in faces(simplices, row_of, degree, simplex):
                 add(right_hand_side, images_of[degree - 1][face], incidence)
             system = systems.get((identifier, degree))
             if system is None:
-                row_index = {cell: index for index, cell in enumerate(cells[degree - 1])}
-                columns = cells[degree]
+                rows = cells[degree - 1] if degree - 1 < len(cells) else []
+                row_index = {cell: index for index, cell in enumerate(rows)}
+                columns = cells[degree] if degree < len(cells) else []
                 entries = {
-                    column: dict(faces(degree, simplices[degree][column])) for column in columns
+                    column: dict(faces(targets, target_row_of, degree, targets[degree][column]))
+                    for column in columns
                 }
                 pivots = _eliminate_columns_mod_prime(row_index, columns, entries, 5)
                 system = (row_index, pivots, columns)
                 systems[(identifier, degree)] = system
             row_index, pivots, columns = system
             if not set(right_hand_side) <= set(row_index):
-                return failure("no_solution", degree, row)
+                return failure("chain_map_invalid", degree, row)
             try:
                 images_of[degree][row] = _solve_with_pivots(
                     row_index, pivots, columns, right_hand_side, 5
@@ -236,9 +264,13 @@ def reference_carrier_chain_map(
         for row, simplex in enumerate(simplices[degree]):
             boundary_after_map = {}
             for target, coefficient in images_of[degree][row].items():
-                add(boundary_after_map, dict(faces(degree, simplices[degree][target])), coefficient)
+                add(
+                    boundary_after_map,
+                    dict(faces(targets, target_row_of, degree, targets[degree][target])),
+                    coefficient,
+                )
             map_after_boundary = {}
-            for face, incidence in faces(degree, simplex):
+            for face, incidence in faces(simplices, row_of, degree, simplex):
                 add(map_after_boundary, images_of[degree - 1][face], incidence)
             if boundary_after_map != map_after_boundary:
                 return failure("chain_map_invalid", degree, row)
@@ -247,33 +279,16 @@ def reference_carrier_chain_map(
             carrier = set(carrier_cells[carrier_ids[degree][row]][degree])
             if not set(images_of[degree][row]) <= carrier:
                 return failure("chain_map_invalid", degree, row)
-    in_p0 = [[exit_labels.issuperset(simplex) for simplex in group] for group in simplices]
+    target_in_p0 = [
+        [target_exit_labels.issuperset(simplex) for simplex in group] for group in targets
+    ]
     for degree, group in enumerate(simplices):
         for row in range(len(group)):
-            if in_p0[degree][row] and not all(in_p0[degree][t] for t in images_of[degree][row]):
-                return failure("pair_violation", degree, row)
+            if in_p0[degree][row] and not all(
+                target_in_p0[degree][t] for t in images_of[degree][row]
+            ):
+                return failure("chain_map_invalid", degree, row)
 
-    basis = [
-        [row for row in range(len(group)) if not in_p0[degree][row]]
-        for degree, group in enumerate(simplices)
-    ]
-    position = [{row: index for index, row in enumerate(rows)} for rows in basis]
-    boundary_entries = [[]]
-    for degree in range(1, len(simplices)):
-        entries = []
-        for column, row in enumerate(basis[degree]):
-            for face, incidence in faces(degree, simplices[degree][row]):
-                if face in position[degree - 1]:
-                    entries.append((position[degree - 1][face], column, incidence % 5))
-        boundary_entries.append(entries)
-    chain_map_entries = []
-    for degree in range(len(simplices)):
-        entries = []
-        for column, row in enumerate(basis[degree]):
-            for target, coefficient in images_of[degree][row].items():
-                if target in position[degree]:
-                    entries.append((position[degree][target], column, coefficient % 5))
-        chain_map_entries.append(entries)
     result = {
         "status": "ok",
         "failure_degree": -1,
@@ -289,13 +304,35 @@ def reference_carrier_chain_map(
             ).reshape(-1, 3)
             for degree, group in enumerate(simplices)
         ],
-        "payload": {
+        "carrier_count": len(carrier_cells),
+    }
+    if same:
+        basis = [
+            [row for row in range(len(group)) if not in_p0[degree][row]]
+            for degree, group in enumerate(simplices)
+        ]
+        position = [{row: index for index, row in enumerate(rows)} for rows in basis]
+        boundary_entries = [[]]
+        for degree in range(1, len(simplices)):
+            entries = []
+            for column, row in enumerate(basis[degree]):
+                for face, incidence in faces(simplices, row_of, degree, simplices[degree][row]):
+                    if face in position[degree - 1]:
+                        entries.append((position[degree - 1][face], column, incidence % 5))
+            boundary_entries.append(entries)
+        chain_map_entries = []
+        for degree in range(len(simplices)):
+            entries = []
+            for column, row in enumerate(basis[degree]):
+                for target, coefficient in images_of[degree][row].items():
+                    if target in position[degree]:
+                        entries.append((position[degree][target], column, coefficient % 5))
+            chain_map_entries.append(entries)
+        result["payload"] = {
             "cell_counts": [len(rows) for rows in basis],
             "boundary_entries": boundary_entries,
             "chain_map_entries": chain_map_entries,
-        },
-        "carrier_count": len(carrier_cells),
-    }
+        }
     if return_carriers:
         result["carrier_ids"] = np.array(
             [identifier for group in carrier_ids for identifier in group], dtype=np.int64
@@ -405,7 +442,7 @@ REFERENCE_RUNS = {
             "neuron-l6-synthetic",
             "ball-l3-zero-homology",
         )
-        for option in ("exit-components", "auto", "forward-closure")
+        for option in ("exit-components", "auto", "forward-closure", "excision", "excised")
     ),
     ("repelling-orbit-l4", "exit-components"),
 }
@@ -415,6 +452,22 @@ OPTIONS = {
     "exit-components": {"index_map": "exit-components"},
     "auto": {"index_map": "auto"},
     "forward-closure": {"index_pair": "forward-closure"},
+    "excision": {"index_map": "excision"},
+    "excised": {"index_pair": "forward-closure", "excise": True},
+}
+
+#: The Python and the native forms of each construction in suspension_grid_conley.
+CONSTRUCTIONS = {
+    "python": (
+        "prepare_atlas_relation_conley_2d",
+        "_excision_chain_map",
+        "_excised_chain_map_entries",
+    ),
+    "native": (
+        "native_relation_shift_class",
+        "native_cross_complex_chain_map",
+        "native_subcomplex_chain_entries",
+    ),
 }
 
 _BUILT: dict[str, tuple] = {}
@@ -445,33 +498,34 @@ def _payload_arguments(arguments):
 
 
 def _runs(relation, morse_sets, backend, **options):
-    """Records (without ``seconds``) and CMGDB payloads of every Morse set, and the calls made."""
+    """Records (without ``seconds``) and CMGDB payloads of every Morse set, and the calls made.
+
+    ``calls["python"]`` and ``calls["native"]`` count the calls of the Python
+    and of the native forms of the constructions (:data:`CONSTRUCTIONS`).
+    """
 
     payloads: list = []
     calls = {"python": 0, "native": 0}
     shift_class = CMGDB.ComputeRelativeHomologyShiftClass
-    prepare = suspension_grid_conley.prepare_atlas_relation_conley_2d
-    native = suspension_grid_conley.native_relation_shift_class
 
     def recording(*arguments):
         payloads.append(_payload_arguments(arguments))
         return shift_class(*arguments)
 
-    def python_construction(*arguments, **keywords):
-        calls["python"] += 1
-        return prepare(*arguments, **keywords)
+    def counted(kind, function):
+        def construction(*arguments, **keywords):
+            calls[kind] += 1
+            return function(*arguments, **keywords)
 
-    def native_construction(*arguments, **keywords):
-        calls["native"] += 1
-        return native(*arguments, **keywords)
+        return construction
 
     runs = []
     with pytest.MonkeyPatch.context() as patch:
         patch.setattr(CMGDB, "ComputeRelativeHomologyShiftClass", recording)
-        patch.setattr(
-            suspension_grid_conley, "prepare_atlas_relation_conley_2d", python_construction
-        )
-        patch.setattr(suspension_grid_conley, "native_relation_shift_class", native_construction)
+        for kind, names in CONSTRUCTIONS.items():
+            for name in names:
+                function = getattr(suspension_grid_conley, name)
+                patch.setattr(suspension_grid_conley, name, counted(kind, function))
         for node, morse_set in enumerate(morse_sets):
             payloads.clear()
             record = compute_suspension_grid_conley_index(
@@ -520,6 +574,28 @@ def test_problems_reach_every_construction():
     closure, calls = _python_runs("repelling-cylinder-l2", "forward-closure")
     assert calls["python"] == 3
     assert all(record["label_source"] == "index map" for record, _ in closure)
+    # The excision construction (also the fallback of "auto") and the excised
+    # forward-closure pair: labels, a carrier that is not acyclic, and an
+    # atom with an empty image.
+    for name, option, labels in (
+        ("repelling-orbit-l4", "excision", 3),
+        ("repelling-orbit-l4", "auto", 3),
+        ("repelling-orbit-l4", "excised", 3),
+        ("saddle-l4", "excision", 2),
+        ("ball-l3-offset1-tau2-gap2", "excised", 1),
+    ):
+        runs, calls = _python_runs(name, option)
+        assert calls["python"] >= labels, (name, option)
+        sources = [record["label_source"] for record, _ in runs]
+        assert sum(source.startswith("index map") for source in sources) == labels, (name, option)
+    auto, calls = _python_runs("repelling-orbit-l4", "auto")
+    assert calls["python"] == 4  # three exit-components maps and one excision map
+    assert [record["label_source"] for record, _ in auto].count("index map (excision pair)") == 1
+    for option in ("excision", "excised"):
+        runs, _ = _python_runs("oscillator-l4-offset2-tau3-gap2", option)
+        assert any("is not acyclic" in record["blocker"] for record, _ in runs), option
+    runs, _ = _python_runs("wheel-l3-offset1-tau1-gap2", "excision")
+    assert any("has an empty image" in record["blocker"] for record, _ in runs)
 
 
 def _preparations(relation, morse_sets, **options):
@@ -785,6 +861,254 @@ def test_kernel_failures_give_the_exceptions_of_the_python_construction():
     assert type(failure("unknown")) is AssertionError
     assert type(failure("not_acyclic", 1, 99)) is AssertionError
     assert type(failure("not_acyclic", -1, -1)) is AssertionError
+
+
+# ---------------------------------------------------------------------------
+# Carriers into another complex: the excision construction and the excised pair
+# ---------------------------------------------------------------------------
+
+
+def _checked_native_constructions(relation, morse_sets, **options):
+    """Run the native backend, comparing each native chain map with the Python one.
+
+    The chain maps of the excision construction are compared cell by cell,
+    with the entries of every image in order; the entries of the excised
+    pair are compared as they go to CMGDB.  Returns the number of chain maps
+    compared, and of those whose target is the source (``Xbar = X``).
+    """
+
+    compared = {"excision": 0, "excision into X": 0, "excised": 0}
+    cross = suspension_grid_conley.native_cross_complex_chain_map
+    subcomplex = suspension_grid_conley.native_subcomplex_chain_entries
+
+    def checked_cross(source, target, vertex_images, reference):
+        native = cross(source, target, vertex_images, reference)
+        python = reference()
+        for cell in source.complex.cells:
+            assert list(native.image(cell).items()) == list(python.image(cell).items()), cell
+        compared["excision"] += 1
+        compared["excision into X"] += target is source
+        return native
+
+    def checked_subcomplex(pair, sources, vertex_images, reference):
+        native = subcomplex(pair, sources, vertex_images, reference)
+        assert native == reference()
+        compared["excised"] += 1
+        return native
+
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(suspension_grid_conley, "native_cross_complex_chain_map", checked_cross)
+        patch.setattr(
+            suspension_grid_conley, "native_subcomplex_chain_entries", checked_subcomplex
+        )
+        for node, morse_set in enumerate(morse_sets):
+            compute_suspension_grid_conley_index(
+                relation, morse_set, morse_node=node, backend="native", **options
+            )
+    return compared
+
+
+def test_native_excision_and_excised_chain_maps_are_those_of_the_python_construction(kernel):
+    names = ["saddle-l4", "repelling-cylinder-l2"]
+    if kernel == "native":
+        names += ["repelling-orbit-l4", "ball-l3-offset1-tau2-gap2"]
+    totals = {"excision": 0, "excision into X": 0, "excised": 0}
+    for name in names:
+        for option in ("excision", "excised"):
+            compared = _checked_native_constructions(*_problem(name), **OPTIONS[option])
+            for key, value in compared.items():
+                totals[key] += value
+    assert totals["excision"] >= 4 and totals["excised"] >= 4
+    assert 0 < totals["excision into X"] < totals["excision"]
+
+
+def _annulus_pair(vertices=(0, 1, 2, 3), exits=()):
+    return AtlasRelativeIndexPair2D(_four_cell_quotient(), vertices, exits)
+
+
+def _excised(pair, images, backend):
+    return suspension_grid_conley._excised_shift_class(
+        pair, sorted(pair.p1_atlas_cells), images, backend=backend
+    )
+
+
+_NOT_PRESERVED = "the carrier of AtlasNerveSimplex(vertices=({},)) does not preserve P0"
+_NOT_ACYCLIC = "carrier image of AtlasNerveSimplex(vertices={}) is not acyclic over GF(5)"
+
+
+@pytest.mark.parametrize(
+    ("exits", "images", "message"),
+    [
+        # A vertex of P0 whose carrier leaves P0, before a carrier that is not acyclic.
+        ({0}, {0: {1}, 1: {1}, 2: {0, 1, 2, 3}, 3: {3}}, _NOT_PRESERVED.format(0)),
+        # A carrier that is not acyclic before such a vertex, and at one.
+        ({2}, {0: {0, 1, 2, 3}, 1: {1}, 2: {1}, 3: {3}}, _NOT_ACYCLIC.format("(0,)")),
+        ({0}, {0: {0, 1, 2, 3}, 1: {1}, 2: {2}, 3: {3}}, _NOT_ACYCLIC.format("(0,)")),
+        # Such a vertex after the others, before an edge carried by the annulus.
+        ({3}, {0: {0, 1}, 1: {2, 3}, 2: {2}, 3: {0}}, _NOT_PRESERVED.format(3)),
+        ({3}, {0: {0}, 1: {1}, 2: {2}, 3: {0}}, _NOT_PRESERVED.format(3)),
+        ((), {0: {0, 1}, 1: {2, 3}, 2: {2}, 3: {3}}, _NOT_ACYCLIC.format("(0, 1)")),
+    ],
+)
+def test_excised_failures_are_those_of_the_python_construction(kernel, exits, images, message):
+    pair = _annulus_pair(exits=exits)
+    python = _raised(lambda: _excised(pair, images, "python"))
+    native = _raised(lambda: _excised(pair, images, "native"))
+    assert type(native) is type(python) is ValueError
+    assert str(native) == str(python) == message
+
+
+def test_excised_shift_class_is_that_of_the_python_construction(kernel):
+    pair = _annulus_pair(exits={3})
+    for images in (
+        {0: {0}, 1: {1}, 2: {2}, 3: {3}},
+        {0: {0}, 1: {0, 1}, 2: {2}, 3: {3}},
+    ):
+        python = _excised(pair, images, "python")
+        assert _excised(pair, images, "native") == python
+        assert python["homology_dimensions"] == [0, 1, 0]
+
+
+def _excision_failure(source, target, images):
+    """The exceptions of the Python and the native excision chain maps."""
+
+    def reference():
+        return suspension_grid_conley._excision_chain_map(source, target, images)
+
+    python = _raised(reference)
+    native = _raised(lambda: native_cross_complex_chain_map(source, target, images, reference))
+    return python, native
+
+
+@pytest.mark.parametrize(
+    ("source", "target", "images", "message"),
+    [
+        (
+            ((0, 1, 2), ()),
+            ((0, 1, 2, 3), ()),
+            {0: {0}, 1: {1, 2, 3}, 2: {2}},
+            _NOT_ACYCLIC.format("(1,)"),
+        ),
+        # Every carrier is checked before the pair.
+        (
+            ((0, 1, 2), (0,)),
+            ((0, 1, 2, 3), (2, 3)),
+            {0: {1}, 1: {1}, 2: {1, 2, 3}},
+            _NOT_ACYCLIC.format("(2,)"),
+        ),
+        (
+            ((0, 1, 2), (2,)),
+            ((0, 1, 2, 3), (2, 3)),
+            {0: {0}, 1: {1}, 2: {0}},
+            "the carrier of AtlasNerveSimplex(vertices=(2,)) in A does not lie in Abar",
+        ),
+        # The image vertex 3 is not a vertex of the target: an empty carrier.
+        (
+            ((0, 1), ()),
+            ((0, 1, 2), ()),
+            {0: {3}, 1: {1}},
+            "carrier image of AtlasNerveSimplex(vertices=(0,)) must be nonempty",
+        ),
+    ],
+)
+def test_excision_failures_are_those_of_the_python_construction(
+    kernel, source, target, images, message
+):
+    python, native = _excision_failure(
+        _annulus_pair(*source), _annulus_pair(*target), images
+    )
+    assert type(native) is type(python) is ValueError
+    assert str(native) == str(python) == message
+
+
+def test_excision_chain_map_is_that_of_the_python_construction(kernel):
+    source = _annulus_pair((0, 1, 2), (2,))
+    target = _annulus_pair(exits=(2, 3))
+    cases = [
+        (source, target, {0: {0, 1}, 1: {1}, 2: {2}}),
+        # Image vertices outside the target span nothing.
+        (_annulus_pair((0, 1), ()), _annulus_pair((0, 1, 2)), {0: {0, 3}, 1: {1, 2}}),
+    ]
+    into_itself = _annulus_pair(exits=(3,))
+    cases.append((into_itself, into_itself, {0: {0}, 1: {0, 1}, 2: {2}, 3: {3}}))
+    for source, target, images in cases:
+
+        def reference(source=source, target=target, images=images):
+            return suspension_grid_conley._excision_chain_map(source, target, images)
+
+        python = reference()
+        native = native_cross_complex_chain_map(source, target, images, reference)
+        for cell in source.complex.cells:
+            assert list(native.image(cell).items()) == list(python.image(cell).items()), cell
+        with pytest.raises(KeyError, match="not a source cell"):
+            native.image(AtlasNerveSimplex((0, 1, 2, 3)))
+    arrays = cross_complex_carrier_arrays(
+        into_itself.complex, into_itself.complex, {0: {0}, 1: {1}, 2: {2}, 3: {3}}, {3}, {3}
+    )
+    assert arrays.target_simplices is None and arrays.target_exit is None
+    with pytest.raises(ValueError, match="one set of exit vertices"):
+        cross_complex_carrier_arrays(
+            into_itself.complex, into_itself.complex, {0: {0}, 1: {1}, 2: {2}, 3: {3}}, {3}, {2}
+        )
+
+
+def test_other_kernel_failures_run_the_python_construction(monkeypatch):
+    source = _annulus_pair((0, 1, 2))
+    target = _annulus_pair()
+    images = {0: {0}, 1: {1}, 2: {2}}
+    pair = _annulus_pair(exits={3})
+    pair_images = {0: {0}, 1: {1}, 2: {2}, 3: {3}}
+    expected = ValueError("the exception of the Python construction")
+
+    def raising():
+        raise expected
+
+    def forming():
+        return None
+
+    def returning(result):
+        def kernel(*arguments, **keywords):
+            return dict(result)
+
+        return kernel
+
+    def cross(reference):
+        return _raised(lambda: native_cross_complex_chain_map(source, target, images, reference))
+
+    def excised(reference):
+        return _raised(
+            lambda: native_subcomplex_chain_entries(
+                pair, pair.complex.cell_set, pair_images, reference
+            )
+        )
+
+    for status, degree, row in (
+        ("empty_carrier", 0, 1),
+        ("no_solution", 1, 0),
+        ("chain_map_invalid", 1, 0),
+        ("pair_violation", 1, 0),
+    ):
+        result = {"status": status, "failure_degree": degree, "failure_row": row}
+        monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, returning(result), raising=False)
+        assert cross(raising) is expected and excised(raising) is expected
+        assert type(cross(forming)) is AssertionError
+        assert type(excised(forming)) is AssertionError
+    # The failures rebuilt without the Python construction.
+    result = {"status": "not_acyclic", "failure_degree": 0, "failure_row": 2}
+    monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, returning(result), raising=False)
+    assert str(cross(raising)) == str(excised(raising)) == _NOT_ACYCLIC.format("(2,)")
+    result = {"status": "pair_violation", "failure_degree": 0, "failure_row": 2}
+    monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, returning(result), raising=False)
+    assert cross(raising) is expected
+    assert str(excised(raising)) == _NOT_PRESERVED.format(2)
+    for result in (
+        {"status": "unknown", "failure_degree": 0, "failure_row": 0},
+        {"status": "not_acyclic", "failure_degree": 1, "failure_row": 99},
+        {"status": "not_acyclic", "failure_degree": 7, "failure_row": 0},
+    ):
+        monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, returning(result), raising=False)
+        assert type(cross(raising)) is AssertionError
+        assert type(excised(raising)) is AssertionError
 
 
 # ---------------------------------------------------------------------------
