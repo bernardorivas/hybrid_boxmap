@@ -76,6 +76,7 @@ from .suspension_complex import (
     SHIFT_CLASS_FUNCTION,
     CMGDBRelativeHomologyPayload,
     FiniteCellComplex,
+    RelativeCellPair,
     cmgdb_shift_class_function,
 )
 
@@ -430,29 +431,66 @@ class CarrierKernelArrays:
     target_simplices: tuple[npt.NDArray[np.int32], ...] | None = None
     target_exit: npt.NDArray[np.uint8] | None = None
 
-    def compute(self, *, return_carriers: bool = False) -> dict[str, Any]:
-        """The result dictionary of ``CMGDB.ComputeCarrierChainMap`` on these arrays."""
+    def compute(
+        self, *, return_carriers: bool = False, return_chain_map: bool = True
+    ) -> dict[str, Any]:
+        """The result dictionary of ``CMGDB.ComputeCarrierChainMap`` on these arrays.
+
+        ``return_chain_map=False`` asks the kernel to leave out
+        ``"chain_map"`` when it accepts that option
+        (:func:`_call_without_chain_map`); the result may still hold it.
+        """
 
         import CMGDB
 
         kernel = getattr(CMGDB, KERNEL_FUNCTION)
-        target: dict[str, Any] = {}
-        if self.target_simplices is not None:
-            target = {
-                "target_simplices": list(self.target_simplices),
-                "target_exit": self.target_exit,
-            }
-        return dict(
-            kernel(
-                list(self.source_simplices),
-                self.vertex_image_indptr,
-                self.vertex_image_indices,
-                self.source_exit,
-                modulus=5,
-                return_carriers=return_carriers,
-                **target,
-            )
+        arguments = (
+            list(self.source_simplices),
+            self.vertex_image_indptr,
+            self.vertex_image_indices,
+            self.source_exit,
         )
+        options: dict[str, Any] = {"modulus": 5, "return_carriers": return_carriers}
+        if self.target_simplices is not None:
+            options.update(
+                target_simplices=list(self.target_simplices), target_exit=self.target_exit
+            )
+        if return_chain_map:
+            return dict(kernel(*arguments, **options))
+        return dict(_call_without_chain_map(kernel, arguments, options))
+
+
+#: Whether a kernel function accepts ``return_chain_map``, by function, as
+#: found at its first call without the chain map.
+_ACCEPTS_RETURN_CHAIN_MAP: dict[Any, bool] = {}
+
+
+def _call_without_chain_map(
+    kernel: Callable[..., Mapping[str, Any]], arguments: Sequence[Any], options: Mapping[str, Any]
+) -> Mapping[str, Any]:
+    """``kernel(*arguments, **options)``, with ``return_chain_map=False`` if it accepts it.
+
+    The CMGDB builds that accept ``return_chain_map`` then leave out the
+    arrays of the chain map.  The first call with a kernel function tries
+    the option; a ``TypeError`` there is followed by the call without it,
+    and if that call succeeds the function is recorded as not accepting it
+    (if it raises, the error is that of the arguments, and nothing is
+    recorded).
+    """
+
+    accepts = _ACCEPTS_RETURN_CHAIN_MAP.get(kernel)
+    if accepts is False:
+        return kernel(*arguments, **options)
+    if accepts:
+        return kernel(*arguments, return_chain_map=False, **options)
+    try:
+        result = kernel(*arguments, return_chain_map=False, **options)
+    except TypeError:
+        result = kernel(*arguments, **options)
+        _ACCEPTS_RETURN_CHAIN_MAP[kernel] = False
+    else:
+        _ACCEPTS_RETURN_CHAIN_MAP[kernel] = True
+    return result
 
 
 def carrier_kernel_arrays(
@@ -497,6 +535,7 @@ def kernel_failure(
 ) -> Exception:
     """The exception of the Python construction for a failed kernel result.
 
+    Only the images of the exit vertices are read from ``vertex_images``.
     The failing cell is ``pair.complex.cells_of_dimension(failure_degree)
     [failure_row]``.  An empty or non-acyclic carrier is reported at the
     first cell of the complex with such a carrier, as in the Python
@@ -579,9 +618,45 @@ def _failing_cell(
 
 
 def _entries(degrees: Any) -> tuple[tuple[tuple[int, int, int], ...], ...]:
-    return tuple(
-        tuple((int(row), int(column), int(value)) for row, column, value in entries)
-        for entries in degrees
+    """The ``(row, column, value)`` entries of each degree, as tuples of ints.
+
+    The kernel returns the entries of a degree as a list of tuples of ints;
+    the tuples are then kept rather than copied.  Other entries are
+    converted.
+    """
+
+    result = []
+    for entries in degrees:
+        if set(map(type, entries)) <= {tuple}:
+            result.append(tuple(entries))
+        else:
+            result.append(
+                tuple((int(row), int(column), int(value)) for row, column, value in entries)
+            )
+    return tuple(result)
+
+
+def _same_boundary(relative: RelativeCellPair, boundary: Sequence[Sequence[Any]]) -> bool:
+    """Whether ``boundary`` is the relative boundary of ``relative`` over ``GF(5)``.
+
+    The entries of ``relative`` are generated degree by degree
+    (:meth:`suspension_complex.RelativeCellPair.boundary_entries_of_degree`)
+    and compared as they come, so no second copy of the boundary is built.
+    """
+
+    if len(boundary) != len(relative.cell_counts) or len(boundary[0]):
+        return False
+    missing = object()
+    return all(
+        all(
+            given == expected
+            for given, expected in itertools.zip_longest(
+                boundary[degree],
+                relative.boundary_entries_of_degree(degree, modulus=5),
+                fillvalue=missing,
+            )
+        )
+        for degree in range(1, len(boundary))
     )
 
 
@@ -607,7 +682,13 @@ def native_relation_payload(
         pair, top_relation, use_exit_component_carrier=use_exit_component_carrier
     )
     arrays = carrier_kernel_arrays(pair.complex, vertex_images, pair.p0_atlas_cells)
-    result = arrays.compute()
+    # Only the images of the exit vertices are read after the kernel runs.
+    exit_images = {vertex: vertex_images[vertex] for vertex in pair.p0_atlas_cells}
+    del vertex_images
+    # The chain map of the whole complex is not read: the payload holds its
+    # entries on the relative basis.
+    result = arrays.compute(return_chain_map=False)
+    del arrays
     if result.get("status") != "ok":
 
         def reference() -> object:
@@ -617,22 +698,23 @@ def native_relation_payload(
                 use_exit_component_carrier=use_exit_component_carrier,
             )
 
-        raise kernel_failure(result, pair, vertex_images, reference)
+        raise kernel_failure(result, pair, exit_images, reference)
     relative = pair.relative_pair
-    raw = result["payload"]
+    raw = result.pop("payload")
+    del result
     counts = tuple(int(value) for value in raw["cell_counts"])
     if counts != relative.cell_counts:
         raise AssertionError(
             f"the native carrier kernel gives the relative cell counts {counts!r}, "
             f"the pair {relative.cell_counts!r}"
         )
-    boundary = _entries(raw["boundary_entries"])
-    if boundary != relative.boundary_entries(modulus=5):
+    boundary = _entries(raw.pop("boundary_entries"))
+    if not _same_boundary(relative, boundary):
         raise AssertionError("the native carrier kernel gives another relative boundary")
     return CMGDBRelativeHomologyPayload(
         cell_counts=counts,
         boundary_entries=boundary,
-        chain_map_entries=_entries(raw["chain_map_entries"]),
+        chain_map_entries=_entries(raw.pop("chain_map_entries")),
         basis_by_dimension=relative.basis_by_dimension,
     )
 

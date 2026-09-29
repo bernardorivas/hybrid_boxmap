@@ -770,6 +770,62 @@ def test_arrays_of_the_exit_components_of_a_small_quotient():
         relation_carrier_arrays(pair, top_relation={0: {0}})
 
 
+def test_the_relation_payload_leaves_out_the_chain_map_when_the_kernel_can(monkeypatch):
+    nerve = _four_cell_quotient()
+    pair = AtlasRelativeIndexPair2D(nerve, nerve.atlas_indices, {0, 1})
+    relation = {0: {2}, 1: {3}, 2: {0}, 3: {0}}
+    expected = prepare_atlas_relation_conley_2d(pair, top_relation=relation).payload
+    relative = pair.relative_pair
+    assert [
+        tuple(relative.boundary_entries_of_degree(degree))
+        for degree in range(1, len(relative.cell_counts))
+    ] == list(relative.boundary_entries()[1:])
+    with pytest.raises(ValueError, match="no relative boundary of degree 0"):
+        relative.boundary_entries_of_degree(0)
+    calls = []
+
+    def accepting(*arguments, return_chain_map=True, **keywords):
+        calls.append(return_chain_map)
+        result = reference_carrier_chain_map(*arguments, **keywords)
+        if not return_chain_map:
+            del result["chain_map"]
+        return result
+
+    def refusing(*arguments, **keywords):
+        if "return_chain_map" in keywords:
+            calls.append("refused")
+            raise TypeError("unexpected keyword argument 'return_chain_map'")
+        calls.append("called")
+        return reference_carrier_chain_map(*arguments, **keywords)
+
+    def invalid(*arguments, **keywords):
+        calls.append("return_chain_map" in keywords)
+        raise TypeError("invalid arguments")
+
+    # The option is tried once per kernel function and remembered.
+    for kernel, expected_calls in (
+        (accepting, [False, False]),
+        (refusing, ["refused", "called", "called"]),
+    ):
+        monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, kernel, raising=False)
+        calls.clear()
+        for _ in range(2):
+            assert native_relation_payload(pair, top_relation=relation) == expected
+        assert calls == expected_calls
+    # A TypeError of the call without the option is the error of the arguments.
+    monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, invalid, raising=False)
+    calls.clear()
+    for _ in range(2):
+        with pytest.raises(TypeError, match="invalid arguments"):
+            native_relation_payload(pair, top_relation=relation)
+    assert calls == [True, False, True, False]
+    # The constructions that read the chain map do not pass the option.
+    monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, accepting, raising=False)
+    calls.clear()
+    assert "chain_map" in relation_carrier_arrays(pair, top_relation=relation).compute()
+    assert calls == [True]
+
+
 def test_simplex_arrays_refuse_other_complexes():
     def simplex(*vertices):
         return AtlasNerveSimplex(tuple(vertices))

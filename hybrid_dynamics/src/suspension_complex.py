@@ -40,6 +40,7 @@ from typing import (
     FrozenSet,
     Hashable,
     Iterable,
+    Iterator,
     List,
     Mapping,
     Optional,
@@ -1967,19 +1968,32 @@ class RelativeCellPair:
         modulus = _require_prime(modulus)
         result: List[Tuple[SparseEntry, ...]] = [()]
         for dimension in range(1, len(self._basis)):
-            row_of = {
-                cell: row for row, cell in enumerate(self._basis[dimension - 1])
-            }
-            entries: List[SparseEntry] = []
-            for column, cell in enumerate(self._basis[dimension]):
-                for face, coefficient in self.complex.boundary(cell).items():
-                    if face not in row_of:
-                        continue  # The face is zero in C(P1) / C(P0).
-                    value = coefficient % modulus
-                    if value:
-                        entries.append((row_of[face], column, value))
-            result.append(tuple(entries))
+            result.append(tuple(self._boundary_entries_of_degree(dimension, modulus)))
         return tuple(result)
+
+    def boundary_entries_of_degree(
+        self, dimension: int, *, modulus: int = 5
+    ) -> Iterator[SparseEntry]:
+        """The entries of degree ``dimension >= 1`` of :meth:`boundary_entries`, in order.
+
+        They are generated one at a time, so the boundary can be compared
+        with another without a second copy.
+        """
+
+        modulus = _require_prime(modulus)
+        if not 1 <= dimension < len(self._basis):
+            raise ValueError(f"no relative boundary of degree {dimension}")
+        return self._boundary_entries_of_degree(dimension, modulus)
+
+    def _boundary_entries_of_degree(self, dimension: int, modulus: int) -> Iterator[SparseEntry]:
+        row_of = {cell: row for row, cell in enumerate(self._basis[dimension - 1])}
+        for column, cell in enumerate(self._basis[dimension]):
+            for face, coefficient in self.complex.boundary(cell).items():
+                if face not in row_of:
+                    continue  # The face is zero in C(P1) / C(P0).
+                value = coefficient % modulus
+                if value:
+                    yield (row_of[face], column, value)
 
 
 class RelativeHomologyBasis:
