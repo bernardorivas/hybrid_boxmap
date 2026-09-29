@@ -23,7 +23,7 @@ plot = PlotHybridMorseSets(
 For expensive runs, `extract_atlas_morse_plot_data` and
 `save_atlas_morse_plot_data` store the exact graph, chart tags, and rectangles
 as JSON. Loading that cache regenerates a figure without reevaluating the
-hybrid dynamics. `demo/generate_atlas_morse_diagnostics.py` implements this
+hybrid dynamics. `archive/demo/generate_atlas_morse_diagnostics.py` implements this
 workflow for the accepted rimless-wheel (`tau=2`, depth 12) and bouncing-ball
 (`tau=1.5`, depth 10) configurations, checks the fresh node/edge/box counts
 against their acceptance reports, and writes new files under
@@ -53,7 +53,7 @@ finite-relation audit. Every such figure carries a footer stating that the
 tuple is a finite sampled-relation Conley index over `GF(5)` and that
 continuous-system certification has not been established.
 
-Figures produced by `demo/generate_hybrid_morse_figures.py` remain exploratory
+Figures produced by `archive/demo/generate_hybrid_morse_figures.py` remain exploratory
 visualizations of the older standalone-grid sampled relation. They are not
 figures of the current CMGDB Atlas path and should not be used as evidence for
 the physical Morse graph, a global attractor lattice, or a Conley index.

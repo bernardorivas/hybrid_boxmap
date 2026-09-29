@@ -1,6 +1,6 @@
 # Physical Atlas finite-relation Conley results
 
-`demo/run_physical_conley.py` computes the CMGDB shift-equivalence class of
+`archive/demo/run_physical_conley.py` computes the CMGDB shift-equivalence class of
 the accepted **finite Atlas relations** for the bouncing ball and rimless
 wheel.  It does not paste labels from an analytic orbit model.
 

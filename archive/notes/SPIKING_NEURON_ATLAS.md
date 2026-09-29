@@ -318,7 +318,7 @@ loader as the bouncing-ball and rimless-wheel diagnostics.  The PDF and
 PNG are written under `output/pdf/`, the PDF is copied to
 `paper/figures/hybrid-morse-spiking-neuron-atlas-tau2000-depth16.pdf`,
 the plot cache and re-enveloped index audit are stored beside the stage,
-and the manifest goes to `data/paper_figure_manifests/`.  The figure
+and the manifest goes to `archive/data/paper_figure_manifests/`.  The figure
 carries no in-figure caption or status text.
 
 Each stage writes a fingerprinted memory-mapped CSR relation, complete

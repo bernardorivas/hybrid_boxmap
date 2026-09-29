@@ -103,7 +103,7 @@ below it, so ordinary CMGDB can be used without any hybrid code
 - `data/` — compact acceptance records and provenance needed to review a
   result; large regenerable relation checkpoints remain local
 - `figures/` — retained reference output from the classic examples
-- `docs/archive/` — historical implementation notes retained for context
+- `archive/notes/` — historical implementation notes retained for context
 
 The package-level and top-level scientific status documents describe what each
 recorded result does and does not certify. Start with
