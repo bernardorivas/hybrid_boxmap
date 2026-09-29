@@ -216,6 +216,29 @@ def test_stored_neuron_checkpoints_validate(stage: str) -> None:
     ]
 
 
+@pytest.mark.parametrize(
+    "stage",
+    ["adaptive_terminal_bridge_v1", "adaptive_terminal_bridge_samples5_v1"],
+)
+def test_stored_neuron_checkpoints_are_reproduced_exactly(
+    stage: str, tmp_path: Path
+) -> None:
+    directory = Path(__file__).resolve().parents[2] / (
+        f"data/spiking_neuron_atlas/scientific_clock_v1/{stage}/t20"
+    )
+    stored = directory / "conley_v2/chain_checkpoint.json.gz"
+    if not stored.exists():
+        pytest.skip("persisted neuron Conley checkpoint is not installed")
+    result = neuron_conley.compute_spiking_neuron_finite_relation_conley(directory)
+    assert "seam_positions" in result.audit.nerve.metadata
+    written = tmp_path / "chain_checkpoint.json.gz"
+    neuron_conley.write_spiking_neuron_conley_checkpoint(result, written)
+    with gzip.open(stored, "rb") as stream:
+        expected = stream.read()
+    with gzip.open(written, "rb") as stream:
+        assert stream.read() == expected
+
+
 def test_checkpoint_rejects_rehashed_reference_support_outside_pair(
     tmp_path: Path,
 ) -> None:

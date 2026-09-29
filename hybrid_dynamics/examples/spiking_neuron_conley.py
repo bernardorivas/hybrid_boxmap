@@ -351,11 +351,30 @@ class SpikingNeuronFiniteRelationConleyAudit:
         return base
 
 
+#: Nerve metadata recorded after the chain-checkpoint schema was fixed, left
+#: out of the nerve fingerprint.  ``seam_positions`` classifies each seam of
+#: the gluing as interior, on the boundary of the selected base cells, or
+#: outside them; the interior seams are already bound by
+#: ``interior_seam_subcomplexes``.
+_NERVE_METADATA_AFTER_CHECKPOINT_SCHEMA = frozenset({"seam_positions"})
+
+
 def _nerve_fingerprint(audit: AtlasNerveFiniteRelationAudit) -> str:
+    """Fingerprint of the simplices and the metadata of the quotient nerve.
+
+    It binds the metadata of the checkpoint schema
+    (:data:`CONLEY_CHECKPOINT_SCHEMA`), so the fingerprints of the stored
+    checkpoints stay valid when the nerve records more metadata.
+    """
+
     nerve = audit.nerve
     return _fingerprint(
         {
-            "metadata": dict(nerve.metadata),
+            "metadata": {
+                key: value
+                for key, value in nerve.metadata.items()
+                if key not in _NERVE_METADATA_AFTER_CHECKPOINT_SCHEMA
+            },
             "simplices": [
                 [simplex.dimension, list(simplex.vertices)]
                 for simplex in nerve.cells
