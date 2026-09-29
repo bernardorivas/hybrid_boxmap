@@ -18,6 +18,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+import math
 import os
 import tempfile
 from collections import Counter
@@ -560,6 +561,173 @@ def write_spiking_neuron_conley_checkpoint(
     return reference
 
 
+def _is_prime(value: int) -> bool:
+    return value >= 2 and all(
+        value % divisor for divisor in range(2, math.isqrt(value) + 1)
+    )
+
+
+def _polynomial_trim(coefficients: list[int]) -> list[int]:
+    while coefficients and coefficients[-1] == 0:
+        coefficients.pop()
+    return coefficients
+
+
+def _polynomial_subtract_multiple(
+    minuend: list[int],
+    factor: list[int],
+    subtrahend: list[int],
+    prime: int,
+) -> list[int]:
+    """``minuend - factor * subtrahend`` over ``GF(prime)``, lowest degree first."""
+
+    result = list(minuend)
+    for i, a in enumerate(factor):
+        for j, b in enumerate(subtrahend):
+            if i + j >= len(result):
+                result.extend([0] * (i + j + 1 - len(result)))
+            result[i + j] = (result[i + j] - a * b) % prime
+    return _polynomial_trim(result)
+
+
+def _polynomial_divmod(
+    numerator: list[int],
+    denominator: list[int],
+    prime: int,
+) -> tuple[list[int], list[int]]:
+    """Euclidean division over ``GF(prime)`` by a nonzero ``denominator``."""
+
+    remainder = list(numerator)
+    degree = len(denominator) - 1
+    inverse = pow(denominator[-1], -1, prime)
+    quotient = [0] * max(len(remainder) - degree, 0)
+    while len(remainder) - 1 >= degree:
+        shift = len(remainder) - 1 - degree
+        coefficient = remainder[-1] * inverse % prime
+        quotient[shift] = coefficient
+        for index, value in enumerate(denominator):
+            remainder[shift + index] = (
+                remainder[shift + index] - coefficient * value
+            ) % prime
+        _polynomial_trim(remainder)
+    return _polynomial_trim(quotient), remainder
+
+
+def _invariant_factors(matrix: list[list[int]], prime: int) -> list[tuple[int, ...]]:
+    """The invariant factors of a square matrix over ``GF(prime)``.
+
+    They are the monic diagonal entries of the Smith normal form of
+    ``x I - matrix`` over ``GF(prime)[x]``, each dividing the next.  Two square
+    matrices are similar over ``GF(prime)`` if and only if their invariant
+    factors agree.
+    """
+
+    size = len(matrix)
+    work = [
+        [
+            _polynomial_trim([-matrix[i][j] % prime, 1 if i == j else 0])
+            for j in range(size)
+        ]
+        for i in range(size)
+    ]
+    factors: list[tuple[int, ...]] = []
+    for t in range(size):
+        while True:
+            candidates = [
+                (len(work[i][j]), i, j)
+                for i in range(t, size)
+                for j in range(t, size)
+                if work[i][j]
+            ]
+            if not candidates:
+                break
+            _, row, column = min(candidates)
+            work[t], work[row] = work[row], work[t]
+            for line in work:
+                line[t], line[column] = line[column], line[t]
+            pivot = work[t][t]
+            reduced = True
+            for i in range(t + 1, size):
+                if work[i][t]:
+                    quotient, remainder = _polynomial_divmod(work[i][t], pivot, prime)
+                    for j in range(t, size):
+                        work[i][j] = _polynomial_subtract_multiple(
+                            work[i][j], quotient, work[t][j], prime
+                        )
+                    reduced = reduced and not remainder
+            for j in range(t + 1, size):
+                if work[t][j]:
+                    quotient, remainder = _polynomial_divmod(work[t][j], pivot, prime)
+                    for i in range(t, size):
+                        work[i][j] = _polynomial_subtract_multiple(
+                            work[i][j], quotient, work[i][t], prime
+                        )
+                    reduced = reduced and not remainder
+            if not reduced:
+                continue
+            nondivisible = next(
+                (
+                    i
+                    for i in range(t + 1, size)
+                    for j in range(t + 1, size)
+                    if _polynomial_divmod(work[i][j], pivot, prime)[1]
+                ),
+                None,
+            )
+            if nondivisible is None:
+                break
+            for j in range(t, size):
+                work[t][j] = _polynomial_subtract_multiple(
+                    work[t][j], [prime - 1], work[nondivisible][j], prime
+                )
+        entry = work[t][t]
+        if entry:
+            inverse = pow(entry[-1], -1, prime)
+            entry = [value * inverse % prime for value in entry]
+        factors.append(tuple(entry))
+    return factors
+
+
+def _induced_maps_similar(
+    recomputed: object,
+    expected: object,
+    prime: int,
+) -> bool:
+    """Whether two lists of induced maps agree degree by degree up to similarity.
+
+    Equal lists agree.  Otherwise each pair of matrices must be square of the
+    same size with the same invariant factors over ``GF(prime)``.
+    """
+
+    if recomputed == expected:
+        return True
+    if (
+        not isinstance(recomputed, list)
+        or not isinstance(expected, list)
+        or len(recomputed) != len(expected)
+        or not _is_prime(prime)
+    ):
+        return False
+    for first, second in zip(recomputed, expected):
+        matrices = []
+        for matrix in (first, second):
+            if not isinstance(matrix, list) or any(
+                not isinstance(row, list)
+                or len(row) != len(matrix)
+                or any(not isinstance(value, int) for value in row)
+                for row in matrix
+            ):
+                return False
+            matrices.append([[value % prime for value in row] for row in matrix])
+        if len(matrices[0]) != len(matrices[1]):
+            return False
+        if matrices[0] != matrices[1] and _invariant_factors(
+            matrices[0], prime
+        ) != _invariant_factors(matrices[1], prime):
+            return False
+    return True
+
+
 def validate_spiking_neuron_conley_checkpoint(
     path: str | Path,
     *,
@@ -709,6 +877,9 @@ def validate_spiking_neuron_conley_checkpoint(
         )
     )
     expected = dict(payload["finite_relation_shift_class"])
+    # The induced maps are matrices in bases chosen by the CMGDB function
+    # (cmgdb_shift_class_function), so they are compared up to similarity
+    # over GF(coefficient_field); the other keys are compared exactly.
     for key in (
         "cell_counts",
         "coefficient_field",
@@ -717,7 +888,15 @@ def validate_spiking_neuron_conley_checkpoint(
         "shift_class",
         "validation",
     ):
-        if recomputed.get(key) != expected.get(key):
+        if key == "induced_maps":
+            agree = _induced_maps_similar(
+                recomputed.get(key),
+                expected.get(key),
+                int(expected["coefficient_field"]),
+            )
+        else:
+            agree = recomputed.get(key) == expected.get(key)
+        if not agree:
             raise ValueError(f"stored and recomputed Conley results differ at {key}")
     return {
         "schema": "spiking-neuron-conley-chain-reference-v1",

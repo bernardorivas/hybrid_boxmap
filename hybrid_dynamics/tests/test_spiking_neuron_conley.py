@@ -8,6 +8,7 @@ import pytest
 
 import hybrid_dynamics.examples.spiking_neuron_conley as neuron_conley
 from hybrid_dynamics import load_atlas_finite_relation_index_annotations
+from hybrid_dynamics.src.suspension_complex import cmgdb_shift_class_function
 
 
 def _write_checkpoint(path: Path, payload: dict[str, object]) -> None:
@@ -91,6 +92,128 @@ def test_strict_checkpoint_reload_recomputes_finite_shift(tmp_path: Path) -> Non
     assert validated["strict_reload_recomputed_shift_class"] is True
     assert validated["finite_relation_shift_class"] == ["x-1"]
     assert validated["reference_source_ids"] == [0]
+
+
+def _two_vertex_checkpoint_payload(
+    chain_map_entries: list[list[int]],
+    stored_induced_map: list[list[int]],
+) -> dict[str, object]:
+    """A checkpoint on two vertices whose stored induced map is replaced."""
+
+    import CMGDB
+
+    payload = _minimal_checkpoint_payload()
+    finite = dict(payload["finite_relation_shift_class"])
+    finite.update(
+        cmgdb_shift_class_function(CMGDB)(
+            [2],
+            [[]],
+            [[tuple(entry) for entry in chain_map_entries]],
+        )
+    )
+    finite["induced_maps"] = [stored_induced_map]
+    payload["finite_relation_shift_class"] = finite
+    payload["cmgdb_relative_homology_payload"] = {
+        "coefficient_field": 5,
+        "cell_counts": [2],
+        "boundary_entries": [[]],
+        "chain_map_entries": [chain_map_entries],
+        "basis_by_dimension": [["vertex-0", "vertex-1"]],
+    }
+    payload.pop("fingerprint")
+    payload["fingerprint"] = neuron_conley._fingerprint(payload)  # noqa: SLF001
+    return payload
+
+
+def test_induced_maps_are_compared_up_to_similarity_over_gf5() -> None:
+    similar = neuron_conley._induced_maps_similar  # noqa: SLF001
+    swap = [[0, 1], [1, 0]]
+    assert similar([swap, []], [swap, []], 5)
+    assert similar([swap], [[[1, 0], [0, 4]]], 5)
+    assert similar([swap], [[[4, 0], [0, 1]]], 5)
+    assert similar([[[1, 1], [0, 1]]], [[[1, 0], [1, 1]]], 5)
+    rotation = [[0, 4], [1, 0]]
+    assert similar([rotation], [[[2, 0], [0, 3]]], 5)
+    companion = [[0, 0, 3], [1, 0, 4], [0, 1, 2]]
+    change = [[1, 2, 0], [0, 1, 3], [1, 0, 1]]
+    inverse = [[3, 4, 3], [4, 3, 1], [2, 1, 3]]
+    assert all(
+        sum(change[i][k] * inverse[k][j] for k in range(3)) % 5 == (i == j)
+        for i in range(3)
+        for j in range(3)
+    )
+    conjugate = [
+        [
+            sum(
+                change[i][k] * companion[k][m] * inverse[m][j]
+                for k in range(3)
+                for m in range(3)
+            )
+            % 5
+            for j in range(3)
+        ]
+        for i in range(3)
+    ]
+    assert conjugate != companion
+    assert similar([companion], [conjugate], 5)
+
+    identity = [[1, 0], [0, 1]]
+    assert not similar([identity], [[[1, 1], [0, 1]]], 5)
+    assert not similar([rotation], [[[1, 0], [0, 4]]], 5)
+    assert not similar([[[0, 0], [0, 0]]], [[[0, 1], [0, 0]]], 5)
+    assert not similar([swap], [[[0, 1, 0], [1, 0, 0], [0, 0, 1]]], 5)
+    assert not similar([swap], [[[0, 1], [1]]], 5)
+    assert not similar([swap], [swap, []], 5)
+    assert not similar([[[2]]], [[[3]]], 5)
+
+
+def test_checkpoint_accepts_a_similar_stored_induced_map(tmp_path: Path) -> None:
+    path = tmp_path / "chain.json.gz"
+    payload = _two_vertex_checkpoint_payload(
+        [[0, 1, 1], [1, 0, 1]],
+        [[1, 0], [0, 4]],
+    )
+    _write_checkpoint(path, payload)
+    validated = neuron_conley.validate_spiking_neuron_conley_checkpoint(path)
+    assert validated["finite_relation_conley_index"]["induced_maps"] == [
+        [[1, 0], [0, 4]]
+    ]
+
+
+def test_checkpoint_rejects_a_stored_induced_map_that_is_not_similar(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "chain.json.gz"
+    payload = _two_vertex_checkpoint_payload(
+        [[0, 0, 1], [1, 1, 1]],
+        [[1, 1], [0, 1]],
+    )
+    _write_checkpoint(path, payload)
+    with pytest.raises(ValueError, match="differ at induced_maps"):
+        neuron_conley.validate_spiking_neuron_conley_checkpoint(path)
+
+
+@pytest.mark.parametrize(
+    "stage",
+    ["adaptive_terminal_bridge_v1", "adaptive_terminal_bridge_samples5_v1"],
+)
+def test_stored_neuron_checkpoints_validate(stage: str) -> None:
+    path = Path(__file__).resolve().parents[2] / (
+        f"data/spiking_neuron_atlas/scientific_clock_v1/{stage}/"
+        "t20/conley_v2/chain_checkpoint.json.gz"
+    )
+    if not path.exists():
+        pytest.skip("persisted neuron Conley checkpoint is not installed")
+    validated = neuron_conley.validate_spiking_neuron_conley_checkpoint(path)
+    assert validated["strict_reload_recomputed_shift_class"] is True
+    assert validated["finite_relation_conley_index"]["homology_dimensions"] == [
+        1,
+        1,
+        0,
+        0,
+        0,
+        0,
+    ]
 
 
 def test_checkpoint_rejects_rehashed_reference_support_outside_pair(
