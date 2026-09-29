@@ -33,7 +33,10 @@ from ..src.atlas_morse_plot import (
     AtlasMorseNode,
     AtlasMorsePlotData,
 )
-from ..src.suspension_complex import CMGDBRelativeHomologyPayload
+from ..src.suspension_complex import (
+    CMGDBRelativeHomologyPayload,
+    cmgdb_shift_class_function,
+)
 from .physical_conley import (
     AtlasNerveFiniteRelationAudit,
     AtlasRelationSnapshot,
@@ -701,7 +704,7 @@ def validate_spiking_neuron_conley_checkpoint(
     except ImportError as error:  # pragma: no cover - environment dependent
         raise RuntimeError("the local CMGDB homology bridge is not installed") from error
     recomputed = dict(
-        CMGDB.ComputeRelativeHomologyShiftClass(
+        cmgdb_shift_class_function(CMGDB)(
             *homology_payload.as_compute_args()
         )
     )

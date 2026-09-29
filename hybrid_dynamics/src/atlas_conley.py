@@ -51,6 +51,7 @@ from .suspension_complex import (
     GuardPrismCell,
     RelativeCellPair,
     SuspensionBaseCell,
+    cmgdb_shift_class_function,
 )
 
 
@@ -1399,9 +1400,7 @@ class AtlasPhysicalConleyPreparation2D:
             raise RuntimeError("the local CMGDB explicit-chain bridge is not installed") from error
         if not hasattr(CMGDB, "ComputeRelativeHomologyShiftClass"):
             raise RuntimeError("installed CMGDB lacks ComputeRelativeHomologyShiftClass")
-        result = dict(
-            CMGDB.ComputeRelativeHomologyShiftClass(*self.payload.as_compute_args())
-        )
+        result = dict(cmgdb_shift_class_function(CMGDB)(*self.payload.as_compute_args()))
         result["result_scope"] = "finite_reset_quotient_relation"
         result["continuous_system_conley_index_certified"] = False
         result["finite_relation_algebra_validated"] = True

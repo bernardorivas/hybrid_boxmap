@@ -7,9 +7,9 @@ carriers lie in another complex.  These tests check the arrays handed to it
 (:mod:`carrier_kernel`), the exceptions rebuilt from its failures, and the
 choice of backend, and they run the Conley problems of
 ``test_suspension_grid.py`` with the Python and the native backend in every
-construction: the records and every payload passed to
-``CMGDB.ComputeRelativeHomologyShiftClass`` must be equal.  The runs with
-the native kernel are skipped when the installed CMGDB lacks it.  The same
+construction: the records and every payload passed to the shift-class
+function of CMGDB must be equal.  The runs with the native kernel are
+skipped when the installed CMGDB lacks it.  The same
 comparisons also run with :func:`reference_carrier_chain_map`, a Python
 statement of the kernel, in its place; they check the arrays, the
 dispatch, and the rebuilt exceptions, but not the kernel itself.
@@ -58,6 +58,7 @@ from hybrid_dynamics.src.carrier_kernel import (
     simplex_arrays,
 )
 from hybrid_dynamics.src.suspension_complex import (
+    SHIFT_CLASS_FUNCTION,
     _eliminate_columns_mod_prime,
     _rank_mod_prime,
     _solve_with_pivots,
@@ -506,11 +507,13 @@ def _runs(relation, morse_sets, backend, **options):
 
     payloads: list = []
     calls = {"python": 0, "native": 0}
-    shift_class = CMGDB.ComputeRelativeHomologyShiftClass
 
-    def recording(*arguments):
-        payloads.append(_payload_arguments(arguments))
-        return shift_class(*arguments)
+    def recording(shift_class):
+        def recorded(*arguments):
+            payloads.append(_payload_arguments(arguments))
+            return shift_class(*arguments)
+
+        return recorded
 
     def counted(kind, function):
         def construction(*arguments, **keywords):
@@ -521,7 +524,10 @@ def _runs(relation, morse_sets, backend, **options):
 
     runs = []
     with pytest.MonkeyPatch.context() as patch:
-        patch.setattr(CMGDB, "ComputeRelativeHomologyShiftClass", recording)
+        # The payload goes to one of the two shift-class functions.
+        for name in ("ComputeRelativeHomologyShiftClass", SHIFT_CLASS_FUNCTION):
+            if hasattr(CMGDB, name):
+                patch.setattr(CMGDB, name, recording(getattr(CMGDB, name)))
         for kind, names in CONSTRUCTIONS.items():
             for name in names:
                 function = getattr(suspension_grid_conley, name)
@@ -570,6 +576,7 @@ def test_problems_reach_every_construction():
     image, calls = _python_runs("repelling-orbit-l4", "exit-components")
     assert calls["python"] == 3
     assert [record["label_source"] for record, _ in image].count("index map") == 2
+    assert sum(len(payloads) for _, payloads in image) == 2
     assert any("is not acyclic" in record["index_map_blocker"] for record, _ in image)
     closure, calls = _python_runs("repelling-cylinder-l2", "forward-closure")
     assert calls["python"] == 3

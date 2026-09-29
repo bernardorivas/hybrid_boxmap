@@ -33,6 +33,8 @@ from collections.abc import Mapping as ABCMapping
 from dataclasses import dataclass
 from types import MappingProxyType
 from typing import (
+    Any,
+    Callable,
     Collection,
     Dict,
     FrozenSet,
@@ -2797,6 +2799,27 @@ class CMGDBRelativeHomologyPayload:
         )
 
 
+#: The CMGDB function that computes the shift class of a payload by linear
+#: algebra over ``GF(5)``.  It takes the arguments of
+#: ``ComputeRelativeHomologyShiftClass`` and returns the same keys, and it is
+#: preferred when the installed CMGDB provides it: the older function can
+#: return a wrong induced map when its Morse complex is not minimal.
+SHIFT_CLASS_FUNCTION = "ComputeRelativeShiftClass"
+
+
+def cmgdb_shift_class_function(cmgdb: Any) -> Callable[..., Mapping[str, object]]:
+    """The function of the module ``cmgdb`` that computes the shift class of a payload.
+
+    It is ``cmgdb.ComputeRelativeShiftClass`` when the module provides it
+    (:data:`SHIFT_CLASS_FUNCTION`), and ``cmgdb.ComputeRelativeHomologyShiftClass``
+    otherwise.  Both are called with :meth:`CMGDBRelativeHomologyPayload.as_compute_args`.
+    """
+
+    if hasattr(cmgdb, SHIFT_CLASS_FUNCTION):
+        return getattr(cmgdb, SHIFT_CLASS_FUNCTION)
+    return cmgdb.ComputeRelativeHomologyShiftClass
+
+
 __all__ = [
     "CMGDBCellRelationPayload",
     "CMGDBRelativeHomologyPayload",
@@ -2819,10 +2842,12 @@ __all__ = [
     "RelativeCellPair",
     "RelativeHomologyBasis",
     "ResetHandle",
+    "SHIFT_CLASS_FUNCTION",
     "SampledSuspensionCellAdapter",
     "SparseCubicalGridComplex",
     "SuspensionBaseCell",
     "SuspensionCellComplex",
     "build_cubical_grid_complex",
     "audit_cubical_hyperplane_attachment",
+    "cmgdb_shift_class_function",
 ]

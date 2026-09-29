@@ -6,8 +6,10 @@ from itertools import product
 import pytest
 
 from hybrid_dynamics.src.suspension_complex import (
+    SHIFT_CLASS_FUNCTION,
     ClosedCellSet,
     _solve_linear_system_mod_prime,
+    cmgdb_shift_class_function,
 )
 
 from hybrid_dynamics import (
@@ -542,6 +544,35 @@ def test_payload_runs_through_cmgdb_relative_homology_bridge_if_installed():
     assert result["homology_dimensions"] == [1, 1]
     assert result["shift_class"] == ["x-1", "x-1"]
     assert all(result["validation"].values())
+
+
+def test_shift_class_function_prefers_the_linear_algebra_function():
+    class Module:
+        def ComputeRelativeHomologyShiftClass(self, *arguments):  # noqa: N802
+            return "Morse"
+
+    class NewerModule(Module):
+        def ComputeRelativeShiftClass(self, *arguments):  # noqa: N802
+            return "linear algebra"
+
+    assert SHIFT_CLASS_FUNCTION == "ComputeRelativeShiftClass"
+    assert cmgdb_shift_class_function(Module())() == "Morse"
+    assert cmgdb_shift_class_function(NewerModule())() == "linear algebra"
+
+
+def test_payload_gets_the_same_result_from_both_cmgdb_functions_if_installed():
+    cmgdb = pytest.importorskip("CMGDB")
+    if not hasattr(cmgdb, SHIFT_CLASS_FUNCTION):
+        pytest.skip("installed CMGDB lacks ComputeRelativeShiftClass")
+
+    _, suspension, _, _ = interval_with_reset(slabs=2)
+    pair = RelativeCellPair(suspension, suspension.cells)
+    payload = CellularChainMap.identity(suspension).to_cmgdb_payload(pair)
+
+    assert cmgdb_shift_class_function(cmgdb) is cmgdb.ComputeRelativeShiftClass
+    assert cmgdb.ComputeRelativeShiftClass(
+        *payload.as_compute_args()
+    ) == cmgdb.ComputeRelativeHomologyShiftClass(*payload.as_compute_args())
 
 
 def test_fixed_time_relation_materializes_and_serializes_without_losing_cells():

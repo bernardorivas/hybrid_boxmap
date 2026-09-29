@@ -43,10 +43,9 @@ on ``H_*( ; GF(5))`` is checked: equal dimensions in every degree and an
 invertible matrix.  The index map is ``i_*^{-1} F_*`` on ``H_*(X, A;
 GF(5))``, computed exactly over ``GF(5)``
 (:class:`suspension_complex.RelativeHomologyBasis`); its shift class, degree
-by degree, is read by ``CMGDB.ComputeRelativeHomologyShiftClass`` from the
-matrices of the map on homology.  When ``F(X)`` lies in ``X`` (so that
-``F(A)`` lies in ``A``), ``Xbar = X``, ``Abar = A``, and ``i`` is the
-identity.
+by degree, is read by CMGDB from the matrices of the map on homology.  When
+``F(X)`` lies in ``X`` (so that ``F(A)`` lies in ``A``), ``Xbar = X``,
+``Abar = A``, and ``i`` is the identity.
 
 ``"auto"`` forms the exit-components map and, only when that map fails
 (a carrier that is not acyclic, for example) and the relative homology is
@@ -114,6 +113,10 @@ the same checks and exceptions:
 ``backend`` chooses: ``"python"``, ``"native"``, or ``"auto"`` (the
 default), the native kernel when the installed CMGDB provides it.
 
+The shift class of a payload is computed by ``CMGDB.ComputeRelativeShiftClass``,
+or by ``CMGDB.ComputeRelativeHomologyShiftClass`` when the installed CMGDB
+lacks it (:func:`suspension_complex.cmgdb_shift_class_function`).
+
 The result is a finite-relation shift class over ``GF(5)``.  It is not a
 certified Conley index of the continuous fixed-time map, because the
 relation is sampled.
@@ -158,6 +161,7 @@ from .suspension_complex import (
     _eliminate_columns_mod_prime,
     _rank_mod_prime,
     _solve_with_pivots,
+    cmgdb_shift_class_function,
 )
 from .suspension_grid import SuspensionGrid, UnsupportedSuspensionGridError, build_suspension_grid
 from .suspension_grid_relation import SuspensionGridProblem, SuspensionGridRelation
@@ -458,7 +462,7 @@ def _solve_mod_prime(
 def _shift_class_of_matrices(matrices: Sequence[Sequence[Sequence[int]]]) -> tuple[str, ...]:
     """Shift class, degree by degree, of the maps given by square matrices over ``GF(5)``.
 
-    The matrices are handed to ``CMGDB.ComputeRelativeHomologyShiftClass``
+    The matrices are handed to CMGDB (:func:`cmgdb_shift_class_function`)
     as a chain complex with zero boundary, so its homology is the space
     itself and the induced map is the matrix; the strings are those of the
     labels of the default construction.
@@ -476,7 +480,7 @@ def _shift_class_of_matrices(matrices: Sequence[Sequence[Sequence[int]]]) -> tup
         ]
         for matrix in matrices
     ]
-    payload = CMGDB.ComputeRelativeHomologyShiftClass(counts, [[] for _ in counts], entries)
+    payload = cmgdb_shift_class_function(CMGDB)(counts, [[] for _ in counts], entries)
     if [int(value) for value in payload["homology_dimensions"]] != counts:
         raise AssertionError("CMGDB changed the dimensions of a complex with zero boundary")
     return tuple(str(entry) for entry in payload["shift_class"])
@@ -898,7 +902,7 @@ def _excised_shift_class(
     )
     import CMGDB
 
-    return dict(CMGDB.ComputeRelativeHomologyShiftClass(*payload.as_compute_args()))
+    return dict(cmgdb_shift_class_function(CMGDB)(*payload.as_compute_args()))
 
 
 def _excised_chain_map_entries(

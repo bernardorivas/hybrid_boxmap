@@ -28,9 +28,9 @@ and its relation as the arrays that function reads:
 
 :func:`native_relation_shift_class` calls the function, raises for a failure
 the exception that the Python construction raises in the same situation,
-and hands the relative payload of the kernel to
-``CMGDB.ComputeRelativeHomologyShiftClass``.  That payload has the entries,
-in the same order, of
+and hands the relative payload of the kernel to the shift-class function
+of CMGDB (:func:`suspension_complex.cmgdb_shift_class_function`).  That
+payload has the entries, in the same order, of
 :meth:`suspension_complex.CellularChainMap.to_cmgdb_payload`, so the shift
 class, the dimensions, and the blockers are those of the Python
 construction.  The Python construction stays the reference and is used
@@ -66,7 +66,11 @@ import numpy.typing as npt
 
 from . import atlas_conley
 from .atlas_conley import AtlasNerveSimplex, AtlasRelativeIndexPair2D, _relation_vertex_images
-from .suspension_complex import CMGDBRelativeHomologyPayload, FiniteCellComplex
+from .suspension_complex import (
+    CMGDBRelativeHomologyPayload,
+    FiniteCellComplex,
+    cmgdb_shift_class_function,
+)
 
 
 #: The native function of the CMGDB fork.
@@ -472,8 +476,9 @@ def native_relation_shift_class(
 
     The result is that of
     ``prepare_atlas_relation_conley_2d(...).compute_finite_relation_shift_class()``
-    for the same arguments: ``CMGDB.ComputeRelativeHomologyShiftClass`` of
-    :func:`native_relation_payload`, with the same added keys.
+    for the same arguments: the shift class of :func:`native_relation_payload`
+    by :func:`suspension_complex.cmgdb_shift_class_function`, with the same
+    added keys.
     """
 
     payload = native_relation_payload(
@@ -485,7 +490,7 @@ def native_relation_shift_class(
 
     if not hasattr(CMGDB, "ComputeRelativeHomologyShiftClass"):
         raise RuntimeError("installed CMGDB lacks ComputeRelativeHomologyShiftClass")
-    result = dict(CMGDB.ComputeRelativeHomologyShiftClass(*payload.as_compute_args()))
+    result = dict(cmgdb_shift_class_function(CMGDB)(*payload.as_compute_args()))
     result["result_scope"] = "finite_reset_quotient_relation"
     result["continuous_system_conley_index_certified"] = False
     result["finite_relation_algebra_validated"] = True

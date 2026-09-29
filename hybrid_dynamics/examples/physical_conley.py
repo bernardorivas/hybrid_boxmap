@@ -40,6 +40,7 @@ from ..src.suspension_complex import (
     PhaseSliceCell,
     RelativeCellPair,
     SuspensionBaseCell,
+    cmgdb_shift_class_function,
 )
 from ..src.atlas_conley import (
     AtlasQuotientNerveComplex2D,
@@ -1555,7 +1556,7 @@ def audit_physical_conley_candidate(
         payload = cellular.carried_chain_map
         if payload is None:  # pragma: no cover - guarded above
             raise AssertionError("missing chain map after every gate passed")
-        cmgdb_result = CMGDB.ComputeRelativeHomologyShiftClass(
+        cmgdb_result = cmgdb_shift_class_function(CMGDB)(
             *payload.payload.as_compute_args()
         )
 

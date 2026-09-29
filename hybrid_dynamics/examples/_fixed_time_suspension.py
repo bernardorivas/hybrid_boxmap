@@ -45,6 +45,7 @@ from ..src.suspension_complex import (
     RelativeCellPair,
     ResetHandle,
     SuspensionCellComplex,
+    cmgdb_shift_class_function,
 )
 
 
@@ -586,7 +587,7 @@ def materialize_periodic_orbit_relation(
             raise RuntimeError(
                 "installed CMGDB predates ComputeRelativeHomologyShiftClass",
             )
-        cmgdb_result = CMGDB.ComputeRelativeHomologyShiftClass(
+        cmgdb_result = cmgdb_shift_class_function(CMGDB)(
             *cmgdb_payload.as_compute_args(),
         )
         conley_index_status = (
