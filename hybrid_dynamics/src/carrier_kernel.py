@@ -55,6 +55,7 @@ Both raise the exceptions of the Python construction, as above.
 
 from __future__ import annotations
 
+import importlib.metadata
 import itertools
 from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass
@@ -67,6 +68,7 @@ import numpy.typing as npt
 from . import atlas_conley
 from .atlas_conley import AtlasNerveSimplex, AtlasRelativeIndexPair2D, _relation_vertex_images
 from .suspension_complex import (
+    SHIFT_CLASS_FUNCTION,
     CMGDBRelativeHomologyPayload,
     FiniteCellComplex,
     cmgdb_shift_class_function,
@@ -124,6 +126,43 @@ def resolve_conley_backend(backend: str) -> str:
             "or backend='python'"
         )
     return "python"
+
+
+def cmgdb_provenance(backend: str | None) -> dict[str, object]:
+    """The installed CMGDB and the functions of a Conley run, for its metadata.
+
+    ``version`` is the version of the installed ``cmgdb`` distribution
+    (``None`` when it is not installed).  ``shift_class_function`` is the
+    name of the CMGDB function that computes the shift classes
+    (:func:`suspension_complex.cmgdb_shift_class_function`), and
+    ``conley_backend`` the implementation that ``backend`` selects
+    (:func:`resolve_conley_backend`).  Both are ``None`` when ``backend`` is
+    ``None`` (no index is computed), and the function also when CMGDB is not
+    installed.
+    """
+
+    try:
+        version: str | None = importlib.metadata.version("cmgdb")
+    except importlib.metadata.PackageNotFoundError:
+        version = None
+    function = conley_backend = None
+    if backend is not None:
+        conley_backend = resolve_conley_backend(backend)
+        try:
+            import CMGDB
+        except ImportError:
+            pass
+        else:
+            function = (
+                SHIFT_CLASS_FUNCTION
+                if hasattr(CMGDB, SHIFT_CLASS_FUNCTION)
+                else "ComputeRelativeHomologyShiftClass"
+            )
+    return {
+        "version": version,
+        "shift_class_function": function,
+        "conley_backend": conley_backend,
+    }
 
 
 def _require_int32(values: npt.NDArray[np.int64], description: str) -> None:
@@ -775,6 +814,7 @@ __all__ = [
     "KERNEL_FUNCTION",
     "KernelChainMap",
     "carrier_kernel_arrays",
+    "cmgdb_provenance",
     "cross_complex_carrier_arrays",
     "exit_mask",
     "kernel_failure",

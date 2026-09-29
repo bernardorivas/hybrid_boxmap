@@ -45,6 +45,7 @@ from hybrid_dynamics.src.atlas_morse_plot import (  # noqa: E402
     AtlasFiniteRelationIndexAnnotations,
     atlas_morse_components,
 )
+from hybrid_dynamics.src.carrier_kernel import cmgdb_provenance  # noqa: E402
 from hybrid_dynamics.src.hybrid_morse_plot import (  # noqa: E402
     CMGDB_MORSE_PALETTE,
     MORSE_LABEL_DARK,
@@ -573,6 +574,8 @@ def test_fill_missing_labels_replaces_only_the_records_without_a_label(tmp_path,
     assert recorded == entry
     assert recorded["script"] == "demo/fill_missing_labels.py"
     assert recorded["code"]["commit"] == original["code"]["commit"]
+    # The run and the fill record the installed CMGDB and the functions they used.
+    assert recorded["cmgdb"] == original["cmgdb"] == cmgdb_provenance("auto")
     assert (recorded["index_pair"], recorded["index_map"]) == ("image", "auto")
     assert recorded["checked"]["relation_edges"] == original["relation"]["edges"]
     changed = {

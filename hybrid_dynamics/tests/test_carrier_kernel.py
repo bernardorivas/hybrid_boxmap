@@ -17,6 +17,7 @@ dispatch, and the rebuilt exceptions, but not the kernel itself.
 
 from __future__ import annotations
 
+import importlib.metadata
 import importlib.util
 from pathlib import Path
 
@@ -47,6 +48,7 @@ from hybrid_dynamics.src import suspension_grid_conley
 from hybrid_dynamics.src.carrier_kernel import (
     KERNEL_FUNCTION,
     carrier_kernel_arrays,
+    cmgdb_provenance,
     cross_complex_carrier_arrays,
     kernel_failure,
     native_carrier_kernel_available,
@@ -1155,6 +1157,36 @@ def test_auto_uses_the_native_kernel_when_cmgdb_has_it(monkeypatch):
     records, calls = _runs(relation, morse_sets, "auto")
     assert calls == {"python": 0, "native": 1}
     assert records[0][0]["computed"] and records[0][0]["shift_class"][:2] == ["x-1", "x-1"]
+
+
+def test_cmgdb_provenance_names_the_installed_cmgdb_and_functions(monkeypatch):
+    try:
+        version = importlib.metadata.version("cmgdb")
+    except importlib.metadata.PackageNotFoundError:
+        version = None
+    old_function = "ComputeRelativeHomologyShiftClass"
+    monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, reference_carrier_chain_map, raising=False)
+    monkeypatch.setattr(
+        CMGDB, SHIFT_CLASS_FUNCTION, getattr(CMGDB, old_function), raising=False
+    )
+    assert cmgdb_provenance("auto") == {
+        "version": version,
+        "shift_class_function": SHIFT_CLASS_FUNCTION,
+        "conley_backend": "native",
+    }
+    assert cmgdb_provenance("python")["conley_backend"] == "python"
+    monkeypatch.delattr(CMGDB, KERNEL_FUNCTION)
+    monkeypatch.delattr(CMGDB, SHIFT_CLASS_FUNCTION)
+    assert cmgdb_provenance("auto") == {
+        "version": version,
+        "shift_class_function": old_function,
+        "conley_backend": "python",
+    }
+    assert cmgdb_provenance(None) == {
+        "version": version,
+        "shift_class_function": None,
+        "conley_backend": None,
+    }
 
 
 def _other_cell_counts(result):

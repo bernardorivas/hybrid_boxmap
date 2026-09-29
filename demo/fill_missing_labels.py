@@ -25,12 +25,13 @@ refused.  Only the records of those nodes are replaced, by the new records
 gains the new labels, and ``labels_filled`` (a list, one entry per
 application) records the nodes recomputed (``morse_nodes``), those that now
 have a label (``labeled``), the pair and index map, the checks, the
-seconds, the script, the command line, and the code commit.  The figures
-are then redrawn with ``demo/replot_paper.py`` (the variants the run
-has), which rewrites the combined and panel figures, the attractor
-lattice, and the ``figures``, ``figure_variants``, ``attractor_lattice``,
-and ``figures_replotted`` records.  A summary in which
-every node has a label is left unchanged.
+seconds, the script, the command line, the code commit, and the installed
+CMGDB (``cmgdb``: its version, the function of the shift classes, and the
+Conley backend).  The figures are then redrawn with
+``demo/replot_paper.py`` (the variants the run has), which rewrites the
+combined and panel figures, the attractor lattice, and the ``figures``,
+``figure_variants``, ``attractor_lattice``, and ``figures_replotted``
+records.  A summary in which every node has a label is left unchanged.
 
 ``--workers`` evaluates the base samples in worker processes, as in the
 runner; the index is computed in this process, one node at a time.
@@ -72,6 +73,7 @@ from demo.replot_paper import (  # noqa: E402
 from hybrid_dynamics.examples.paper_examples import (  # noqa: E402
     paper_problem_factory,
 )
+from hybrid_dynamics.src.carrier_kernel import cmgdb_provenance  # noqa: E402
 from hybrid_dynamics.src.suspension_grid_conley import (  # noqa: E402
     _rows_for_index,
     compute_suspension_grid_conley_index,
@@ -87,9 +89,10 @@ from hybrid_dynamics.src.suspension_grid_relation import (  # noqa: E402
 
 SCRIPT = "demo/fill_missing_labels.py"
 
-#: The pair and the index map of the filled records.
+#: The pair, the index map, and the Conley backend of the filled records.
 FILL_INDEX_PAIR = "image"
 FILL_INDEX_MAP = "auto"
+FILL_BACKEND = "auto"
 
 
 class FillError(ValueError):
@@ -250,6 +253,7 @@ def _recompute_records(
             gluing=gluing,
             index_pair=FILL_INDEX_PAIR,
             index_map=FILL_INDEX_MAP,
+            backend=FILL_BACKEND,
         )
         record = result.to_dict()
         _check_pair(summary["conley"][node], record, node)
@@ -304,6 +308,7 @@ def fill_missing_labels(
         "script": SCRIPT,
         "command_line": sys.argv[1:],
         "code": _git_commit(),
+        "cmgdb": cmgdb_provenance(FILL_BACKEND),
         "morse_nodes": missing,
         "labeled": labeled,
         "index_pair": FILL_INDEX_PAIR,

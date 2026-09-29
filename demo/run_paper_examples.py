@@ -70,7 +70,9 @@ per axis.  ``--conley-backend`` chooses how the carriers and chain maps of
 the index maps are formed: ``python``, ``native`` (the kernel
 ``CMGDB.ComputeCarrierChainMap``, which the installed CMGDB must provide),
 or ``auto`` (the default), the native kernel when it is available.  The
-labels do not depend on it.
+labels do not depend on it.  The summary records, under ``cmgdb``, the
+version of the installed CMGDB, the CMGDB function that computes the shift
+classes, and the backend used.
 
 The base samples are integrated many at a time
 (:mod:`hybrid_dynamics.src.batched_suspension_flow`), with the step sequence
@@ -133,6 +135,7 @@ from hybrid_dynamics.examples.paper_examples import (  # noqa: E402
 from hybrid_dynamics.examples.paper_figures import (  # noqa: E402
     write_paper_figures,
 )
+from hybrid_dynamics.src.carrier_kernel import cmgdb_provenance  # noqa: E402
 from hybrid_dynamics.src.suspension_grid import (  # noqa: E402
     build_suspension_grid,
     check_suspension_grid,
@@ -811,6 +814,7 @@ def _run(
         "attractor_lattice": figures["attractor_lattice"],
         "code": dict(_git_commit()),
         "python": platform.python_version(),
+        "cmgdb": cmgdb_provenance(None if arguments.no_conley else arguments.conley_backend),
     }
     summary_path.write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(f"wrote {summary_path}", flush=True)
