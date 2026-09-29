@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+from types import SimpleNamespace
 
 import numpy as np
 import pytest
@@ -36,6 +37,7 @@ from hybrid_dynamics import (
 )
 from hybrid_dynamics.examples.paper_examples import PAPER_PROBLEMS
 from hybrid_dynamics.src import atlas_conley
+from hybrid_dynamics.src.carrier_kernel import carrier_kernel_arrays, native_carrier_kernel_available
 from hybrid_dynamics.src.suspension_grid import reference_signatures
 from hybrid_dynamics.src.suspension_grid_relation import (
     EndpointCache,
@@ -98,8 +100,16 @@ def _run_digest(grid, relation, morse, conley) -> str:
     return digest.hexdigest()
 
 
+def _require_backend(backend: str) -> None:
+    if backend == "native" and not native_carrier_kernel_available():
+        pytest.skip("the installed CMGDB lacks ComputeCarrierChainMap")
+
+
 @pytest.mark.parametrize("case", sorted(DIGEST_CASES))
-def test_runs_match_the_digests_of_the_earlier_code(case):
+@pytest.mark.parametrize("backend", ["python", "native"])
+def test_runs_match_the_digests_of_the_earlier_code(backend, case):
+    # Both backends of the index map give the recorded index records.
+    _require_backend(backend)
     name, level, offset, tau, depth = DIGEST_CASES[case]
     problem = PAPER_PROBLEMS[name](tau=tau, level_offset=offset)
     grid = build_suspension_grid(problem.window, problem.guard, level)
@@ -114,7 +124,7 @@ def test_runs_match_the_digests_of_the_earlier_code(case):
             evaluated = cache.evaluated
             for index, morse_set in enumerate(morse.morse_sets):
                 record = compute_suspension_grid_conley_index(
-                    relation, morse_set, morse_node=index
+                    relation, morse_set, morse_node=index, backend=backend
                 ).to_dict()
                 record.pop("seconds")
                 conley.append(record)
@@ -430,19 +440,25 @@ def _scanned_chain_map_images(carrier):
     return images
 
 
-def test_chain_selector_matches_the_scan_of_the_complex(monkeypatch):
+@pytest.mark.parametrize("backend", ["python", "native"])
+def test_chain_selector_matches_the_scan_of_the_complex(monkeypatch, backend):
+    _require_backend(backend)
     problem = PAPER_PROBLEMS["rimless-wheel"](tau=1.0, level_offset=1)
     grid = build_suspension_grid(problem.window, problem.guard, 3)
     relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=2)
     morse = compute_suspension_morse_graph(relation)
+
+    from hybrid_dynamics.src import suspension_grid_conley
+
+    if backend == "native":
+        _check_native_chain_selector(monkeypatch, relation, morse, suspension_grid_conley)
+        return
     prepare = atlas_conley.prepare_atlas_relation_conley_2d
     preparations = []
 
     def recording(*arguments, **options):
         preparations.append(prepare(*arguments, **options))
         return preparations[-1]
-
-    from hybrid_dynamics.src import suspension_grid_conley
 
     monkeypatch.setattr(suspension_grid_conley, "prepare_atlas_relation_conley_2d", recording)
     for index, morse_set in enumerate(morse.morse_sets):
@@ -454,3 +470,45 @@ def test_chain_selector_matches_the_scan_of_the_complex(monkeypatch):
         expected = _scanned_chain_map_images(preparation.carrier)
         for cell in preparation.carrier.complex.cells:
             assert dict(preparation.chain_map.image(cell)) == expected[cell]
+
+
+def _check_native_chain_selector(monkeypatch, relation, morse, suspension_grid_conley):
+    """The chain map of the native kernel against the scan of the complex.
+
+    The carrier of the scan is assembled here from the vertex images (the
+    induced subcomplexes), not taken from the Python construction.
+    """
+
+    native = suspension_grid_conley.native_relation_shift_class
+    calls = []
+
+    def recording(pair, **options):
+        calls.append((pair, options))
+        return native(pair, **options)
+
+    monkeypatch.setattr(suspension_grid_conley, "native_relation_shift_class", recording)
+    for index, morse_set in enumerate(morse.morse_sets):
+        assert compute_suspension_grid_conley_index(
+            relation, morse_set, morse_node=index, backend="native"
+        ).computed
+    assert calls
+    for pair, options in calls:
+        complex_ = pair.complex
+        vertex_images = atlas_conley._relation_vertex_images(
+            pair,
+            options["top_relation"],
+            use_exit_component_carrier=options["use_exit_component_carrier"],
+        )
+        values = _assembled_carrier_generators(complex_, vertex_images)
+        carrier = SimpleNamespace(complex=complex_, modulus=5, image=values.__getitem__)
+        expected = _scanned_chain_map_images(carrier)
+        result = carrier_kernel_arrays(complex_, vertex_images, pair.p0_atlas_cells).compute()
+        assert result["status"] == "ok"
+        for degree in range(complex_.max_dimension + 1):
+            cells = complex_.cells_of_dimension(degree)
+            found = {cell: {} for cell in cells}
+            entries = np.asarray(result["chain_map"][degree], dtype=np.int64).reshape(-1, 3)
+            for source, target, value in entries.tolist():
+                found[cells[source]][cells[target]] = value
+            for cell in cells:
+                assert found[cell] == expected[cell]
