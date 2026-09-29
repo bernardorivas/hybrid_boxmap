@@ -358,10 +358,13 @@ def test_carriers_on_demand_match_the_assembled_carriers(monkeypatch, name, leve
         return on_demand_class(complex_, vertex_images, **options)
 
     def records(generators_class):
+        # The carrier generators are those of the Python construction.
         monkeypatch.setattr(atlas_conley, "_InducedCarrierGenerators", generators_class)
         result = []
         for index, morse_set in enumerate(morse.morse_sets):
-            record = compute_suspension_grid_conley_index(relation, morse_set, morse_node=index).to_dict()
+            record = compute_suspension_grid_conley_index(
+                relation, morse_set, morse_node=index, backend="python"
+            ).to_dict()
             record.pop("seconds")
             result.append(record)
         return result
@@ -443,7 +446,9 @@ def test_chain_selector_matches_the_scan_of_the_complex(monkeypatch):
 
     monkeypatch.setattr(suspension_grid_conley, "prepare_atlas_relation_conley_2d", recording)
     for index, morse_set in enumerate(morse.morse_sets):
-        assert compute_suspension_grid_conley_index(relation, morse_set, morse_node=index).computed
+        assert compute_suspension_grid_conley_index(
+            relation, morse_set, morse_node=index, backend="python"
+        ).computed
     assert preparations
     for preparation in preparations:
         expected = _scanned_chain_map_images(preparation.carrier)

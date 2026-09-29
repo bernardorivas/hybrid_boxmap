@@ -1731,6 +1731,67 @@ def prepare_atlas_relation_conley_2d(
 
     if modulus != 5:
         raise ValueError("the CMGDB explicit-chain bridge currently uses GF(5)")
+    vertex_images = _relation_vertex_images(
+        pair, top_relation, use_exit_component_carrier=use_exit_component_carrier
+    )
+
+    complex_ = pair.complex
+    # The carrier of a simplex is the induced subcomplex on the union of the
+    # images of its vertices.  Every vertex image is a nonempty set of
+    # vertices of P1, and every vertex of P1 is a 0-simplex of the complex,
+    # so a carrier is empty exactly when that union is empty.
+    for source in complex_.cells:
+        if not any(vertex_images[vertex] for vertex in source.vertices):
+            raise ValueError(f"relation carrier of {source!r} is empty")
+    # The carriers are assembled on demand while FixedTimeCarrier validates
+    # them in the order of the cells, so a relation whose carrier fails the
+    # acyclicity gate stops at the first failing cell without assembling the
+    # others.  The values, and the first failure, are those of assembling
+    # every carrier first.
+    carrier_generators = _InducedCarrierGenerators(complex_, vertex_images)
+
+    carrier = FixedTimeCarrier(
+        complex_,
+        carrier_generators,
+        modulus=modulus,
+        validate_acyclic=True,
+    )
+    carrier.require_preserves_pair(pair.relative_pair)
+    chain_map = carrier.construct_chain_map(pair=pair.relative_pair)
+    carrier.require_carries(chain_map)
+    payload = chain_map.to_cmgdb_payload(pair.relative_pair)
+    return AtlasPhysicalConleyPreparation2D(
+        pair=pair,
+        carrier=carrier,
+        chain_map=chain_map,
+        payload=payload,
+        raw_covers=MappingProxyType({}),
+        outer_enclosure_certified=bool(outer_enclosure_certified),
+        carrier_construction=(
+            "actual Atlas MapGraph vertex union with connected P0-component extension"
+            if use_exit_component_carrier
+            else "actual Atlas MapGraph vertex union"
+        ),
+        relation_vertex_images=MappingProxyType(vertex_images),
+    )
+
+
+def _relation_vertex_images(
+    pair: AtlasRelativeIndexPair2D,
+    top_relation: Mapping[int, Collection[int]],
+    *,
+    use_exit_component_carrier: bool = True,
+) -> dict[int, frozenset[int]]:
+    """Vertex images of the carrier of :func:`prepare_atlas_relation_conley_2d`.
+
+    The image of a vertex of ``P1`` is its relation value or, for a vertex
+    of ``P0`` with ``use_exit_component_carrier=True``, its connected
+    component of the induced ``P0`` nerve.  The relation is checked as in
+    :func:`prepare_atlas_relation_conley_2d`, with the same errors; the
+    native carrier kernel of :mod:`carrier_kernel` starts from the same
+    images.
+    """
+
     missing = pair.p1_atlas_cells.difference(top_relation)
     if missing:
         raise ValueError(f"top-cell relation is missing P1 sources: {sorted(missing)!r}")
@@ -1800,46 +1861,7 @@ def prepare_atlas_relation_conley_2d(
                 vertex_images[source] = exit_component_by_vertex[source]
         else:
             vertex_images[source] = normalized_relation[source]
-
-    complex_ = pair.complex
-    # The carrier of a simplex is the induced subcomplex on the union of the
-    # images of its vertices.  Every vertex image is a nonempty set of
-    # vertices of P1, and every vertex of P1 is a 0-simplex of the complex,
-    # so a carrier is empty exactly when that union is empty.
-    for source in complex_.cells:
-        if not any(vertex_images[vertex] for vertex in source.vertices):
-            raise ValueError(f"relation carrier of {source!r} is empty")
-    # The carriers are assembled on demand while FixedTimeCarrier validates
-    # them in the order of the cells, so a relation whose carrier fails the
-    # acyclicity gate stops at the first failing cell without assembling the
-    # others.  The values, and the first failure, are those of assembling
-    # every carrier first.
-    carrier_generators = _InducedCarrierGenerators(complex_, vertex_images)
-
-    carrier = FixedTimeCarrier(
-        complex_,
-        carrier_generators,
-        modulus=modulus,
-        validate_acyclic=True,
-    )
-    carrier.require_preserves_pair(pair.relative_pair)
-    chain_map = carrier.construct_chain_map(pair=pair.relative_pair)
-    carrier.require_carries(chain_map)
-    payload = chain_map.to_cmgdb_payload(pair.relative_pair)
-    return AtlasPhysicalConleyPreparation2D(
-        pair=pair,
-        carrier=carrier,
-        chain_map=chain_map,
-        payload=payload,
-        raw_covers=MappingProxyType({}),
-        outer_enclosure_certified=bool(outer_enclosure_certified),
-        carrier_construction=(
-            "actual Atlas MapGraph vertex union with connected P0-component extension"
-            if use_exit_component_carrier
-            else "actual Atlas MapGraph vertex union"
-        ),
-        relation_vertex_images=MappingProxyType(vertex_images),
-    )
+    return vertex_images
 
 
 __all__ = [

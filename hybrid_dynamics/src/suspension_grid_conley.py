@@ -93,6 +93,17 @@ trivial and the index map is not formed.  Otherwise the index map is formed
 and its shift class is the label; if a carrier, pair, or chain-map check
 fails, the homology is still reported and only the label is missing.
 
+The carrier and chain map of the exit-components construction (also the
+first attempt of ``"auto"``) and of the forward-closure pair without
+``excise`` are formed either by the Python construction of
+:func:`atlas_conley.prepare_atlas_relation_conley_2d` or by the native
+kernel ``CMGDB.ComputeCarrierChainMap`` (:mod:`carrier_kernel`), which forms
+the same chain map and hands the same payload to CMGDB.  ``backend``
+chooses: ``"python"``, ``"native"``, or ``"auto"`` (the default), the native
+kernel when the installed CMGDB provides it.  The excision construction and
+the excised forward-closure pair use the Python construction with every
+backend.
+
 The result is a finite-relation shift class over ``GF(5)``.  It is not a
 certified Conley index of the continuous fixed-time map, because the
 relation is sampled.
@@ -119,6 +130,11 @@ from .atlas_conley import (
     AtlasResetGluing2D,
     _InducedCarrierGenerators,
     prepare_atlas_relation_conley_2d,
+)
+from .carrier_kernel import (
+    CONLEY_BACKENDS,
+    native_relation_shift_class,
+    resolve_conley_backend,
 )
 from .suspension_complex import (
     CMGDBRelativeHomologyPayload,
@@ -925,6 +941,7 @@ def compute_suspension_grid_conley_index(
     index_pair: str = "image",
     excise: bool = False,
     index_map: str = INDEX_MAPS[0],
+    backend: str = CONLEY_BACKENDS[0],
 ) -> SuspensionGridConleyResult:
     """Shift class of the index map on the pair ``index_pair`` of ``S``.
 
@@ -961,6 +978,13 @@ def compute_suspension_grid_conley_index(
     excision construction and ``max_pieces``, the index map is also not
     attempted when ``Xbar = X cup F(X)`` has more pieces; the homology of
     ``(X, A)`` is still reported.
+
+    ``backend`` (see :data:`carrier_kernel.CONLEY_BACKENDS`) chooses how the
+    carrier and chain map of the exit-components construction and of the
+    forward-closure pair without ``excise`` are formed: ``"python"``,
+    ``"native"`` (``CMGDB.ComputeCarrierChainMap``; ``RuntimeError`` if the
+    installed CMGDB lacks it), or ``"auto"``, the native kernel when it is
+    available.  The result does not depend on it.
     """
 
     started = time.perf_counter()
@@ -971,6 +995,7 @@ def compute_suspension_grid_conley_index(
         raise ValueError(f"index_map must be one of {INDEX_MAPS!r}; got {index_map!r}")
     if index_map != INDEX_MAPS[0] and index_pair == "forward-closure":
         raise ValueError("index_map applies to the image pair")
+    backend = resolve_conley_backend(backend)
     s_atoms, x_atoms, a_atoms = _pair_atoms(relation, morse_set, index_pair)
     x_pieces = _pieces_of_atoms(grid, x_atoms)
     a_pieces = _pieces_of_atoms(grid, a_atoms)
@@ -1080,6 +1105,12 @@ def compute_suspension_grid_conley_index(
                         )
                 if excise:
                     payload = _excised_shift_class(pair, source_pieces.tolist(), piece_image)
+                elif backend == "native":
+                    payload = native_relation_shift_class(
+                        pair,
+                        top_relation=piece_image,
+                        use_exit_component_carrier=index_pair == "image",
+                    )
                 else:
                     preparation = prepare_atlas_relation_conley_2d(
                         pair,
@@ -1162,6 +1193,7 @@ def _index_task(
     index_pair: str,
     excise: bool,
     index_map: str,
+    backend: str,
 ) -> SuspensionGridConleyResult:
     relation = SuspensionGridRelation(
         grid=_INDEX_WORKER["grid"],
@@ -1180,6 +1212,7 @@ def _index_task(
         index_pair=index_pair,
         excise=excise,
         index_map=index_map,
+        backend=backend,
     )
 
 
@@ -1210,6 +1243,7 @@ def compute_suspension_grid_conley_indices(
     index_pair: str = "image",
     excise: bool = False,
     index_map: str = INDEX_MAPS[0],
+    backend: str = CONLEY_BACKENDS[0],
 ) -> list[SuspensionGridConleyResult]:
     """:func:`compute_suspension_grid_conley_index` of every Morse set, in node order.
 
@@ -1221,9 +1255,12 @@ def compute_suspension_grid_conley_indices(
     results are those of the serial loop.
     Each worker holds its own copy of the grid (about 1 GB at ``2**10`` and
     4 GB at ``2**11`` base cells per axis) besides the quotient nerve of the
-    pair it works on.
+    pair it works on.  ``backend`` is checked here (``"native"`` raises
+    ``RuntimeError`` when the installed CMGDB lacks the native kernel) and
+    passed to every index.
     """
 
+    resolve_conley_backend(backend)
     grid = relation.grid
     sets = [np.asarray(morse_set, dtype=np.int64) for morse_set in morse_sets]
     workers = min(int(workers), len(sets))
@@ -1240,6 +1277,7 @@ def compute_suspension_grid_conley_indices(
                 index_pair=index_pair,
                 excise=excise,
                 index_map=index_map,
+                backend=backend,
             )
             for node, morse_set in enumerate(sets)
         ]
@@ -1265,6 +1303,7 @@ def compute_suspension_grid_conley_indices(
                 index_pair,
                 excise,
                 index_map,
+                backend,
             )
             for node in order
         }
@@ -1274,6 +1313,7 @@ def compute_suspension_grid_conley_indices(
 
 
 __all__ = [
+    "CONLEY_BACKENDS",
     "ExcisionError",
     "INDEX_MAPS",
     "INDEX_PAIRS",

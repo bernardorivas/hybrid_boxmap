@@ -677,6 +677,7 @@ def test_zero_relative_homology_gives_the_trivial_label_without_the_index_map(
         raise AssertionError("the index map is formed although H_*(X, A) = 0")
 
     monkeypatch.setattr(suspension_grid_conley, "prepare_atlas_relation_conley_2d", not_formed)
+    monkeypatch.setattr(suspension_grid_conley, "native_relation_shift_class", not_formed)
     result = compute_suspension_grid_conley_index(relation, [source])
 
     assert result.computed and result.homology_computed, result.blocker
@@ -699,8 +700,11 @@ def test_homology_is_reported_when_the_index_map_fails(monkeypatch):
     def fails(*args, **kwargs):
         raise ValueError("carrier image is not acyclic over GF(5)")
 
+    # The failure is put in the Python construction of the chain map.
     monkeypatch.setattr(suspension_grid_conley, "prepare_atlas_relation_conley_2d", fails)
-    blocked = compute_suspension_grid_conley_index(relation, morse.morse_sets[0])
+    blocked = compute_suspension_grid_conley_index(
+        relation, morse.morse_sets[0], backend="python"
+    )
 
     assert not blocked.computed and blocked.shift_class == ()
     assert blocked.homology_computed

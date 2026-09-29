@@ -66,7 +66,11 @@ this bounds the time and memory of the run.  There is no limit by default.
 ``--index-workers N`` computes the indices of different Morse sets in ``N``
 worker processes (default 4), largest pair first; each worker holds its own
 copy of the grid, about 1 GB at ``2**10`` and 4 GB at ``2**11`` base cells
-per axis.
+per axis.  ``--conley-backend`` chooses how the carriers and chain maps of
+the index maps are formed: ``python``, ``native`` (the kernel
+``CMGDB.ComputeCarrierChainMap``, which the installed CMGDB must provide),
+or ``auto`` (the default), the native kernel when it is available.  The
+labels do not depend on it.
 
 The base samples are integrated many at a time
 (:mod:`hybrid_dynamics.src.batched_suspension_flow`), with the step sequence
@@ -134,9 +138,11 @@ from hybrid_dynamics.src.suspension_grid import (  # noqa: E402
     check_suspension_grid,
 )
 from hybrid_dynamics.src.suspension_grid_conley import (  # noqa: E402
+    CONLEY_BACKENDS,
     INDEX_MAPS,
     INDEX_PAIRS,
     compute_suspension_grid_conley_indices,
+    resolve_conley_backend,
 )
 from hybrid_dynamics.src.suspension_grid_plot import (  # noqa: E402
     FIGURE_VARIANTS,
@@ -326,6 +332,16 @@ def _arguments() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--conley-backend",
+        choices=CONLEY_BACKENDS,
+        default=CONLEY_BACKENDS[0],
+        help=(
+            "how the carriers and chain maps of the index maps are formed: python, native "
+            "(CMGDB.ComputeCarrierChainMap), or auto, native when the installed CMGDB "
+            "provides it (default: auto)"
+        ),
+    )
+    parser.add_argument(
         "--figure-variants",
         default=None,
         metavar="VARIANT[,VARIANT]",
@@ -359,6 +375,13 @@ def _arguments() -> argparse.Namespace:
         or arguments.index_excise
     ):
         parser.error("--index-pair, --index-map, and --index-excise need the index labels")
+    if arguments.no_conley and arguments.conley_backend != CONLEY_BACKENDS[0]:
+        parser.error("--conley-backend needs the index labels (drop --no-conley)")
+    if arguments.conley_backend == "native" and not arguments.no_conley:
+        try:
+            resolve_conley_backend(arguments.conley_backend)
+        except RuntimeError as error:
+            parser.error(str(error))
     if arguments.index_pair == "forward-closure":
         if arguments.index_map is not None:
             parser.error("--index-map applies to the image pair (--index-pair image)")
@@ -656,12 +679,16 @@ def _run(
     conley: list[dict[str, object]] = []
     if not arguments.no_conley:
         started = time.perf_counter()
+        print(
+            f"Conley backend: {resolve_conley_backend(arguments.conley_backend)}", flush=True
+        )
         results = compute_suspension_grid_conley_indices(
             relation,
             morse.morse_sets,
             workers=arguments.index_workers,
             problem_factory=factory,
             max_pieces=arguments.index_max_pieces,
+            backend=arguments.conley_backend,
             **index_options,
         )
         for index, result in enumerate(results):
