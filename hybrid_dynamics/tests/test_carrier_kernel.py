@@ -1157,6 +1157,75 @@ def test_auto_uses_the_native_kernel_when_cmgdb_has_it(monkeypatch):
     assert records[0][0]["computed"] and records[0][0]["shift_class"][:2] == ["x-1", "x-1"]
 
 
+def _other_cell_counts(result):
+    payload = dict(result["payload"])
+    payload["cell_counts"] = [count + 1 for count in payload["cell_counts"]]
+    return {**result, "payload": payload}
+
+
+def _other_boundary(result):
+    payload = dict(result["payload"])
+    boundary = [list(entries) for entries in payload["boundary_entries"]]
+    degree = next(degree for degree, entries in enumerate(boundary) if entries)
+    boundary[degree] = boundary[degree][1:]
+    payload["boundary_entries"] = boundary
+    return {**result, "payload": payload}
+
+
+def _failure_the_python_construction_does_not_have(result):
+    return {"status": "chain_map_invalid", "failure_degree": 1, "failure_row": 0}
+
+
+@pytest.mark.parametrize(
+    ("change", "message"),
+    [
+        (_other_cell_counts, "gives the relative cell counts"),
+        (_other_boundary, "gives another relative boundary"),
+        (
+            _failure_the_python_construction_does_not_have,
+            "but the Python construction forms the chain map",
+        ),
+    ],
+)
+def test_auto_index_map_does_not_replace_a_kernel_disagreement(monkeypatch, change, message):
+    # The kernel and the Python construction disagree.  With index_map="auto"
+    # the AssertionError is raised and recorded, and the excision
+    # construction is not tried in its place.
+    def disagreeing(*arguments, **keywords):
+        return change(dict(reference_carrier_chain_map(*arguments, **keywords)))
+
+    monkeypatch.setattr(CMGDB, KERNEL_FUNCTION, disagreeing, raising=False)
+    native = suspension_grid_conley.native_relation_shift_class
+    raised = []
+
+    def recording(*arguments, **keywords):
+        try:
+            return native(*arguments, **keywords)
+        except Exception as error:
+            raised.append(error)
+            raise
+
+    excision_calls = []
+
+    def excision(*arguments, **keywords):
+        excision_calls.append(arguments)
+        return ()
+
+    monkeypatch.setattr(suspension_grid_conley, "native_relation_shift_class", recording)
+    monkeypatch.setattr(suspension_grid_conley, "_excision_index_map", excision)
+    relation, morse_sets = _problem("translation-l2")
+    record = compute_suspension_grid_conley_index(
+        relation, morse_sets[0], backend="native", index_map="auto"
+    ).to_dict()
+    assert len(raised) == 1 and type(raised[0]) is AssertionError
+    assert message in str(raised[0])
+    assert excision_calls == []
+    assert record["homology_computed"] and any(record["homology_dimensions"])
+    assert not record["computed"] and not record["label_source"]
+    assert record["index_map_blocker"] == record["blocker"] == f"AssertionError: {raised[0]}"
+    assert record["exit_components_blocker"] == ""
+
+
 def _load_runner_script():
     path = CODE_ROOT / "demo" / "run_paper_examples.py"
     spec = importlib.util.spec_from_file_location("run_paper_examples", path)

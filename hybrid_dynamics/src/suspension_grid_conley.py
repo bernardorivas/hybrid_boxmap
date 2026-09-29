@@ -53,7 +53,10 @@ nonzero, the excision map on the same nerve of ``X``.  Both are index maps
 of the same pair, so either gives the label.  ``label_source`` names the
 construction that gave it, ``"index map (exit components)"`` or ``"index
 map (excision pair)"``, and ``exit_components_blocker`` keeps the reason the
-first one failed.
+first one failed.  An ``AssertionError`` of the first construction (a failed
+internal check, such as the native kernel and the Python construction
+disagreeing) is not a failure of the construction: it is recorded as
+``index_map_blocker`` and the excision map is not tried.
 
 With ``index_pair="forward-closure"`` the pair is that of
 Proposition ``prop:grid-conley-index`` of the manuscript,
@@ -1205,7 +1208,10 @@ def compute_suspension_grid_conley_index(
                     payload = preparation.compute_finite_relation_shift_class()
             except Exception as error:  # the homology stays; only the label is missing
                 blocker = f"{type(error).__name__}: {error}"
-                if index_map != "auto":
+                # An AssertionError is a failed internal check (for instance,
+                # the native kernel and the Python construction disagree), not
+                # a failure of the construction, so "auto" does not fall back.
+                if index_map != "auto" or isinstance(error, AssertionError):
                     result.index_map_blocker = blocker
                     raise
                 # The excision construction is tried below.
