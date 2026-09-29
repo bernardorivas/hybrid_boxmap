@@ -113,19 +113,27 @@
           1017
         ],
         "finite_intersections_verified_contractible": true,
+        "interior_seam_subcomplex_audits": {},
+        "interior_seam_subcomplexes": [],
         "kind": "actual Atlas rectangles in reset quotient",
+        "maximum_dimension": 3,
         "vertices_are_actual_atlas_boxes": true
       },
       "relation_cache": "data/physical_conley/wheel_tau200_depth12_targeted_relation.json.gz",
       "relation_provenance": {
         "X_sources_evaluated": 1174,
         "X_sources_total": 1174,
+        "callback_failure_certificates": [],
+        "callback_failure_reason_counts": {},
+        "failed_samples_in_X": 0,
+        "failed_sources_in_A": [],
+        "failed_sources_in_S": [],
         "failed_sources_in_X": [],
         "original_exit_edges_retained": true,
         "scope": "targeted_index_candidates",
         "unresolved_event_stage_edges": 0
       },
-      "shared_model_elapsed_seconds": 209.82138125004712,
+      "shared_model_elapsed_seconds": 37.85937674995512,
       "t_star": 2.0,
       "top_cell_pair": {
         "a_targets_outside_x": [],
@@ -263,13 +271,2473 @@
           308
         ],
         "finite_intersections_verified_contractible": true,
+        "interior_seam_subcomplex_audits": {},
+        "interior_seam_subcomplexes": [],
         "kind": "actual Atlas rectangles in reset quotient",
+        "maximum_dimension": 3,
         "vertices_are_actual_atlas_boxes": true
       },
       "relation_cache": "data/physical_conley/wheel_tau200_depth12_targeted_relation.json.gz",
       "relation_provenance": {
         "X_sources_evaluated": 352,
         "X_sources_total": 352,
+        "callback_failure_certificates": [
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.1953125,
+              -0.1625,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 89
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.1953125,
+              -0.15000000000000002,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 91
+          },
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.171875,
+              -0.1625,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 92
+          },
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.1484375,
+              -0.1625,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 93
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.171875,
+              -0.15000000000000002,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 94
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.1484375,
+              -0.15000000000000002,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 95
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.1953125,
+              -0.1375,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 113
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.1953125,
+              -0.12500000000000003,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 115
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.171875,
+              -0.1375,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 116
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.1484375,
+              -0.1375,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 117
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.171875,
+              -0.12500000000000003,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 118
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.1484375,
+              -0.12500000000000003,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 119
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.1953125,
+              -0.1125,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 121
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.1953125,
+              -0.1,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 123
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.171875,
+              -0.1125,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 124
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.1484375,
+              -0.1125,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 125
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.171875,
+              -0.1,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 126
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.1484375,
+              -0.1,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 127
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.1953125,
+              -0.08750000000000002,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 209
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.1953125,
+              -0.07500000000000001,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 211
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.171875,
+              -0.08750000000000002,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 212
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.1484375,
+              -0.08750000000000002,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 213
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.171875,
+              -0.07500000000000001,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 214
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.1484375,
+              -0.07500000000000001,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 215
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.1953125,
+              -0.06250000000000001,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 217
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.1953125,
+              -0.05000000000000002,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 219
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.171875,
+              -0.06250000000000001,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 220
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.1484375,
+              -0.06250000000000001,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 221
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.171875,
+              -0.05000000000000002,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 222
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.1484375,
+              -0.05000000000000002,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 223
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.1953125,
+              -0.03750000000000001,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 241
+          },
+          {
+            "bounds": [
+              -0.03750000000000002,
+              -0.1953125,
+              -0.025,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 243
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.171875,
+              -0.03750000000000001,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 244
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.1484375,
+              -0.03750000000000001,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 245
+          },
+          {
+            "bounds": [
+              -0.03750000000000002,
+              -0.171875,
+              -0.025,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 246
+          },
+          {
+            "bounds": [
+              -0.03750000000000002,
+              -0.1484375,
+              -0.025,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 247
+          },
+          {
+            "bounds": [
+              -0.025000000000000005,
+              -0.1953125,
+              -0.012500000000000008,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 249
+          },
+          {
+            "bounds": [
+              -0.012500000000000016,
+              -0.1953125,
+              -1.3877787807814457e-17,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 251
+          },
+          {
+            "bounds": [
+              -0.025000000000000005,
+              -0.171875,
+              -0.012500000000000008,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 252
+          },
+          {
+            "bounds": [
+              -0.025000000000000005,
+              -0.1484375,
+              -0.012500000000000008,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 253
+          },
+          {
+            "bounds": [
+              -0.012500000000000016,
+              -0.171875,
+              -1.3877787807814457e-17,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 254
+          },
+          {
+            "bounds": [
+              -0.012500000000000016,
+              -0.1484375,
+              -1.3877787807814457e-17,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 255
+          },
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.125,
+              -0.1625,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 264
+          },
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.1015625,
+              -0.1625,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 265
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.125,
+              -0.15000000000000002,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 266
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.1015625,
+              -0.15000000000000002,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 267
+          },
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.078125,
+              -0.1625,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 268
+          },
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.0546875,
+              -0.1625,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 269
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.078125,
+              -0.15000000000000002,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 270
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.0546875,
+              -0.15000000000000002,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 271
+          },
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.03125,
+              -0.1625,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 280
+          },
+          {
+            "bounds": [
+              -0.17500000000000002,
+              -0.0078125,
+              -0.1625,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 281
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.03125,
+              -0.15000000000000002,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 282
+          },
+          {
+            "bounds": [
+              -0.1625,
+              -0.0078125,
+              -0.15000000000000002,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 283
+          },
+          {
+            "bounds": [
+              -0.1625,
+              0.015625,
+              -0.15000000000000002,
+              0.0390625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 286
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.125,
+              -0.1375,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 288
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.1015625,
+              -0.1375,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 289
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.125,
+              -0.12500000000000003,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 290
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.1015625,
+              -0.12500000000000003,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 291
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.078125,
+              -0.1375,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 292
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.0546875,
+              -0.1375,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 293
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.078125,
+              -0.12500000000000003,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 294
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.0546875,
+              -0.12500000000000003,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 295
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.125,
+              -0.1125,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 296
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.1015625,
+              -0.1125,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 297
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.125,
+              -0.1,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 298
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.1015625,
+              -0.1,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 299
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.078125,
+              -0.1125,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 300
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.0546875,
+              -0.1125,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 301
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.078125,
+              -0.1,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 302
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.0546875,
+              -0.1,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 303
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.03125,
+              -0.1375,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 304
+          },
+          {
+            "bounds": [
+              -0.15,
+              -0.0078125,
+              -0.1375,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 305
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.03125,
+              -0.12500000000000003,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 306
+          },
+          {
+            "bounds": [
+              -0.1375,
+              -0.0078125,
+              -0.12500000000000003,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 307
+          },
+          {
+            "bounds": [
+              -0.15,
+              0.015625,
+              -0.1375,
+              0.0390625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 308
+          },
+          {
+            "bounds": [
+              -0.1375,
+              0.015625,
+              -0.12500000000000003,
+              0.0390625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 310
+          },
+          {
+            "bounds": [
+              -0.1375,
+              0.0390625,
+              -0.12500000000000003,
+              0.0625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 311
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.03125,
+              -0.1125,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 312
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              -0.0078125,
+              -0.1125,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 313
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.03125,
+              -0.1,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 314
+          },
+          {
+            "bounds": [
+              -0.1125,
+              -0.0078125,
+              -0.1,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 315
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              0.015625,
+              -0.1125,
+              0.0390625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 316
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              0.0390625,
+              -0.1125,
+              0.0625
+            ],
+            "chart_id": 0,
+            "failed_samples": 8,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 8
+            },
+            "source": 317
+          },
+          {
+            "bounds": [
+              -0.1125,
+              0.015625,
+              -0.1,
+              0.0390625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 318
+          },
+          {
+            "bounds": [
+              -0.1125,
+              0.0390625,
+              -0.1,
+              0.0625
+            ],
+            "chart_id": 0,
+            "failed_samples": 5,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 5
+            },
+            "source": 319
+          },
+          {
+            "bounds": [
+              -0.12500000000000003,
+              0.0625,
+              -0.1125,
+              0.0859375
+            ],
+            "chart_id": 0,
+            "failed_samples": 3,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 3
+            },
+            "source": 360
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.125,
+              -0.08750000000000002,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 384
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.1015625,
+              -0.08750000000000002,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 385
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.125,
+              -0.07500000000000001,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 386
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.1015625,
+              -0.07500000000000001,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 387
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.078125,
+              -0.08750000000000002,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 388
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.0546875,
+              -0.08750000000000002,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 389
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.078125,
+              -0.07500000000000001,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 390
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.0546875,
+              -0.07500000000000001,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 391
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.125,
+              -0.06250000000000001,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 392
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.1015625,
+              -0.06250000000000001,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 393
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.125,
+              -0.05000000000000002,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 394
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.1015625,
+              -0.05000000000000002,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 395
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.078125,
+              -0.06250000000000001,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 396
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.0546875,
+              -0.06250000000000001,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 397
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.078125,
+              -0.05000000000000002,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 398
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.0546875,
+              -0.05000000000000002,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 399
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.03125,
+              -0.08750000000000002,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 400
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              -0.0078125,
+              -0.08750000000000002,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 401
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.03125,
+              -0.07500000000000001,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 402
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              -0.0078125,
+              -0.07500000000000001,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 403
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              0.015625,
+              -0.08750000000000002,
+              0.0390625
+            ],
+            "chart_id": 0,
+            "failed_samples": 8,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 8
+            },
+            "source": 404
+          },
+          {
+            "bounds": [
+              -0.10000000000000002,
+              0.0390625,
+              -0.08750000000000002,
+              0.0625
+            ],
+            "chart_id": 0,
+            "failed_samples": 2,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 2
+            },
+            "source": 405
+          },
+          {
+            "bounds": [
+              -0.08750000000000001,
+              0.015625,
+              -0.07500000000000001,
+              0.0390625
+            ],
+            "chart_id": 0,
+            "failed_samples": 5,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 5
+            },
+            "source": 406
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.03125,
+              -0.06250000000000001,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 408
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              -0.0078125,
+              -0.06250000000000001,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 8,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 8
+            },
+            "source": 409
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.03125,
+              -0.05000000000000002,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 410
+          },
+          {
+            "bounds": [
+              -0.06250000000000003,
+              -0.0078125,
+              -0.05000000000000002,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 4,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 4
+            },
+            "source": 411
+          },
+          {
+            "bounds": [
+              -0.07500000000000001,
+              0.015625,
+              -0.06250000000000001,
+              0.0390625
+            ],
+            "chart_id": 0,
+            "failed_samples": 2,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 2
+            },
+            "source": 412
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.125,
+              -0.03750000000000001,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 416
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.1015625,
+              -0.03750000000000001,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 417
+          },
+          {
+            "bounds": [
+              -0.03750000000000002,
+              -0.125,
+              -0.025,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 418
+          },
+          {
+            "bounds": [
+              -0.03750000000000002,
+              -0.1015625,
+              -0.025,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 419
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.078125,
+              -0.03750000000000001,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 420
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.0546875,
+              -0.03750000000000001,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 421
+          },
+          {
+            "bounds": [
+              -0.03750000000000002,
+              -0.078125,
+              -0.025,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 422
+          },
+          {
+            "bounds": [
+              -0.03750000000000002,
+              -0.0546875,
+              -0.025,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 423
+          },
+          {
+            "bounds": [
+              -0.025000000000000005,
+              -0.125,
+              -0.012500000000000008,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 424
+          },
+          {
+            "bounds": [
+              -0.025000000000000005,
+              -0.1015625,
+              -0.012500000000000008,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 425
+          },
+          {
+            "bounds": [
+              -0.012500000000000016,
+              -0.125,
+              -1.3877787807814457e-17,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 426
+          },
+          {
+            "bounds": [
+              -0.012500000000000016,
+              -0.1015625,
+              -1.3877787807814457e-17,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 427
+          },
+          {
+            "bounds": [
+              -0.025000000000000005,
+              -0.078125,
+              -0.012500000000000008,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 428
+          },
+          {
+            "bounds": [
+              -0.025000000000000005,
+              -0.0546875,
+              -0.012500000000000008,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 7,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 7
+            },
+            "source": 429
+          },
+          {
+            "bounds": [
+              -0.012500000000000016,
+              -0.078125,
+              -1.3877787807814457e-17,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 8,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 8
+            },
+            "source": 430
+          },
+          {
+            "bounds": [
+              -0.012500000000000016,
+              -0.0546875,
+              -1.3877787807814457e-17,
+              -0.03125
+            ],
+            "chart_id": 0,
+            "failed_samples": 3,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 3
+            },
+            "source": 431
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.03125,
+              -0.03750000000000001,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 7,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 7
+            },
+            "source": 432
+          },
+          {
+            "bounds": [
+              -0.05000000000000001,
+              -0.0078125,
+              -0.03750000000000001,
+              0.015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 1,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 1
+            },
+            "source": 433
+          },
+          {
+            "bounds": [
+              -0.03750000000000002,
+              -0.03125,
+              -0.025,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 4,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 4
+            },
+            "source": 434
+          },
+          {
+            "bounds": [
+              -0.025000000000000005,
+              -0.03125,
+              -0.012500000000000008,
+              -0.0078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 1,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 1
+            },
+            "source": 440
+          },
+          {
+            "bounds": [
+              -2.7755575615628914e-17,
+              -0.1953125,
+              0.01249999999999998,
+              -0.171875
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 593
+          },
+          {
+            "bounds": [
+              -2.7755575615628914e-17,
+              -0.171875,
+              0.01249999999999998,
+              -0.1484375
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 596
+          },
+          {
+            "bounds": [
+              -2.7755575615628914e-17,
+              -0.1484375,
+              0.01249999999999998,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 597
+          },
+          {
+            "bounds": [
+              0.012499999999999989,
+              -0.1484375,
+              0.024999999999999974,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 599
+          },
+          {
+            "bounds": [
+              0.024999999999999977,
+              -0.1484375,
+              0.0375,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 605
+          },
+          {
+            "bounds": [
+              0.03749999999999999,
+              -0.1484375,
+              0.04999999999999999,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 607
+          },
+          {
+            "bounds": [
+              0.04999999999999998,
+              -0.1484375,
+              0.062499999999999986,
+              -0.125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 629
+          },
+          {
+            "bounds": [
+              -2.7755575615628914e-17,
+              -0.125,
+              0.01249999999999998,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 768
+          },
+          {
+            "bounds": [
+              -2.7755575615628914e-17,
+              -0.1015625,
+              0.01249999999999998,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 769
+          },
+          {
+            "bounds": [
+              0.012499999999999989,
+              -0.125,
+              0.024999999999999974,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 770
+          },
+          {
+            "bounds": [
+              0.012499999999999989,
+              -0.1015625,
+              0.024999999999999974,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 8,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 8
+            },
+            "source": 771
+          },
+          {
+            "bounds": [
+              -2.7755575615628914e-17,
+              -0.078125,
+              0.01249999999999998,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 5,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 5
+            },
+            "source": 772
+          },
+          {
+            "bounds": [
+              0.012499999999999989,
+              -0.078125,
+              0.024999999999999974,
+              -0.0546875
+            ],
+            "chart_id": 0,
+            "failed_samples": 2,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 2
+            },
+            "source": 774
+          },
+          {
+            "bounds": [
+              0.024999999999999977,
+              -0.125,
+              0.0375,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 9,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 9
+            },
+            "source": 776
+          },
+          {
+            "bounds": [
+              0.024999999999999977,
+              -0.1015625,
+              0.0375,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 5,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 5
+            },
+            "source": 777
+          },
+          {
+            "bounds": [
+              0.03749999999999999,
+              -0.125,
+              0.04999999999999999,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 8,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 8
+            },
+            "source": 778
+          },
+          {
+            "bounds": [
+              0.03749999999999999,
+              -0.1015625,
+              0.04999999999999999,
+              -0.078125
+            ],
+            "chart_id": 0,
+            "failed_samples": 2,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 2
+            },
+            "source": 779
+          },
+          {
+            "bounds": [
+              0.04999999999999998,
+              -0.125,
+              0.062499999999999986,
+              -0.1015625
+            ],
+            "chart_id": 0,
+            "failed_samples": 4,
+            "pair_membership": "A",
+            "reasons": {
+              "ValueError: trajectory leaves the declared state space": 4
+            },
+            "source": 800
+          }
+        ],
+        "callback_failure_reason_counts": {
+          "ValueError: trajectory leaves the declared state space": 1280
+        },
+        "failed_samples_in_X": 1280,
+        "failed_sources_in_A": [
+          89,
+          91,
+          92,
+          93,
+          94,
+          95,
+          113,
+          115,
+          116,
+          117,
+          118,
+          119,
+          121,
+          123,
+          124,
+          125,
+          126,
+          127,
+          209,
+          211,
+          212,
+          213,
+          214,
+          215,
+          217,
+          219,
+          220,
+          221,
+          222,
+          223,
+          241,
+          243,
+          244,
+          245,
+          246,
+          247,
+          249,
+          251,
+          252,
+          253,
+          254,
+          255,
+          264,
+          265,
+          266,
+          267,
+          268,
+          269,
+          270,
+          271,
+          280,
+          281,
+          282,
+          283,
+          286,
+          288,
+          289,
+          290,
+          291,
+          292,
+          293,
+          294,
+          295,
+          296,
+          297,
+          298,
+          299,
+          300,
+          301,
+          302,
+          303,
+          304,
+          305,
+          306,
+          307,
+          308,
+          310,
+          311,
+          312,
+          313,
+          314,
+          315,
+          316,
+          317,
+          318,
+          319,
+          360,
+          384,
+          385,
+          386,
+          387,
+          388,
+          389,
+          390,
+          391,
+          392,
+          393,
+          394,
+          395,
+          396,
+          397,
+          398,
+          399,
+          400,
+          401,
+          402,
+          403,
+          404,
+          405,
+          406,
+          408,
+          409,
+          410,
+          411,
+          412,
+          416,
+          417,
+          418,
+          419,
+          420,
+          421,
+          422,
+          423,
+          424,
+          425,
+          426,
+          427,
+          428,
+          429,
+          430,
+          431,
+          432,
+          433,
+          434,
+          440,
+          593,
+          596,
+          597,
+          599,
+          605,
+          607,
+          629,
+          768,
+          769,
+          770,
+          771,
+          772,
+          774,
+          776,
+          777,
+          778,
+          779,
+          800
+        ],
+        "failed_sources_in_S": [],
         "failed_sources_in_X": [
           89,
           91,
@@ -429,7 +2897,7 @@
         "scope": "targeted_index_candidates",
         "unresolved_event_stage_edges": 0
       },
-      "shared_model_elapsed_seconds": 209.82138125004712,
+      "shared_model_elapsed_seconds": 37.85937674995512,
       "t_star": 2.0,
       "top_cell_pair": {
         "a_targets_outside_x": [
@@ -13851,7 +16319,7 @@
     }
   ],
   "certified_continuous_system_indices": 0,
-  "computed_at": "2026-08-22",
+  "computed_at": "2026-09-29",
   "computed_finite_relation_indices": 2,
   "method": {
     "analytic_labels_used": false,

@@ -51,7 +51,7 @@
       ],
       "continuous_system_conley_index_certified": false,
       "depth": 10,
-      "elapsed_seconds": 19.59081983298529,
+      "elapsed_seconds": 2.8959076249739155,
       "external_continuous_index_pair_theorem_available": false,
       "finite_relation_blockers": [],
       "finite_relation_conley_index": {
@@ -114,7 +114,10 @@
           603
         ],
         "finite_intersections_verified_contractible": true,
+        "interior_seam_subcomplex_audits": {},
+        "interior_seam_subcomplexes": [],
         "kind": "actual Atlas rectangles in reset quotient",
+        "maximum_dimension": 3,
         "vertices_are_actual_atlas_boxes": true
       },
       "relation_cache": "data/physical_conley/ball_tau150_depth10_relation.json.gz",
@@ -160,7 +163,7 @@
     }
   ],
   "certified_continuous_system_indices": 0,
-  "computed_at": "2026-08-22",
+  "computed_at": "2026-09-29",
   "computed_finite_relation_indices": 1,
   "method": {
     "analytic_labels_used": false,

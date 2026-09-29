@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import gzip
 import json
+from pathlib import Path
 
 import pytest
 
@@ -19,6 +20,12 @@ from hybrid_dynamics.examples.physical_conley import (
 from hybrid_dynamics.examples.bouncing_ball_atlas import (
     bouncing_ball_atlas_reset_gluing,
 )
+from hybrid_dynamics.examples.rimless_wheel_atlas import (
+    rimless_wheel_atlas_reset_gluing,
+)
+
+#: Keys of a stored candidate audit that record the run, not the audit.
+_RUN_KEYS = ("elapsed_seconds", "relation_cache", "shared_model_elapsed_seconds")
 
 
 def _tiny_ball_snapshot(
@@ -265,3 +272,28 @@ def test_unevaluated_exit_source_blocks_finite_relation_provenance():
     assert "mapgraph_relation_not_evaluated_on_all_X_sources" in (
         audit.finite_relation_blockers
     )
+
+
+@pytest.mark.parametrize(("model", "nodes"), [("ball", (0,)), ("wheel", (0, 1))])
+def test_stored_physical_audits_are_the_audits_of_the_stored_relations(model, nodes):
+    root = Path(__file__).resolve().parents[2]
+    path = root / f"data/physical_conley/physical_conley_audit_{model}.json"
+    if not path.exists():
+        pytest.skip("stored physical Conley audit is not installed")
+    gluing = (
+        bouncing_ball_atlas_reset_gluing(restitution=0.8)
+        if model == "ball"
+        else rimless_wheel_atlas_reset_gluing(alpha=0.4, gamma=0.2)
+    )
+    candidates = json.loads(path.read_text(encoding="utf-8"))["candidates"]
+    assert len(candidates) == len(nodes)
+    for node, stored in zip(nodes, candidates):
+        snapshot = AtlasRelationSnapshot.read_gzip_json(root / stored["relation_cache"])
+        summary = audit_atlas_nerve_finite_relation(
+            snapshot,
+            morse_node=node,
+            candidate_name=stored["candidate"],
+            gluing=gluing,
+        ).summary()
+        expected = {key: value for key, value in stored.items() if key not in _RUN_KEYS}
+        assert json.loads(json.dumps(summary)) == expected
