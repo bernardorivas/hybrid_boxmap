@@ -150,6 +150,7 @@ from .atlas_conley import (
 from .carrier_kernel import (
     CONLEY_BACKENDS,
     KernelChainMap,
+    check_conley_backend,
     native_cross_complex_chain_map,
     native_relation_shift_class,
     native_subcomplex_chain_entries,
@@ -1081,7 +1082,7 @@ def compute_suspension_grid_conley_index(
         raise ValueError(f"index_map must be one of {INDEX_MAPS!r}; got {index_map!r}")
     if index_map != INDEX_MAPS[0] and index_pair == "forward-closure":
         raise ValueError("index_map applies to the image pair")
-    backend = resolve_conley_backend(backend)
+    check_conley_backend(backend)
     s_atoms, x_atoms, a_atoms = _pair_atoms(relation, morse_set, index_pair)
     x_pieces = _pieces_of_atoms(grid, x_atoms)
     a_pieces = _pieces_of_atoms(grid, a_atoms)
@@ -1160,6 +1161,9 @@ def compute_suspension_grid_conley_index(
             result.label_source = "zero relative homology"
             result.seconds = time.perf_counter() - started
             return result
+        # Both constructions of the index map need the backend; "auto"
+        # imports CMGDB here, and not for a label of zero homology.
+        backend = resolve_conley_backend(backend)
         if index_map != "excision":
             x_set = set(x_pieces.tolist())
             # In the forward-closure pair every atom maps into U and every atom
@@ -1352,7 +1356,7 @@ def compute_suspension_grid_conley_indices(
     passed to every index.
     """
 
-    resolve_conley_backend(backend)
+    check_conley_backend(backend)
     grid = relation.grid
     sets = [np.asarray(morse_set, dtype=np.int64) for morse_set in morse_sets]
     workers = min(int(workers), len(sets))

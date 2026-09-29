@@ -108,6 +108,24 @@ def native_carrier_kernel_available() -> bool:
     return hasattr(CMGDB, KERNEL_FUNCTION)
 
 
+def check_conley_backend(backend: str) -> None:
+    """Raise the error of :func:`resolve_conley_backend` for ``backend``, if any.
+
+    Only ``"native"`` imports CMGDB here, to check that it provides the
+    native kernel; ``"auto"`` is left to be resolved when a construction
+    needs it.
+    """
+
+    if backend not in CONLEY_BACKENDS:
+        raise ValueError(f"backend must be one of {CONLEY_BACKENDS!r}; got {backend!r}")
+    if backend == "native" and not native_carrier_kernel_available():
+        raise RuntimeError(
+            f"backend='native' needs CMGDB.{KERNEL_FUNCTION}, which the installed CMGDB "
+            "does not provide; install a CMGDB build that has it, or use backend='auto' "
+            "or backend='python'"
+        )
+
+
 def resolve_conley_backend(backend: str) -> str:
     """The implementation, ``"python"`` or ``"native"``, that ``backend`` selects.
 
@@ -116,19 +134,10 @@ def resolve_conley_backend(backend: str) -> str:
     ``RuntimeError`` when the installed CMGDB does not provide it.
     """
 
-    if backend not in CONLEY_BACKENDS:
-        raise ValueError(f"backend must be one of {CONLEY_BACKENDS!r}; got {backend!r}")
-    if backend == "python":
-        return "python"
-    if native_carrier_kernel_available():
-        return "native"
-    if backend == "native":
-        raise RuntimeError(
-            f"backend='native' needs CMGDB.{KERNEL_FUNCTION}, which the installed CMGDB "
-            "does not provide; install a CMGDB build that has it, or use backend='auto' "
-            "or backend='python'"
-        )
-    return "python"
+    check_conley_backend(backend)
+    if backend == "auto":
+        return "native" if native_carrier_kernel_available() else "python"
+    return backend
 
 
 def cmgdb_provenance(backend: str | None) -> dict[str, object]:
@@ -817,6 +826,7 @@ __all__ = [
     "CarrierKernelArrays",
     "KernelChainMap",
     "carrier_kernel_arrays",
+    "check_conley_backend",
     "cmgdb_provenance",
     "cross_complex_carrier_arrays",
     "exit_mask",

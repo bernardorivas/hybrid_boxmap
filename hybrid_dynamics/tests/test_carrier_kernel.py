@@ -50,7 +50,7 @@ from hybrid_dynamics.examples.paper_examples import (
     paper_problem_factory,
     spiking_neuron_problem,
 )
-from hybrid_dynamics.src import suspension_grid_conley
+from hybrid_dynamics.src import carrier_kernel, suspension_grid_conley
 from hybrid_dynamics.src.carrier_kernel import (
     KERNEL_FUNCTION,
     carrier_kernel_arrays,
@@ -1157,6 +1157,28 @@ def test_auto_uses_the_native_kernel_when_cmgdb_has_it(monkeypatch):
     records, calls = _runs(relation, morse_sets, "auto")
     assert calls == {"python": 0, "native": 1}
     assert records[0][0]["computed"] and records[0][0]["shift_class"][:2] == ["x-1", "x-1"]
+
+
+def test_auto_is_resolved_only_to_form_an_index_map(monkeypatch):
+    # Resolving "auto" imports CMGDB; a label of zero homology needs neither.
+    calls = []
+    available = carrier_kernel.native_carrier_kernel_available
+
+    def counted():
+        calls.append(None)
+        return available()
+
+    monkeypatch.setattr(carrier_kernel, "native_carrier_kernel_available", counted)
+    relation, morse_sets = _problem("ball-l3-zero-homology")
+    result = compute_suspension_grid_conley_index(relation, morse_sets[0], backend="auto")
+    assert result.label_source == "zero relative homology"
+    results = compute_suspension_grid_conley_indices(relation, morse_sets, backend="auto")
+    assert results[0].to_dict() | {"seconds": 0} == result.to_dict() | {"seconds": 0}
+    assert not calls
+    relation, morse_sets = _problem("translation-l2")
+    result = compute_suspension_grid_conley_index(relation, morse_sets[0], backend="auto")
+    assert result.label_source == "index map"
+    assert len(calls) == 1
 
 
 def test_cmgdb_provenance_names_the_installed_cmgdb_and_functions(monkeypatch):
