@@ -53,6 +53,7 @@ from hybrid_dynamics.examples.paper_examples import (
 from hybrid_dynamics.src import carrier_kernel, suspension_grid_conley
 from hybrid_dynamics.src.carrier_kernel import (
     KERNEL_FUNCTION,
+    _image_csr,
     carrier_kernel_arrays,
     cmgdb_provenance,
     cross_complex_carrier_arrays,
@@ -797,10 +798,55 @@ def test_simplex_arrays_refuse_other_complexes():
     large = FiniteCellComplex({simplex(2**31): 0}, {})
     with pytest.raises(ValueError, match="int32"):
         simplex_arrays(large)
+    with pytest.raises(ValueError, match="'a' of dimension 0 is not a simplex with 1 vertices"):
+        simplex_arrays(FiniteCellComplex({"a": 0}, {}))
+    long_edge = simplex(0, 1, 2)
+    with pytest.raises(ValueError, match="is not a simplex with 2 vertices"):
+        simplex_arrays(
+            FiniteCellComplex(
+                {simplex(0): 0, simplex(1): 0, long_edge: 1},
+                {long_edge: {simplex(1): 1, simplex(0): -1}},
+            )
+        )
+    # A triangle, and the same triangle with its faces listed in another order.
+    vertices = {simplex(v): 0 for v in range(3)}
+    edges = {simplex(a, b): {simplex(b): 1, simplex(a): -1} for a, b in ((0, 1), (0, 2), (1, 2))}
+    triangle = simplex(0, 1, 2)
+    faces = {simplex(1, 2): 1, simplex(0, 2): -1, simplex(0, 1): 1}
+    dimensions = {**vertices, **dict.fromkeys(edges, 1), triangle: 2}
+    filled = FiniteCellComplex(dimensions, {**edges, triangle: faces})
+    assert [array.tolist() for array in simplex_arrays(filled)] == [
+        [[0], [1], [2]],
+        [[0, 1], [0, 2], [1, 2]],
+        [[0, 1, 2]],
+    ]
+    reordered = dict(reversed(list(faces.items())))
+    with pytest.raises(ValueError, match="alternating sum"):
+        simplex_arrays(FiniteCellComplex(dimensions, {**edges, triangle: reordered}))
     with pytest.raises(ValueError, match="has no image"):
         carrier_kernel_arrays(good, {0: {1}})
     with pytest.raises(ValueError, match="outside the complex"):
         carrier_kernel_arrays(good, {0: {1}, 1: {0}}, exit_vertices={5})
+
+
+def test_vertex_images_shared_by_vertices_are_repeated():
+    shared = frozenset({5, 3})
+    images = {0: shared, 1: [4, 3, 4], 2: shared, 3: {7}}
+    indptr, indices = _image_csr([0, 1, 2, 3], images)
+    assert indptr.tolist() == [0, 2, 4, 6, 7]
+    assert indices.tolist() == [3, 5, 3, 4, 3, 5, 7]
+    assert (indptr.dtype, indices.dtype) == (np.int64, np.int32)
+    indptr, indices = _image_csr([0, 1, 2, 3], images, targets={3, 7})
+    assert indptr.tolist() == [0, 1, 2, 3, 4]
+    assert indices.tolist() == [3, 3, 3, 7]
+    indptr, indices = _image_csr([3, 1], images)
+    assert (indptr.tolist(), indices.tolist()) == ([0, 1, 3], [7, 3, 4])
+    indptr, indices = _image_csr([], images)
+    assert (indptr.tolist(), indices.tolist(), indices.dtype) == ([0], [], np.int32)
+    with pytest.raises(ValueError, match="the vertex 9 of the complex has no image"):
+        _image_csr([0, 9], images)
+    with pytest.raises(ValueError, match="int32"):
+        _image_csr([0], {0: {2**31}})
 
 
 # ---------------------------------------------------------------------------

@@ -57,6 +57,7 @@ from __future__ import annotations
 
 import importlib.metadata
 import itertools
+import operator
 from collections.abc import Callable, Collection, Mapping, Sequence
 from dataclasses import dataclass
 from types import MappingProxyType
@@ -200,23 +201,14 @@ def simplex_arrays(complex_: FiniteCellComplex) -> tuple[npt.NDArray[np.int32], 
         raise ValueError("the cells of the complex are not ordered by dimension")
     arrays: list[npt.NDArray[np.int32]] = []
     for dimension, group in enumerate(groups):
-        rows: list[tuple[int, ...]] = []
-        for cell in group:
-            vertices = getattr(cell, "vertices", None)
-            if vertices is None or len(vertices) != dimension + 1:
-                raise ValueError(
-                    f"the cell {cell!r} of dimension {dimension} is not a simplex with "
-                    f"{dimension + 1} vertices"
-                )
-            rows.append(tuple(int(vertex) for vertex in vertices))
-        values = np.array(rows, dtype=np.int64).reshape(len(rows), dimension + 1)
+        values = _vertex_rows(group, dimension)
         _require_int32(values, f"the vertices of the cells of dimension {dimension}")
         unsorted = np.flatnonzero(np.any(values[:, 1:] <= values[:, :-1], axis=1))
         if unsorted.size:
             raise ValueError(
                 f"the vertices of the cell {group[int(unsorted[0])]!r} are not sorted and distinct"
             )
-        if len(rows) > 1:
+        if len(group) > 1:
             # Consecutive rows increase lexicographically: their first
             # difference is positive (and exists).
             difference = values[1:] - values[:-1]
@@ -229,20 +221,103 @@ def simplex_arrays(complex_: FiniteCellComplex) -> tuple[npt.NDArray[np.int32], 
                     f"the cells of dimension {dimension} are not in lexicographic order: "
                     f"row {row} is {group[row]!r} and row {row + 1} is {group[row + 1]!r}"
                 )
-        if dimension:
-            signs = [1 if index % 2 == 0 else -1 for index in range(dimension + 1)]
-            for cell, row in zip(group, rows):
-                boundary = complex_.boundary(cell)
-                faces = [row[:index] + row[index + 1 :] for index in range(dimension + 1)]
-                if list(boundary.values()) != signs or [
-                    tuple(face.vertices) for face in boundary
-                ] != faces:
-                    raise ValueError(
-                        f"the boundary of {cell!r} is not the alternating sum of its faces "
-                        "by removed vertex"
-                    )
+        if dimension and not _alternating_boundaries(complex_, group, values):
+            _check_boundaries_by_cell(complex_, group, values)
         arrays.append(values.astype(np.int32))
     return tuple(arrays)
+
+
+_VERTICES = operator.attrgetter("vertices")
+_VALUES = operator.methodcaller("values")
+
+
+def _all_of_length(items: Sequence[Any], length: int) -> bool:
+    return bool(np.all(np.fromiter(map(len, items), dtype=np.int64, count=len(items)) == length))
+
+
+def _vertex_rows(cells: Sequence[Any], dimension: int) -> npt.NDArray[np.int64]:
+    """The vertex tuples of ``cells`` as the rows of an ``int64`` array.
+
+    Every cell must be a simplex with ``dimension + 1`` vertices; the first
+    that is not raises ``ValueError``.
+    """
+
+    size = dimension + 1
+    try:
+        vertices = list(map(_VERTICES, cells))
+        regular = _all_of_length(vertices, size)
+    except (AttributeError, TypeError):
+        regular = False
+    if not regular:
+        for cell in cells:
+            tuple_ = getattr(cell, "vertices", None)
+            if tuple_ is None or len(tuple_) != size:
+                raise ValueError(
+                    f"the cell {cell!r} of dimension {dimension} is not a simplex with "
+                    f"{size} vertices"
+                )
+        vertices = list(map(_VERTICES, cells))
+    return np.fromiter(
+        itertools.chain.from_iterable(vertices), dtype=np.int64, count=len(cells) * size
+    ).reshape(len(cells), size)
+
+
+def _alternating_boundaries(
+    complex_: FiniteCellComplex, cells: Sequence[Any], values: npt.NDArray[np.int64]
+) -> bool:
+    """Whether the boundary of every cell is the alternating sum of its faces by removed vertex.
+
+    ``values`` holds the vertex tuples of ``cells``, which have dimension
+    ``d >= 1``: the boundary of ``[v_0, ..., v_d]`` must list, for ``i = 0,
+    ..., d``, the face without ``v_i`` with the coefficient ``(-1)^i``.
+    """
+
+    count, size = values.shape
+    faces_per_cell = size * (size - 1)
+    try:
+        boundaries = list(map(complex_.boundary, cells))
+        if not _all_of_length(boundaries, size):
+            return False
+        faces = list(map(_VERTICES, itertools.chain.from_iterable(boundaries)))
+        if not _all_of_length(faces, size - 1):
+            return False
+        coefficients = np.fromiter(
+            itertools.chain.from_iterable(map(_VALUES, boundaries)),
+            dtype=np.int64,
+            count=count * size,
+        ).reshape(count, size)
+        face_vertices = np.fromiter(
+            itertools.chain.from_iterable(faces), dtype=np.int64, count=count * faces_per_cell
+        ).reshape(count, size, size - 1)
+    except (AttributeError, TypeError, ValueError, OverflowError):
+        return False
+    signs = np.where(np.arange(size) % 2 == 0, 1, -1)
+    # Row i of columns lists the positions of the vertices of the face without v_i.
+    columns = np.array([[j for j in range(size) if j != i] for i in range(size)], dtype=np.intp)
+    return bool(
+        np.array_equal(coefficients, np.broadcast_to(signs, coefficients.shape))
+        and np.array_equal(face_vertices, values[:, columns])
+    )
+
+
+def _check_boundaries_by_cell(
+    complex_: FiniteCellComplex, cells: Sequence[Any], values: npt.NDArray[np.int64]
+) -> None:
+    """Raise ``ValueError`` at the first cell whose boundary is not the alternating sum.
+
+    This is the test of :func:`_alternating_boundaries`, cell by cell.
+    """
+
+    size = values.shape[1]
+    signs = [1 if index % 2 == 0 else -1 for index in range(size)]
+    for cell, row in zip(cells, values.tolist()):
+        boundary = complex_.boundary(cell)
+        faces = [row[:index] + row[index + 1 :] for index in range(size)]
+        if list(boundary.values()) != signs or [list(face.vertices) for face in boundary] != faces:
+            raise ValueError(
+                f"the boundary of {cell!r} is not the alternating sum of its faces "
+                "by removed vertex"
+            )
 
 
 def vertex_image_csr(
@@ -263,23 +338,68 @@ def _image_csr(
     vertex_images: Mapping[int, Collection[int]],
     targets: Collection[int] | None = None,
 ) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.int32]]:
-    """CSR offsets and labels of the images of ``vertices``, restricted to ``targets`` if given."""
+    """CSR offsets and labels of the images of ``vertices``, restricted to ``targets`` if given.
 
-    images: list[list[int]] = []
-    for vertex in vertices:
+    Each distinct image object is sorted once: the exit vertices of a
+    component of ``P0`` share the component as their image, and its row is
+    repeated for each of them.
+    """
+
+    positions: dict[int, int] = {}
+    # The distinct images in order of first use; holding them keeps their ids unique.
+    images: list[Collection[int]] = []
+    image_of_row = np.empty(len(vertices), dtype=np.int64)
+    for row, vertex in enumerate(vertices):
         if vertex not in vertex_images:
             raise ValueError(f"the vertex {vertex} of the complex has no image")
-        image = {int(target) for target in vertex_images[vertex]}
-        if targets is not None:
-            image.intersection_update(targets)
-        images.append(sorted(image))
-    indptr = np.zeros(len(images) + 1, dtype=np.int64)
-    np.cumsum([len(image) for image in images], out=indptr[1:])
-    indices = np.fromiter(
-        itertools.chain.from_iterable(images), dtype=np.int64, count=int(indptr[-1])
+        image = vertex_images[vertex]
+        position = positions.get(id(image))
+        if position is None:
+            position = positions[id(image)] = len(images)
+            images.append(image)
+        image_of_row[row] = position
+    offsets, labels = _sorted_images(images, targets)
+    if len(images) == len(vertices):
+        # Every vertex has its own image, so the rows are those of the images.
+        return offsets, labels
+    indptr = np.zeros(len(vertices) + 1, dtype=np.int64)
+    np.cumsum(np.diff(offsets)[image_of_row], out=indptr[1:])
+    starts = offsets[image_of_row].tolist()
+    ends = offsets[image_of_row + 1].tolist()
+    return indptr, np.concatenate([labels[start:end] for start, end in zip(starts, ends)])
+
+
+def _sorted_images(
+    images: Sequence[Collection[int]], targets: Collection[int] | None
+) -> tuple[npt.NDArray[np.int64], npt.NDArray[np.int32]]:
+    """CSR offsets and ``int32`` labels of the sorted distinct elements of each image.
+
+    The images are restricted to ``targets`` if given.
+    """
+
+    lengths = np.fromiter(map(len, images), dtype=np.int64, count=len(images))
+    values = np.fromiter(
+        itertools.chain.from_iterable(images), dtype=np.int64, count=int(lengths.sum())
     )
-    _require_int32(indices, "the vertex images")
-    return indptr, indices.astype(np.int32)
+    owners = np.repeat(np.arange(len(images), dtype=np.int64), lengths)
+    if targets is not None:
+        keep = np.isin(values, np.fromiter(targets, dtype=np.int64, count=len(targets)))
+        values, owners = values[keep], owners[keep]
+    _require_int32(values, "the vertex images")
+    # One key per element, ordered by image and then by label; it fits in
+    # int64, since the labels fit in int32 and there are fewer than 2**31
+    # images.
+    low = int(values.min()) if values.size else 0
+    span = int(values.max()) - low + 1 if values.size else 1
+    keys = owners * span + (values - low)
+    del values, owners
+    keys.sort()
+    first = np.ones(keys.size, dtype=bool)
+    np.not_equal(keys[1:], keys[:-1], out=first[1:])
+    owners, labels = np.divmod(keys[first], span)
+    offsets = np.zeros(len(images) + 1, dtype=np.int64)
+    np.cumsum(np.bincount(owners, minlength=len(images)), out=offsets[1:])
+    return offsets, (labels + low).astype(np.int32)
 
 
 def exit_mask(complex_: FiniteCellComplex, exit_vertices: Collection[int]) -> npt.NDArray[np.uint8]:
