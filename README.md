@@ -24,8 +24,8 @@ The Conley indices use a fork of CMGDB, with prebuilt wheels for Linux x86_64
 and macOS arm64 (Python 3.12 and 3.13):
 
 ```bash
-python -m pip install "cmgdb==1.3.3+fork.5" \
-  --find-links https://github.com/bernardorivas/CMGDB/releases/expanded_assets/v1.3.3%2Bfork.5
+python -m pip install "cmgdb==1.3.3+fork.6" \
+  --find-links https://github.com/bernardorivas/CMGDB/releases/expanded_assets/v1.3.3%2Bfork.6
 ```
 
 On other platforms, build it from source following the fork's instructions.
