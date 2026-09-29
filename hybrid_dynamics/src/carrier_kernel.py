@@ -66,14 +66,17 @@ import numpy as np
 import numpy.typing as npt
 
 from . import atlas_conley
-from .atlas_conley import AtlasNerveSimplex, AtlasRelativeIndexPair2D, _relation_vertex_images
+from .atlas_conley import (
+    AtlasNerveSimplex,
+    AtlasRelativeIndexPair2D,
+    _relation_vertex_images,
+)
 from .suspension_complex import (
     SHIFT_CLASS_FUNCTION,
     CMGDBRelativeHomologyPayload,
     FiniteCellComplex,
     cmgdb_shift_class_function,
 )
-
 
 #: The native function of the CMGDB fork.
 KERNEL_FUNCTION = "ComputeCarrierChainMap"
@@ -809,9 +812,9 @@ def native_subcomplex_chain_entries(
 
 __all__ = [
     "CONLEY_BACKENDS",
-    "CarrierKernelArrays",
     "KERNEL_FAILURES",
     "KERNEL_FUNCTION",
+    "CarrierKernelArrays",
     "KernelChainMap",
     "carrier_kernel_arrays",
     "cmgdb_provenance",

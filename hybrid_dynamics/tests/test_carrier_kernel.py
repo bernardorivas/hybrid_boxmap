@@ -24,6 +24,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 from scipy import sparse
+from test_suspension_grid import (
+    _repelling_cylinder_problem,
+    _repelling_orbit_problem,
+    _saddle_problem,
+    _translation_problem,
+)
 
 from hybrid_dynamics import (
     AffineBoundaryEmbedding2D,
@@ -70,12 +76,6 @@ from hybrid_dynamics.src.suspension_grid_conley import (
     compute_suspension_grid_conley_indices,
 )
 from hybrid_dynamics.src.suspension_grid_relation import SuspensionGridRelation
-from test_suspension_grid import (
-    _repelling_cylinder_problem,
-    _repelling_orbit_problem,
-    _saddle_problem,
-    _translation_problem,
-)
 
 CMGDB = pytest.importorskip("CMGDB")
 
