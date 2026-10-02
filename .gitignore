@@ -177,3 +177,6 @@ CLAUDE.md
 
 # PNG copies of the paper figures; demo/replot_paper.py regenerates them
 figures/paper/*.png
+# Curated coarse examples used directly by the paper notebooks.
+!figures/paper/paper-bouncing-ball-tau050-level4-base256-corners-gap-refined*.png
+!figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined*.png

@@ -1,0 +1,2373 @@
+{
+  "a_n": 0.001953125,
+  "attractor_lattice": {
+    "blocked_nodes": [],
+    "covers": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ]
+    ],
+    "element_count": 3,
+    "elements": [
+      {
+        "element": 0,
+        "join_irreducible": false,
+        "label": "0",
+        "maximal": [],
+        "morse_nodes": []
+      },
+      {
+        "element": 1,
+        "join_irreducible": true,
+        "label": "\u2193M(0)",
+        "maximal": [
+          0
+        ],
+        "morse_nodes": [
+          0
+        ]
+      },
+      {
+        "element": 2,
+        "join_irreducible": true,
+        "label": "\u2193M(12)",
+        "maximal": [
+          12
+        ],
+        "morse_nodes": [
+          0,
+          12
+        ]
+      }
+    ],
+    "files": [
+      "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-attractor-lattice.pdf",
+      "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-attractor-lattice.png"
+    ],
+    "join_irreducibles": [
+      {
+        "element": 1,
+        "label": "\u2193M(0)",
+        "morse_node": 0
+      },
+      {
+        "element": 2,
+        "label": "\u2193M(12)",
+        "morse_node": 12
+      }
+    ],
+    "morse_nodes": [
+      0,
+      12
+    ],
+    "morse_order": [
+      [
+        12,
+        0
+      ]
+    ],
+    "rule": "Hasse diagram of the lattice of down-sets, ordered by inclusion, of the Morse order restricted to the Morse nodes of the nontrivial variant (a nontrivial label, or no label): reachability in the full Morse graph, transitively reduced; by Birkhoff's representation theorem its join-irreducible elements are the principal down-sets, one for each of these nodes, drawn in the color of the node and labeled \u2193M(i) (with a dashed outline when M(i) has no label); every other element is white and labeled by the join of the \u2193M(i) for the nodes i maximal in it, and the bottom element, the empty down-set, is 0"
+  },
+  "base_cells_per_axis": 128,
+  "cmgdb": {
+    "conley_backend": "native",
+    "shift_class_function": "ComputeRelativeShiftClass",
+    "version": "1.3.3+fork.6"
+  },
+  "code": {
+    "commit": "85e8b3d6a6af61e863b76b0dd42c9b98e62c8cdc",
+    "dirty": false
+  },
+  "conley": [
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "index map (exit components)",
+      "morse_node": 0,
+      "nerve_cell_counts": [
+        27566,
+        108151,
+        107379,
+        26794
+      ],
+      "pair_atoms": {
+        "A": 0,
+        "S": 17676,
+        "X": 17676
+      },
+      "pair_pieces": {
+        "A": 0,
+        "X": 27566
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 11.613985040981788,
+      "shift_class": [
+        "x-1",
+        "x-1",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 1,
+      "nerve_cell_counts": [
+        19,
+        52,
+        44,
+        10
+      ],
+      "pair_atoms": {
+        "A": 18,
+        "S": 1,
+        "X": 19
+      },
+      "pair_pieces": {
+        "A": 18,
+        "X": 19
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0024214580189436674,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 2,
+      "nerve_cell_counts": [
+        208,
+        642,
+        582,
+        142
+      ],
+      "pair_atoms": {
+        "A": 139,
+        "S": 19,
+        "X": 158
+      },
+      "pair_pieces": {
+        "A": 184,
+        "X": 208
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02776112500578165,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 3,
+      "nerve_cell_counts": [
+        207,
+        634,
+        572,
+        139
+      ],
+      "pair_atoms": {
+        "A": 143,
+        "S": 16,
+        "X": 159
+      },
+      "pair_pieces": {
+        "A": 181,
+        "X": 207
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.02782829198986292,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 4,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.002160957985324785,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 5,
+      "nerve_cell_counts": [
+        200,
+        607,
+        546,
+        133
+      ],
+      "pair_atoms": {
+        "A": 144,
+        "S": 10,
+        "X": 154
+      },
+      "pair_pieces": {
+        "A": 188,
+        "X": 200
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0484182910004165,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 6,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0020770829869434237,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 7,
+      "nerve_cell_counts": [
+        22,
+        62,
+        54,
+        13
+      ],
+      "pair_atoms": {
+        "A": 21,
+        "S": 1,
+        "X": 22
+      },
+      "pair_pieces": {
+        "A": 21,
+        "X": 22
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0025554999883752316,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 8,
+      "nerve_cell_counts": [
+        21,
+        59,
+        51,
+        12
+      ],
+      "pair_atoms": {
+        "A": 20,
+        "S": 1,
+        "X": 21
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 21
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0023510839964728802,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 9,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0021183750068303198,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 10,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0022785420005675405,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 11,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0021065420005470514,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        1,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "index map (exit components)",
+      "morse_node": 12,
+      "nerve_cell_counts": [
+        164,
+        572,
+        539,
+        130
+      ],
+      "pair_atoms": {
+        "A": 92,
+        "S": 72,
+        "X": 164
+      },
+      "pair_pieces": {
+        "A": 92,
+        "X": 164
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0699020829924848,
+      "shift_class": [
+        "0",
+        "x-1",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 13,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.00217424999573268,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 14,
+      "nerve_cell_counts": [
+        24,
+        69,
+        60,
+        14
+      ],
+      "pair_atoms": {
+        "A": 23,
+        "S": 1,
+        "X": 24
+      },
+      "pair_pieces": {
+        "A": 23,
+        "X": 24
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0029824590019416064,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 15,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.002187584002967924,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 16,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0019152080058120191,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 17,
+      "nerve_cell_counts": [
+        21,
+        59,
+        51,
+        12
+      ],
+      "pair_atoms": {
+        "A": 20,
+        "S": 1,
+        "X": 21
+      },
+      "pair_pieces": {
+        "A": 20,
+        "X": 21
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0024482090084347874,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 18,
+      "nerve_cell_counts": [
+        18,
+        49,
+        42,
+        10
+      ],
+      "pair_atoms": {
+        "A": 17,
+        "S": 1,
+        "X": 18
+      },
+      "pair_pieces": {
+        "A": 17,
+        "X": 18
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0019032910058740526,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    },
+    {
+      "blocker": "",
+      "coefficient_field": 5,
+      "computed": true,
+      "continuous_system_conley_index_certified": false,
+      "excision": {},
+      "exit_components_blocker": "",
+      "homology_computed": true,
+      "homology_dimensions": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "index_map": "auto",
+      "index_map_blocker": "",
+      "label_source": "zero relative homology",
+      "morse_node": 19,
+      "nerve_cell_counts": [
+        20,
+        55,
+        47,
+        11
+      ],
+      "pair_atoms": {
+        "A": 19,
+        "S": 1,
+        "X": 20
+      },
+      "pair_pieces": {
+        "A": 19,
+        "X": 20
+      },
+      "result_scope": "finite_reset_quotient_relation",
+      "seconds": 0.0020845839753746986,
+      "shift_class": [
+        "0",
+        "0",
+        "0",
+        "0"
+      ]
+    }
+  ],
+  "conley_labels_in_figure": {
+    "0": [
+      "x-1",
+      "x-1",
+      "0",
+      "0"
+    ],
+    "1": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "10": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "11": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "12": [
+      "0",
+      "x-1",
+      "0",
+      "0"
+    ],
+    "13": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "14": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "15": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "16": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "17": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "18": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "19": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "2": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "3": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "4": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "5": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "6": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "7": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "8": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ],
+    "9": [
+      "0",
+      "0",
+      "0",
+      "0"
+    ]
+  },
+  "conley_options": {
+    "excise": false,
+    "index_map": "auto",
+    "index_pair": "image",
+    "index_workers": 4,
+    "max_pieces": null
+  },
+  "construction": "Xi_n generated by K_j(mu) and Q_j(mu,k) for j <= n (def:suspension-grid, Xi_n = Xi_{n-1} ^ Xi_n(X_n)); elementary pieces with generator signatures",
+  "continuous_system_conley_index_certified": false,
+  "discarded_exits": {
+    "endpoints": 3852,
+    "source_atoms": 3283
+  },
+  "endpoint_probe": {
+    "base_cells_probed": 150,
+    "base_probe_lattice": "5x5 per cell",
+    "evaluation_failures": 0,
+    "guard_intervals_probed": 20,
+    "missed": 0,
+    "phase_probes_per_interval": 7,
+    "witnesses_in_window": 3318
+  },
+  "example": "rimless-wheel",
+  "figure_variants": {
+    "all": {
+      "blocked_nodes_shown": [],
+      "colors": {
+        "morse_node_colors": [
+          {
+            "color": "#1f77b4",
+            "morse_node": 0
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 1
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 2
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 3
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 4
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 5
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 6
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 7
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 8
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 9
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 10
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 11
+          },
+          {
+            "color": "#b3de69",
+            "morse_node": 12
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 13
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 14
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 15
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 16
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 17
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 18
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 19
+          }
+        ],
+        "palette": "CMGDB default",
+        "palette_colors": [
+          "#1f77b4",
+          "#e6550d",
+          "#31a354",
+          "#d62728",
+          "#9467bd",
+          "#8c564b",
+          "#e377c2",
+          "#7f7f7f",
+          "#bcbd22",
+          "#80b1d3",
+          "#ffffb3",
+          "#fccde5",
+          "#b3de69",
+          "#fdae6b",
+          "#6a3d9a",
+          "#c49c94",
+          "#fb8072",
+          "#dbdb8d",
+          "#bc80bd",
+          "#ffed6f",
+          "#637939",
+          "#c5b0d5",
+          "#636363",
+          "#c7c7c7",
+          "#8dd3c7",
+          "#b15928",
+          "#e8cb32",
+          "#9e9ac8",
+          "#74c476",
+          "#ff7f0e",
+          "#9edae5",
+          "#90d743",
+          "#e7969c",
+          "#17becf",
+          "#7b4173",
+          "#8ca252",
+          "#ad494a",
+          "#8c6d31",
+          "#a55194",
+          "#00cc49"
+        ],
+        "palette_cycled": false,
+        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; Morse node i with a nontrivial label, or without a label, takes palette color i as in CMGDB (the next color that is not gray, when color i is gray), so a node has the same color in every figure and panel of the run",
+        "trivial_index_color": "#BBBBBB"
+      },
+      "files": [
+        "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined.pdf",
+        "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined.png"
+      ],
+      "hidden_nodes": [],
+      "index_degrees": {
+        "degrees_shown": [
+          0,
+          1,
+          2
+        ],
+        "morse_nodes_with_every_degree": [],
+        "rule": "the Morse graph shows the index label (shift class) of a node, and the homology dimensions of a node without a label, in degrees 0, 1, 2: the suspension of a planar window is 2-dimensional, so the entries in degrees 3 and higher are zero; they are checked to be '0' (dimension 0) before they are dropped, and a node with an entry there that is not zero is drawn with every degree and listed under morse_nodes_with_every_degree; the conley records keep every degree"
+      },
+      "index_display": {
+        "morse_nodes_with_shift_class": [],
+        "rule": "each label lists, by degree, the dimension of the Conley index, that is, of the eventual image of the index map; it is shown only where the index map is the identity on its eventual image (every invariant factor is x-1), as Proposition prop:grid-conley-index predicts for an outer approximation; a node whose shift class has another invariant factor is drawn with its shift class and listed under morse_nodes_with_shift_class; the conley records keep the shift classes",
+        "shown": "dimensions of the Conley index by degree"
+      },
+      "order_shown": [
+        [
+          2,
+          0
+        ],
+        [
+          3,
+          0
+        ],
+        [
+          4,
+          1
+        ],
+        [
+          5,
+          3
+        ],
+        [
+          6,
+          4
+        ],
+        [
+          7,
+          2
+        ],
+        [
+          7,
+          5
+        ],
+        [
+          8,
+          2
+        ],
+        [
+          8,
+          5
+        ],
+        [
+          9,
+          7
+        ],
+        [
+          10,
+          8
+        ],
+        [
+          11,
+          9
+        ],
+        [
+          12,
+          6
+        ],
+        [
+          12,
+          10
+        ],
+        [
+          12,
+          11
+        ],
+        [
+          13,
+          12
+        ],
+        [
+          14,
+          12
+        ],
+        [
+          15,
+          13
+        ],
+        [
+          16,
+          14
+        ],
+        [
+          17,
+          15
+        ],
+        [
+          18,
+          16
+        ],
+        [
+          19,
+          18
+        ]
+      ],
+      "panel_files": {
+        "base": [
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-base.pdf",
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-base.png"
+        ],
+        "graph": [
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-graph.pdf",
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-graph.png"
+        ],
+        "zoom-A": [
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-zoom-A.pdf",
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-zoom-A.png"
+        ],
+        "zoom-B": [
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-zoom-B.pdf",
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-zoom-B.png"
+        ]
+      },
+      "rule": "every Morse node",
+      "shown_nodes": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19
+      ],
+      "variant": "all",
+      "zooms": [
+        {
+          "chart": "base",
+          "label": "A",
+          "morse_nodes": [
+            1,
+            4,
+            6,
+            13,
+            15,
+            17
+          ],
+          "projection": [
+            0,
+            1
+          ],
+          "x_limits": [
+            -0.06875,
+            -0.0062500000000000056
+          ],
+          "y_limits": [
+            -0.054687499999999986,
+            0.06249999999999997
+          ]
+        },
+        {
+          "chart": "base",
+          "label": "B",
+          "morse_nodes": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            14,
+            16,
+            18,
+            19
+          ],
+          "projection": [
+            0,
+            1
+          ],
+          "x_limits": [
+            2.7755575615628914e-17,
+            0.06874999999999992
+          ],
+          "y_limits": [
+            -0.06640625,
+            0.0625
+          ]
+        }
+      ]
+    },
+    "nontrivial": {
+      "blocked_nodes_shown": [],
+      "colors": {
+        "morse_node_colors": [
+          {
+            "color": "#1f77b4",
+            "morse_node": 0
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 1
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 2
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 3
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 4
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 5
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 6
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 7
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 8
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 9
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 10
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 11
+          },
+          {
+            "color": "#b3de69",
+            "morse_node": 12
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 13
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 14
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 15
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 16
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 17
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 18
+          },
+          {
+            "color": "#BBBBBB",
+            "morse_node": 19
+          }
+        ],
+        "palette": "CMGDB default",
+        "palette_colors": [
+          "#1f77b4",
+          "#e6550d",
+          "#31a354",
+          "#d62728",
+          "#9467bd",
+          "#8c564b",
+          "#e377c2",
+          "#7f7f7f",
+          "#bcbd22",
+          "#80b1d3",
+          "#ffffb3",
+          "#fccde5",
+          "#b3de69",
+          "#fdae6b",
+          "#6a3d9a",
+          "#c49c94",
+          "#fb8072",
+          "#dbdb8d",
+          "#bc80bd",
+          "#ffed6f",
+          "#637939",
+          "#c5b0d5",
+          "#636363",
+          "#c7c7c7",
+          "#8dd3c7",
+          "#b15928",
+          "#e8cb32",
+          "#9e9ac8",
+          "#74c476",
+          "#ff7f0e",
+          "#9edae5",
+          "#90d743",
+          "#e7969c",
+          "#17becf",
+          "#7b4173",
+          "#8ca252",
+          "#ad494a",
+          "#8c6d31",
+          "#a55194",
+          "#00cc49"
+        ],
+        "palette_cycled": false,
+        "rule": "Morse nodes whose finite-relation index is computed and trivial are gray; Morse node i with a nontrivial label, or without a label, takes palette color i as in CMGDB (the next color that is not gray, when color i is gray), so a node has the same color in every figure and panel of the run",
+        "trivial_index_color": "#BBBBBB"
+      },
+      "files": [
+        "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial.pdf",
+        "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial.png"
+      ],
+      "hidden_nodes": [
+        {
+          "morse_node": 1,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 2,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 3,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 4,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 5,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 6,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 7,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 8,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 9,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 10,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 11,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 13,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 14,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 15,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 16,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 17,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 18,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        },
+        {
+          "morse_node": 19,
+          "reason": "finite-relation index computed and trivial: every homology dimension is zero over GF(5)"
+        }
+      ],
+      "index_degrees": {
+        "degrees_shown": [
+          0,
+          1,
+          2
+        ],
+        "morse_nodes_with_every_degree": [],
+        "rule": "the Morse graph shows the index label (shift class) of a node, and the homology dimensions of a node without a label, in degrees 0, 1, 2: the suspension of a planar window is 2-dimensional, so the entries in degrees 3 and higher are zero; they are checked to be '0' (dimension 0) before they are dropped, and a node with an entry there that is not zero is drawn with every degree and listed under morse_nodes_with_every_degree; the conley records keep every degree"
+      },
+      "index_display": {
+        "morse_nodes_with_shift_class": [],
+        "rule": "each label lists, by degree, the dimension of the Conley index, that is, of the eventual image of the index map; it is shown only where the index map is the identity on its eventual image (every invariant factor is x-1), as Proposition prop:grid-conley-index predicts for an outer approximation; a node whose shift class has another invariant factor is drawn with its shift class and listed under morse_nodes_with_shift_class; the conley records keep the shift classes",
+        "shown": "dimensions of the Conley index by degree"
+      },
+      "order_shown": [
+        [
+          12,
+          0
+        ]
+      ],
+      "panel_files": {
+        "base": [
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial-base.pdf",
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial-base.png"
+        ],
+        "graph": [
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial-graph.pdf",
+          "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial-graph.png"
+        ]
+      },
+      "rule": "Morse nodes whose finite-relation index is trivial are hidden; nodes without a label are kept, with a dashed outline and the dimensions of the relative homology of their pair (or 'blocked' when it is not known); the order shown is reachability in the full Morse graph, transitively reduced",
+      "shown_nodes": [
+        0,
+        12
+      ],
+      "variant": "nontrivial",
+      "zooms": []
+    }
+  },
+  "figures": [
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined.png",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-base.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-base.png",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-zoom-A.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-zoom-A.png",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-zoom-B.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-zoom-B.png",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-graph.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-graph.png",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial.png",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial-base.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial-base.png",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial-graph.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-nontrivial-graph.png",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-attractor-lattice.pdf",
+    "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined-attractor-lattice.png"
+  ],
+  "figures_replotted": {
+    "code": {
+      "commit": "85e8b3d6a6af61e863b76b0dd42c9b98e62c8cdc",
+      "dirty": true
+    },
+    "command_line": [
+      "figures/paper/paper-bouncing-ball-tau050-level4-base256-corners-gap-refined.json",
+      "figures/paper/paper-rimless-wheel-tau050-level7-corners-gap-refined.json"
+    ],
+    "script": "demo/replot_paper.py"
+  },
+  "grid": {
+    "a_n": 0.001953125,
+    "atoms": 60428,
+    "atoms_in_d_image": 16384,
+    "atoms_without_base_cell": 44044,
+    "base_cell_widths": [
+      0.00625,
+      0.01171875
+    ],
+    "base_cells_per_axis": 128,
+    "base_pieces": 16384,
+    "generators": 80317,
+    "guard_curve_straight": true,
+    "guard_intervals": 146,
+    "handle_pieces": 74752,
+    "level": 7,
+    "max_pieces_per_atom": 4,
+    "phase_intervals": 512,
+    "pieces": 91136,
+    "reset_curve_straight": true
+  },
+  "grid_check": {
+    "atoms_nonempty": true,
+    "d_base_preimage_exact": true,
+    "d_contains_interior": true,
+    "d_injective": true,
+    "passed": true,
+    "pieces_cover_window": true,
+    "pieces_disjoint_interiors": true
+  },
+  "image_connectivity": {
+    "atoms": 60428,
+    "disconnected_padded_images": 0,
+    "disconnected_sampled_images": 0
+  },
+  "image_rule": {
+    "command_line": [
+      "rimless-wheel",
+      "--tau",
+      "rimless-wheel=0.5",
+      "--level",
+      "rimless-wheel=7",
+      "--level-offset",
+      "rimless-wheel=0",
+      "--gap-refinement-depth",
+      "14",
+      "--workers",
+      "12",
+      "--index-workers",
+      "4",
+      "--index-map",
+      "auto",
+      "--output-dir",
+      "/Users/bdoprad/Work/Projects/computational-hybrid/output/coarse-2026-10-02/rimless-wheel-base-sweep-base128-phase512"
+    ],
+    "default_rule": false,
+    "description": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding; gap refinement depth 14",
+    "eval_mode": "corners",
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "gap_refinement_depth": 14,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "sample_depth": null,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null
+  },
+  "integrator": "batched RK45 (batched_suspension_flow) with the step sequence of solve_ivp; handle samples by SuspensionFlow paths",
+  "level": 7,
+  "level_offset": 0,
+  "morse_graph": {
+    "edges": [
+      [
+        2,
+        0
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        6,
+        4
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        10,
+        8
+      ],
+      [
+        11,
+        9
+      ],
+      [
+        12,
+        6
+      ],
+      [
+        12,
+        10
+      ],
+      [
+        12,
+        11
+      ],
+      [
+        13,
+        12
+      ],
+      [
+        14,
+        12
+      ],
+      [
+        15,
+        13
+      ],
+      [
+        16,
+        14
+      ],
+      [
+        17,
+        15
+      ],
+      [
+        18,
+        16
+      ],
+      [
+        19,
+        18
+      ]
+    ],
+    "morse_set_atoms": [
+      "76-99 204-227 332-355 460-483 588-610 715-738 843-866 971-994 1099-1122 1227-1250 1354-1378 1482-1506 1610-1634 1737-1762 1865-1889 1993-2017 2121-2145 2249-2273 2376-2401 2504-2529 2632-2657 2760-2785 2888-2913 3016-3041 3144-3169 3271-3297 3399-3425 3526-3553 3654-3681 3782-3809 3910-3937 4038-4065 4166-4193 4294-4321 4422-4449 4550-4577 4678-4705 4806-4833 4934-4962 5062-5090 5190-5218 5318-5346 5446-5474 5574-5602 5702-5730 5830-5859 5958-5987 6087-6115 6215-6243 6343-6371 6471-6499 6599-6627 6727-6755 6855-6883 6983-7012 7111-7140 7239-7268 7367-7396 7496-7524 7624-7652 7752-7780 7881-7909 8009-8037 8137-8165 8265-8293 8393-8422 8522-8550 8650-8678 8778-8805 8906-8934 9035-9062 9163-9190 9291-9318 9419-9447 9548-9575 9676-9703 9804-9831 9933-9960 10062-10088 10190-10216 10318-10344 10446-10473 10574-10601 10703-10729 10831-10857 10959-10985 11087-11114 11216-11242 11344-11370 11472-11499 11601-11627 11729-11755 11858-11884 11986-12013 12114-12141 12243-12269 12372-12397 12500-12525 12628-12654 12756-12782 12885-12910 13014-13039 13142-13168 13270-13296 13398-13424 13526-13552 13655-13680 13784-13809 13912-13937 14040-14065 14169-14193 14297-14322 14426-14451 14554-14579 14682-14707 14811-14835 14939-14964 15068-15092 15196-15220 15325-15348 15454-15477 15582-15606 15710-15734 15838-15862 15967-15990 16096-16119 16224-16248 16352-16376 42485-42492 42506-42508 42884-42906 42912-42935 42937-42981 42984-43019 43252-43255 43273-43350 43352-43529 43651-43662 43665-43669 43679-43687 43691-43698 43704-43715 43717-43738 43740-43744 43751-43770 43773-44048 44053-44085 44087-44112 44118-44144 44147-56352 56375-56377 56394-56399 56411-56420 56432-56438 56445-56455 56458-56852 56974-56981 56994-56996 57006-57025 57029-57038 57045-57075 57078-57362 57559-57561 57592-57596 57610-57630 57649-57655 57668-57677 57685-57698 57706-57716 57719-57873 58249-58260 58269-58275 58281-58317 58320-58383 58834-58840 58867-58875 58885-58893",
+      "3241",
+      "2887 6086 6214 9932 15067 42451-42459 43218-43222",
+      "3270 3398 6598 6726 10573 15837 41975-41981 42741-42743",
+      "3369",
+      "842 4293 4421 7880 8008 12242 42827-42828 43594-43595",
+      "3497",
+      "4780",
+      "5035",
+      "4652",
+      "4907",
+      "4524",
+      "3114-3115 3242-3243 3370-3371 3498-3500 3625-3629 3752-3758 3879-3886 4007-4014 4134-4141 4263-4269 4391-4396 4520-4523 4649-4651 4777-4779 4905-4906 5033-5034",
+      "3372",
+      "4648",
+      "3244",
+      "4776",
+      "3116",
+      "4904",
+      "5032"
+    ],
+    "morse_set_atoms_encoding": "space-separated nonnegative integers in increasing order; 'a-b' is the closed range a..b",
+    "nodes": [
+      {
+        "atoms": 17676,
+        "base_readout_bounds": {
+          "lower": [
+            -0.2,
+            0.3203125
+          ],
+          "upper": [
+            0.6,
+            0.91796875
+          ]
+        },
+        "base_readout_cells": 3456,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 512,
+        "handle_pieces": 24110,
+        "index": 0,
+        "pieces": 27566
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.04375000000000001,
+            -0.01953125
+          ],
+          "upper": [
+            -0.03750000000000001,
+            -0.0078125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 1,
+        "pieces": 1
+      },
+      {
+        "atoms": 19,
+        "base_readout_bounds": {
+          "lower": [
+            -0.0625,
+            0.3203125
+          ],
+          "upper": [
+            0.5375,
+            0.578125
+          ]
+        },
+        "base_readout_cells": 5,
+        "components_in_suspension": 6,
+        "handle_phase_intervals_met": 14,
+        "handle_pieces": 19,
+        "index": 2,
+        "pieces": 24
+      },
+      {
+        "atoms": 16,
+        "base_readout_bounds": {
+          "lower": [
+            -0.04375000000000001,
+            0.3203125
+          ],
+          "upper": [
+            0.5750000000000001,
+            0.6015625
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 6,
+        "handle_phase_intervals_met": 10,
+        "handle_pieces": 20,
+        "index": 3,
+        "pieces": 26
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.037500000000000006,
+            -0.01953125
+          ],
+          "upper": [
+            -0.03125000000000001,
+            -0.0078125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 4,
+        "pieces": 1
+      },
+      {
+        "atoms": 10,
+        "base_readout_bounds": {
+          "lower": [
+            -0.1625,
+            0.30859375
+          ],
+          "upper": [
+            0.39999999999999997,
+            0.47265625
+          ]
+        },
+        "base_readout_cells": 6,
+        "components_in_suspension": 6,
+        "handle_phase_intervals_met": 4,
+        "handle_pieces": 6,
+        "index": 5,
+        "pieces": 12
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.03125,
+            -0.01953125
+          ],
+          "upper": [
+            -0.025,
+            -0.0078125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 6,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.03125,
+            0.015625
+          ],
+          "upper": [
+            0.0375,
+            0.02734375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 7,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.04375000000000001,
+            0.00390625
+          ],
+          "upper": [
+            0.05000000000000001,
+            0.015625
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 8,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.024999999999999994,
+            0.015625
+          ],
+          "upper": [
+            0.031249999999999993,
+            0.02734375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 9,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.037500000000000006,
+            0.00390625
+          ],
+          "upper": [
+            0.043750000000000004,
+            0.015625
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 10,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.01874999999999999,
+            0.015625
+          ],
+          "upper": [
+            0.024999999999999988,
+            0.02734375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 11,
+        "pieces": 1
+      },
+      {
+        "atoms": 72,
+        "base_readout_bounds": {
+          "lower": [
+            -0.04999999999999999,
+            -0.0546875
+          ],
+          "upper": [
+            0.05000000000000001,
+            0.05078125
+          ]
+        },
+        "base_readout_cells": 72,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 12,
+        "pieces": 72
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.037500000000000006,
+            0.015625
+          ],
+          "upper": [
+            -0.03125000000000001,
+            0.02734375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 13,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.024999999999999994,
+            -0.03125
+          ],
+          "upper": [
+            0.031249999999999993,
+            -0.01953125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 14,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.04375000000000001,
+            0.015625
+          ],
+          "upper": [
+            -0.03750000000000001,
+            0.02734375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 15,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.03125,
+            -0.03125
+          ],
+          "upper": [
+            0.0375,
+            -0.01953125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 16,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            -0.04999999999999999,
+            0.015625
+          ],
+          "upper": [
+            -0.04374999999999999,
+            0.02734375
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 17,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.037500000000000006,
+            -0.03125
+          ],
+          "upper": [
+            0.043750000000000004,
+            -0.01953125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 18,
+        "pieces": 1
+      },
+      {
+        "atoms": 1,
+        "base_readout_bounds": {
+          "lower": [
+            0.04375000000000001,
+            -0.03125
+          ],
+          "upper": [
+            0.05000000000000001,
+            -0.01953125
+          ]
+        },
+        "base_readout_cells": 1,
+        "components_in_suspension": 1,
+        "handle_phase_intervals_met": 0,
+        "handle_pieces": 0,
+        "index": 19,
+        "pieces": 1
+      }
+    ],
+    "scc_count": 42640
+  },
+  "morse_graph_path_exit_policy": {
+    "identical_to_endpoint_policy": true
+  },
+  "parameters": {
+    "R": [
+      [
+        -0.2,
+        0.6
+      ],
+      [
+        -0.5,
+        1.0
+      ]
+    ],
+    "alpha": 0.4,
+    "atol": 1e-12,
+    "gamma": 0.2,
+    "max_step": 0.02,
+    "rtol": 1e-10,
+    "tau": 0.5
+  },
+  "phase_cells": 512,
+  "python": "3.14.8",
+  "reference_set_identification": null,
+  "relation": {
+    "atoms_with_empty_image": 2766,
+    "default_rule": false,
+    "discarded_exit_endpoints": 3852,
+    "edges": 1163189,
+    "eval_mode": "corners",
+    "evaluated_endpoints": 118824,
+    "evaluation_offsets": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "exit_policy": "endpoint",
+    "failed_endpoints": 0,
+    "failure_messages": [],
+    "gap_refinement_depth": 14,
+    "gap_refinement_samples": 26772,
+    "handle_paths": 147,
+    "image_rule": "samples: the 4 vertices of every elementary piece; image: closed atoms containing the endpoints; one-atom padding; gap refinement depth 14",
+    "left_and_returned_endpoints": 0,
+    "num_pts": null,
+    "offset_denominator": 1,
+    "padding": "one atom (closures meet in Sigma X)",
+    "padding_forced": false,
+    "padding_requested": true,
+    "sample_depth": null,
+    "sampled_edges": 340477,
+    "samples_per_axis": null,
+    "samples_per_piece": 4,
+    "seed": null,
+    "source_atoms_with_exit": 3283,
+    "source_atoms_with_failed_samples": 0,
+    "source_atoms_with_left_and_returned": 0,
+    "unique_base_samples": 16641,
+    "unique_handle_samples": 75411,
+    "unresolved_gap_segments": 0
+  },
+  "runtime_seconds": {
+    "conley": 12.855071375000989,
+    "endpoint_probe": 1.677639375004219,
+    "figure": 1.8855296249967068,
+    "grid": 0.05760891598765738,
+    "image_connectivity": 0.2993179170007352,
+    "morse_graph": 0.015834374993573874,
+    "relation": 1.5634801250125747,
+    "relation_detail": {
+      "seconds_base_endpoints": 0.9714134999958333,
+      "seconds_gap_refinement": 0.244634083006531,
+      "seconds_handle_endpoints": 0.14143141699605621,
+      "seconds_locate": 0.03841379200457595,
+      "seconds_total": 1.5629609589814208
+    }
+  },
+  "schema": "paper-suspension-grid-run-v3",
+  "tau": 0.5,
+  "variant_of": null,
+  "variant_overrides": {}
+}

@@ -32,12 +32,25 @@ On other platforms, build it from source following the fork's instructions.
 
 ## Notebooks
 
-| Example | |
-|---|---|
-| Bouncing ball | [Open in Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/bouncing_ball.ipynb) |
-| Rimless wheel | [Open in Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/rimless_wheel.ipynb) |
-| Spiking neuron | [Open in Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/spiking_neuron.ipynb) |
-| Impacting oscillator | [Open in Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/impacting_oscillator.ipynb) |
+| Example | Stored figures | Recompute from scratch |
+|---|---|---|
+| Bouncing ball | [Notebook](notebooks/bouncing_ball.ipynb) · [Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/bouncing_ball.ipynb) | [Notebook](notebooks/bouncing_ball_from_scratch.ipynb) · [Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/bouncing_ball_from_scratch.ipynb) |
+| Rimless wheel | [Notebook](notebooks/rimless_wheel.ipynb) · [Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/rimless_wheel.ipynb) | [Notebook](notebooks/rimless_wheel_from_scratch.ipynb) · [Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/rimless_wheel_from_scratch.ipynb) |
+| Spiking neuron | [Notebook](notebooks/spiking_neuron.ipynb) · [Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/spiking_neuron.ipynb) | [Notebook](notebooks/spiking_neuron_from_scratch.ipynb) · [Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/spiking_neuron_from_scratch.ipynb) |
+| Impacting oscillator | [Notebook](notebooks/impacting_oscillator.ipynb) · [Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/impacting_oscillator.ipynb) | [Notebook](notebooks/impacting_oscillator_from_scratch.ipynb) · [Colab](https://colab.research.google.com/github/bernardorivas/hybrid_boxmap/blob/main/notebooks/impacting_oscillator_from_scratch.ipynb) |
+
+The stored walkthroughs redraw existing records and retain the phase portraits.
+The ball uses $256^2$ base cells and 64 phase cells; the wheel compares $128^2$
+and $2048^2$ base cells, both with 512 phase cells. At level $n$ and offset $K$,
+there are $2^{n+K}$ base cells per axis and $2^{n+2}$ phase cells.
+
+The from-scratch notebooks install the package, CMGDB fork, and Graphviz in
+Colab, then recompute the grid, relation, Morse graph, and indices without
+loading stored results. Each run writes to a new directory under `output/`.
+Workers are bounded by CPU and available memory. The wheel starts at $128^2$;
+set `RUN_FINE = True` for a fresh $2048^2$ comparison. The fine wheel and the
+$2048^2$ oscillator need about 12 GB of memory; use a high-RAM runtime when
+needed. Colab links refer to the notebooks published on the `main` branch.
 
 ## Usage
 
@@ -55,8 +68,8 @@ from hybrid_dynamics.src.suspension_grid_conley import (
     compute_suspension_grid_conley_indices,
 )
 
-problem = paper_problem("bouncing-ball", tau=0.5, level_offset=3)
-grid = build_suspension_grid(problem.window, problem.guard, level=5)
+problem = paper_problem("bouncing-ball", tau=0.5, level_offset=4)
+grid = build_suspension_grid(problem.window, problem.guard, level=4)
 relation = compute_suspension_grid_relation(grid, problem, gap_refinement_depth=14)
 morse_graph = compute_suspension_morse_graph(relation)
 indices = compute_suspension_grid_conley_indices(
